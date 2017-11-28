@@ -20,7 +20,7 @@ void debug_write(const char *str) {
     }
 }
 
-void debugf(char *fmt, ...) {
+void debugf(const char *fmt, ...) {
     char buf[FK_DEBUG_LINE_MAX];
     va_list args;
     va_start(args, fmt );
@@ -30,7 +30,7 @@ void debugf(char *fmt, ...) {
     debug_write(buf);
 }
 
-void debugfln(char *fmt = "", ...) {
+void debugfln(const char *fmt = "", ...) {
     char buf[FK_DEBUG_LINE_MAX];
     va_list args;
     va_start(args, fmt );

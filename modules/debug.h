@@ -7,8 +7,8 @@
 typedef void (*debug_hook_fn_t)(const char *str, void *arg);
 
 void debug_add_hook(debug_hook_fn_t hook, void *arg);
-void debugf(char *fmt, ...);
-void debugfln(char *fmt, ...);
+void debugf(const char *fmt, ...);
+void debugfln(const char *fmt, ...);
 
 uint32_t fk_free_memory();
 

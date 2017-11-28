@@ -30,6 +30,8 @@ bool fk_module_start(fk_module_t *fkm, fk_pool_t *pool) {
     Wire.onRequest(module_request_callback);
 
     active_fkm = fkm;
+
+    return true;
 }
 
 void fk_module_tick(fk_module_t *fkm) {
@@ -225,6 +227,10 @@ static void module_reply(fk_serialized_message_t *incoming, fk_module_t *fkm) {
         }
         case fk_module_state_t::BUSY: {
             reply_message.readingStatus.state = fk_module_ReadingState_BUSY;
+            break;
+        }
+        default: {
+            reply_message.readingStatus.state = fk_module_ReadingState_IDLE;
             break;
         }
         }

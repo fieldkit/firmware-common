@@ -45,6 +45,9 @@ uint8_t fk_i2c_device_send_message(uint8_t address, const pb_field_t *fields, co
     uint8_t buffer[FK_MODULE_PROTOCOL_MAX_MESSAGE];
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     bool status = pb_encode_delimited(&stream, fields, src);
+    if (!status) {
+        return WIRE_SEND_OTHER;
+    }
     size_t size = stream.bytes_written;
     return fk_i2c_device_send_block(address, buffer, size);
 }
@@ -71,7 +74,7 @@ uint8_t fk_i2c_device_poll(uint8_t address, fk_module_WireMessageReply *reply, f
 uint8_t fk_i2c_device_receive(uint8_t address, const pb_field_t *fields, void *src, fk_pool_t *fkp) {
     size_t bytes = 0;
     uint8_t buffer[FK_MODULE_PROTOCOL_MAX_MESSAGE];
-    size_t received = Wire.requestFrom(address, FK_MODULE_PROTOCOL_MAX_MESSAGE);
+    Wire.requestFrom(address, FK_MODULE_PROTOCOL_MAX_MESSAGE);
     while (Wire.available()) {
         buffer[bytes++] = Wire.read();
         if (bytes == FK_MODULE_PROTOCOL_MAX_MESSAGE) {
