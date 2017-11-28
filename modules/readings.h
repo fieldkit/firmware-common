@@ -1,7 +1,7 @@
-#ifndef FK_READINGS_INCLUDED
-#define FK_READINGS_INCLUDED
+#ifndef FK_READINGS_H_INCLUDED
+#define FK_READINGS_H_INCLUDED
 
-#include "fk-general.h"
+#include "general.h"
 
 typedef struct fk_module_reading_t {
     uint8_t sensor;

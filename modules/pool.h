@@ -1,5 +1,5 @@
-#ifndef FK_POOL_INCLUDED
-#define FK_POOL_INCLUDED
+#ifndef FK_POOL_H_INCLUDED
+#define FK_POOL_H_INCLUDED
 
 #include <stdlib.h>
 #include <stdint.h>

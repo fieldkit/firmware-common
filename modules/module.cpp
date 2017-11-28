@@ -1,5 +1,5 @@
-#include "fk-general.h"
-#include "fk-module.h"
+#include "general.h"
+#include "module.h"
 
 static fk_module_t *active_fkm = nullptr;
 

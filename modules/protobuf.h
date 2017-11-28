@@ -3,7 +3,7 @@
 
 #include <fk-module-protocol.h>
 
-#include "fk-pool.h"
+#include "pool.h"
 #include "readings.h"
 
 typedef struct fk_pb_reader_t {

@@ -1,5 +1,5 @@
-#ifndef FK_DEBUG_INCLUDED
-#define FK_DEBUG_INCLUDED
+#ifndef FK_DEBUG_H_INCLUDED
+#define FK_DEBUG_H_INCLUDED
 
 #include <stdlib.h>
 #include <stdint.h>
