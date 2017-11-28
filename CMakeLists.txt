@@ -5,3 +5,5 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../arduino-cmake-minimal/cmake/")
 
 include(ArduinoMinimal)
+
+add_subdirectory(test)

@@ -4,9 +4,9 @@ default: all
 
 $(BUILD):
 	mkdir -p $(BUILD)
-	cd $(BUILD) && cmake ../
 
 all: $(BUILD)
+	cd $(BUILD) && cmake ../
 	cd $(BUILD) && make
 
 clean:
