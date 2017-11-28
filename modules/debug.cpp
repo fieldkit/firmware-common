@@ -23,7 +23,7 @@ void debug_write(const char *str) {
 void debugf(const char *fmt, ...) {
     char buf[FK_DEBUG_LINE_MAX];
     va_list args;
-    va_start(args, fmt );
+    va_start(args, fmt);
     vsnprintf(buf, FK_DEBUG_LINE_MAX, fmt, args);
     va_end(args);
 
@@ -33,7 +33,7 @@ void debugf(const char *fmt, ...) {
 void debugfln(const char *fmt = "", ...) {
     char buf[FK_DEBUG_LINE_MAX];
     va_list args;
-    va_start(args, fmt );
+    va_start(args, fmt);
     size_t w = vsnprintf(buf, FK_DEBUG_LINE_MAX - 2, fmt, args);
     va_end(args);
 
