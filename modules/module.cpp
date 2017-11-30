@@ -25,13 +25,17 @@ bool fk_module_start(fk_module_t *fkm, fk_pool_t *pool) {
 
     APR_RING_INIT(&fkm->messages, fk_serialized_message_t, link);
 
+    active_fkm = fkm;
+
+    fk_module_resume(fkm);
+
+    return true;
+}
+
+void fk_module_resume(fk_module_t *fkm) {
     Wire.begin(fkm->address);
     Wire.onReceive(module_receive_callback);
     Wire.onRequest(module_request_callback);
-
-    active_fkm = fkm;
-
-    return true;
 }
 
 void fk_module_tick(fk_module_t *fkm) {

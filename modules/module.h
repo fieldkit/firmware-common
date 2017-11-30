@@ -46,6 +46,8 @@ struct fk_module_t {
 
 bool fk_module_start(fk_module_t *fkm, fk_pool_t *pool);
 
+void fk_module_resume(fk_module_t *fkm);
+
 void fk_module_tick(fk_module_t *fkm);
 
 void fk_module_done_reading(fk_module_t *fkm, fk_module_readings_t *readings);
