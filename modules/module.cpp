@@ -82,6 +82,9 @@ static void module_request_callback() {
         fk_module_WireMessageReply reply_message = fk_module_WireMessageReply_init_zero;
         reply_message.type = fk_module_ReplyType_REPLY_RETRY;
 
+#ifdef FK_I2C_VERBOSE
+        debugfln("i2c: sending retry");
+#endif
         uint8_t status = fk_i2c_device_send_message(0, fk_module_WireMessageReply_fields, &reply_message);
         if (status != WIRE_SEND_SUCCESS) {
             debugfln("fk: error %d", status);
@@ -109,6 +112,15 @@ static void module_receive_callback(int bytes) {
         for (size_t i = 0; i < size; ++i) {
             buffer[i] = Wire.read();
         }
+
+#ifdef FK_I2C_VERBOSE
+        debugfln("i2c: received %d", bytes);
+        debugf("i2c: ");
+        for (size_t i = 0; i < bytes; ++i) {
+            debugf("%x ", buffer[i]);
+        }
+        debugfln("");
+#endif
 
         fk_module_t *fkm = active_fkm;
         fkm->pending = fk_serialized_message_create(buffer, bytes, fkm->reply_pool);
@@ -253,7 +265,7 @@ static void module_reply(fk_serialized_message_t *incoming, fk_module_t *fkm) {
         break;
     }
     default: {
-        debugfln("fk: unknown query type");
+        debugfln("fk: unknown query type (%d)", wire_message.type);
         break;
     }
     }

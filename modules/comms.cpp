@@ -30,6 +30,14 @@ fk_serialized_message_t *fk_serialized_message_serialize(const pb_field_t *field
 }
 
 uint8_t fk_i2c_device_send_block(uint8_t address, const void *ptr, size_t size) {
+#ifdef FK_I2C_VERBOSE
+    debugfln("i2c: send %d", size);
+    debugf("i2c: ");
+    for (size_t i = 0; i < size; ++i) {
+        debugf("%x ", ((uint8_t *)ptr)[i]);
+    }
+    debugfln("");
+#endif
     if (address > 0) {
         Wire.beginTransmission(address);
         Wire.write((uint8_t *)ptr, size);
