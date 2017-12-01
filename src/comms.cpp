@@ -73,7 +73,7 @@ uint8_t fk_i2c_device_poll(uint8_t address, fk_module_WireMessageReply *reply, f
             return WIRE_SEND_SUCCESS;
         }
 
-        delay(200);
+        delay(100);
     }
 
     return WIRE_SEND_OTHER;

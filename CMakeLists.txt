@@ -6,4 +6,22 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../ardui
 
 include(ArduinoMinimal)
 
-add_subdirectory(test)
+# TODO: Make creating internal libraries easier?
+set(COMMON_SRCS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(COMMON_SOURCE_FILES
+  ${COMMON_SRCS_DIR}/debug.cpp
+  ${COMMON_SRCS_DIR}/i2c.cpp
+  ${COMMON_SRCS_DIR}/active_object.cpp
+  ${COMMON_SRCS_DIR}/utils.cpp
+  ${COMMON_SRCS_DIR}/protobuf.cpp
+  ${COMMON_SRCS_DIR}/module.cpp
+  ${COMMON_SRCS_DIR}/module_messages.cpp
+  ${COMMON_SRCS_DIR}/pool.cpp
+  ${COMMON_SRCS_DIR}/attached_devices.cpp
+  ${COMMON_SRCS_DIR}/two_wire_task.cpp
+)
+
+include_directories(${COMMON_SRCS_DIR})
+
+add_subdirectory(module)
+add_subdirectory(core)
