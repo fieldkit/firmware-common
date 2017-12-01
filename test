@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+
+A=~/devices/port2
+B=~/devices/port3
+
+pushd build
+sleep 1
+flasher --binary fk-module.bin --port $A
+sleep 1
+flasher --binary fk-core.bin --port $B
+popd
+
+echo
+echo
+echo
+
+sleep 1
+sudo -E "/bin/bash" -c "(~/tools/bin/flasher --port $A --tail --tail-inactivity 0) | sed \"s/^/module | /\"" &
+S=$!
+
+sleep 1
+sudo -E "/bin/bash" -c "(~/tools/bin/flasher --port $B --tail --tail-inactivity 0) | sed \"s/^/  core | /\"" &
+M=$!
+
+trap ctrl_c INT
+
+function ctrl_c() {
+    echo "Killed!"
+    sudo pkill flasher
+}
+
+wait $S
+wait $M
+
