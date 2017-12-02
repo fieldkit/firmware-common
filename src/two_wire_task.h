@@ -3,14 +3,15 @@
 
 #include "active_object.h"
 #include "module_messages.h"
+#include "message_buffer.h"
 #include "pool.h"
 
 namespace fk {
 
 class TwoWireTask : public Task {
 protected:
-    QueryMessage query;
-    ReplyMessage reply;
+    ModuleQueryMessage query;
+    ModuleReplyMessage reply;
 
 private:
     uint8_t address { 0 };

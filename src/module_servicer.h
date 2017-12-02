@@ -3,6 +3,7 @@
 
 #include "active_object.h"
 #include "module_info.h"
+#include "message_buffer.h"
 #include "module_messages.h"
 
 namespace fk {

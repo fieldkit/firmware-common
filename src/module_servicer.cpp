@@ -12,7 +12,7 @@ void ModuleServicer::read(size_t bytes) {
 }
 
 TaskEval &ModuleServicer::task() {
-    QueryMessage query(pool);
+    ModuleQueryMessage query(pool);
     auto status = incoming.read(query);
     incoming.clear();
     if (!status) {
@@ -26,7 +26,7 @@ TaskEval &ModuleServicer::task() {
     case fk_module_QueryType_QUERY_CAPABILITIES: {
         log("Module info");
 
-        ReplyMessage reply(pool);
+        ModuleReplyMessage reply(pool);
         reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES; reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
         reply.m().capabilities.type = fk_module_ModuleType_SENSOR;
         reply.m().capabilities.name.arg = (void *)info->name;
@@ -43,7 +43,7 @@ TaskEval &ModuleServicer::task() {
 
         SensorInfo &sensor  = info->sensors[index];
 
-        ReplyMessage reply(pool);
+        ModuleReplyMessage reply(pool);
         reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES;
         reply.m().sensorCapabilities.id = index;
         reply.m().sensorCapabilities.name.arg = (void *)sensor.name;
@@ -56,7 +56,7 @@ TaskEval &ModuleServicer::task() {
     case fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS: {
         log("Begin readings");
 
-        ReplyMessage reply(pool);
+        ModuleReplyMessage reply(pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
         reply.m().readingStatus.state = fk_module_ReadingState_BEGIN;
 
@@ -73,7 +73,7 @@ TaskEval &ModuleServicer::task() {
     case fk_module_QueryType_QUERY_READING_STATUS: {
         log("Reading status");
 
-        ReplyMessage reply(pool);
+        ModuleReplyMessage reply(pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
         reply.m().readingStatus.state = fk_module_ReadingState_IDLE;
 

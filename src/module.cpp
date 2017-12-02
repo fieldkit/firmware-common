@@ -36,7 +36,7 @@ void Module::receive(size_t bytes) {
 
 void Module::reply() {
     if (outgoing.empty()) {
-        ReplyMessage reply(&replyPool);
+        ModuleReplyMessage reply(&replyPool);
         reply.m().type = fk_module_ReplyType_REPLY_RETRY;
         outgoing.write(reply);
     }

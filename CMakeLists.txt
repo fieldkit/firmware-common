@@ -22,6 +22,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/attached_devices.cpp
   ${COMMON_SRCS_DIR}/two_wire_task.cpp
   ${COMMON_SRCS_DIR}/app_controller.cpp
+  ${COMMON_SRCS_DIR}/message_buffer.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})
