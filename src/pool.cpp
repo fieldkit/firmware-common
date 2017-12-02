@@ -57,7 +57,7 @@ void *Pool::malloc(size_t size) {
 }
 
 Pool::~Pool() {
-    ::free((void *)ptr);
+    ::free((void *)block);
 }
 
 }
