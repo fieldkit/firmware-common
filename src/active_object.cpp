@@ -23,12 +23,14 @@ void ActiveObject::tick() {
             log("%s done", curr.toString());
             tasks = tasks->nextTask;
             curr.nextTask = nullptr;
+            curr.done();
             done(curr);
         }
         else if (areSame(e, TaskEval::Error)) {
             log("%s error", curr.toString());
             tasks = tasks->nextTask;
             curr.nextTask = nullptr;
+            curr.error();
             error(curr);
         }
     }

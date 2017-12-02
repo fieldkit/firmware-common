@@ -10,8 +10,11 @@ TaskEval &TwoWireTask::task() {
         return TaskEval::Idle;
     }
 
+    MessageBuffer buffer;
+
     if (dieAt == 0) {
-        if (!query.send(address)) {
+        buffer.write(query);
+        if (!buffer.send(address)) {
             return TaskEval::Error;
         }
 
@@ -24,7 +27,10 @@ TaskEval &TwoWireTask::task() {
         return TaskEval::Error;
     }
 
-    if (!reply.receive(address)) {
+    if (!buffer.receive(address)) {
+        return TaskEval::Error;
+    }
+    if (!buffer.read(reply)) {
         return TaskEval::Error;
     }
 

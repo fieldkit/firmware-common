@@ -38,6 +38,12 @@ public:
     virtual void enqueued() {
     }
 
+    virtual void done() {
+    }
+
+    virtual void error() {
+    }
+
     virtual TaskEval& task() = 0;
 
 public:

@@ -60,6 +60,10 @@ public:
         return query.m().querySensorCapabilities.sensor;
     }
 
+    void done() override {
+        log("Sensor #%d: '%s'", reply.m().sensorCapabilities.id, reply.m().sensorCapabilities.name.arg);
+    }
+
 };
 
 }

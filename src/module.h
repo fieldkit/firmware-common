@@ -6,14 +6,28 @@
 
 namespace fk {
 
+struct SensorInfo {
+    uint8_t sensor;
+    const char *name;
+    const char *unitOfMeasure;
+};
+
+struct ModuleInfo {
+    uint8_t address;
+    size_t numberOfSensors;
+    const char *name;
+    SensorInfo *sensors;
+};
+
 class HandleIncoming : public Task {
 private:
+    ModuleInfo *info;
     MessageBuffer &outgoing;
     MessageBuffer &incoming;
     Pool *pool;
 
 public:
-    HandleIncoming(MessageBuffer &o, MessageBuffer &i, Pool &pool);
+    HandleIncoming(ModuleInfo *info, MessageBuffer &o, MessageBuffer &i, Pool &pool);
 
 public:
     void read(size_t bytes);
@@ -27,15 +41,23 @@ private:
     MessageBuffer outgoing;
     MessageBuffer incoming;
     HandleIncoming handleIncoming;
+    ModuleInfo *info;
 
 public:
     static Module *active;
 
 public:
-    Module();
-    void begin(uint8_t address);
+    Module(ModuleInfo &info);
+
+public:
+    void begin();
     void receive(size_t bytes);
     void reply();
+
+public:
+    virtual void beginReading();
+    virtual void readingDone();
+    virtual void describeSensor(size_t number);
 
 };
 

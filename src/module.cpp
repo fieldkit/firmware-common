@@ -3,24 +3,10 @@
 #include "module.h"
 #include "i2c.h"
 
-extern "C" {
-
-static void module_request_callback() {
-    fk::Module::active->reply();
-}
-
-static void module_receive_callback(int bytes) {
-    if (bytes > 0) {
-        fk::Module::active->receive((size_t)bytes);
-    }
-}
-
-}
-
 namespace fk {
 
-HandleIncoming::HandleIncoming(MessageBuffer &o, MessageBuffer &i, Pool &pool) :
-    Task("HandleIncoming"), outgoing(o), incoming(i), pool(&pool) {
+HandleIncoming::HandleIncoming(ModuleInfo *info, MessageBuffer &o, MessageBuffer &i, Pool &pool) :
+    Task("HandleIncoming"), info(info), outgoing(o), incoming(i), pool(&pool) {
 }
 
 void HandleIncoming::read(size_t bytes) {
@@ -48,8 +34,8 @@ TaskEval &HandleIncoming::task() {
         ReplyMessage reply(pool);
         reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES; reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
         reply.m().capabilities.type = fk_module_ModuleType_SENSOR;
-        reply.m().capabilities.name.arg = (void *)"NOAA-CTD";
-        reply.m().capabilities.numberOfSensors = 2;
+        reply.m().capabilities.name.arg = (void *)info->name;
+        reply.m().capabilities.numberOfSensors = info->numberOfSensors;
         outgoing.write(reply);
 
         break;
@@ -57,13 +43,15 @@ TaskEval &HandleIncoming::task() {
     case fk_module_QueryType_QUERY_SENSOR_CAPABILITIES: {
         auto index = query.m().querySensorCapabilities.sensor;
 
-        log("Sensor (%d)", index);
+        log("Sensor #%d: info", index);
+
+        SensorInfo &sensor  = info->sensors[index];
 
         ReplyMessage reply(pool);
         reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES;
         reply.m().sensorCapabilities.id = index;
-        reply.m().sensorCapabilities.name.arg = (void *)"Temperature";
-        reply.m().sensorCapabilities.unitOfMeasure.arg = (void *)"C";
+        reply.m().sensorCapabilities.name.arg = (void *)sensor.name;
+        reply.m().sensorCapabilities.unitOfMeasure.arg = (void *)sensor.unitOfMeasure;
         outgoing.write(reply);
 
         break;
@@ -77,11 +65,20 @@ TaskEval &HandleIncoming::task() {
     return TaskEval::Done;
 }
 
-Module::Module() : replyPool("REPLY", 128), handleIncoming { outgoing, incoming, replyPool } {
+static void module_request_callback() {
+    fk::Module::active->reply();
 }
 
-void Module::begin(uint8_t address) {
-    Wire.begin(address);
+static void module_receive_callback(int bytes) {
+    fk::Module::active->receive((size_t)bytes);
+}
+
+Module::Module(ModuleInfo &info) :
+    replyPool("REPLY", 128), handleIncoming { &info, outgoing, incoming, replyPool }, info(&info) {
+}
+
+void Module::begin() {
+    Wire.begin(info->address);
     Wire.onReceive(module_receive_callback);
     Wire.onRequest(module_request_callback);
 
@@ -89,8 +86,10 @@ void Module::begin(uint8_t address) {
 }
 
 void Module::receive(size_t bytes) {
-    handleIncoming.read(bytes);
-    push(handleIncoming);
+    if (bytes > 0) {
+        handleIncoming.read(bytes);
+        push(handleIncoming);
+    }
 }
 
 void Module::reply() {
@@ -109,6 +108,15 @@ void Module::reply() {
     // message before trying to receive one.
     outgoing.clear();
     replyPool.clear();
+}
+
+void Module::beginReading() {
+}
+
+void Module::readingDone() {
+}
+
+void Module::describeSensor(size_t number) {
 }
 
 Module *Module::active { nullptr };

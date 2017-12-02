@@ -29,16 +29,17 @@ public:
     QueryMessage(Pool *pool) : MessageWrapper(fk_module_WireMessageQuery_fields), pool(pool) {
     }
 
+    fk_module_WireMessageQuery *forDecode() {
+        return &message;
+    }
+
+    fk_module_WireMessageQuery *forEncode() {
+        return &message;
+    }
+
     fk_module_WireMessageQuery &m() {
         return message;
     }
-
-    operator fk_module_WireMessageQuery&() {
-        return message;
-    }
-
-    bool send(uint8_t address);
-    size_t write(uint8_t *buffer, size_t size);
 
 };
 
@@ -51,16 +52,29 @@ public:
     ReplyMessage(Pool *pool) : MessageWrapper(fk_module_WireMessageReply_fields), pool(pool) {
     }
 
+    fk_module_WireMessageReply *forDecode() {
+        message.error.message.funcs.decode = pb_decode_string;
+        message.error.message.arg = pool;
+        message.capabilities.name.funcs.decode = pb_decode_string;
+        message.capabilities.name.arg = pool;
+        message.sensorCapabilities.name.funcs.decode = pb_decode_string;
+        message.sensorCapabilities.name.arg = pool;
+        message.sensorCapabilities.unitOfMeasure.funcs.decode = pb_decode_string;
+        message.sensorCapabilities.unitOfMeasure.arg = pool;
+        return &message;
+    }
+
+    fk_module_WireMessageReply *forEncode() {
+        message.error.message.funcs.encode = pb_encode_string;
+        message.capabilities.name.funcs.encode = pb_encode_string;
+        message.sensorCapabilities.name.funcs.encode = pb_encode_string;
+        message.sensorCapabilities.unitOfMeasure.funcs.encode = pb_encode_string;
+        return &message;
+    }
+
     fk_module_WireMessageReply &m() {
         return message;
     }
-
-    operator fk_module_WireMessageReply&() {
-        return message;
-    }
-
-    bool receive(uint8_t address);
-    size_t write(uint8_t *buffer, size_t size);
 
 };
 
@@ -91,9 +105,16 @@ public:
     }
 
     bool write(QueryMessage &message);
+
     bool write(ReplyMessage &message);
+
     bool read(QueryMessage &message);
+
     bool read(ReplyMessage &message);
+
+    bool send(uint8_t address);
+
+    bool receive(uint8_t address);
 
 private:
     bool write(const pb_field_t *fields, void *src);
