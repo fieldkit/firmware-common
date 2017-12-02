@@ -2,6 +2,7 @@
 #define FK_MESSAGE_BUFFER_H_INCLUDED
 
 #include <fk-module-protocol.h>
+#include <fk-app-protocol.h>
 
 #include "module_messages.h"
 #include "app_messages.h"

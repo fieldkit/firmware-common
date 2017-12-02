@@ -3,6 +3,7 @@
 
 #include "active_object.h"
 #include "module_controller.h"
+#include "app_messages.h"
 
 namespace fk {
 
@@ -12,6 +13,9 @@ private:
 
 public:
     AppController(ModuleController *modules);
+
+public:
+    void handle(AppQueryMessage &query);
 
 };
 
