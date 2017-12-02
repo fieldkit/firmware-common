@@ -4,6 +4,20 @@
 #include "i2c.h"
 #include "debug.h"
 
+namespace fk {
+
+bool i2c_begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRequestHandler onRequest) {
+    Wire.begin(address);
+    Wire.onReceive(onReceive);
+    Wire.onRequest(onRequest);
+    return true;
+}
+
+bool i2c_begin(void){
+    Wire.begin();
+    return true;
+}
+
 bool i2c_device_send(uint8_t address, const void *ptr, size_t size) {
     if (address > 0) {
         Wire.beginTransmission(address);
@@ -39,4 +53,6 @@ size_t i2c_device_read(uint8_t *ptr, size_t size, size_t bytes) {
         ptr[i] = Wire.read();
     }
     return bytes;
+}
+
 }

@@ -24,9 +24,7 @@ void Module::begin() {
 }
 
 void Module::resume() {
-    Wire.begin(info->address);
-    Wire.onReceive(module_receive_callback);
-    Wire.onRequest(module_request_callback);
+    i2c_begin(info->address, module_receive_callback, module_request_callback);
 }
 
 void Module::receive(size_t bytes) {
