@@ -120,9 +120,6 @@ void Module::beginReading() {
 void Module::readingDone() {
 }
 
-void Module::describeSensor(size_t number) {
-}
-
 Module *Module::active { nullptr };
 
 }

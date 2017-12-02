@@ -58,7 +58,6 @@ public:
 public:
     virtual void beginReading();
     virtual void readingDone();
-    virtual void describeSensor(size_t number);
 
 };
 
