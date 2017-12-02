@@ -66,6 +66,44 @@ public:
 
 };
 
+class BeginTakeReading : public TwoWireTask {
+    static constexpr char Name[] = "BeginTakeReading";
+
+public:
+    BeginTakeReading(Pool *pool, uint8_t address) : TwoWireTask(Name, pool, address) {
+        query.m().type = fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS;
+    }
+
+public:
+    bool busy() {
+        return reply.m().readingStatus.state == fk_module_ReadingState_BUSY;
+    }
+
+    bool idle() {
+        return reply.m().readingStatus.state == fk_module_ReadingState_IDLE;
+    }
+
+};
+
+class QueryReadingStatus : public TwoWireTask {
+    static constexpr char Name[] = "QueryReadingStatus";
+
+public:
+    QueryReadingStatus(Pool *pool, uint8_t address) : TwoWireTask(Name, pool, address) {
+        query.m().type = fk_module_QueryType_QUERY_READING_STATUS;
+    }
+
+public:
+    bool busy() {
+        return reply.m().readingStatus.state == fk_module_ReadingState_BUSY;
+    }
+
+    bool idle() {
+        return reply.m().readingStatus.state == fk_module_ReadingState_IDLE;
+    }
+
+};
+
 }
 
 #endif

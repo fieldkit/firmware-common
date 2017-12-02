@@ -5,8 +5,8 @@
 
 namespace fk {
 
-HandleIncoming::HandleIncoming(ModuleInfo *info, MessageBuffer &o, MessageBuffer &i, Pool &pool) :
-    Task("HandleIncoming"), info(info), outgoing(o), incoming(i), pool(&pool) {
+HandleIncoming::HandleIncoming(ModuleInfo *info, ModuleCallbacks &callbacks, MessageBuffer &o, MessageBuffer &i, Pool &pool) :
+    Task("HandleIncoming"), info(info), callbacks(&callbacks), outgoing(o), incoming(i), pool(&pool) {
 }
 
 void HandleIncoming::read(size_t bytes) {
@@ -36,6 +36,7 @@ TaskEval &HandleIncoming::task() {
         reply.m().capabilities.type = fk_module_ModuleType_SENSOR;
         reply.m().capabilities.name.arg = (void *)info->name;
         reply.m().capabilities.numberOfSensors = info->numberOfSensors;
+
         outgoing.write(reply);
 
         break;
@@ -52,6 +53,51 @@ TaskEval &HandleIncoming::task() {
         reply.m().sensorCapabilities.id = index;
         reply.m().sensorCapabilities.name.arg = (void *)sensor.name;
         reply.m().sensorCapabilities.unitOfMeasure.arg = (void *)sensor.unitOfMeasure;
+
+        outgoing.write(reply);
+
+        break;
+    }
+    case fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS: {
+        log("Begin readings");
+
+        ReplyMessage reply(pool);
+        reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
+        reply.m().readingStatus.state = fk_module_ReadingState_BEGIN;
+
+        outgoing.write(reply);
+
+        for (size_t i = 0; i < info->numberOfSensors; ++i) {
+            info->readings[i].status = SensorReadingStatus::Busy;
+        }
+
+        callbacks->beginReading(info->readings);
+
+        break;
+    }
+    case fk_module_QueryType_QUERY_READING_STATUS: {
+        log("Reading status");
+
+        ReplyMessage reply(pool);
+        reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
+        reply.m().readingStatus.state = fk_module_ReadingState_IDLE;
+
+        for (size_t i = 0; i < info->numberOfSensors; ++i) {
+            if (info->readings[i].status == SensorReadingStatus::Busy) {
+                if (reply.m().readingStatus.state != fk_module_ReadingState_DONE) {
+                    reply.m().readingStatus.state = fk_module_ReadingState_BUSY;
+                }
+            }
+            if (info->readings[i].status == SensorReadingStatus::Done) {
+                reply.m().readingStatus.state = fk_module_ReadingState_DONE;
+                reply.m().sensorReading.sensor = info->readings[i].sensor;
+                reply.m().sensorReading.time = info->readings[i].time;
+                reply.m().sensorReading.value = info->readings[i].value;
+                info->readings[i].status = SensorReadingStatus::Idle;
+                break;
+            }
+        }
+
         outgoing.write(reply);
 
         break;
@@ -74,7 +120,7 @@ static void module_receive_callback(int bytes) {
 }
 
 Module::Module(ModuleInfo &info) :
-    replyPool("REPLY", 128), handleIncoming { &info, outgoing, incoming, replyPool }, info(&info) {
+    replyPool("REPLY", 128), handleIncoming { &info, *this, outgoing, incoming, replyPool }, info(&info) {
 }
 
 void Module::begin() {
@@ -114,10 +160,10 @@ void Module::reply() {
     replyPool.clear();
 }
 
-void Module::beginReading() {
+void Module::beginReading(SensorReading *readings) {
 }
 
-void Module::readingDone() {
+void Module::readingDone(SensorReading *readings) {
 }
 
 Module *Module::active { nullptr };

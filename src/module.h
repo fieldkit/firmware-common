@@ -12,22 +12,44 @@ struct SensorInfo {
     const char *unitOfMeasure;
 };
 
+enum class SensorReadingStatus {
+    Idle,
+    Busy,
+    Done,
+};
+
+struct SensorReading {
+    uint8_t sensor;
+    uint32_t time;
+    float value;
+    SensorReadingStatus status;
+};
+
 struct ModuleInfo {
     uint8_t address;
     size_t numberOfSensors;
     const char *name;
     SensorInfo *sensors;
+    SensorReading *readings;
+};
+
+// TODO: Rename this
+class ModuleCallbacks {
+public:
+    virtual void beginReading(SensorReading *readings) = 0;
+
 };
 
 class HandleIncoming : public Task {
 private:
     ModuleInfo *info;
+    ModuleCallbacks *callbacks;
     MessageBuffer &outgoing;
     MessageBuffer &incoming;
     Pool *pool;
 
 public:
-    HandleIncoming(ModuleInfo *info, MessageBuffer &o, MessageBuffer &i, Pool &pool);
+    HandleIncoming(ModuleInfo *info, ModuleCallbacks &callbacks, MessageBuffer &o, MessageBuffer &i, Pool &pool);
 
 public:
     void read(size_t bytes);
@@ -35,7 +57,7 @@ public:
 
 };
 
-class Module : public ActiveObject {
+class Module : public ActiveObject, public ModuleCallbacks {
 private:
     Pool replyPool;
     MessageBuffer outgoing;
@@ -56,8 +78,8 @@ public:
     void reply();
 
 public:
-    virtual void beginReading();
-    virtual void readingDone();
+    virtual void beginReading(SensorReading *readings) override;
+    virtual void readingDone(SensorReading *readings);
 
 };
 

@@ -4,6 +4,8 @@ namespace fk {
 
 constexpr char QueryCapabilities::Name[];
 constexpr char QuerySensorCapabilities::Name[];
+constexpr char BeginTakeReading::Name[];
+constexpr char QueryReadingStatus::Name[];
 
 TaskEval &TwoWireTask::task() {
     if (checkAt > 0 && millis() < checkAt) {

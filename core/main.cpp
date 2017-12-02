@@ -9,6 +9,56 @@
 #include "pool.h"
 #include "attached_devices.h"
 
+namespace fk {
+
+class ModulePoller : public ActiveObject {
+private:
+    Delay oneSecond;
+    BeginTakeReading beginTakeReading;
+    QueryReadingStatus queryReadingStatus;
+
+public:
+    ModulePoller(uint8_t address, Pool *pool);
+
+public:
+    void done(Task &task) override;
+    void error(Task &task) override;
+
+};
+
+ModulePoller::ModulePoller(uint8_t address, Pool *pool) : oneSecond(1000), beginTakeReading(pool, address), queryReadingStatus(pool, address) {
+    push(oneSecond);
+    push(beginTakeReading);
+}
+
+void ModulePoller::done(Task &task) {
+    if (areSame(task, beginTakeReading)) {
+        if (!beginTakeReading.idle()) {
+            push(oneSecond);
+            push(queryReadingStatus);
+        }
+        else {
+            log("Have readings");
+        }
+    }
+
+    if (areSame(task, queryReadingStatus)) {
+        if (!queryReadingStatus.idle()) {
+            push(oneSecond);
+            push(queryReadingStatus);
+        }
+        else {
+            log("Have readings");
+        }
+    }
+}
+
+void ModulePoller::error(Task &task) {
+
+}
+
+}
+
 extern "C" {
 
 void setup() {
@@ -22,23 +72,37 @@ void setup() {
 
     Wire.begin();
 
-    uint8_t addresses[] { 7, 8, 9, 0 };
-    fk::Pool pool("ROOT", 128);
-    fk::AttachedDevices ad(addresses, 0, &pool);
-    ad.scan();
+    {
+        fk::Pool pool("ROOT", 128);
+        uint8_t addresses[] { 7, 8, 9, 0 };
+        fk::AttachedDevices ad(addresses, 0, &pool);
+        ad.scan();
 
-    while(true) {
-        ad.tick();
+        while (true) {
+            ad.tick();
 
-        if (ad.idle()) {
-            break;
+            if (ad.idle()) {
+                break;
+            }
         }
     }
 
     debugfpln("Core", "Idle");
 
-    while (true) {
+    {
+        fk::Pool pool("ROOT", 128);
+        fk::ModulePoller poller(8, &pool);
+
+        while (true) {
+            poller.tick();
+
+            if (poller.idle()) {
+                break;
+            }
+        }
     }
+
+    debugfpln("Core", "Idle");
 }
 
 void loop() {

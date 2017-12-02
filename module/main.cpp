@@ -8,6 +8,54 @@
 #include <fk-module-protocol.h>
 #include <fk-module.h>
 
+class TakeFakeReadings : public fk::Task {
+private:
+    fk::SensorReading *readings;
+
+public:
+    TakeFakeReadings() : Task("TakeFakeReadings") {
+    }
+
+    TakeFakeReadings &into(fk::SensorReading *r) {
+        readings = r;
+        return *this;
+    }
+
+    fk::TaskEval &task() override {
+        for (size_t i = 0; i < 3; ++i) {
+            readings[i].sensor = i;
+            readings[i].time = millis();
+            readings[i].value = (float)i;
+            readings[i].status = fk::SensorReadingStatus::Done;
+        }
+
+        return fk::TaskEval::Done;
+    }
+};
+
+class Sensors : public fk::ActiveObject {
+};
+
+class ExampleModule : public fk::Module {
+private:
+    fk::Delay fiveSeconds { 5000 };
+    TakeFakeReadings takeFakeReadings;
+    Sensors &sensors;
+
+public:
+    ExampleModule(fk::ModuleInfo &info, Sensors &sensors) : Module(info), sensors(sensors) {
+    }
+
+public:
+    virtual void beginReading(fk::SensorReading *readings) override {
+        debugfpln("Module", "Readings!");
+
+        sensors.push(fiveSeconds);
+        sensors.push(takeFakeReadings.into(readings));
+    }
+
+};
+
 extern "C" {
 
 void setup() {
@@ -37,19 +85,28 @@ void setup() {
         }
     };
 
+    fk::SensorReading readings[] = {
+        {},
+        {},
+        {},
+    };
+
     fk::ModuleInfo info = {
         .address = 8,
         .numberOfSensors = 3,
         .name = "NOAA-CTD",
         .sensors = sensors,
+        .readings = readings,
     };
 
-    fk::Module module(info);
+    Sensors sensorsQueue;
+    ExampleModule module(info, sensorsQueue);
 
     module.begin();
 
     while(true) {
         module.tick();
+        sensorsQueue.tick();
         delay(10);
     }
 }
