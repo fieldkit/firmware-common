@@ -8,60 +8,7 @@
 #include "debug.h"
 #include "pool.h"
 #include "attached_devices.h"
-
-namespace fk {
-
-class ModulePoller : public ActiveObject {
-private:
-    Delay oneSecond;
-    BeginTakeReading beginTakeReading;
-    QueryReadingStatus queryReadingStatus;
-
-public:
-    ModulePoller(uint8_t address, Pool *pool);
-
-public:
-    void done(Task &task) override;
-    void error(Task &task) override;
-
-};
-
-ModulePoller::ModulePoller(uint8_t address, Pool *pool) : oneSecond(1000), beginTakeReading(pool, address), queryReadingStatus(pool, address) {
-    push(oneSecond);
-    push(beginTakeReading);
-}
-
-void ModulePoller::done(Task &task) {
-    if (areSame(task, beginTakeReading)) {
-        if (!beginTakeReading.isIdle()) {
-            if (!beginTakeReading.isDone()) {
-                push(oneSecond);
-            }
-            push(queryReadingStatus);
-        }
-        else {
-            log("Have readings");
-        }
-    }
-
-    if (areSame(task, queryReadingStatus)) {
-        if (!queryReadingStatus.isIdle()) {
-            if (!queryReadingStatus.isDone()) {
-                push(oneSecond);
-            }
-            push(queryReadingStatus);
-        }
-        else {
-            log("Have readings");
-        }
-    }
-}
-
-void ModulePoller::error(Task &task) {
-
-}
-
-}
+#include "module_controller.h"
 
 extern "C" {
 
@@ -95,12 +42,12 @@ void setup() {
 
     {
         fk::Pool pool("ROOT", 128);
-        fk::ModulePoller poller(8, &pool);
+        fk::ModuleController controller(8, &pool);
 
         while (true) {
-            poller.tick();
+            controller.tick();
 
-            if (poller.idle()) {
+            if (controller.idle()) {
                 break;
             }
         }

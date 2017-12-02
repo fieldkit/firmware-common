@@ -16,6 +16,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/protobuf.cpp
   ${COMMON_SRCS_DIR}/module.cpp
   ${COMMON_SRCS_DIR}/module_messages.cpp
+  ${COMMON_SRCS_DIR}/module_controller.cpp
   ${COMMON_SRCS_DIR}/pool.cpp
   ${COMMON_SRCS_DIR}/attached_devices.cpp
   ${COMMON_SRCS_DIR}/two_wire_task.cpp
