@@ -116,6 +116,8 @@ public:
 
     bool receive(uint8_t address);
 
+    bool read(size_t bytes);
+
 private:
     bool write(const pb_field_t *fields, void *src);
     bool read(const pb_field_t *fields, void *src);

@@ -33,3 +33,10 @@ size_t i2c_device_receive(uint8_t address, uint8_t *ptr, size_t size) {
 
     return bytes;
 }
+
+size_t i2c_device_read(uint8_t *ptr, size_t size, size_t bytes) {
+    for (size_t i = 0; i < bytes; ++i) {
+        ptr[i] = Wire.read();
+    }
+    return bytes;
+}

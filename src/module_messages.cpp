@@ -1,5 +1,3 @@
-#include <Wire.h>
-
 #include "module_messages.h"
 #include "debug.h"
 #include "i2c.h"
@@ -12,6 +10,11 @@ bool MessageBuffer::send(uint8_t address) {
 
 bool MessageBuffer::receive(uint8_t address) {
     length = i2c_device_receive(address, buffer, sizeof(buffer));
+    return length > 0;
+}
+
+bool MessageBuffer::read(size_t bytes) {
+    length = i2c_device_read(buffer, sizeof(buffer), bytes);
     return length > 0;
 }
 
