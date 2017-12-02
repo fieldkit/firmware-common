@@ -33,8 +33,10 @@ ModulePoller::ModulePoller(uint8_t address, Pool *pool) : oneSecond(1000), begin
 
 void ModulePoller::done(Task &task) {
     if (areSame(task, beginTakeReading)) {
-        if (!beginTakeReading.idle()) {
-            push(oneSecond);
+        if (!beginTakeReading.isIdle()) {
+            if (!beginTakeReading.isDone()) {
+                push(oneSecond);
+            }
             push(queryReadingStatus);
         }
         else {
@@ -43,8 +45,10 @@ void ModulePoller::done(Task &task) {
     }
 
     if (areSame(task, queryReadingStatus)) {
-        if (!queryReadingStatus.idle()) {
-            push(oneSecond);
+        if (!queryReadingStatus.isIdle()) {
+            if (!queryReadingStatus.isDone()) {
+                push(oneSecond);
+            }
             push(queryReadingStatus);
         }
         else {

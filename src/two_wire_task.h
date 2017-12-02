@@ -75,11 +75,15 @@ public:
     }
 
 public:
-    bool busy() {
+    bool isDone() {
+        return reply.m().readingStatus.state == fk_module_ReadingState_DONE;
+    }
+
+    bool isBusy() {
         return reply.m().readingStatus.state == fk_module_ReadingState_BUSY;
     }
 
-    bool idle() {
+    bool isIdle() {
         return reply.m().readingStatus.state == fk_module_ReadingState_IDLE;
     }
 
@@ -94,11 +98,15 @@ public:
     }
 
 public:
-    bool busy() {
+    bool isDone() {
+        return reply.m().readingStatus.state == fk_module_ReadingState_DONE;
+    }
+
+    bool isBusy() {
         return reply.m().readingStatus.state == fk_module_ReadingState_BUSY;
     }
 
-    bool idle() {
+    bool isIdle() {
         return reply.m().readingStatus.state == fk_module_ReadingState_IDLE;
     }
 

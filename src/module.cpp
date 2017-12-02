@@ -89,6 +89,7 @@ TaskEval &HandleIncoming::task() {
                 }
             }
             if (info->readings[i].status == SensorReadingStatus::Done) {
+                log("Sending reading");
                 reply.m().readingStatus.state = fk_module_ReadingState_DONE;
                 reply.m().sensorReading.sensor = info->readings[i].sensor;
                 reply.m().sensorReading.time = info->readings[i].time;
