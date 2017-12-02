@@ -44,6 +44,8 @@ void setup() {
         fk::Pool pool("ROOT", 128);
         fk::ModuleController controller(8, &pool);
 
+        controller.beginReading();
+
         while (true) {
             controller.tick();
 
