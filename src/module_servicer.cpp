@@ -22,6 +22,14 @@ TaskEval &ModuleServicer::task() {
 
     fk_assert(outgoing.empty());
 
+    if (!handle(query)) {
+        return TaskEval::Error;
+    }
+
+    return TaskEval::Done;
+}
+
+bool ModuleServicer::handle(ModuleQueryMessage &query) {
     switch (query.m().type) {
     case fk_module_QueryType_QUERY_CAPABILITIES: {
         log("Module info");
@@ -100,11 +108,11 @@ TaskEval &ModuleServicer::task() {
     }
     default: {
         log("Unknown query: %d", query.m().type);
-        return TaskEval::Error;
+        return false;
     }
     }
 
-    return TaskEval::Done;
+    return true;
 }
 
 }

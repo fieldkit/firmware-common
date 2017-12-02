@@ -1,5 +1,5 @@
-#ifndef FK_APP_CONTROLLER_H_INCLUDED
-#define FK_APP_CONTROLLER_H_INCLUDED
+#ifndef FK_APP_SERVICER_H_INCLUDED
+#define FK_APP_SERVICER_H_INCLUDED
 
 #include "active_object.h"
 #include "module_controller.h"
@@ -7,14 +7,16 @@
 
 namespace fk {
 
-class AppController : public ActiveObject {
+class AppServicer : public Task {
 private:
     ModuleController *modules;
 
 public:
-    AppController(ModuleController *modules);
+    AppServicer(ModuleController *modules);
 
 public:
+    TaskEval &task() override;
+
     void handle(AppQueryMessage &query);
 
 };

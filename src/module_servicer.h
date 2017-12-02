@@ -27,8 +27,10 @@ public:
     ModuleServicer(ModuleInfo *info, ModuleCallbacks &callbacks, MessageBuffer &o, MessageBuffer &i, Pool &pool);
 
 public:
-    void read(size_t bytes);
     TaskEval &task() override;
+
+    void read(size_t bytes);
+    bool handle(ModuleQueryMessage &query);
 
 };
 

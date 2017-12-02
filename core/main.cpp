@@ -9,7 +9,7 @@
 #include "pool.h"
 #include "attached_devices.h"
 #include "module_controller.h"
-#include "app_controller.h"
+#include "app_servicer.h"
 
 extern "C" {
 
@@ -44,13 +44,11 @@ void setup() {
     {
         fk::Pool pool("ROOT", 128);
         fk::ModuleController modules(8, &pool);
-        fk::AppController appController(&modules);
 
         modules.beginReading();
 
         while (true) {
             modules.tick();
-            appController.tick();
 
             if (modules.idle()) {
                 break;
