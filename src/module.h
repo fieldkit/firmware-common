@@ -51,6 +51,7 @@ public:
 
 public:
     void begin();
+    void resume();
     void receive(size_t bytes);
     void reply();
 

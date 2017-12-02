@@ -78,11 +78,15 @@ Module::Module(ModuleInfo &info) :
 }
 
 void Module::begin() {
+    active = this;
+
+    resume();
+}
+
+void Module::resume() {
     Wire.begin(info->address);
     Wire.onReceive(module_receive_callback);
     Wire.onRequest(module_request_callback);
-
-    active = this;
 }
 
 void Module::receive(size_t bytes) {
