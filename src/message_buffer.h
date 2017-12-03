@@ -51,6 +51,8 @@ public:
 
     bool read(ModuleReplyMessage &message);
 
+    bool read(AppQueryMessage &message);
+
     bool send(uint8_t address);
 
     bool receive(uint8_t address);

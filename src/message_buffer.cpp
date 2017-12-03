@@ -33,6 +33,10 @@ bool MessageBuffer::read(ModuleReplyMessage &message) {
     return read(fk_module_WireMessageReply_fields, message.forDecode());
 }
 
+bool MessageBuffer::read(AppQueryMessage &message) {
+    return read(fk_app_WireMessageQuery_fields, message.forDecode());
+}
+
 bool MessageBuffer::write(const pb_field_t *fields, void *src) {
     auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     if (!pb_encode_delimited(&stream, fields, src)) {

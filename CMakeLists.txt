@@ -24,6 +24,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/app_messages.cpp
   ${COMMON_SRCS_DIR}/app_servicer.cpp
   ${COMMON_SRCS_DIR}/message_buffer.cpp
+  ${COMMON_SRCS_DIR}/wifi.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})

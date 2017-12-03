@@ -45,19 +45,23 @@ void setup() {
     {
         fk::Pool pool("ROOT", 128);
         fk::ModuleController modules(8, &pool);
+        fk::NetworkSettings networkSettings {
+            .ssid = "Cottonwood",
+            .password = "asdfasdf",
+            .port = 54321,
+        };
+        fk::Wifi wifi(networkSettings, modules);
+
+        // TODO: Fix that this is blocking when connecting.
+        wifi.begin();
 
         modules.beginReading();
 
         while (true) {
             modules.tick();
-
-            if (modules.idle()) {
-                break;
-            }
+            wifi.tick();
         }
     }
-
-    debugfpln("Core", "Idle");
 }
 
 void loop() {
