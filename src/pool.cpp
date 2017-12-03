@@ -26,13 +26,6 @@ Pool::Pool(const char *name, size_t size, Pool *parent) {
     debugfpln("Pool", "Create: 0x%x %s size=%d ptr=0x%x (free=%d)", (uint8_t *)this, name, size, ptr, fk_free_memory());
 }
 
-void Pool::free() {
-    size = 0;
-    remaining = 0;
-
-    debugfpln("Pool", "Free: 0x%x %s", this, name);
-}
-
 void Pool::clear() {
     ptr = block;
     remaining = size;
@@ -56,6 +49,7 @@ void *Pool::malloc(size_t size) {
 }
 
 Pool::~Pool() {
+    debugfpln("Pool", "Free: 0x%x %s", this, name);
     ::free((void *)block);
 }
 

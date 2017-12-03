@@ -16,7 +16,6 @@ private:
 
 public:
     Pool(const char *name, size_t size, Pool *parent = nullptr);
-    void free();
     void clear();
     void *malloc(size_t size);
     virtual ~Pool();
