@@ -17,7 +17,7 @@ public:
     AppServicer(ModuleController &modules, Pool &pool);
 
 public:
-    TaskEval &task() override;
+    TaskEval task() override;
 
     bool read(MessageBuffer &buffer);
     void handle(AppQueryMessage &query);

@@ -28,7 +28,7 @@ public:
         checkAt = 0;
     }
 
-    TaskEval &task() override;
+    TaskEval task() override;
 
 };
 

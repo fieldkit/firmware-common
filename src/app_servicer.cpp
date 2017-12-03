@@ -6,11 +6,11 @@ AppServicer::AppServicer(ModuleController &modules, Pool &pool) :
     Task("AppServicer"), query(&pool), modules(&modules), pool(&pool) {
 }
 
-TaskEval &AppServicer::task() {
+TaskEval AppServicer::task() {
 
     handle(query);
 
-    return TaskEval::Done;
+    return TaskEval::done();
 }
 
 bool AppServicer::read(MessageBuffer &buffer) {

@@ -12,28 +12,63 @@ namespace fk {
 
 class Task;
 
+enum class TaskEvalState {
+    Idle,
+    Done,
+    Error
+};
+
 class TaskEval {
 private:
     TaskEval() {
     }
 
+    TaskEval(TaskEvalState state) : state(state) {
+    }
+
+    TaskEval(Task &task) : state(TaskEvalState::Done), task(&task) {
+    }
+
 public:
+    TaskEvalState state { TaskEvalState::Idle };
     Task *task { nullptr };
 
-    static TaskEval Idle;
-    static TaskEval Done;
-    static TaskEval Error;
-    static TaskEval Pass;
+    bool isIdle() {
+        return state == TaskEvalState::Idle;
+    }
 
-    static TaskEval &pass(Task &task) {
-        Pass.task = &task;
-        return Pass;
+    bool isDone() {
+        return state == TaskEvalState::Done;
+    }
+
+    bool isError() {
+        return state == TaskEvalState::Error;
+    }
+
+    static TaskEval idle() {
+        return TaskEval{
+            TaskEvalState::Idle
+        };
+    }
+
+    static TaskEval done() {
+        return TaskEval{
+            TaskEvalState::Done
+        };
+    }
+
+    static TaskEval error() {
+        return TaskEval{
+            TaskEvalState::Error
+        };
+    }
+
+    static TaskEval pass(Task &task) {
+        return TaskEval {
+            task
+        };
     }
 };
-
-inline bool areSame(const TaskEval& a, const TaskEval& b) {
-    return &a == &b;
-}
 
 class Task {
 public:
@@ -54,7 +89,7 @@ public:
     virtual void error() {
     }
 
-    virtual TaskEval& task() = 0;
+    virtual TaskEval task() = 0;
 
 public:
     const char *toString() const {
@@ -86,14 +121,14 @@ public:
         dieAt = 0;
     }
 
-    TaskEval &task() override {
+    TaskEval task() override {
         if (dieAt == 0){
             dieAt = millis() + duration;
         }
         if (millis() > dieAt) {
-            return TaskEval::Done;
+            return TaskEval::done();
         }
-        return TaskEval::Idle;
+        return TaskEval::idle();
     }
 
 };

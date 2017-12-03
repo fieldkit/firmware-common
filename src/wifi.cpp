@@ -39,7 +39,7 @@ public:
 HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules) : AppServicer(modules, pool), wcl(wcl), pool("WifiService", 128) {
 }
 
-TaskEval &HandleConnection::task() {
+TaskEval HandleConnection::task() {
     if (wcl.available()) {
         WifiMessageBuffer incoming;
         auto bytesRead = incoming.read(wcl);
@@ -48,11 +48,11 @@ TaskEval &HandleConnection::task() {
             if (!read(incoming)) {
                 wcl.stop();
                 debugfpln("Wifi", "Error parsing query");
-                return TaskEval::Error;
+                return TaskEval::error();
             }
             else {
-                auto& e = AppServicer::task();
-                if (!areSame(e, TaskEval::Idle)) {
+                auto e = AppServicer::task();
+                if (!e.isIdle()) {
                     wcl.stop();
                     return e;
                 }
@@ -60,13 +60,13 @@ TaskEval &HandleConnection::task() {
         }
     }
 
-    return TaskEval::Idle;
+    return TaskEval::idle();
 }
 
 Listen::Listen(WiFiServer &server, ModuleController &modules) : Task(Name), server(&server), modules(&modules), handleConnection(WiFiClient(), modules) {
 }
 
-TaskEval &Listen::task() {
+TaskEval Listen::task() {
     if (WiFi.status() == WL_AP_CONNECTED || WiFi.status() == WL_CONNECTED) {
         if (!connected) {
             IpAddress4 ip { WiFi.localIP() };
@@ -93,7 +93,7 @@ TaskEval &Listen::task() {
         }
     }
 
-    return TaskEval::Idle;
+    return TaskEval::idle();
 }
 
 Wifi::Wifi(NetworkSettings &settings, ModuleController &modules)

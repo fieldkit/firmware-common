@@ -2,11 +2,6 @@
 
 namespace fk {
 
-TaskEval TaskEval::Error;
-TaskEval TaskEval::Idle;
-TaskEval TaskEval::Done;
-TaskEval TaskEval::Pass;
-
 ActiveObject::ActiveObject() {
 }
 
@@ -26,28 +21,26 @@ void ActiveObject::pop() {
 }
 
 void ActiveObject::service(Task &active) {
-    auto& e = active.task();
-    if (areSame(e, TaskEval::Done)) {
+    auto e = active.task();
+    if (e.isDone()) {
         log("%s done", active.toString());
         pop();
         active.nextTask = nullptr;
         active.done();
         done(active);
+        if (e.task != nullptr) {
+            push(*e.task);
+        }
     }
-    else if (areSame(e, TaskEval::Error)) {
+    else if (e.isError()) {
         log("%s error", active.toString());
         pop();
         active.nextTask = nullptr;
         active.error();
         error(active);
-    }
-    else if (e.task != nullptr) {
-        log("%s done (passing)", active.toString());
-        pop();
-        active.nextTask = nullptr;
-        active.done();
-        done(active);
-        push(*e.task);
+        if (e.task != nullptr) {
+            push(*e.task);
+        }
     }
 }
 

@@ -20,7 +20,7 @@ public:
         return *this;
     }
 
-    fk::TaskEval &task() override {
+    fk::TaskEval task() override {
         for (size_t i = 0; i < 3; ++i) {
             readings[i].sensor = i;
             readings[i].time = millis();
@@ -28,7 +28,7 @@ public:
             readings[i].status = fk::SensorReadingStatus::Done;
         }
 
-        return fk::TaskEval::Done;
+        return fk::TaskEval::done();
     }
 };
 

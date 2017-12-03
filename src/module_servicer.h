@@ -27,7 +27,7 @@ public:
     ModuleServicer(ModuleInfo *info, ModuleCallbacks &callbacks, MessageBuffer &o, MessageBuffer &i, Pool &pool);
 
 public:
-    TaskEval &task() override;
+    TaskEval task() override;
 
     void read(size_t bytes);
     bool handle(ModuleQueryMessage &query);

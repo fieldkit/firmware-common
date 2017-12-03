@@ -11,22 +11,22 @@ void ModuleServicer::read(size_t bytes) {
     incoming.read(bytes);
 }
 
-TaskEval &ModuleServicer::task() {
+TaskEval ModuleServicer::task() {
     ModuleQueryMessage query(pool);
     auto status = incoming.read(query);
     incoming.clear();
     if (!status) {
         log("Malformed message");
-        return TaskEval::Error;
+        return TaskEval::error();
     }
 
     fk_assert(outgoing.empty());
 
     if (!handle(query)) {
-        return TaskEval::Error;
+        return TaskEval::error();
     }
 
-    return TaskEval::Done;
+    return TaskEval::done();
 }
 
 bool ModuleServicer::handle(ModuleQueryMessage &query) {

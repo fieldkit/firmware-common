@@ -18,7 +18,7 @@ class HandleConnection : public AppServicer {
 public:
     HandleConnection(WiFiClient wcl, ModuleController &modules);
 
-    TaskEval &task() override;
+    TaskEval task() override;
 };
 
 class Listen : public Task {
@@ -33,7 +33,7 @@ private:
 public:
     Listen(WiFiServer &server, ModuleController &modules);
 
-    TaskEval &task() override;
+    TaskEval task() override;
 };
 
 struct NetworkSettings {
