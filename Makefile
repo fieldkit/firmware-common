@@ -10,7 +10,8 @@ all: $(BUILD) gitdeps
 	cd $(BUILD) && make
 
 gitdeps:
-	simple-deps --config test/arduino-libraries
+	simple-deps --config core/arduino-libraries
+	simple-deps --config module/arduino-libraries
 
 clean:
-	rm -rf $(BUILD)
+	rm -rf $(BUILD) gitdeps
