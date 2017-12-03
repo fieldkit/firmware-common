@@ -135,12 +135,13 @@ public:
 
 class ActiveObject {
 private:
+    const char *name { nullptr };
     Task *idleTask { nullptr };
     Task *tasks { nullptr };
 
 public:
     ActiveObject();
-    ActiveObject(Task &idleTask);
+    ActiveObject(const char *name, Task &idleTask);
 
 public:
     void push(Task &task);

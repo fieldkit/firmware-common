@@ -2,10 +2,10 @@
 
 namespace fk {
 
-ActiveObject::ActiveObject() {
+ActiveObject::ActiveObject() : name("AO") {
 }
 
-ActiveObject::ActiveObject(Task &idleTask) : idleTask(&idleTask ) {
+ActiveObject::ActiveObject(const char *name, Task &idleTask) : name(name), idleTask(&idleTask ) {
 }
 
 void ActiveObject::push(Task &task) {
@@ -66,7 +66,7 @@ void ActiveObject::error(Task &task) {
 void ActiveObject::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln("AO", f, args);
+    vdebugfpln(name, f, args);
     va_end(args);
 }
 

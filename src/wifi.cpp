@@ -70,13 +70,13 @@ TaskEval Listen::task() {
     if (WiFi.status() == WL_AP_CONNECTED || WiFi.status() == WL_CONNECTED) {
         if (!connected) {
             IpAddress4 ip { WiFi.localIP() };
-            debugfpln("Wifi", "Connected ip: %s", ip.toString());
+            log("Connected ip: %s", ip.toString());
             connected = true;
         }
     }
     else {
         if (connected) {
-            debugfpln("Wifi", "Disconnected");
+            log("Disconnected");
             connected = false;
         }
     }
@@ -86,7 +86,7 @@ TaskEval Listen::task() {
         // SOCKET_BUFFER_TCP_SIZE. Where SOCKET_BUFFER_TCP_SIZE is 1446.
         auto wcl = server->available();
         if (wcl) {
-            debugfpln("Wifi", "Accepted!");
+            log("Accepted!");
 
             handleConnection = HandleConnection { wcl, *modules };
             return TaskEval::pass(handleConnection);
@@ -97,7 +97,7 @@ TaskEval Listen::task() {
 }
 
 Wifi::Wifi(NetworkSettings &settings, ModuleController &modules)
-    : ActiveObject(listen), settings(&settings), modules(&modules), server(settings.port),
+    : ActiveObject("Wifi", listen), settings(&settings), modules(&modules), server(settings.port),
       listen(server, modules) {
 }
 
@@ -105,23 +105,23 @@ void Wifi::begin() {
     WiFi.setPins(8, 7, 4, 2);
 
     if (WiFi.status() == WL_NO_SHIELD) {
-        debugfpln("Wifi", "No wifi");
+        log("No wifi");
         return;
     }
     else {
         if (false) {
-            debugfpln("Wifi", "Creating AP");
+            log("Creating AP");
 
             auto status = WiFi.beginAP(settings->ssid);
             if (status != WL_AP_LISTENING) {
-                debugfpln("Wifi", "Error creating AP");
+                log("Error creating AP");
                 return;
             }
         }
         else {
-            debugfpln("Wifi", "Connecting to AP");
+            log("Connecting to AP");
             WiFi.begin(settings->ssid, settings->password);
-            debugfpln("Wifi", "Waiting on connection...");
+            log("Waiting on connection...");
         }
     }
 
