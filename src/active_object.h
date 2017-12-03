@@ -1,8 +1,8 @@
 #ifndef FK_ACTIVE_OBJECT_H_INCLUDED
 #define FK_ACTIVE_OBJECT_H_INCLUDED
 
-#include <cstdint>
 #include <cstdarg>
+#include <cstdint>
 
 #include <Arduino.h>
 
@@ -30,8 +30,8 @@ private:
     }
 
 public:
-    TaskEvalState state { TaskEvalState::Idle };
-    Task *task { nullptr };
+    TaskEvalState state{ TaskEvalState::Idle };
+    Task *task{ nullptr };
 
     bool isIdle() {
         return state == TaskEvalState::Idle;
@@ -46,34 +46,26 @@ public:
     }
 
     static TaskEval idle() {
-        return TaskEval{
-            TaskEvalState::Idle
-        };
+        return TaskEval{ TaskEvalState::Idle };
     }
 
     static TaskEval done() {
-        return TaskEval{
-            TaskEvalState::Done
-        };
+        return TaskEval{ TaskEvalState::Done };
     }
 
     static TaskEval error() {
-        return TaskEval{
-            TaskEvalState::Error
-        };
+        return TaskEval{ TaskEvalState::Error };
     }
 
     static TaskEval pass(Task &task) {
-        return TaskEval {
-            task
-        };
+        return TaskEval{ task };
     }
 };
 
 class Task {
 public:
-    const char *name { nullptr };
-    Task *nextTask { nullptr };
+    const char *name{ nullptr };
+    Task *nextTask{ nullptr };
 
 public:
     Task(const char *name) : name(name) {
@@ -105,13 +97,13 @@ public:
 
 };
 
-inline bool areSame(const Task& a, const Task& b) {
+inline bool areSame(const Task &a, const Task &b) {
     return &a == &b;
 }
 
-class Delay : public Task  {
-    uint32_t duration { 0 };
-    uint32_t dieAt { 0 };
+class Delay : public Task {
+    uint32_t duration{ 0 };
+    uint32_t dieAt{ 0 };
 
 public:
     Delay(uint32_t duration) : Task("Delay"), duration(duration) {
@@ -122,7 +114,7 @@ public:
     }
 
     TaskEval task() override {
-        if (dieAt == 0){
+        if (dieAt == 0) {
             dieAt = millis() + duration;
         }
         if (millis() > dieAt) {
@@ -135,9 +127,9 @@ public:
 
 class ActiveObject {
 private:
-    const char *name { nullptr };
-    Task *idleTask { nullptr };
-    Task *tasks { nullptr };
+    const char *name{ nullptr };
+    Task *idleTask{ nullptr };
+    Task *tasks{ nullptr };
 
 public:
     ActiveObject();

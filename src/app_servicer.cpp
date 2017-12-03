@@ -2,14 +2,12 @@
 
 namespace fk {
 
-AppServicer::AppServicer(ModuleController &modules, Pool &pool) :
-    Task("AppServicer"), query(&pool), modules(&modules), pool(&pool) {
+AppServicer::AppServicer(ModuleController &modules, Pool &pool)
+    : Task("AppServicer"), query(&pool), modules(&modules), pool(&pool) {
 }
 
 TaskEval AppServicer::task() {
-
     handle(query);
-
     return TaskEval::done();
 }
 
@@ -25,7 +23,6 @@ void AppServicer::handle(AppQueryMessage &query) {
         AppReplyMessage reply(pool);
         reply.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
         reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
-
         outgoing.write(reply);
 
         break;

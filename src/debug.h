@@ -1,8 +1,8 @@
 #ifndef FK_DEBUG_H_INCLUDED
 #define FK_DEBUG_H_INCLUDED
 
-#include <cstdint>
 #include <cstdarg>
+#include <cstdint>
 
 typedef void (*debug_hook_fn_t)(const char *str, void *arg);
 

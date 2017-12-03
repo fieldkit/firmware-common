@@ -3,8 +3,9 @@
 
 namespace fk {
 
-ModuleServicer::ModuleServicer(ModuleInfo *info, ModuleCallbacks &callbacks, MessageBuffer &o, MessageBuffer &i, Pool &pool) :
-    Task("ModuleServicer"), info(info), callbacks(&callbacks), outgoing(o), incoming(i), pool(&pool) {
+ModuleServicer::ModuleServicer(ModuleInfo *info, ModuleCallbacks &callbacks, MessageBuffer &o, MessageBuffer &i,
+                               Pool &pool)
+    : Task("ModuleServicer"), info(info), callbacks(&callbacks), outgoing(o), incoming(i), pool(&pool) {
 }
 
 void ModuleServicer::read(size_t bytes) {
@@ -50,7 +51,7 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
 
         log("Sensor #%d: info", index);
 
-        SensorInfo &sensor  = info->sensors[index];
+        SensorInfo &sensor = info->sensors[index];
 
         ModuleReplyMessage reply(pool);
         reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES;

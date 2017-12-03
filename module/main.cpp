@@ -1,6 +1,6 @@
 #include <cstddef>
-#include <cstdio>
 #include <cstdint>
+#include <cstdio>
 
 #include <Arduino.h>
 
@@ -32,12 +32,11 @@ public:
     }
 };
 
-class Sensors : public fk::ActiveObject {
-};
+class Sensors : public fk::ActiveObject {};
 
 class ExampleModule : public fk::Module {
 private:
-    fk::Delay fiveSeconds { 5000 };
+    fk::Delay fiveSeconds{ 5000 };
     TakeFakeReadings takeFakeReadings;
     Sensors &sensors;
 
@@ -103,7 +102,7 @@ void setup() {
 
     module.begin();
 
-    while(true) {
+    while (true) {
         module.tick();
         sensorsQueue.tick();
         delay(10);

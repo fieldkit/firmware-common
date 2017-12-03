@@ -2,7 +2,8 @@
 
 namespace fk {
 
-ModuleController::ModuleController(uint8_t address, Pool *pool) : oneSecond(1000), beginTakeReading(pool, address), queryReadingStatus(pool, address) {
+ModuleController::ModuleController(uint8_t address, Pool *pool)
+    : oneSecond(1000), beginTakeReading(pool, address), queryReadingStatus(pool, address) {
 }
 
 void ModuleController::beginReading() {
@@ -16,8 +17,7 @@ void ModuleController::done(Task &task) {
                 push(oneSecond);
             }
             push(queryReadingStatus);
-        }
-        else {
+        } else {
             log("Have readings");
         }
     }
@@ -28,8 +28,7 @@ void ModuleController::done(Task &task) {
                 push(oneSecond);
             }
             push(queryReadingStatus);
-        }
-        else {
+        } else {
             log("Have readings");
         }
     }

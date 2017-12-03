@@ -2,8 +2,8 @@
 #define FK_WIFI_H_INCLUDED
 
 #include "active_object.h"
-#include "module_controller.h"
 #include "app_servicer.h"
+#include "module_controller.h"
 
 #include <WiFi101.h>
 #include <WiFiServer.h>
@@ -24,7 +24,7 @@ class Listen : public Task {
     static constexpr char Name[] = "Listen";
 
 private:
-    bool connected { false };
+    bool connected{ false };
     Pool pool;
     WiFiServer *server;
     ModuleController *modules;

@@ -35,7 +35,7 @@ void vdebugfln(const char *f, va_list args) {
     char buffer[FK_DEBUG_LINE_MAX];
 
     auto w = vsnprintf(buffer, FK_DEBUG_LINE_MAX - 2, f, args);
-    buffer[w    ] = '\r';
+    buffer[w] = '\r';
     buffer[w + 1] = '\n';
     buffer[w + 2] = 0;
 

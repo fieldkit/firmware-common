@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include <string.h>
 #include <cstdlib>
+#include <string.h>
 
 #include "debug.h"
 #include "pool.h"
@@ -12,8 +12,7 @@ Pool::Pool(const char *name, size_t size, Pool *parent) {
 
     if (parent != nullptr) {
         block = parent->malloc(size);
-    }
-    else {
+    } else {
         block = ::malloc(size);
     }
 

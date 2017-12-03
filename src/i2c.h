@@ -5,9 +5,9 @@
 
 namespace fk {
 
-using WireOnReceiveHandler =  void (*)(int);
+using WireOnReceiveHandler = void (*)(int);
 
-using WireOnRequestHandler =  void (*)(void);
+using WireOnRequestHandler = void (*)(void);
 
 bool i2c_begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRequestHandler onRequest);
 

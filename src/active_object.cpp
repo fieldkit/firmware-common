@@ -5,7 +5,7 @@ namespace fk {
 ActiveObject::ActiveObject() : name("AO") {
 }
 
-ActiveObject::ActiveObject(const char *name, Task &idleTask) : name(name), idleTask(&idleTask ) {
+ActiveObject::ActiveObject(const char *name, Task &idleTask) : name(name), idleTask(&idleTask) {
 }
 
 void ActiveObject::push(Task &task) {
@@ -31,8 +31,7 @@ void ActiveObject::service(Task &active) {
         if (e.task != nullptr) {
             push(*e.task);
         }
-    }
-    else if (e.isError()) {
+    } else if (e.isError()) {
         log("%s error", active.toString());
         pop();
         active.nextTask = nullptr;
@@ -47,8 +46,7 @@ void ActiveObject::service(Task &active) {
 void ActiveObject::tick() {
     if (!idle()) {
         service(*tasks);
-    }
-    else if (idleTask != nullptr) {
+    } else if (idleTask != nullptr) {
         service(*idleTask);
     }
 }
@@ -74,7 +72,7 @@ Task **ActiveObject::end() {
     if (tasks == nullptr) {
         return &tasks;
     }
-    for (auto i = tasks; ; i = i->nextTask) {
+    for (auto i = tasks;; i = i->nextTask) {
         if (i->nextTask == nullptr) {
             return &i->nextTask;
         }

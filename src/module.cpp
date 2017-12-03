@@ -1,7 +1,7 @@
 #include <Wire.h>
 
-#include "module.h"
 #include "i2c.h"
+#include "module.h"
 
 namespace fk {
 
@@ -13,8 +13,8 @@ static void module_receive_callback(int bytes) {
     fk::Module::active->receive((size_t)bytes);
 }
 
-Module::Module(ModuleInfo &info) :
-    replyPool("REPLY", 128), handleIncoming { &info, *this, outgoing, incoming, replyPool }, info(&info) {
+Module::Module(ModuleInfo &info)
+    : replyPool("REPLY", 128), handleIncoming{ &info, *this, outgoing, incoming, replyPool }, info(&info) {
 }
 
 void Module::begin() {
@@ -58,6 +58,6 @@ void Module::beginReading(SensorReading *readings) {
 void Module::readingDone(SensorReading *readings) {
 }
 
-Module *Module::active { nullptr };
+Module *Module::active{ nullptr };
 
 }

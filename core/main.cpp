@@ -1,16 +1,16 @@
 #include <cstddef>
-#include <cstdio>
 #include <cstdint>
+#include <cstdio>
 
 #include <Arduino.h>
 
-#include "debug.h"
-#include "pool.h"
-#include "attached_devices.h"
-#include "module_controller.h"
 #include "app_servicer.h"
-#include "wifi.h"
+#include "attached_devices.h"
+#include "debug.h"
 #include "i2c.h"
+#include "module_controller.h"
+#include "pool.h"
+#include "wifi.h"
 
 extern "C" {
 
@@ -27,7 +27,7 @@ void setup() {
 
     {
         fk::Pool pool("ROOT", 128);
-        uint8_t addresses[] { 7, 8, 9, 0 };
+        uint8_t addresses[]{ 7, 8, 9, 0 };
         fk::AttachedDevices ad(addresses, 0, &pool);
         ad.scan();
 

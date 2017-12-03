@@ -2,8 +2,8 @@
 #define FK_TWO_WIRE_TASK_H_INCLUDED
 
 #include "active_object.h"
-#include "module_messages.h"
 #include "message_buffer.h"
+#include "module_messages.h"
 #include "pool.h"
 
 namespace fk {
@@ -14,13 +14,13 @@ protected:
     ModuleReplyMessage reply;
 
 private:
-    uint8_t address { 0 };
-    uint32_t dieAt { 0 };
-    uint32_t checkAt { 0 };
+    uint8_t address{ 0 };
+    uint32_t dieAt{ 0 };
+    uint32_t checkAt{ 0 };
 
 public:
-    TwoWireTask(const char *name, Pool *pool, uint8_t address) :
-        Task(name), query(pool), reply(pool), address(address) {
+    TwoWireTask(const char *name, Pool *pool, uint8_t address)
+        : Task(name), query(pool), reply(pool), address(address) {
     }
 
     void enqueued() override {

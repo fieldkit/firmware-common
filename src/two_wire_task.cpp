@@ -24,8 +24,7 @@ TaskEval TwoWireTask::task() {
         // They won't be ready yet, check back soon, though.
         checkAt = millis() + 100;
         return TaskEval::idle();
-    }
-    else if (millis() > dieAt) {
+    } else if (millis() > dieAt) {
         return TaskEval::error();
     }
 

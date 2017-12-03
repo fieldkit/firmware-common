@@ -25,7 +25,7 @@ public:
     IpAddress4() {
     }
 
-    IpAddress4(uint32_t ip)  {
+    IpAddress4(uint32_t ip) {
         a.dword = ip;
     }
 
@@ -36,7 +36,8 @@ public:
     }
 };
 
-HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules, Pool &pool) : AppServicer(modules, pool), wcl(wcl) {
+HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules, Pool &pool)
+    : AppServicer(modules, pool), wcl(wcl) {
 }
 
 TaskEval HandleConnection::task() {
@@ -49,11 +50,10 @@ TaskEval HandleConnection::task() {
                 wcl.stop();
                 debugfpln("Wifi", "Error parsing query");
                 return TaskEval::error();
-            }
-            else {
+            } else {
                 auto e = AppServicer::task();
                 if (!e.isIdle()) {
-                    auto& buffer = outgoingBuffer();
+                    auto &buffer = outgoingBuffer();
                     auto bytesWritten = wcl.write(buffer.ptr(), buffer.position());
                     debugfpln("Wifi", "Wrote %d bytes", bytesWritten);
                     fk_assert(bytesWritten == buffer.position());
@@ -68,20 +68,19 @@ TaskEval HandleConnection::task() {
     return TaskEval::idle();
 }
 
-Listen::Listen(WiFiServer &server, ModuleController &modules) :
-    Task(Name), pool("WifiService", 128),
-    server(&server), modules(&modules), handleConnection(WiFiClient(), modules, pool) {
+Listen::Listen(WiFiServer &server, ModuleController &modules)
+    : Task(Name), pool("WifiService", 128), server(&server), modules(&modules),
+      handleConnection(WiFiClient(), modules, pool) {
 }
 
 TaskEval Listen::task() {
     if (WiFi.status() == WL_AP_CONNECTED || WiFi.status() == WL_CONNECTED) {
         if (!connected) {
-            IpAddress4 ip { WiFi.localIP() };
+            IpAddress4 ip{ WiFi.localIP() };
             log("Connected ip: %s", ip.toString());
             connected = true;
         }
-    }
-    else {
+    } else {
         if (connected) {
             log("Disconnected");
             connected = false;
@@ -95,7 +94,7 @@ TaskEval Listen::task() {
         if (wcl) {
             log("Accepted!");
             pool.clear();
-            handleConnection = HandleConnection { wcl, *modules, pool };
+            handleConnection = HandleConnection{ wcl, *modules, pool };
             return TaskEval::pass(handleConnection);
         }
     }
@@ -114,8 +113,7 @@ void Wifi::begin() {
     if (WiFi.status() == WL_NO_SHIELD) {
         log("No wifi");
         return;
-    }
-    else {
+    } else {
         if (false) {
             log("Creating AP");
 
@@ -124,8 +122,7 @@ void Wifi::begin() {
                 log("Error creating AP");
                 return;
             }
-        }
-        else {
+        } else {
             log("Connecting to AP");
             WiFi.begin(settings->ssid, settings->password);
             log("Waiting on connection...");

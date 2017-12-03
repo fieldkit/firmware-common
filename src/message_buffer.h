@@ -1,18 +1,18 @@
 #ifndef FK_MESSAGE_BUFFER_H_INCLUDED
 #define FK_MESSAGE_BUFFER_H_INCLUDED
 
-#include <fk-module-protocol.h>
 #include <fk-app-protocol.h>
+#include <fk-module-protocol.h>
 
-#include "module_messages.h"
 #include "app_messages.h"
+#include "module_messages.h"
 
 namespace fk {
 
 class MessageBuffer {
 private:
     uint8_t buffer[FK_MODULE_PROTOCOL_MAX_MESSAGE];
-    size_t pos { 0 };
+    size_t pos{ 0 };
 
 public:
     uint8_t *ptr() {

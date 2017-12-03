@@ -2,8 +2,8 @@
 #define FK_APP_SERVICER_H_INCLUDED
 
 #include "active_object.h"
-#include "module_controller.h"
 #include "app_messages.h"
+#include "module_controller.h"
 
 namespace fk {
 

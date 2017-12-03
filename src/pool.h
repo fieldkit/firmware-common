@@ -1,8 +1,8 @@
 #ifndef FK_POOL_H_INCLUDED
 #define FK_POOL_H_INCLUDED
 
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
 
 namespace fk {
 
@@ -23,10 +23,10 @@ public:
 
 };
 
-#define __POOL_LINE_STR(x)   #x
-#define __POOL_LINE(x)       __POOL_LINE_STR(x)
-#define PoolHere(var, size)  var(__FILE__ ":" __POOL_LINE(__LINE__), size)
 
+#define __POOL_LINE_STR(x) #x
+#define __POOL_LINE(x) __POOL_LINE_STR(x)
+#define PoolHere(var, size) var(__FILE__ ":" __POOL_LINE(__LINE__), size)
 }
 
 #endif

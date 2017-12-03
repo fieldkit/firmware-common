@@ -1,8 +1,8 @@
-#include <cstdint>
 #include <Wire.h>
+#include <cstdint>
 
-#include "i2c.h"
 #include "debug.h"
+#include "i2c.h"
 
 namespace fk {
 
@@ -13,7 +13,7 @@ bool i2c_begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRequestHan
     return true;
 }
 
-bool i2c_begin(void){
+bool i2c_begin(void) {
     Wire.begin();
     return true;
 }
@@ -23,11 +23,12 @@ bool i2c_device_send(uint8_t address, const void *ptr, size_t size) {
         Wire.beginTransmission(address);
         Wire.write((uint8_t *)ptr, size);
         switch (Wire.endTransmission()) {
-        case 0: return true;
-        default: return false;
+        case 0:
+            return true;
+        default:
+            return false;
         }
-    }
-    else {
+    } else {
         Wire.write((uint8_t *)ptr, size);
     }
 
