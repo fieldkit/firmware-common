@@ -10,15 +10,25 @@
 
 namespace fk {
 
+class Task;
+
 class TaskEval {
 private:
     TaskEval() {
     }
 
 public:
+    Task *task { nullptr };
+
     static TaskEval Idle;
     static TaskEval Done;
     static TaskEval Error;
+    static TaskEval Pass;
+
+    static TaskEval &pass(Task &task) {
+        Pass.task = &task;
+        return Pass;
+    }
 };
 
 inline bool areSame(const TaskEval& a, const TaskEval& b) {

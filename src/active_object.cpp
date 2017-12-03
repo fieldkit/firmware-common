@@ -5,6 +5,7 @@ namespace fk {
 TaskEval TaskEval::Error;
 TaskEval TaskEval::Idle;
 TaskEval TaskEval::Done;
+TaskEval TaskEval::Pass;
 
 ActiveObject::ActiveObject() {
 }
@@ -32,6 +33,14 @@ void ActiveObject::tick() {
             curr.nextTask = nullptr;
             curr.error();
             error(curr);
+        }
+        else if (e.task != nullptr) {
+            log("%s done (pass)", curr.toString());
+            tasks = tasks->nextTask;
+            curr.nextTask = nullptr;
+            curr.done();
+            done(curr);
+            push(*e.task);
         }
     }
 }
