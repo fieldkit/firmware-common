@@ -6,10 +6,14 @@
 namespace fk {
 
 static void module_request_callback() {
+    fk_assert(fk::Module::active != nullptr);
+
     fk::Module::active->reply();
 }
 
 static void module_receive_callback(int bytes) {
+    fk_assert(fk::Module::active != nullptr);
+
     fk::Module::active->receive((size_t)bytes);
 }
 
@@ -18,6 +22,8 @@ Module::Module(ModuleInfo &info)
 }
 
 void Module::begin() {
+    fk_assert(active == nullptr);
+
     active = this;
 
     resume();
