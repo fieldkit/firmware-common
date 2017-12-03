@@ -10,6 +10,15 @@ bool pb_encode_string(pb_ostream_t *stream, const pb_field_t *field, void * cons
 
 bool pb_decode_string(pb_istream_t *stream, const pb_field_t *field, void **arg);
 
+typedef struct pb_array_t {
+    size_t length;
+    size_t itemSize;
+    const void *buffer;
+    const pb_field_t *fields;
+} pb_array_t;
+
+bool pb_encode_array(pb_ostream_t *stream, const pb_field_t *field, void * const *arg);
+
 }
 
 #endif

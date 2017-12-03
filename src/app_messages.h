@@ -52,6 +52,9 @@ public:
         return message;
     }
 
+public:
+    void error(const char *error);
+
 };
 
 }

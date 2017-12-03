@@ -13,10 +13,9 @@ namespace fk {
 
 class HandleConnection : public AppServicer {
     WiFiClient wcl;
-    Pool pool;
 
 public:
-    HandleConnection(WiFiClient wcl, ModuleController &modules);
+    HandleConnection(WiFiClient wcl, ModuleController &modules, Pool &pool);
 
     TaskEval task() override;
 };
@@ -26,6 +25,7 @@ class Listen : public Task {
 
 private:
     bool connected { false };
+    Pool pool;
     WiFiServer *server;
     ModuleController *modules;
     HandleConnection handleConnection;

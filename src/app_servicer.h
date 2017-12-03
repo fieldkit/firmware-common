@@ -10,6 +10,7 @@ namespace fk {
 class AppServicer : public Task {
 private:
     AppQueryMessage query;
+    MessageBuffer outgoing;
     ModuleController *modules;
     Pool *pool;
 
@@ -19,6 +20,9 @@ public:
 public:
     TaskEval task() override;
 
+    MessageBuffer &outgoingBuffer() {
+        return outgoing;
+    }
     bool read(MessageBuffer &buffer);
     void handle(AppQueryMessage &query);
 

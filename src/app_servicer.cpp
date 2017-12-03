@@ -23,6 +23,11 @@ void AppServicer::handle(AppQueryMessage &query) {
         log("Query caps");
 
         AppReplyMessage reply(pool);
+        reply.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
+        reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
+
+        outgoing.write(reply);
+
         break;
     }
     case fk_app_QueryType_QUEYR_CONFIGURE_SENSOR: {
@@ -38,6 +43,10 @@ void AppServicer::handle(AppQueryMessage &query) {
     case fk_app_QueryType_QUERY_LIVE_DATA_POLL: {
     }
     default: {
+        AppReplyMessage reply(pool);
+        reply.error("Unknown query");
+        outgoing.write(reply);
+
         break;
     }
     }

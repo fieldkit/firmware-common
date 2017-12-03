@@ -35,7 +35,8 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         log("Module info");
 
         ModuleReplyMessage reply(pool);
-        reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES; reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
+        reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES;
+        reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
         reply.m().capabilities.type = fk_module_ModuleType_SENSOR;
         reply.m().capabilities.name.arg = (void *)info->name;
         reply.m().capabilities.numberOfSensors = info->numberOfSensors;

@@ -51,4 +51,23 @@ bool pb_decode_string(pb_istream_t *stream, const pb_field_t *field, void **arg)
     return true;
 }
 
+bool pb_encode_array(pb_ostream_t *stream, const pb_field_t *field, void * const *arg) {
+    auto array = (pb_array_t *)*arg;
+
+    auto ptr = (uint8_t *)array->buffer;
+    for (size_t i = 0; i < array->length; ++i) {
+        if (!pb_encode_tag_for_field(stream, field)) {
+            return false;
+        }
+
+        if (!pb_encode_submessage(stream, array->fields, ptr)) {
+            return false;
+        }
+
+        ptr += array->itemSize;
+    }
+
+    return true;
+}
+
 }

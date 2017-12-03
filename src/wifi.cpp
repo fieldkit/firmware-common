@@ -36,7 +36,7 @@ public:
     }
 };
 
-HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules) : AppServicer(modules, pool), wcl(wcl), pool("WifiService", 128) {
+HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules, Pool &pool) : AppServicer(modules, pool), wcl(wcl) {
 }
 
 TaskEval HandleConnection::task() {
@@ -53,6 +53,11 @@ TaskEval HandleConnection::task() {
             else {
                 auto e = AppServicer::task();
                 if (!e.isIdle()) {
+                    auto& buffer = outgoingBuffer();
+                    auto bytesWritten = wcl.write(buffer.ptr(), buffer.position());
+                    debugfpln("Wifi", "Wrote %d bytes", bytesWritten);
+                    fk_assert(bytesWritten == buffer.position());
+                    buffer.clear();
                     wcl.stop();
                     return e;
                 }
@@ -63,7 +68,9 @@ TaskEval HandleConnection::task() {
     return TaskEval::idle();
 }
 
-Listen::Listen(WiFiServer &server, ModuleController &modules) : Task(Name), server(&server), modules(&modules), handleConnection(WiFiClient(), modules) {
+Listen::Listen(WiFiServer &server, ModuleController &modules) :
+    Task(Name), pool("WifiService", 128),
+    server(&server), modules(&modules), handleConnection(WiFiClient(), modules, pool) {
 }
 
 TaskEval Listen::task() {
@@ -87,8 +94,8 @@ TaskEval Listen::task() {
         auto wcl = server->available();
         if (wcl) {
             log("Accepted!");
-
-            handleConnection = HandleConnection { wcl, *modules };
+            pool.clear();
+            handleConnection = HandleConnection { wcl, *modules, pool };
             return TaskEval::pass(handleConnection);
         }
     }
