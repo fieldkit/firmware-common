@@ -26,9 +26,9 @@ void setup() {
     fk::i2c_begin();
 
     {
-        fk::Pool pool("ROOT", 128);
         uint8_t addresses[]{ 7, 8, 9, 0 };
-        fk::AttachedDevices ad(addresses, 0, &pool);
+        fk::Pool pool("ROOT", 128);
+        fk::AttachedDevices ad(addresses, 0, pool);
         ad.scan();
 
         while (true) {
@@ -44,7 +44,7 @@ void setup() {
 
     {
         fk::Pool pool("ROOT", 128);
-        fk::ModuleController modules(8, &pool);
+        fk::ModuleController modules(8, pool);
         fk::NetworkSettings networkSettings {
             .ssid = "Cottonwood",
             .password = "asdfasdf",

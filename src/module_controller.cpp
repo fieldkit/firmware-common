@@ -2,7 +2,7 @@
 
 namespace fk {
 
-ModuleController::ModuleController(uint8_t address, Pool *pool)
+ModuleController::ModuleController(uint8_t address, Pool &pool)
     : oneSecond(1000), beginTakeReading(pool, address), queryReadingStatus(pool, address) {
 }
 

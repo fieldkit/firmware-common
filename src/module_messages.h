@@ -14,7 +14,7 @@ private:
     Pool *pool;
 
 public:
-    ModuleQueryMessage(Pool *pool) : pool(pool) {
+    ModuleQueryMessage(Pool &pool) : pool(&pool) {
     }
 
     fk_module_WireMessageQuery *forDecode() {
@@ -37,7 +37,7 @@ private:
     Pool *pool;
 
 public:
-    ModuleReplyMessage(Pool *pool) : pool(pool) {
+    ModuleReplyMessage(Pool &pool) : pool(&pool) {
     }
 
     fk_module_WireMessageReply *forDecode() {

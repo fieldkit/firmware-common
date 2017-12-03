@@ -19,7 +19,7 @@ private:
     uint32_t checkAt{ 0 };
 
 public:
-    TwoWireTask(const char *name, Pool *pool, uint8_t address)
+    TwoWireTask(const char *name, Pool &pool, uint8_t address)
         : Task(name), query(pool), reply(pool), address(address) {
     }
 
@@ -36,7 +36,7 @@ class QueryCapabilities : public TwoWireTask {
     static constexpr char Name[] = "QueryCapabilities";
 
 public:
-    QueryCapabilities(Pool *pool, uint8_t address, uint32_t now) : TwoWireTask(Name, pool, address) {
+    QueryCapabilities(Pool &pool, uint8_t address, uint32_t now) : TwoWireTask(Name, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_CAPABILITIES;
         query.m().queryCapabilities.version = FK_MODULE_PROTOCOL_VERSION;
         query.m().queryCapabilities.callerTime = 0;
@@ -52,7 +52,7 @@ class QuerySensorCapabilities : public TwoWireTask {
     static constexpr char Name[] = "QuerySensorCapabilities";
 
 public:
-    QuerySensorCapabilities(Pool *pool, uint8_t address, uint8_t sensor) : TwoWireTask(Name, pool, address) {
+    QuerySensorCapabilities(Pool &pool, uint8_t address, uint8_t sensor) : TwoWireTask(Name, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_SENSOR_CAPABILITIES;
         query.m().querySensorCapabilities.sensor = sensor;
     }
@@ -71,7 +71,7 @@ class BeginTakeReading : public TwoWireTask {
     static constexpr char Name[] = "BeginTakeReading";
 
 public:
-    BeginTakeReading(Pool *pool, uint8_t address) : TwoWireTask(Name, pool, address) {
+    BeginTakeReading(Pool &pool, uint8_t address) : TwoWireTask(Name, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS;
     }
 
@@ -94,7 +94,7 @@ class QueryReadingStatus : public TwoWireTask {
     static constexpr char Name[] = "QueryReadingStatus";
 
 public:
-    QueryReadingStatus(Pool *pool, uint8_t address) : TwoWireTask(Name, pool, address) {
+    QueryReadingStatus(Pool &pool, uint8_t address) : TwoWireTask(Name, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_READING_STATUS;
     }
 

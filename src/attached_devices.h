@@ -15,7 +15,7 @@ private:
     QuerySensorCapabilities querySensorCapabilities;
 
 public:
-    AttachedDevices(uint8_t *addresses, uint32_t now, Pool *pool);
+    AttachedDevices(uint8_t *addresses, uint32_t now, Pool &pool);
 
 public:
     void scan();

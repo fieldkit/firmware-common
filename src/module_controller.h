@@ -13,7 +13,7 @@ private:
     QueryReadingStatus queryReadingStatus;
 
 public:
-    ModuleController(uint8_t address, Pool *pool);
+    ModuleController(uint8_t address, Pool &pool);
 
 public:
     void done(Task &task) override;
