@@ -41,7 +41,7 @@ void Module::reply() {
         outgoing.write(reply);
     }
 
-    if (!i2c_device_send(0, outgoing.ptr(), outgoing.size())) {
+    if (!i2c_device_send(0, outgoing.ptr(), outgoing.position())) {
         debugfpln("Module", "Error sending reply");
     }
 

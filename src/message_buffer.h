@@ -12,27 +12,35 @@ namespace fk {
 class MessageBuffer {
 private:
     uint8_t buffer[FK_MODULE_PROTOCOL_MAX_MESSAGE];
-    size_t length { 0 };
+    size_t pos { 0 };
 
 public:
-    const uint8_t *ptr() {
+    uint8_t *ptr() {
         return buffer;
     }
 
     size_t size() {
-        return length;
+        return FK_MODULE_PROTOCOL_MAX_MESSAGE;
+    }
+
+    size_t position() {
+        return pos;
     }
 
     void clear() {
-        length = 0;
+        pos = 0;
     }
 
     bool empty() {
-        return length == 0;
+        return pos == 0;
     }
 
     void append(uint8_t c) {
-        buffer[length++] = c;
+        buffer[pos++] = c;
+    }
+
+    void setPosition(size_t p) {
+        pos = p;
     }
 
     bool write(ModuleQueryMessage &message);
