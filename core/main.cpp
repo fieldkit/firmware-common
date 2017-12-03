@@ -3,13 +3,14 @@
 #include <cstdint>
 
 #include <Arduino.h>
-#include <Wire.h>
 
 #include "debug.h"
 #include "pool.h"
 #include "attached_devices.h"
 #include "module_controller.h"
 #include "app_servicer.h"
+#include "wifi.h"
+#include "i2c.h"
 
 extern "C" {
 
@@ -22,7 +23,7 @@ void setup() {
 
     debugfpln("Core", "Starting (%d free)", fk_free_memory());
 
-    Wire.begin();
+    fk::i2c_begin();
 
     {
         fk::Pool pool("ROOT", 128);

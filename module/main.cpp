@@ -3,7 +3,6 @@
 #include <cstdint>
 
 #include <Arduino.h>
-#include <Wire.h>
 
 #include <fk-module-protocol.h>
 #include <fk-module.h>
