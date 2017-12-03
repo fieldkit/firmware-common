@@ -8,7 +8,7 @@ class WifiMessageBuffer : public MessageBuffer {
 public:
     size_t read(WiFiClient &wcl) {
         auto pos = (size_t)wcl.read(ptr(), size());
-        setPosition(pos);
+        move(pos);
         return pos;
     }
 };

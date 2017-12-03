@@ -39,7 +39,7 @@ public:
         buffer[pos++] = c;
     }
 
-    void setPosition(size_t p) {
+    void move(size_t p) {
         pos = p;
     }
 
