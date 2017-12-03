@@ -10,38 +10,53 @@ TaskEval TaskEval::Pass;
 ActiveObject::ActiveObject() {
 }
 
+ActiveObject::ActiveObject(Task &idleTask) : idleTask(&idleTask ) {
+}
+
 void ActiveObject::push(Task &task) {
     log("%s enqueue", task.toString());
     *end() = &task;
     task.enqueued();
 }
 
+void ActiveObject::pop() {
+    if (tasks != nullptr) {
+        tasks = tasks->nextTask;
+    }
+}
+
+void ActiveObject::service(Task &active) {
+    auto& e = active.task();
+    if (areSame(e, TaskEval::Done)) {
+        log("%s done", active.toString());
+        pop();
+        active.nextTask = nullptr;
+        active.done();
+        done(active);
+    }
+    else if (areSame(e, TaskEval::Error)) {
+        log("%s error", active.toString());
+        pop();
+        active.nextTask = nullptr;
+        active.error();
+        error(active);
+    }
+    else if (e.task != nullptr) {
+        log("%s done (passing)", active.toString());
+        pop();
+        active.nextTask = nullptr;
+        active.done();
+        done(active);
+        push(*e.task);
+    }
+}
+
 void ActiveObject::tick() {
     if (!idle()) {
-        auto& curr = *tasks;
-        auto& e = curr.task();
-        if (areSame(e, TaskEval::Done)) {
-            log("%s done", curr.toString());
-            tasks = tasks->nextTask;
-            curr.nextTask = nullptr;
-            curr.done();
-            done(curr);
-        }
-        else if (areSame(e, TaskEval::Error)) {
-            log("%s error", curr.toString());
-            tasks = tasks->nextTask;
-            curr.nextTask = nullptr;
-            curr.error();
-            error(curr);
-        }
-        else if (e.task != nullptr) {
-            log("%s done (pass)", curr.toString());
-            tasks = tasks->nextTask;
-            curr.nextTask = nullptr;
-            curr.done();
-            done(curr);
-            push(*e.task);
-        }
+        service(*tasks);
+    }
+    else if (idleTask != nullptr) {
+        service(*idleTask);
     }
 }
 

@@ -100,10 +100,12 @@ public:
 
 class ActiveObject {
 private:
+    Task *idleTask { nullptr };
     Task *tasks { nullptr };
 
 public:
     ActiveObject();
+    ActiveObject(Task &idleTask);
 
 public:
     void push(Task &task);
@@ -115,6 +117,8 @@ public:
     virtual void error(Task &task);
 
 private:
+    void pop();
+    void service(Task &task);
     Task **end();
 
 };
