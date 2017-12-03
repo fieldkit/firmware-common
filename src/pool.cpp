@@ -48,6 +48,12 @@ void *Pool::malloc(size_t size) {
     return (void *)p;
 }
 
+void *Pool::copy(void *ptr, size_t size) {
+    void *newPtr = malloc(size);
+    memcpy(newPtr, ptr, size);
+    return newPtr;
+}
+
 Pool::~Pool() {
     debugfpln("Pool", "Free: 0x%x %s", this, name);
     ::free((void *)block);

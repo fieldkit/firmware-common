@@ -18,6 +18,7 @@ public:
     Pool(const char *name, size_t size, Pool *parent = nullptr);
     void clear();
     void *malloc(size_t size);
+    void *copy(void *ptr, size_t size);
     virtual ~Pool();
 
 };
