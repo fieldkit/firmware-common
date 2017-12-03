@@ -81,14 +81,16 @@ TaskEval &Listen::task() {
         }
     }
 
-    // WiFiClient is 1480 bytes. Only has one buffer of the size
-    // SOCKET_BUFFER_TCP_SIZE. Where SOCKET_BUFFER_TCP_SIZE is 1446.
-    auto wcl = server->available();
-    if (wcl) {
-        debugfpln("Wifi", "Accepted!");
+    if (connected) {
+        // WiFiClient is 1480 bytes. Only has one buffer of the size
+        // SOCKET_BUFFER_TCP_SIZE. Where SOCKET_BUFFER_TCP_SIZE is 1446.
+        auto wcl = server->available();
+        if (wcl) {
+            debugfpln("Wifi", "Accepted!");
 
-        handleConnection = HandleConnection { wcl, *modules };
-        return TaskEval::pass(handleConnection);
+            handleConnection = HandleConnection { wcl, *modules };
+            return TaskEval::pass(handleConnection);
+        }
     }
 
     return TaskEval::Idle;
