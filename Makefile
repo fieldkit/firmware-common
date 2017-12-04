@@ -5,7 +5,10 @@ default: all
 $(BUILD):
 	mkdir -p $(BUILD)
 
-all: $(BUILD) gitdeps
+core/config.h:
+	cp core/config.h.template core/config.h
+
+all: $(BUILD) gitdeps core/config.h
 	cd $(BUILD) && cmake ../
 	cd $(BUILD) && make
 
