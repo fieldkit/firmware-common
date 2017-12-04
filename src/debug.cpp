@@ -49,8 +49,11 @@ void vdebugfln(const char *f, va_list args) {
 }
 
 void vdebugfpln(const char *prefix, const char *f, va_list args) {
-    debugf("%06d %-25s: ", millis(), prefix);
-    vdebugfln(f, args);
+    char messageBuffer[FK_DEBUG_LINE_MAX];
+    char timeAndPrefix[6 + 1 + 25 + 1];
+    snprintf(timeAndPrefix, sizeof(timeAndPrefix), "%06ld %-25s: ", millis(), prefix);
+    vsnprintf(messageBuffer, FK_DEBUG_LINE_MAX, f, args);
+    debugfln("%s %s", timeAndPrefix, messageBuffer);
 }
 
 void debugfpln(const char *prefix, const char *f, ...) {
