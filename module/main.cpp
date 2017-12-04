@@ -65,36 +65,20 @@ void setup() {
 
     debugfpln("Module", "Starting (%d free)", fk_free_memory());
 
-    fk::SensorInfo sensors[] = {
-        {
-            .sensor = 0,
-            .name = "Depth",
-            .unitOfMeasure = "m",
-        },
-        {
-            .sensor = 1,
-            .name = "Temperature",
-            .unitOfMeasure = "°C",
-        },
-        {
-            .sensor = 2,
-            .name = "Conductivity",
-            .unitOfMeasure = "µS/cm",
-        }
-    };
-
-    fk::SensorReading readings[] = {
-        {},
-        {},
-        {},
-    };
-
     fk::ModuleInfo info = {
-        .address = 8,
-        .numberOfSensors = 3,
-        .name = "NOAA-CTD",
-        .sensors = sensors,
-        .readings = readings,
+        8,
+        3,
+        "NOAA-CTD",
+        { {
+            0, "Depth", "m",
+          },
+          {
+            1, "Temperature", "°C",
+          },
+          {
+            2, "Conductivity", "µS/cm",
+        } },
+        { {}, {}, {} },
     };
 
     Sensors sensorsQueue;

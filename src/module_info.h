@@ -5,10 +5,13 @@
 
 namespace fk {
 
+constexpr uint8_t MaximumNumberOfModules = 8;
+constexpr uint8_t MaximumNumberOfSensors = 32;
+
 struct SensorInfo {
     uint8_t sensor;
-    const char *name;
-    const char *unitOfMeasure;
+    char name[16];
+    char unitOfMeasure[8];
 };
 
 enum class SensorReadingStatus {
@@ -27,9 +30,9 @@ struct SensorReading {
 struct ModuleInfo {
     uint8_t address;
     uint8_t numberOfSensors;
-    const char *name;
-    SensorInfo *sensors;
-    SensorReading *readings;
+    char name[16];
+    SensorInfo sensors[MaximumNumberOfSensors];
+    SensorReading readings[MaximumNumberOfSensors];
 };
 
 }
