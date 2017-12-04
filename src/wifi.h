@@ -8,6 +8,7 @@
 #include "active_object.h"
 #include "module_controller.h"
 #include "wifi_connections.h"
+#include "live_data.h"
 
 namespace fk {
 
@@ -25,7 +26,7 @@ private:
     Listen listen;
 
 public:
-    Wifi(NetworkSettings &settings, CoreState &state, ModuleController &modules);
+    Wifi(NetworkSettings &settings, ModuleController &modules, LiveData &liveData, CoreState &state);
 
 public:
     void begin();

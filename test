@@ -2,6 +2,8 @@
 
 set -e
 
+sudo echo
+
 A=~/devices/port2
 B=~/devices/port3
 

@@ -17,7 +17,7 @@ private:
     WiFiClient wcl;
 
 public:
-    HandleConnection(WiFiClient wcl, ModuleController &modules, CoreState &state, Pool &pool);
+    HandleConnection(WiFiClient wcl, ModuleController &modules, LiveData &liveData, CoreState &state, Pool &pool);
 
     TaskEval task() override;
 };
@@ -30,11 +30,12 @@ private:
     Pool pool;
     WiFiServer *server;
     ModuleController *modules;
+    LiveData *liveData;
     CoreState *state;
     HandleConnection handleConnection;
 
 public:
-    Listen(WiFiServer &server, ModuleController &modules, CoreState &state);
+    Listen(WiFiServer &server, ModuleController &modules, LiveData &liveData, CoreState &state);
 
     TaskEval task() override;
 };

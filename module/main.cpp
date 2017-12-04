@@ -45,9 +45,9 @@ public:
 
 public:
     virtual void beginReading(fk::SensorReading *readings) override {
-        debugfpln("Module", "Readings!");
+        log("Readings!");
 
-        sensors.push(fiveSeconds);
+        // sensors.push(fiveSeconds);
         sensors.push(takeFakeReadings.into(readings));
     }
 
@@ -72,8 +72,12 @@ void setup() {
           { "Temperature", "°C" },
           { "Conductivity", "µS/cm" }
         },
-        { {}, {}, {} },
+        { { 0, 0, fk::SensorReadingStatus::Idle },
+          { 0, 0, fk::SensorReadingStatus::Idle },
+          { 0, 0, fk::SensorReadingStatus::Idle } },
     };
+
+    fk::Watchdog watchdog;
 
     Sensors sensors;
     ExampleModule module(info, sensors);
@@ -83,6 +87,7 @@ void setup() {
     while (true) {
         module.tick();
         sensors.tick();
+        watchdog.tick();
         delay(10);
     }
 }

@@ -42,6 +42,12 @@ bool MessageBuffer::write(AppReplyMessage &message) {
 }
 
 bool MessageBuffer::write(const pb_field_t *fields, void *src) {
+    /*
+    if (!pb_get_encoded_size(&size, fk_app_WireMessageReply_fields, reply_message)) {
+        debugfln("fk-core: error sizing reply");
+        return false;
+    }
+    */
     auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     if (!pb_encode_delimited(&stream, fields, src)) {
         return false;

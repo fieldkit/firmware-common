@@ -2,8 +2,8 @@
 
 namespace fk {
 
-AppServicer::AppServicer(const char *name, ModuleController &modules, CoreState &state, Pool &pool)
-    : Task(name), query(&pool), modules(&modules), state(&state), pool(&pool) {
+AppServicer::AppServicer(const char *name, ModuleController &modules, LiveData &liveData, CoreState &state, Pool &pool)
+    : Task(name), query(&pool), modules(&modules), liveData(&liveData), state(&state), pool(&pool) {
 }
 
 TaskEval AppServicer::task() {
@@ -131,9 +131,45 @@ void AppServicer::handle(AppQueryMessage &query) {
         break;
     }
     case fk_app_QueryType_QUERY_LIVE_DATA_POLL: {
+        log("Live ds (interval = %d)", query.m().liveDataPoll.interval);
+
+        if (query.m().liveDataPoll.interval > 0) {
+            liveData->start(query.m().liveDataPoll.interval);
+        }
+        else {
+            liveData->stop();
+        }
+
+        auto numberOfReadings = state->numberOfReadings();
+        fk_app_LiveDataSample samples[numberOfReadings];
+
+        for (size_t i = 0; i < numberOfReadings; ++i) {
+            auto available = state->getReading(i);
+            samples[i].sensor = available.sensor;
+            samples[i].time = available.reading.time;
+            samples[i].value = available.reading.value;
+        }
+
+        state->clearReadings();
+
+        pb_array_t live_data_array = {
+            .length = numberOfReadings,
+            .itemSize = sizeof(fk_app_LiveDataSample),
+            .buffer = samples,
+            .fields = fk_app_LiveDataSample_fields,
+        };
+
+        AppReplyMessage reply(pool);
+        reply.m().type = fk_app_ReplyType_REPLY_LIVE_DATA_POLL;
+        reply.m().liveData.samples.funcs.encode = pb_encode_array;
+        reply.m().liveData.samples.arg = (void *)&live_data_array;
+        if (!outgoing.write(reply)) {
+            log("Error writing reply");
+        }
+
+        break;
     }
-    case fk_app_QueryType_QUEYR_CONFIGURE_SENSOR: {
-    }
+    case fk_app_QueryType_QUEYR_CONFIGURE_SENSOR:
     default: {
         AppReplyMessage reply(pool);
         reply.error("Unknown query");

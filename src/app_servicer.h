@@ -5,6 +5,7 @@
 #include "app_messages.h"
 #include "module_controller.h"
 #include "core_state.h"
+#include "live_data.h"
 
 namespace fk {
 
@@ -13,11 +14,12 @@ private:
     AppQueryMessage query;
     MessageBuffer outgoing;
     ModuleController *modules;
+    LiveData *liveData;
     CoreState *state;
     Pool *pool;
 
 public:
-    AppServicer(const char *name, ModuleController &modules, CoreState &state, Pool &pool);
+    AppServicer(const char *name, ModuleController &modules, LiveData &liveData, CoreState &state, Pool &pool);
 
 public:
     TaskEval task() override;
