@@ -17,7 +17,7 @@ private:
     Pool *pool;
 
 public:
-    AppServicer(ModuleController &modules, CoreState &state, Pool &pool);
+    AppServicer(const char *name, ModuleController &modules, CoreState &state, Pool &pool);
 
 public:
     TaskEval task() override;

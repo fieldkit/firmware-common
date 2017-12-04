@@ -26,6 +26,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/message_buffer.cpp
   ${COMMON_SRCS_DIR}/wifi.cpp
   ${COMMON_SRCS_DIR}/core_state.cpp
+  ${COMMON_SRCS_DIR}/watchdog.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})

@@ -18,6 +18,7 @@
 #include "module_controller.h"
 #include "pool.h"
 #include "wifi.h"
+#include "watchdog.h"
 #include "config.h"
 
 extern "C" {
@@ -126,6 +127,7 @@ void setup() {
 
     fk::i2c_begin();
 
+    fk::Watchdog watchdog;
     fk::CoreState state;
     debugfpln("Core", "State: %d", sizeof(state));
 
@@ -136,6 +138,7 @@ void setup() {
         ad.scan();
 
         while (true) {
+            watchdog.tick();
             ad.tick();
 
             if (ad.idle()) {
@@ -162,6 +165,7 @@ void setup() {
         modules.beginReading();
 
         while (true) {
+            watchdog.tick();
             modules.tick();
             wifi.tick();
         }

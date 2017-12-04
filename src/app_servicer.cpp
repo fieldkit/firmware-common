@@ -2,8 +2,8 @@
 
 namespace fk {
 
-AppServicer::AppServicer(ModuleController &modules, CoreState &state, Pool &pool)
-    : Task("AppServicer"), query(&pool), modules(&modules), state(&state), pool(&pool) {
+AppServicer::AppServicer(const char *name, ModuleController &modules, CoreState &state, Pool &pool)
+    : Task(name), query(&pool), modules(&modules), state(&state), pool(&pool) {
 }
 
 TaskEval AppServicer::task() {

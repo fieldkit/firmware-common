@@ -37,7 +37,7 @@ public:
 };
 
 HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules, CoreState &state, Pool &pool)
-    : AppServicer(modules, state, pool), wcl(wcl) {
+    : AppServicer("HandleConnection", modules, state, pool), wcl(wcl) {
 }
 
 TaskEval HandleConnection::task() {

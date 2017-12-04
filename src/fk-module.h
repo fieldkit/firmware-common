@@ -7,5 +7,6 @@
 #include "module.h"
 #include "module_messages.h"
 #include "protobuf.h"
+#include "watchdog.h"
 
 #endif
