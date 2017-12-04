@@ -75,14 +75,14 @@ void setup() {
         { {}, {}, {} },
     };
 
-    Sensors sensorsQueue;
-    ExampleModule module(info, sensorsQueue);
+    Sensors sensors;
+    ExampleModule module(info, sensors);
 
     module.begin();
 
     while (true) {
         module.tick();
-        sensorsQueue.tick();
+        sensors.tick();
         delay(10);
     }
 }

@@ -4,6 +4,10 @@
 
 #include <Arduino.h>
 
+#include <sd_raw.h>
+#include <fkfs.h>
+#include <fkfs_log.h>
+
 #include "app_servicer.h"
 #include "attached_devices.h"
 #include "debug.h"
@@ -14,6 +18,73 @@
 
 extern "C" {
 
+const uint8_t WIFI_PIN_CS = 8;
+
+const uint8_t SD_PIN_CS = 10;
+const uint8_t FKFS_FILE_LOG = 0;
+const uint8_t FKFS_FILE_PRIORITY_LOWEST = 255;
+const uint8_t FKFS_FILE_PRIORITY_HIGHEST = 0;
+
+static fkfs_t fs = { 0 };
+static fkfs_log_t fkfs_log = { 0 };
+
+void debug_write_log(const char *str, void *arg) {
+    fkfs_log_append(&fkfs_log, str);
+}
+
+size_t fkfs_log_message(const char *f, ...) {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln("fkfs", f, args);
+    va_end(args);
+    return 0;
+}
+
+bool setupLogging() {
+    fkfs_configure_logging(fkfs_log_message);
+
+    if (!fkfs_create(&fs)) {
+        debugfln("fkfs_create failed");
+        return false;
+    }
+
+    pinMode(SD_PIN_CS, OUTPUT);
+    digitalWrite(SD_PIN_CS, HIGH);
+
+    if (!sd_raw_initialize(&fs.sd, SD_PIN_CS)) {
+        debugfln("sd_raw_initialize failed");
+        return false;
+    }
+
+    if (!fkfs_initialize_file(&fs, FKFS_FILE_LOG, FKFS_FILE_PRIORITY_LOWEST, false, "DEBUG.LOG")) {
+        debugfln("fkfs_initialize failed");
+        return false;
+    }
+
+    if (!fkfs_log_initialize(&fkfs_log, &fs, FKFS_FILE_LOG)) {
+        debugfln("fkfs_log_initialize failed");
+        return false;
+    }
+
+    if (false) {
+        if (!fkfs_initialize(&fs, true)) {
+            debugfln("fkfs_initialize failed");
+            return false;
+        }
+        fkfs_log_statistics(&fs);
+    }
+
+    if (!fkfs_initialize(&fs, false)) {
+        debugfln("fkfs_initialize failed");
+        return false;
+    }
+    fkfs_log_statistics(&fs);
+
+    debug_add_hook(debug_write_log, &fkfs_log);
+
+    return true;
+}
+
 void setup() {
     Serial.begin(115200);
 
@@ -22,6 +93,20 @@ void setup() {
     }
 
     debugfpln("Core", "Starting (%d free)", fk_free_memory());
+
+    pinMode(SD_PIN_CS, OUTPUT);
+    pinMode(WIFI_PIN_CS, OUTPUT);
+    digitalWrite(SD_PIN_CS, HIGH);
+    digitalWrite(WIFI_PIN_CS, HIGH);
+
+    delay(10);
+
+    if (!setupLogging()) {
+        debugfpln("Core", "No sd");
+        while (true) {
+            delay(10);
+        }
+    }
 
     fk::i2c_begin();
 

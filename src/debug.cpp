@@ -13,10 +13,16 @@ void debug_add_hook(debug_hook_fn_t hook, void *arg) {
     global_hook_arg = arg;
 }
 
+bool insideHook = false;
+
 void debug(const char *str) {
     Serial.print(str);
     if (global_hook_fn != nullptr) {
-        global_hook_fn(str, global_hook_arg);
+        if (!insideHook) {
+            insideHook = true;
+            global_hook_fn(str, global_hook_arg);
+            insideHook = false;
+        }
     }
 }
 

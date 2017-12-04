@@ -1,8 +1,9 @@
 set(SOURCE_FILES ${COMMON_SOURCE_FILES} main.cpp)
 
 set(LIBRARIES
-  SPI
   Wire
+  SD
+  SPI
   ../module-protocol
 )
 
