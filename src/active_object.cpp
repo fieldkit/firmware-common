@@ -5,6 +5,9 @@ namespace fk {
 ActiveObject::ActiveObject() : name("AO") {
 }
 
+ActiveObject::ActiveObject(const char *name) : name(name) {
+}
+
 ActiveObject::ActiveObject(const char *name, Task &idleTask) : name(name), idleTask(&idleTask) {
 }
 
