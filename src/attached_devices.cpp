@@ -3,7 +3,7 @@
 namespace fk {
 
 AttachedDevices::AttachedDevices(uint8_t *addresses, CoreState &state, Pool &pool)
-    : addresses(addresses), state(&state), pool(&pool), queryCapabilities(pool, 0, 0), querySensorCapabilities(pool, 0, 0) {
+    : addresses(addresses), state(&state), pool(&pool), queryCapabilities(pool, 0), querySensorCapabilities(pool, 0, 0) {
 }
 
 void AttachedDevices::scan() {
@@ -15,7 +15,7 @@ void AttachedDevices::scan() {
 void AttachedDevices::query(uint8_t address) {
     log("[0x%d]: Query", address);
 
-    queryCapabilities = QueryCapabilities(*pool, address, 0);
+    queryCapabilities = QueryCapabilities(*pool, address);
     push(queryCapabilities);
 }
 

@@ -40,7 +40,7 @@ class QueryCapabilities : public TwoWireTask {
     static constexpr char Name[] = "QueryCapabilities";
 
 public:
-    QueryCapabilities(Pool &pool, uint8_t address, uint32_t now) : TwoWireTask(Name, pool, address) {
+    QueryCapabilities(Pool &pool, uint8_t address) : TwoWireTask(Name, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_CAPABILITIES;
         query.m().queryCapabilities.version = FK_MODULE_PROTOCOL_VERSION;
         query.m().queryCapabilities.callerTime = 0;
