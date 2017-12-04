@@ -12,6 +12,7 @@
 
 #include "app_servicer.h"
 #include "attached_devices.h"
+#include "core_state.h"
 #include "debug.h"
 #include "i2c.h"
 #include "module_controller.h"
@@ -124,10 +125,13 @@ void setup() {
 
     fk::i2c_begin();
 
+    fk::CoreState state;
+    debugfpln("Core", "State: %d", sizeof(state));
+
     {
         uint8_t addresses[]{ 7, 8, 9, 0 };
         fk::Pool pool("ROOT", 128);
-        fk::AttachedDevices ad(addresses, 0, pool);
+        fk::AttachedDevices ad(addresses, state, pool);
         ad.scan();
 
         while (true) {
@@ -149,7 +153,7 @@ void setup() {
             .password = "asdfasdf",
             .port = 54321,
         };
-        fk::Wifi wifi(networkSettings, modules);
+        fk::Wifi wifi(networkSettings, state, modules);
 
         // TODO: Fix that this is blocking when connecting.
         wifi.begin();

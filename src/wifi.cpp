@@ -36,8 +36,8 @@ public:
     }
 };
 
-HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules, Pool &pool)
-    : AppServicer(modules, pool), wcl(wcl) {
+HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules, CoreState &state, Pool &pool)
+    : AppServicer(modules, state, pool), wcl(wcl) {
 }
 
 TaskEval HandleConnection::task() {
@@ -68,9 +68,9 @@ TaskEval HandleConnection::task() {
     return TaskEval::idle();
 }
 
-Listen::Listen(WiFiServer &server, ModuleController &modules)
-    : Task(Name), pool("WifiService", 128), server(&server), modules(&modules),
-      handleConnection(WiFiClient(), modules, pool) {
+Listen::Listen(WiFiServer &server, ModuleController &modules, CoreState &state)
+    : Task(Name), pool("WifiService", 128), server(&server), modules(&modules), state(&state),
+      handleConnection(WiFiClient(), modules, state, pool) {
 }
 
 TaskEval Listen::task() {
@@ -94,7 +94,7 @@ TaskEval Listen::task() {
         if (wcl) {
             log("Accepted!");
             pool.clear();
-            handleConnection = HandleConnection{ wcl, *modules, pool };
+            handleConnection = HandleConnection{ wcl, *modules, *state, pool };
             return TaskEval::pass(handleConnection);
         }
     }
@@ -102,9 +102,9 @@ TaskEval Listen::task() {
     return TaskEval::idle();
 }
 
-Wifi::Wifi(NetworkSettings &settings, ModuleController &modules)
+Wifi::Wifi(NetworkSettings &settings, CoreState &state, ModuleController &modules)
     : ActiveObject("Wifi", listen), settings(&settings), modules(&modules), server(settings.port),
-      listen(server, modules) {
+      listen(server, modules, state) {
 }
 
 void Wifi::begin() {

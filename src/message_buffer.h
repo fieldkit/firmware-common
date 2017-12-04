@@ -11,7 +11,7 @@ namespace fk {
 
 class MessageBuffer {
 private:
-    uint8_t buffer[FK_MODULE_PROTOCOL_MAX_MESSAGE];
+    uint8_t buffer[FK_APP_PROTOCOL_MAX_MESSAGE];
     size_t pos{ 0 };
 
 public:
@@ -20,7 +20,7 @@ public:
     }
 
     size_t size() {
-        return FK_MODULE_PROTOCOL_MAX_MESSAGE;
+        return FK_APP_PROTOCOL_MAX_MESSAGE;
     }
 
     size_t position() {

@@ -3,19 +3,20 @@
 
 #include "active_object.h"
 #include "two_wire_task.h"
+#include "core_state.h"
 
 namespace fk {
 
 class AttachedDevices : public ActiveObject {
 private:
     uint8_t *addresses;
-    uint32_t now;
+    CoreState *state;
     Pool *pool;
     QueryCapabilities queryCapabilities;
     QuerySensorCapabilities querySensorCapabilities;
 
 public:
-    AttachedDevices(uint8_t *addresses, uint32_t now, Pool &pool);
+    AttachedDevices(uint8_t *addresses, CoreState &state, Pool &pool);
 
 public:
     void scan();
@@ -23,7 +24,7 @@ public:
     void error(Task &task) override;
 
 private:
-    void query(uint8_t address, uint32_t now);
+    void query(uint8_t address);
 
 };
 

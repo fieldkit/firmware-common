@@ -28,6 +28,10 @@ public:
         checkAt = 0;
     }
 
+    ModuleReplyMessage &replyMessage() {
+        return reply;
+    }
+
     TaskEval task() override;
 
 };

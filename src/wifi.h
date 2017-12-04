@@ -15,7 +15,7 @@ class HandleConnection : public AppServicer {
     WiFiClient wcl;
 
 public:
-    HandleConnection(WiFiClient wcl, ModuleController &modules, Pool &pool);
+    HandleConnection(WiFiClient wcl, ModuleController &modules, CoreState &state, Pool &pool);
 
     TaskEval task() override;
 };
@@ -28,10 +28,11 @@ private:
     Pool pool;
     WiFiServer *server;
     ModuleController *modules;
+    CoreState *state;
     HandleConnection handleConnection;
 
 public:
-    Listen(WiFiServer &server, ModuleController &modules);
+    Listen(WiFiServer &server, ModuleController &modules, CoreState &state);
 
     TaskEval task() override;
 };
@@ -50,7 +51,7 @@ private:
     Listen listen;
 
 public:
-    Wifi(NetworkSettings &settings, ModuleController &modules);
+    Wifi(NetworkSettings &settings, CoreState &state, ModuleController &modules);
 
     void begin();
 
