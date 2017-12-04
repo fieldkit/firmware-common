@@ -53,7 +53,7 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         SensorInfo &sensor = info->sensors[index];
 
         ModuleReplyMessage reply(*pool);
-        reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES;
+        reply.m().type = fk_module_ReplyType_REPLY_SENSOR_CAPABILITIES;
         reply.m().sensorCapabilities.id = index;
         reply.m().sensorCapabilities.name.arg = (void *)sensor.name;
         reply.m().sensorCapabilities.unitOfMeasure.arg = (void *)sensor.unitOfMeasure;
