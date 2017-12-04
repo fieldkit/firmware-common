@@ -40,22 +40,31 @@ HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules, Co
     : AppServicer("HandleConnection", modules, state, pool), wcl(wcl) {
 }
 
+constexpr uint32_t ConnectionTimeout = 5000;
+
 TaskEval HandleConnection::task() {
+    if (dieAt == 0) {
+        dieAt = millis() + ConnectionTimeout;
+    } else if (millis() > dieAt) {
+        wcl.stop();
+        log("Connection timed out.");
+        return TaskEval::error();
+    }
     if (wcl.available()) {
         WifiMessageBuffer incoming;
         auto bytesRead = incoming.read(wcl);
         if (bytesRead > 0) {
-            debugfpln("Wifi", "Read %d bytes", bytesRead);
+            log("Read %d bytes", bytesRead);
             if (!read(incoming)) {
                 wcl.stop();
-                debugfpln("Wifi", "Error parsing query");
+                log("Error parsing query");
                 return TaskEval::error();
             } else {
                 auto e = AppServicer::task();
                 if (!e.isIdle()) {
                     auto &buffer = outgoingBuffer();
                     auto bytesWritten = wcl.write(buffer.ptr(), buffer.position());
-                    debugfpln("Wifi", "Wrote %d bytes", bytesWritten);
+                    log("Wrote %d bytes", bytesWritten);
                     fk_assert(bytesWritten == buffer.position());
                     buffer.clear();
                     wcl.stop();

@@ -12,6 +12,8 @@
 namespace fk {
 
 class HandleConnection : public AppServicer {
+private:
+    uint32_t dieAt { 0 };
     WiFiClient wcl;
 
 public:
