@@ -18,6 +18,7 @@
 #include "module_controller.h"
 #include "pool.h"
 #include "wifi.h"
+#include "config.h"
 
 extern "C" {
 
@@ -149,9 +150,9 @@ void setup() {
         fk::Pool pool("ROOT", 128);
         fk::ModuleController modules(8, pool);
         fk::NetworkSettings networkSettings {
-            .ssid = "Cottonwood",
-            .password = "asdfasdf",
-            .port = 54321,
+            .ssid = FK_CONFIG_WIFI_SSID,
+            .password = FK_CONFIG_WIFI_PASSWORD,
+            .port = FK_CONFIG_WIFI_PORT,
         };
         fk::Wifi wifi(networkSettings, state, modules);
 
