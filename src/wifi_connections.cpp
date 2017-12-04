@@ -4,13 +4,12 @@
 
 namespace fk {
 
-constexpr char Listen::Name[];
+constexpr uint32_t ConnectionTimeout = 5000;
+constexpr uint32_t ConnectionMemory = 128;
 
 HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules, CoreState &state, Pool &pool)
     : AppServicer("HandleConnection", modules, state, pool), wcl(wcl) {
 }
-
-constexpr uint32_t ConnectionTimeout = 5000;
 
 TaskEval HandleConnection::task() {
     if (dieAt == 0) {
@@ -47,8 +46,10 @@ TaskEval HandleConnection::task() {
     return TaskEval::idle();
 }
 
+constexpr char Listen::Name[];
+
 Listen::Listen(WiFiServer &server, ModuleController &modules, CoreState &state)
-    : Task(Name), pool("WifiService", 128), server(&server), modules(&modules), state(&state),
+    : Task(Name), pool("WifiService", ConnectionMemory), server(&server), modules(&modules), state(&state),
       handleConnection(WiFiClient(), modules, state, pool) {
 }
 

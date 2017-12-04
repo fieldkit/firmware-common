@@ -5,6 +5,8 @@
 
 namespace fk {
 
+constexpr uint32_t ModuleServicingMemory = 128;
+
 static void module_request_callback() {
     fk_assert(fk::Module::active != nullptr);
 
@@ -18,7 +20,7 @@ static void module_receive_callback(int bytes) {
 }
 
 Module::Module(ModuleInfo &info)
-    : replyPool("REPLY", 128), handleIncoming{ &info, *this, outgoing, incoming, replyPool }, info(&info) {
+    : replyPool("REPLY", ModuleServicingMemory), handleIncoming{ &info, *this, outgoing, incoming, replyPool }, info(&info) {
 }
 
 void Module::begin() {
@@ -48,7 +50,7 @@ void Module::reply() {
     }
 
     if (!i2c_device_send(0, outgoing.ptr(), outgoing.position())) {
-        debugfpln("Module", "Error sending reply");
+        log("Error sending reply");
     }
 
     // Careful here if this is called after we've placed a message in the
