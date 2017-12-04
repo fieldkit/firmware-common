@@ -70,4 +70,26 @@ bool pb_encode_array(pb_ostream_t *stream, const pb_field_t *field, void *const 
     return true;
 }
 
+
+bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void * const *arg) {
+    auto data = (pb_data_t *)*arg;
+
+    if (!pb_encode_tag_for_field(stream, field)) {
+        return false;
+    }
+
+    if (!pb_encode_varint(stream, data->length)) {
+        return false;
+    }
+
+    auto ptr = (uint8_t *)data->buffer;
+    if (ptr != nullptr) {
+        if (!pb_write(stream, ptr, data->length)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 }

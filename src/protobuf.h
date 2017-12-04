@@ -19,6 +19,12 @@ typedef struct pb_array_t {
 
 bool pb_encode_array(pb_ostream_t *stream, const pb_field_t *field, void *const *arg);
 
+typedef struct pb_data_t {
+    size_t length;
+    const void *buffer;
+} pb_data_t;
+
+bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void * const *arg);
 }
 
 #endif
