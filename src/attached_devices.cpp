@@ -38,7 +38,7 @@ void AttachedDevices::done(Task &task) {
     }
 }
 
-void AttachedDevices::error(Task &task) {
+void AttachedDevices::error(Task &) {
     addresses++;
     scan();
 }

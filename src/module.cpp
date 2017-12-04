@@ -60,10 +60,10 @@ void Module::reply() {
     replyPool.clear();
 }
 
-void Module::beginReading(SensorReading *readings) {
+void Module::beginReading(SensorReading *) {
 }
 
-void Module::readingDone(SensorReading *readings) {
+void Module::readingDone(SensorReading *) {
 }
 
 Module *Module::active{ nullptr };

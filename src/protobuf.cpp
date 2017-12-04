@@ -23,7 +23,7 @@ bool pb_encode_string(pb_ostream_t *stream, const pb_field_t *field, void *const
     return pb_encode_string(stream, (uint8_t *)str, strlen(str));
 }
 
-bool pb_decode_string(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+bool pb_decode_string(pb_istream_t *stream, const pb_field_t *, void **arg) {
     auto pool = (Pool *)(*arg);
     auto len = stream->bytes_left;
 

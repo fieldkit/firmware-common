@@ -55,10 +55,10 @@ bool ActiveObject::idle() {
     return tasks == nullptr;
 }
 
-void ActiveObject::done(Task &task) {
+void ActiveObject::done(Task &) {
 }
 
-void ActiveObject::error(Task &task) {
+void ActiveObject::error(Task &) {
 }
 
 void ActiveObject::log(const char *f, ...) const {

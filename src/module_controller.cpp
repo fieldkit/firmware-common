@@ -34,7 +34,7 @@ void ModuleController::done(Task &task) {
     }
 }
 
-void ModuleController::error(Task &task) {
+void ModuleController::error(Task &) {
 }
 
 }
