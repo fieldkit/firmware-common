@@ -22,7 +22,6 @@ public:
 
     fk::TaskEval task() override {
         for (size_t i = 0; i < 3; ++i) {
-            readings[i].sensor = i;
             readings[i].time = millis();
             readings[i].value = (float)i;
             readings[i].status = fk::SensorReadingStatus::Done;
@@ -69,15 +68,10 @@ void setup() {
         8,
         3,
         "NOAA-CTD",
-        { {
-            0, "Depth", "m",
-          },
-          {
-            1, "Temperature", "°C",
-          },
-          {
-            2, "Conductivity", "µS/cm",
-        } },
+        { { "Depth", "m" },
+          { "Temperature", "°C" },
+          { "Conductivity", "µS/cm" }
+        },
         { {}, {}, {} },
     };
 

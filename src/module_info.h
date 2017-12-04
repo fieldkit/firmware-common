@@ -9,7 +9,6 @@ constexpr uint8_t MaximumNumberOfModules = 8;
 constexpr uint8_t MaximumNumberOfSensors = 32;
 
 struct SensorInfo {
-    uint8_t sensor;
     char name[16];
     char unitOfMeasure[8];
 };
@@ -21,7 +20,6 @@ enum class SensorReadingStatus {
 };
 
 struct SensorReading {
-    uint8_t sensor;
     uint32_t time;
     float value;
     SensorReadingStatus status;

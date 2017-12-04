@@ -95,7 +95,7 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
             if (info->readings[i].status == SensorReadingStatus::Done) {
                 log("Sending reading");
                 reply.m().readingStatus.state = fk_module_ReadingState_DONE;
-                reply.m().sensorReading.sensor = info->readings[i].sensor;
+                reply.m().sensorReading.sensor = i;
                 reply.m().sensorReading.time = info->readings[i].time;
                 reply.m().sensorReading.value = info->readings[i].value;
                 info->readings[i].status = SensorReadingStatus::Idle;
