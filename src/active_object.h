@@ -104,13 +104,16 @@ inline bool areSame(const Task &a, const Task &b) {
 class Delay : public Task {
     uint32_t duration{ 0 };
     uint32_t dieAt{ 0 };
+    bool startOnEnqueue{ false };
 
 public:
-    Delay(uint32_t duration) : Task("Delay"), duration(duration) {
+    Delay(uint32_t duration, bool startOnEnqueue = true) : Task("Delay"), duration(duration), dieAt(millis() + duration), startOnEnqueue(startOnEnqueue) {
     }
 
     void enqueued() override {
-        dieAt = 0;
+        if (startOnEnqueue) {
+            dieAt = 0;
+        }
     }
 
     TaskEval task() override {

@@ -23,7 +23,7 @@ public:
     fk::TaskEval task() override {
         for (size_t i = 0; i < 3; ++i) {
             readings[i].time = millis();
-            readings[i].value = (float)i;
+            readings[i].value = random(10, 20);
             readings[i].status = fk::SensorReadingStatus::Done;
         }
 
@@ -47,7 +47,6 @@ public:
     virtual void beginReading(fk::SensorReading *readings) override {
         log("Readings!");
 
-        // sensors.push(fiveSeconds);
         sensors.push(takeFakeReadings.into(readings));
     }
 

@@ -4,19 +4,19 @@ namespace fk {
 
 LiveData::LiveData(CoreState &state, Pool &pool) :
     ActiveObject("LiveData"),
-    state(&state), pool(&pool), delay(1000),
+    state(&state), pool(&pool), checkDelay(250), takeReadingsDelay(1000),
     beginTakeReading(pool, 8), queryReadingStatus(pool, 8) {
 }
 
 void LiveData::start(uint32_t newInterval) {
     if (interval != newInterval) {
         interval = newInterval;
-        delay = Delay{ interval };
+        takeReadingsDelay = Delay{ interval, true };
 
         log("Started");
 
         push(beginTakeReading);
-        push(delay);
+        push(checkDelay);
         push(queryReadingStatus);
     }
 }
@@ -26,21 +26,29 @@ void LiveData::stop() {
 }
 
 void LiveData::done(Task &task) {
+    if (interval == 0)  {
+        return;
+    }
+
     if (areSame(task, queryReadingStatus)) {
         state->merge(8, queryReadingStatus.replyMessage());
 
-        // TODO: This could be better. For example we should probably add a
-        // delay if we don't get a value back after an immediate retry.
-        if (queryReadingStatus.isDone()) {
+        if (queryReadingStatus.isBusy()) {
+            push(checkDelay);
+            push(queryReadingStatus);
+        } else if (queryReadingStatus.isDone()) {
             push(queryReadingStatus);
         }
         else {
-            if (interval > 0) {
-                push(beginTakeReading);
-                push(delay);
-                push(queryReadingStatus);
-            }
+            push(takeReadingsDelay);
         }
+    }
+
+    if (areSame(task, takeReadingsDelay)) {
+        takeReadingsDelay = Delay{ interval, true };
+        push(beginTakeReading);
+        push(checkDelay);
+        push(queryReadingStatus);
     }
 }
 

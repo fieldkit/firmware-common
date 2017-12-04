@@ -8,12 +8,13 @@ namespace fk {
 
 class LiveData : public ActiveObject {
 private:
-    uint32_t interval { 0 };
+    uint32_t interval{ 0 };
     CoreState *state;
     Pool *pool;
 
 private:
-    Delay delay;
+    Delay checkDelay;
+    Delay takeReadingsDelay;
     BeginTakeReading beginTakeReading;
     QueryReadingStatus queryReadingStatus;
 
