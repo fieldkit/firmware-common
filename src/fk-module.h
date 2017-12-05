@@ -8,5 +8,6 @@
 #include "module_messages.h"
 #include "protobuf.h"
 #include "watchdog.h"
+#include "rtc.h"
 
 #endif

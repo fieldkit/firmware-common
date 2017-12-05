@@ -40,10 +40,6 @@ public:
         setTime(DateTime(unix));
     }
 
-    bool valid() {
-        return rtc.getYear() == 2000;
-    }
-
     DateTime now() {
         return DateTime(rtc.getYear(),
                         rtc.getMonth(),

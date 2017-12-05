@@ -76,7 +76,10 @@ void setup() {
           { 0, 0, fk::SensorReadingStatus::Idle } },
     };
 
+    fk::Clock clock;
     fk::Watchdog watchdog;
+
+    clock.begin();
 
     Sensors sensors;
     ExampleModule module(info, sensors);

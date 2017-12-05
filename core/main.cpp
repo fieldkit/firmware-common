@@ -135,6 +135,8 @@ void setup() {
 
     clock.begin();
 
+    clock.setTime(DateTime(2017, 12, 4, 11, 59, 30));
+
     debugfpln("Core", "State: %d", sizeof(state));
 
     {
@@ -153,13 +155,19 @@ void setup() {
         }
     }
 
+    auto now = clock.now();
+    debugfpln("Core", "Now: %d/%d/%d %02d:%02d:%02d", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());
+
     debugfpln("Core", "Idle");
 
     {
         fk::Delay delay(1000);
         fk::ScheduledTask tasks[] = {
-            fk::ScheduledTask{ -1, -1, -1, -1, delay },
-            fk::ScheduledTask{ -1, -1, -1, -1, delay },
+            fk::ScheduledTask{ { 45, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, delay },
+            fk::ScheduledTask{ {  0, -1 }, {  5, -1 }, { -1, -1 }, { -1, -1 }, delay },
+            fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, delay },
+            // Never:
+            fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, delay },
         };
 
         fk::Pool pool("ROOT", 128);
@@ -171,7 +179,7 @@ void setup() {
         };
         fk::AppServicer appServicer(liveData, state, pool);
         fk::Wifi wifi(networkSettings, appServicer);
-        fk::Scheduler scheduler(state, tasks);
+        fk::Scheduler scheduler(state, clock, tasks);
 
         // TODO: Fix that this is blocking when connecting.
         wifi.begin();

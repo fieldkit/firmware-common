@@ -3,39 +3,57 @@
 
 #include "active_object.h"
 #include "core_state.h"
+#include "rtc.h"
 
 namespace fk {
 
+struct TimeSpec {
+    int8_t fixed;
+    int8_t divisor;
+};
+
 class ScheduledTask {
 private:
-    int8_t second;
-    int8_t minute;
-    int8_t hour;
-    int8_t day;
-    bool triggered;
+    TimeSpec second;
+    TimeSpec minute;
+    TimeSpec hour;
+    TimeSpec day;
+    DateTime lastRan;
     Task *task;
 
 public:
-    ScheduledTask(int8_t second, int8_t minute, int8_t hour, int8_t day, Task &task) :
+    ScheduledTask(TimeSpec second, TimeSpec minute, TimeSpec hour, TimeSpec day, Task &task) :
         second(second), minute(minute), hour(hour), day(day), task(&task) {
     }
 
-    bool shouldFire() {
-        return false;
-    };
+public:
+    bool shouldRun(DateTime now);
+
+    bool valid();
+
+    bool matches(DateTime now);
+
+    Task &getTask() {
+        return *task;
+    }
 
 };
 
 class Scheduler : public ActiveObject {
 private:
     CoreState *state;
+    Clock *clock;
     ScheduledTask *tasks;
     size_t numberOfTasks;
 
 public:
     template<size_t N>
-    Scheduler(CoreState &state, ScheduledTask (&tasks)[N]) : ActiveObject("Scheduler"), state(&state), tasks(tasks), numberOfTasks(N) {
+    Scheduler(CoreState &state, Clock &clock, ScheduledTask (&tasks)[N]) :
+        ActiveObject("Scheduler"), state(&state), clock(&clock), tasks(tasks), numberOfTasks(N) {
     }
+
+public:
+    void idle() override;
 
 };
 
