@@ -31,6 +31,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/live_data.cpp
   ${COMMON_SRCS_DIR}/scheduler.cpp
   ${COMMON_SRCS_DIR}/simple_ntp.cpp
+  ${COMMON_SRCS_DIR}/core.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})

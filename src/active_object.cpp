@@ -30,6 +30,7 @@ void ActiveObject::service(Task &active) {
         pop();
         active.nextTask = nullptr;
         *end() = &active;
+        idle();
     } else if (e.isDone()) {
         log("%s done", active.toString());
         pop();

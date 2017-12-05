@@ -10,20 +10,9 @@
 #include <fkfs.h>
 #include <fkfs_log.h>
 
-#include "app_servicer.h"
-#include "attached_devices.h"
-#include "core_state.h"
-#include "debug.h"
-#include "i2c.h"
-#include "module_controller.h"
-#include "pool.h"
-#include "wifi.h"
-#include "watchdog.h"
+#include <fk-core.h>
+
 #include "config.h"
-#include "app_servicer.h"
-#include "scheduler.h"
-#include "rtc.h"
-#include "simple_ntp.h"
 
 extern "C" {
 
