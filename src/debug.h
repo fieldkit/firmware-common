@@ -20,4 +20,6 @@ uint32_t fk_free_memory();
 
 void __fk_assert(const char *msg, const char *file, int lineno);
 
+#define fk_memzero(ptr, size) memset(ptr, 0, size)
+
 #endif

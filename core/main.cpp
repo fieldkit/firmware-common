@@ -23,6 +23,7 @@
 #include "app_servicer.h"
 #include "scheduler.h"
 #include "rtc.h"
+#include "simple_ntp.h"
 
 extern "C" {
 
@@ -100,6 +101,7 @@ bool setupLogging() {
 
     return true;
 }
+
 
 void setup() {
     Serial.begin(115200);
@@ -180,6 +182,9 @@ void setup() {
         fk::AppServicer appServicer(liveData, state, pool);
         fk::Wifi wifi(networkSettings, appServicer);
         fk::Scheduler scheduler(state, clock, tasks);
+        fk::SimpleNTP ntp(clock);
+
+        scheduler.push(ntp);
 
         // TODO: Fix that this is blocking when connecting.
         wifi.begin();

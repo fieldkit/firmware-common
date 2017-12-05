@@ -30,6 +30,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/watchdog.cpp
   ${COMMON_SRCS_DIR}/live_data.cpp
   ${COMMON_SRCS_DIR}/scheduler.cpp
+  ${COMMON_SRCS_DIR}/simple_ntp.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})
