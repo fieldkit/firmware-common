@@ -7,18 +7,19 @@
 
 #include "active_object.h"
 #include "app_servicer.h"
-#include "core_state.h"
 
 namespace fk {
 
-class HandleConnection : public AppServicer {
+class HandleConnection : public Task {
 private:
-    uint32_t dieAt { 0 };
+    uint32_t dieAt{ 0 };
     WiFiClient wcl;
+    AppServicer *servicer;
 
 public:
-    HandleConnection(WiFiClient wcl, LiveData &liveData, CoreState &state, Pool &pool);
+    HandleConnection(WiFiClient wcl, AppServicer &servicer);
 
+public:
     TaskEval task() override;
 };
 
@@ -29,13 +30,13 @@ private:
     bool connected{ false };
     Pool pool;
     WiFiServer *server;
-    LiveData *liveData;
-    CoreState *state;
+    AppServicer *servicer;
     HandleConnection handleConnection;
 
 public:
-    Listen(WiFiServer &server, LiveData &liveData, CoreState &state);
+    Listen(WiFiServer &server, AppServicer &servicer);
 
+public:
     TaskEval task() override;
 };
 

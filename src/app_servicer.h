@@ -3,7 +3,6 @@
 
 #include "active_object.h"
 #include "app_messages.h"
-#include "module_controller.h"
 #include "core_state.h"
 #include "live_data.h"
 
@@ -12,21 +11,19 @@ namespace fk {
 class AppServicer : public Task {
 private:
     AppQueryMessage query;
-    MessageBuffer outgoing;
+    MessageBuffer *buffer{ nullptr };
     LiveData *liveData;
     CoreState *state;
     Pool *pool;
 
 public:
-    AppServicer(const char *name, LiveData &liveData, CoreState &state, Pool &pool);
+    AppServicer(LiveData &liveData, CoreState &state, Pool &pool);
 
 public:
     TaskEval task() override;
 
-    MessageBuffer &outgoingBuffer() {
-        return outgoing;
-    }
-    bool read(MessageBuffer &buffer);
+public:
+    bool handle(MessageBuffer &buffer);
     void handle(AppQueryMessage &query);
 
 };

@@ -20,6 +20,7 @@
 #include "wifi.h"
 #include "watchdog.h"
 #include "config.h"
+#include "app_servicer.h"
 
 extern "C" {
 
@@ -157,7 +158,8 @@ void setup() {
             .password = FK_CONFIG_WIFI_PASSWORD,
             .port = FK_CONFIG_WIFI_PORT,
         };
-        fk::Wifi wifi(networkSettings, liveData, state);
+        fk::AppServicer appServicer(liveData, state, pool);
+        fk::Wifi wifi(networkSettings, appServicer);
 
         // TODO: Fix that this is blocking when connecting.
         wifi.begin();

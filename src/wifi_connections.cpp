@@ -7,8 +7,8 @@ namespace fk {
 constexpr uint32_t ConnectionTimeout = 5000;
 constexpr uint32_t ConnectionMemory = 128;
 
-HandleConnection::HandleConnection(WiFiClient wcl, LiveData &liveData, CoreState &state, Pool &pool)
-    : AppServicer("HandleConnection", liveData, state, pool), wcl(wcl) {
+HandleConnection::HandleConnection(WiFiClient wcl, AppServicer &servicer)
+    : Task("HandleConnection"), wcl(wcl), servicer(&servicer) {
 }
 
 TaskEval HandleConnection::task() {
@@ -20,18 +20,17 @@ TaskEval HandleConnection::task() {
         return TaskEval::error();
     }
     if (wcl.available()) {
-        WifiMessageBuffer incoming;
-        auto bytesRead = incoming.read(wcl);
+        WifiMessageBuffer buffer;
+        auto bytesRead = buffer.read(wcl);
         if (bytesRead > 0) {
             log("Read %d bytes", bytesRead);
-            if (!read(incoming)) {
+            if (!servicer->handle(buffer)) {
                 wcl.stop();
                 log("Error parsing query");
                 return TaskEval::error();
             } else {
-                auto e = AppServicer::task();
+                auto e = servicer->task();
                 if (!e.isIdle()) {
-                    auto &buffer = outgoingBuffer();
                     auto bytesWritten = wcl.write(buffer.ptr(), buffer.position());
                     log("Wrote %d bytes", bytesWritten);
                     fk_assert(bytesWritten == buffer.position());
@@ -48,9 +47,9 @@ TaskEval HandleConnection::task() {
 
 constexpr char Listen::Name[];
 
-Listen::Listen(WiFiServer &server, LiveData &liveData, CoreState &state)
+Listen::Listen(WiFiServer &server, AppServicer &servicer)
     : Task(Name), pool("WifiService", ConnectionMemory), server(&server),
-      liveData(&liveData), state(&state), handleConnection(WiFiClient(), liveData, state, pool) {
+      servicer(&servicer), handleConnection(WiFiClient(), servicer) {
 }
 
 TaskEval Listen::task() {
@@ -74,7 +73,7 @@ TaskEval Listen::task() {
         if (wcl) {
             log("Accepted!");
             pool.clear();
-            handleConnection = HandleConnection{ wcl, *liveData, *state, pool };
+            handleConnection = HandleConnection{ wcl, *servicer };
             return TaskEval::pass(handleConnection);
         }
     }

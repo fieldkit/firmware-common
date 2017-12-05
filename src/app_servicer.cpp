@@ -2,17 +2,19 @@
 
 namespace fk {
 
-AppServicer::AppServicer(const char *name, LiveData &liveData, CoreState &state, Pool &pool)
-    : Task(name), query(&pool), liveData(&liveData), state(&state), pool(&pool) {
+AppServicer::AppServicer(LiveData &liveData, CoreState &state, Pool &pool)
+    : Task("AppServicer"), query(&pool), liveData(&liveData), state(&state), pool(&pool) {
 }
 
 TaskEval AppServicer::task() {
     handle(query);
+
     return TaskEval::done();
 }
 
-bool AppServicer::read(MessageBuffer &buffer) {
-    return buffer.read(query);
+bool AppServicer::handle(MessageBuffer &buffer) {
+    this->buffer = &buffer;
+    return this->buffer->read(query);
 }
 
 void AppServicer::handle(AppQueryMessage &query) {
@@ -53,7 +55,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().capabilities.name.arg = (void *)"NOAA-CTD";
         reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
         reply.m().capabilities.sensors.arg = (void *)&sensors_array;
-        if (!outgoing.write(reply)) {
+        if (!buffer->write(reply)) {
             log("Error writing reply");
         }
 
@@ -91,7 +93,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().type = fk_app_ReplyType_REPLY_DATA_SETS;
         reply.m().dataSets.dataSets.funcs.encode = pb_encode_array;
         reply.m().dataSets.dataSets.arg = (void *)&data_sets_array;
-        if (!outgoing.write(reply)) {
+        if (!buffer->write(reply)) {
             log("Error writing reply");
         }
 
@@ -100,10 +102,10 @@ void AppServicer::handle(AppQueryMessage &query) {
     case fk_app_QueryType_QUERY_DOWNLOAD_DATA_SET: {
         log("Download ds %d page=%d", query.m().downloadDataSet.id, query.m().downloadDataSet.page);
 
-        uint8_t buffer[1024] = { 0 };
+        uint8_t page[1024] = { 0 };
         pb_data_t data = {
             .length = 1024,
-            .buffer = buffer,
+            .buffer = page,
         };
 
         AppReplyMessage reply(pool);
@@ -113,7 +115,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().dataSetData.data.funcs.encode = pb_encode_data;
         reply.m().dataSetData.data.arg = (void *)&data;
         reply.m().dataSetData.hash = 0;
-        if (!outgoing.write(reply)) {
+        if (!buffer->write(reply)) {
             log("Error writing reply");
         }
 
@@ -124,7 +126,7 @@ void AppServicer::handle(AppQueryMessage &query) {
 
         AppReplyMessage reply(pool);
         reply.m().type = fk_app_ReplyType_REPLY_SUCCESS;
-        if (!outgoing.write(reply)) {
+        if (!buffer->write(reply)) {
             log("Error writing reply");
         }
 
@@ -163,7 +165,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().type = fk_app_ReplyType_REPLY_LIVE_DATA_POLL;
         reply.m().liveData.samples.funcs.encode = pb_encode_array;
         reply.m().liveData.samples.arg = (void *)&live_data_array;
-        if (!outgoing.write(reply)) {
+        if (!buffer->write(reply)) {
             log("Error writing reply");
         }
 
@@ -173,7 +175,7 @@ void AppServicer::handle(AppQueryMessage &query) {
     default: {
         AppReplyMessage reply(pool);
         reply.error("Unknown query");
-        outgoing.write(reply);
+        buffer->write(reply);
 
         break;
     }

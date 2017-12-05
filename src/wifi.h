@@ -6,9 +6,8 @@
 #include <WiFiUdp.h>
 
 #include "active_object.h"
-#include "module_controller.h"
 #include "wifi_connections.h"
-#include "live_data.h"
+#include "app_servicer.h"
 
 namespace fk {
 
@@ -25,7 +24,7 @@ private:
     Listen listen;
 
 public:
-    Wifi(NetworkSettings &settings, LiveData &liveData, CoreState &state);
+    Wifi(NetworkSettings &settings, AppServicer &servicer);
 
 public:
     void begin();
