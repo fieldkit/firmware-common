@@ -5,19 +5,21 @@
 #include "app_messages.h"
 #include "core_state.h"
 #include "live_data.h"
+#include "scheduler.h"
 
 namespace fk {
 
 class AppServicer : public Task {
 private:
-    AppQueryMessage query;
     MessageBuffer *buffer{ nullptr };
+    AppQueryMessage query;
     LiveData *liveData;
     CoreState *state;
+    Scheduler *scheduler;
     Pool *pool;
 
 public:
-    AppServicer(LiveData &liveData, CoreState &state, Pool &pool);
+    AppServicer(LiveData &liveData, CoreState &state, Scheduler &scheduler, Pool &pool);
 
 public:
     TaskEval task() override;

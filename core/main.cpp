@@ -164,7 +164,7 @@ void setup() {
     debugfpln("Core", "Idle");
 
     {
-        fk::Delay delay(1000);
+        fk::Delay delay(100);
         fk::ScheduledTask tasks[] = {
             fk::ScheduledTask{ { 45, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, delay },
             fk::ScheduledTask{ {  0, -1 }, {  5, -1 }, { -1, -1 }, { -1, -1 }, delay },
@@ -172,6 +172,7 @@ void setup() {
             // Never:
             fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, delay },
         };
+        fk::Scheduler scheduler(state, clock, tasks);
 
         fk::Pool pool("ROOT", 128);
         fk::LiveData liveData(state, pool);
@@ -180,9 +181,8 @@ void setup() {
             .password = FK_CONFIG_WIFI_PASSWORD,
             .port = FK_CONFIG_WIFI_PORT,
         };
-        fk::AppServicer appServicer(liveData, state, pool);
+        fk::AppServicer appServicer(liveData, state, scheduler, pool);
         fk::Wifi wifi(networkSettings, appServicer);
-        fk::Scheduler scheduler(state, clock, tasks);
         fk::SimpleNTP ntp(clock);
 
         scheduler.push(ntp);

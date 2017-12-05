@@ -2,8 +2,30 @@
 
 namespace fk {
 
-AppServicer::AppServicer(LiveData &liveData, CoreState &state, Pool &pool)
-    : Task("AppServicer"), query(&pool), liveData(&liveData), state(&state), pool(&pool) {
+static void copy( ScheduledTask &to, fk_app_Schedule &from) {
+    to.setSecond(TimeSpec{ (int8_t)from.second.fixed, (int8_t)from.second.interval });
+    to.setMinute(TimeSpec{ (int8_t)from.minute.fixed, (int8_t)from.minute.interval });
+    to.setHour(TimeSpec{ (int8_t)from.hour.fixed, (int8_t)from.hour.interval });
+    to.setDay(TimeSpec{ (int8_t)from.day.fixed, (int8_t)from.day.interval });
+}
+
+static void copy(fk_app_Schedule &to, ScheduledTask &from) {
+    to.second.fixed = from.getSecond().fixed;
+    to.second.interval = from.getSecond().interval;
+    to.second.offset = 0;
+    to.minute.fixed = from.getMinute().fixed;
+    to.minute.interval = from.getMinute().interval;
+    to.minute.offset = 0;
+    to.hour.fixed = from.getHour().fixed;
+    to.hour.interval = from.getHour().interval;
+    to.hour.offset = 0;
+    to.day.fixed = from.getDay().fixed;
+    to.day.interval = from.getDay().interval;
+    to.day.offset = 0;
+}
+
+AppServicer::AppServicer(LiveData &liveData, CoreState &state, Scheduler &scheduler, Pool &pool)
+    : Task("AppServicer"), query(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), pool(&pool) {
 }
 
 TaskEval AppServicer::task() {
@@ -165,6 +187,50 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().type = fk_app_ReplyType_REPLY_LIVE_DATA_POLL;
         reply.m().liveData.samples.funcs.encode = pb_encode_array;
         reply.m().liveData.samples.arg = (void *)&live_data_array;
+        if (!buffer->write(reply)) {
+            log("Error writing reply");
+        }
+
+        break;
+    }
+    case fk_app_QueryType_QUERY_CONFIGUE_SCHEDULES: {
+        log("Configure schedules");
+
+        auto &readings = scheduler->getTaskSchedule(ScheduleKind::Readings);
+        auto &transmission = scheduler->getTaskSchedule(ScheduleKind::Transmission);
+        auto &status = scheduler->getTaskSchedule(ScheduleKind::Status);
+        auto &location = scheduler->getTaskSchedule(ScheduleKind::Location);
+
+        AppReplyMessage reply(pool);
+        reply.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
+        copy(readings, reply.m().schedules.readings);
+        copy(transmission, reply.m().schedules.transmission);
+        copy(status, reply.m().schedules.status);
+        copy(location, reply.m().schedules.location);
+        copy(reply.m().schedules.readings, readings);
+        copy(reply.m().schedules.transmission, transmission);
+        copy(reply.m().schedules.status, status);
+        copy(reply.m().schedules.location, location);
+        if (!buffer->write(reply)) {
+            log("Error writing reply");
+        }
+
+        break;
+    }
+    case fk_app_QueryType_QUERY_SCHEDULES: {
+        log("Query schedules");
+
+        auto &readings = scheduler->getTaskSchedule(ScheduleKind::Readings);
+        auto &transmission = scheduler->getTaskSchedule(ScheduleKind::Transmission);
+        auto &status = scheduler->getTaskSchedule(ScheduleKind::Status);
+        auto &location = scheduler->getTaskSchedule(ScheduleKind::Location);
+
+        AppReplyMessage reply(pool);
+        reply.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
+        copy(reply.m().schedules.readings, readings);
+        copy(reply.m().schedules.transmission, transmission);
+        copy(reply.m().schedules.status, status);
+        copy(reply.m().schedules.location, location);
         if (!buffer->write(reply)) {
             log("Error writing reply");
         }

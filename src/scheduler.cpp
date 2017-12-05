@@ -14,15 +14,15 @@ bool ScheduledTask::shouldRun(DateTime now) {
 };
 
 static bool valid(const TimeSpec &spec) {
-    return spec.fixed > -1 || spec.divisor > -1;
+    return spec.fixed > -1 || spec.interval > -1;
 }
 
 static bool matches(const TimeSpec &spec, int8_t value) {
     if (spec.fixed > -1) {
         return value == spec.fixed;
     }
-    if (spec.divisor > -1) {
-        return (value % spec.divisor) == 0;
+    if (spec.interval > -1) {
+        return (value % spec.interval) == 0;
     }
     return true;
 }
@@ -57,6 +57,10 @@ void Scheduler::idle() {
             push(task);
         }
     }
+}
+
+ScheduledTask &Scheduler::getTaskSchedule(ScheduleKind kind) {
+    return tasks[(size_t)kind];
 }
 
 }

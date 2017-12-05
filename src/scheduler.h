@@ -9,7 +9,7 @@ namespace fk {
 
 struct TimeSpec {
     int8_t fixed;
-    int8_t divisor;
+    int8_t interval;
 };
 
 class ScheduledTask {
@@ -27,6 +27,17 @@ public:
     }
 
 public:
+    TimeSpec &getSecond() { return second; }
+    TimeSpec &getMinute() { return minute; }
+    TimeSpec &getHour() { return hour; }
+    TimeSpec &getDay() { return day; }
+
+    void setSecond(TimeSpec spec) { second = spec; }
+    void setMinute(TimeSpec spec) { minute = spec; }
+    void setHour(TimeSpec spec) { hour = spec; }
+    void setDay(TimeSpec spec) { day = spec; }
+
+public:
     bool shouldRun(DateTime now);
 
     bool valid();
@@ -37,6 +48,14 @@ public:
         return *task;
     }
 
+};
+
+enum class ScheduleKind {
+    Readings = 0,
+    Transmission,
+    Status,
+    Location,
+    NumberOfMandatorySchedules,
 };
 
 class Scheduler : public ActiveObject {
@@ -50,10 +69,14 @@ public:
     template<size_t N>
     Scheduler(CoreState &state, Clock &clock, ScheduledTask (&tasks)[N]) :
         ActiveObject("Scheduler"), state(&state), clock(&clock), tasks(tasks), numberOfTasks(N) {
+        fk_assert(N >= (size_t)ScheduleKind::NumberOfMandatorySchedules);
     }
 
 public:
     void idle() override;
+
+public:
+    ScheduledTask &getTaskSchedule(ScheduleKind kind);
 
 };
 
