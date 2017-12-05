@@ -21,6 +21,8 @@
 #include "watchdog.h"
 #include "config.h"
 #include "app_servicer.h"
+#include "scheduler.h"
+#include "rtc.h"
 
 extern "C" {
 
@@ -123,13 +125,16 @@ void setup() {
     }
 
     if (!setupRadio()) {
-
     }
 
     fk::i2c_begin();
 
     fk::Watchdog watchdog;
     fk::CoreState state;
+    fk::Clock clock;
+
+    clock.begin();
+
     debugfpln("Core", "State: %d", sizeof(state));
 
     {
@@ -142,7 +147,7 @@ void setup() {
             watchdog.tick();
             ad.tick();
 
-            if (ad.idle()) {
+            if (ad.isIdle()) {
                 break;
             }
         }
@@ -151,6 +156,12 @@ void setup() {
     debugfpln("Core", "Idle");
 
     {
+        fk::Delay delay(1000);
+        fk::ScheduledTask tasks[] = {
+            fk::ScheduledTask{ -1, -1, -1, -1, delay },
+            fk::ScheduledTask{ -1, -1, -1, -1, delay },
+        };
+
         fk::Pool pool("ROOT", 128);
         fk::LiveData liveData(state, pool);
         fk::NetworkSettings networkSettings {
@@ -160,6 +171,7 @@ void setup() {
         };
         fk::AppServicer appServicer(liveData, state, pool);
         fk::Wifi wifi(networkSettings, appServicer);
+        fk::Scheduler scheduler(state, tasks);
 
         // TODO: Fix that this is blocking when connecting.
         wifi.begin();
@@ -168,6 +180,7 @@ void setup() {
             watchdog.tick();
             liveData.tick();
             wifi.tick();
+            scheduler.tick();
         }
     }
 }

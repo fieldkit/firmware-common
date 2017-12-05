@@ -29,6 +29,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/core_state.cpp
   ${COMMON_SRCS_DIR}/watchdog.cpp
   ${COMMON_SRCS_DIR}/live_data.cpp
+  ${COMMON_SRCS_DIR}/scheduler.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})

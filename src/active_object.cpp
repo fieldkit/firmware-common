@@ -47,14 +47,17 @@ void ActiveObject::service(Task &active) {
 }
 
 void ActiveObject::tick() {
-    if (!idle()) {
+    if (!isIdle()) {
         service(*tasks);
     } else if (idleTask != nullptr) {
         service(*idleTask);
+        idle();
+    } else {
+        idle();
     }
 }
 
-bool ActiveObject::idle() {
+bool ActiveObject::isIdle() {
     return tasks == nullptr;
 }
 
@@ -62,6 +65,9 @@ void ActiveObject::done(Task &) {
 }
 
 void ActiveObject::error(Task &) {
+}
+
+void ActiveObject::idle() {
 }
 
 void ActiveObject::log(const char *f, ...) const {

@@ -142,11 +142,12 @@ public:
 public:
     void push(Task &task);
     void tick();
-    bool idle();
+    bool isIdle();
     void log(const char *f, ...) const;
 
     virtual void done(Task &task);
     virtual void error(Task &task);
+    virtual void idle();
 
 private:
     void pop();
