@@ -171,7 +171,7 @@ void AppServicer::handle(AppQueryMessage &query) {
 
         break;
     }
-    case fk_app_QueryType_QUEYR_CONFIGURE_SENSOR:
+    case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
     default: {
         AppReplyMessage reply(pool);
         reply.error("Unknown query");
