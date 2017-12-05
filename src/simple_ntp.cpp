@@ -68,7 +68,7 @@ TaskEval SimpleNTP::task() {
             return TaskEval::done();
         }
     }
-    return TaskEval::idle();
+    return TaskEval::yield();
 }
 
 }

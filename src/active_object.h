@@ -14,8 +14,9 @@ class Task;
 
 enum class TaskEvalState {
     Idle,
+    Yield,
     Done,
-    Error
+    Error,
 };
 
 class TaskEval {
@@ -26,7 +27,7 @@ private:
     TaskEval(TaskEvalState state) : state(state) {
     }
 
-    TaskEval(Task &task) : state(TaskEvalState::Done), task(&task) {
+    TaskEval(TaskEvalState state, Task &task) : state(state), task(&task) {
     }
 
 public:
@@ -35,6 +36,10 @@ public:
 
     bool isIdle() {
         return state == TaskEvalState::Idle;
+    }
+
+    bool isYield() {
+        return state == TaskEvalState::Yield;
     }
 
     bool isDone() {
@@ -49,6 +54,14 @@ public:
         return TaskEval{ TaskEvalState::Idle };
     }
 
+    static TaskEval yield() {
+        return TaskEval{ TaskEvalState::Yield };
+    }
+
+    static TaskEval yield(Task &task) {
+        return TaskEval{ TaskEvalState::Yield, task };
+    }
+
     static TaskEval done() {
         return TaskEval{ TaskEvalState::Done };
     }
@@ -58,8 +71,9 @@ public:
     }
 
     static TaskEval pass(Task &task) {
-        return TaskEval{ task };
+        return TaskEval{ TaskEvalState::Done, task };
     }
+
 };
 
 class Task {

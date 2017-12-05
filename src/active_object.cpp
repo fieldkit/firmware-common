@@ -25,7 +25,12 @@ void ActiveObject::pop() {
 
 void ActiveObject::service(Task &active) {
     auto e = active.task();
-    if (e.isDone()) {
+
+    if (e.isYield()) {
+        pop();
+        active.nextTask = nullptr;
+        *end() = &active;
+    } else if (e.isDone()) {
         log("%s done", active.toString());
         pop();
         active.nextTask = nullptr;
