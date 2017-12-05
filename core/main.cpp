@@ -137,8 +137,6 @@ void setup() {
 
     clock.begin();
 
-    clock.setTime(DateTime(2017, 12, 4, 11, 59, 30));
-
     debugfpln("Core", "State: %d", sizeof(state));
 
     {
@@ -157,8 +155,11 @@ void setup() {
         }
     }
 
+    /*
+    clock.setTime(DateTime(2017, 12, 4, 11, 59, 30));
     auto now = clock.now();
     debugfpln("Core", "Now: %d/%d/%d %02d:%02d:%02d", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());
+    */
 
     debugfpln("Core", "Idle");
 
