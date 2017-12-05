@@ -6,34 +6,64 @@
 
 namespace fk {
 
+template<size_t N>
+constexpr size_t length(char const (&)[N]) {
+    return N - 1;
+}
+
+constexpr size_t MaximumLengthOfTimeString = length("0000/00/00 00:00:00");
+
 class Clock {
 private:
+    char buffer[MaximumLengthOfTimeString + 1];
+    bool valid{ false };
     RTCZero rtc;
 
 public:
     void begin() {
         rtc.begin();
+        valid = false;
     }
 
-    void setTime(uint32_t unix) {
-        DateTime dt(unix);
+public:
+    void setTime(DateTime dt) {
         rtc.setYear(dt.year() - 2000);
         rtc.setMonth(dt.month());
         rtc.setDay(dt.day());
         rtc.setHours(dt.hour());
         rtc.setMinutes(dt.minute());
         rtc.setSeconds(dt.second());
+        valid = true;
+    }
+
+    void setTime(uint32_t unix) {
+        setTime(DateTime(unix));
+    }
+
+    bool valid() {
+        return rtc.getYear() == 2000;
+    }
+
+    DateTime now() {
+        return DateTime(rtc.getYear(),
+                        rtc.getMonth(),
+                        rtc.getDay(),
+                        rtc.getHours(),
+                        rtc.getMinutes(),
+                        rtc.getSeconds());
     }
 
     uint32_t getTime() {
-        DateTime dt(rtc.getYear(),
-                    rtc.getMonth(),
-                    rtc.getDay(),
-                    rtc.getHours(),
-                    rtc.getMinutes(),
-                    rtc.getSeconds());
-        return dt.unixtime();
+        return now().unixtime();
     }
+
+    const char *nowString() {
+        auto dt = now();
+        snprintf(buffer, sizeof(buffer), "%d/%d/%d %02d:%02d:%02d",
+                 dt.year(), dt.month(), dt.day(), dt.hour(), dt.minute(), dt.second());
+        return buffer;
+    }
+
 };
 
 }
