@@ -21,12 +21,11 @@ struct NetworkSettings {
 class Wifi : public ActiveObject {
 private:
     NetworkSettings *settings;
-    ModuleController *modules;
     WiFiServer server;
     Listen listen;
 
 public:
-    Wifi(NetworkSettings &settings, ModuleController &modules, LiveData &liveData, CoreState &state);
+    Wifi(NetworkSettings &settings, LiveData &liveData, CoreState &state);
 
 public:
     void begin();

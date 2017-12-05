@@ -13,13 +13,12 @@ class AppServicer : public Task {
 private:
     AppQueryMessage query;
     MessageBuffer outgoing;
-    ModuleController *modules;
     LiveData *liveData;
     CoreState *state;
     Pool *pool;
 
 public:
-    AppServicer(const char *name, ModuleController &modules, LiveData &liveData, CoreState &state, Pool &pool);
+    AppServicer(const char *name, LiveData &liveData, CoreState &state, Pool &pool);
 
 public:
     TaskEval task() override;

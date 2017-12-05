@@ -151,14 +151,13 @@ void setup() {
 
     {
         fk::Pool pool("ROOT", 128);
-        fk::ModuleController modules(8, pool);
         fk::LiveData liveData(state, pool);
         fk::NetworkSettings networkSettings {
             .ssid = FK_CONFIG_WIFI_SSID,
             .password = FK_CONFIG_WIFI_PASSWORD,
             .port = FK_CONFIG_WIFI_PORT,
         };
-        fk::Wifi wifi(networkSettings, modules, liveData, state);
+        fk::Wifi wifi(networkSettings, liveData, state);
 
         // TODO: Fix that this is blocking when connecting.
         wifi.begin();
@@ -166,7 +165,6 @@ void setup() {
         while (true) {
             watchdog.tick();
             liveData.tick();
-            modules.tick();
             wifi.tick();
         }
     }

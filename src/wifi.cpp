@@ -2,9 +2,9 @@
 
 namespace fk {
 
-Wifi::Wifi(NetworkSettings &settings, ModuleController &modules, LiveData &liveData, CoreState &state)
-    : ActiveObject("Wifi", listen), settings(&settings), modules(&modules), server(settings.port),
-      listen(server, modules, liveData, state) {
+Wifi::Wifi(NetworkSettings &settings, LiveData &liveData, CoreState &state)
+    : ActiveObject("Wifi", listen), settings(&settings), server(settings.port),
+      listen(server, liveData, state) {
 }
 
 void Wifi::begin() {

@@ -7,8 +7,8 @@ namespace fk {
 constexpr uint32_t ConnectionTimeout = 5000;
 constexpr uint32_t ConnectionMemory = 128;
 
-HandleConnection::HandleConnection(WiFiClient wcl, ModuleController &modules, LiveData &liveData, CoreState &state, Pool &pool)
-    : AppServicer("HandleConnection", modules, liveData, state, pool), wcl(wcl) {
+HandleConnection::HandleConnection(WiFiClient wcl, LiveData &liveData, CoreState &state, Pool &pool)
+    : AppServicer("HandleConnection", liveData, state, pool), wcl(wcl) {
 }
 
 TaskEval HandleConnection::task() {
@@ -48,9 +48,9 @@ TaskEval HandleConnection::task() {
 
 constexpr char Listen::Name[];
 
-Listen::Listen(WiFiServer &server, ModuleController &modules, LiveData &liveData, CoreState &state)
-    : Task(Name), pool("WifiService", ConnectionMemory), server(&server), modules(&modules),
-      liveData(&liveData), state(&state), handleConnection(WiFiClient(), modules, liveData, state, pool) {
+Listen::Listen(WiFiServer &server, LiveData &liveData, CoreState &state)
+    : Task(Name), pool("WifiService", ConnectionMemory), server(&server),
+      liveData(&liveData), state(&state), handleConnection(WiFiClient(), liveData, state, pool) {
 }
 
 TaskEval Listen::task() {
@@ -74,7 +74,7 @@ TaskEval Listen::task() {
         if (wcl) {
             log("Accepted!");
             pool.clear();
-            handleConnection = HandleConnection{ wcl, *modules, *liveData, *state, pool };
+            handleConnection = HandleConnection{ wcl, *liveData, *state, pool };
             return TaskEval::pass(handleConnection);
         }
     }
