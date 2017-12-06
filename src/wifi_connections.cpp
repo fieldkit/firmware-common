@@ -32,7 +32,7 @@ TaskEval HandleConnection::task() {
                 auto e = servicer->task();
                 if (!e.isIdle()) {
                     auto bytesWritten = wcl.write(buffer.ptr(), buffer.position());
-                    log("Wrote %d bytes", bytesWritten);
+                    log("Wrote %d bytes (%d)", bytesWritten, fk_free_memory());
                     fk_assert(bytesWritten == buffer.position());
                     buffer.clear();
                     wcl.stop();
