@@ -6,20 +6,24 @@ HttpPost::HttpPost() : TransmissionTask("HttpPost") {
 }
 
 void HttpPost::enqueued() {
-    dieAt = millis() + WifiHttpPostTimeout;
-    // TODO: Fix blocking.
-    if (wcl.connect("code.conservify.org", 80)) {
-        log("Connected!");
-        wcl.println("GET /time/ HTTP/1.1");
-        wcl.println("Host: code.conservify.org");
-        wcl.println("Connection: close");
-        wcl.println();
-    } else {
-        log("Not connected!");
-    }
+    dieAt = 0;
 }
 
 TaskEval HttpPost::task() {
+    if (dieAt == 0) {
+        dieAt = millis() + WifiHttpPostTimeout;
+        // TODO: Fix blocking.
+        if (wcl.connect("code.conservify.org", 80)) {
+            log("Connected!");
+            wcl.println("GET /time/ HTTP/1.1");
+            wcl.println("Host: code.conservify.org");
+            wcl.println("Connection: close");
+            wcl.println();
+        } else {
+            log("Not connected!");
+        }
+    }
+
     if (millis() > dieAt) {
         return TaskEval::error();
     }
@@ -35,7 +39,7 @@ TaskEval HttpPost::task() {
         }
     }
 
-    return TaskEval::yield();
+    return TaskEval::idle();
 }
 
 }
