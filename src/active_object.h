@@ -79,22 +79,15 @@ public:
 class Task {
 public:
     const char *name{ nullptr };
-    Task *nextTask{ nullptr };
+    Task *tasks{ nullptr };
 
 public:
-    Task(const char *name) : name(name) {
-    }
+    Task(const char *name) : name(name) {}
 
 public:
-    virtual void enqueued() {
-    }
-
-    virtual void done() {
-    }
-
-    virtual void error() {
-    }
-
+    virtual void enqueued() {}
+    virtual void done() {}
+    virtual void error() {}
     virtual TaskEval task() = 0;
 
 public:
@@ -102,12 +95,7 @@ public:
         return name;
     }
 
-    void log(const char *f, ...) const {
-        va_list args;
-        va_start(args, f);
-        vdebugfpln(name, f, args);
-        va_end(args);
-    }
+    void log(const char *f, ...) const;
 
 };
 
@@ -115,11 +103,9 @@ inline bool areSame(const Task &a, const Task &b) {
     return &a == &b;
 }
 
-class ActiveObject {
+class ActiveObject : public Task {
 private:
-    const char *name{ nullptr };
     Task *idleTask{ nullptr };
-    Task *tasks{ nullptr };
 
 public:
     ActiveObject();
@@ -127,11 +113,14 @@ public:
     ActiveObject(const char *name, Task &idleTask);
 
 public:
+    TaskEval task() override;
+
+public:
     void push(Task &task);
     void tick();
     bool isIdle();
-    void log(const char *f, ...) const;
 
+public:
     virtual void done(Task &task);
     virtual void error(Task &task);
     virtual void idle();

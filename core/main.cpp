@@ -128,8 +128,8 @@ void setup() {
 
     debugfpln("Core", "State: %d", sizeof(state));
 
+    uint8_t addresses[]{ 7, 8, 9, 0 };
     {
-        uint8_t addresses[]{ 7, 8, 9, 0 };
         fk::Pool pool("ROOT", 128);
         fk::AttachedDevices ad(addresses, state, pool);
         ad.scan();
