@@ -15,5 +15,6 @@
 #include "rtc.h"
 #include "simple_ntp.h"
 #include "core.h"
+#include "http_post.h"
 
 #endif

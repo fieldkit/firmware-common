@@ -3,35 +3,57 @@
 namespace fk {
 
 GatherReadings::GatherReadings(CoreState &state, Pool &pool) :
-    Task("GatherReadings"), state(&state), beginTakeReading(pool, 8), queryReadingStatus(pool, 8) {
+    ActiveObject("GatherReadings"), state(&state), beginTakeReading(pool, 8), queryReadingStatus(pool, 8) {
 }
 
-TaskEval GatherReadings::task() {
-    return TaskEval::yield(beginTakeReading);
+void GatherReadings::enqueued() {
+    push(beginTakeReading);
+    push(delay);
+    push(queryReadingStatus);
 }
 
-SendTransmission::SendTransmission(CoreState &state, Pool &pool) :
-    Task("SendTransmission"), state(&state) {
+void GatherReadings::done(Task &task) {
+    if (areSame(task, queryReadingStatus)) {
+        if (queryReadingStatus.isBusy()) {
+            push(delay);
+            push(queryReadingStatus);
+        } else if (queryReadingStatus.isDone()) {
+            state->merge(8, queryReadingStatus.replyMessage());
+            push(queryReadingStatus);
+        }
+    }
 }
 
-TaskEval SendTransmission::task() {
-    return TaskEval::done();
+SendTransmission::SendTransmission(CoreState &state, TransmissionTask &method, Pool &pool) :
+    ActiveObject("SendTransmission"), state(&state), method(&method) {
 }
 
-SendStatus::SendStatus(CoreState &state, Pool &pool) :
-    Task("SendStatus"), state(&state) {
+void SendTransmission::enqueued() {
+    push(*method);
 }
 
-TaskEval SendStatus::task() {
-    return TaskEval::done();
+void SendTransmission::done(Task &task) {
+}
+
+SendStatus::SendStatus(CoreState &state, TransmissionTask &method, Pool &pool) :
+    ActiveObject("SendStatus"), state(&state), method(&method) {
+}
+
+void SendStatus::enqueued() {
+    push(*method);
+}
+
+void SendStatus::done(Task &task) {
 }
 
 DetermineLocation::DetermineLocation(CoreState &state, Pool &pool) :
-    Task("DetermineLocation"), state(&state) {
+    ActiveObject("DetermineLocation"), state(&state) {
 }
 
-TaskEval DetermineLocation::task() {
-    return TaskEval::done();
+void DetermineLocation::enqueued() {
+}
+
+void DetermineLocation::done(Task &task) {
 }
 
 Core::Core() : ActiveObject("Core") {

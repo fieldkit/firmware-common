@@ -6,12 +6,14 @@
 
 #include "pool.h"
 #include "two_wire_task.h"
+#include "transmissions.h"
 
 namespace fk {
 
-class GatherReadings : public Task {
+class GatherReadings : public ActiveObject {
 private:
     CoreState *state;
+    Delay delay{ 300 };
     BeginTakeReading beginTakeReading;
     QueryReadingStatus queryReadingStatus;
 
@@ -19,35 +21,40 @@ public:
     GatherReadings(CoreState &state, Pool &pool);
 
 public:
-    TaskEval task() override;
+    void enqueued() override;
+    void done(Task &task) override;
 
 };
 
-class SendTransmission : public Task {
+class SendTransmission : public ActiveObject {
 private:
     CoreState *state;
+    TransmissionTask *method;
 
 public:
-    SendTransmission(CoreState &state, Pool &pool);
+    SendTransmission(CoreState &state, TransmissionTask &method, Pool &pool);
 
 public:
-    TaskEval task() override;
+    void enqueued() override;
+    void done(Task &task) override;
 
 };
 
-class SendStatus : public Task {
+class SendStatus : public ActiveObject {
 private:
     CoreState *state;
+    TransmissionTask *method;
 
 public:
-    SendStatus(CoreState &state, Pool &pool);
+    SendStatus(CoreState &state, TransmissionTask &method, Pool &pool);
 
 public:
-    TaskEval task() override;
+    void enqueued() override;
+    void done(Task &task) override;
 
 };
 
-class DetermineLocation : public Task {
+class DetermineLocation : public ActiveObject {
 private:
     CoreState *state;
 
@@ -55,7 +62,8 @@ public:
     DetermineLocation(CoreState &state, Pool &pool);
 
 public:
-    TaskEval task() override;
+    void enqueued() override;
+    void done(Task &task) override;
 
 };
 

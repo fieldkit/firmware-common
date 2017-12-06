@@ -144,24 +144,19 @@ void setup() {
         }
     }
 
-    /*
-    clock.setTime(DateTime(2017, 12, 4, 11, 59, 30));
-    auto now = clock.now();
-    debugfpln("Core", "Now: %d/%d/%d %02d:%02d:%02d", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());
-    */
-
     debugfpln("Core", "Idle");
 
     {
         fk::Pool pool("ROOT", 128);
+        fk::HttpPost post;
         fk::GatherReadings gatherReadings(state, pool);
-        fk::SendTransmission sendTransmission(state, pool);
-        fk::SendStatus sendStatus(state, pool);
+        fk::SendTransmission sendTransmission(state, post, pool);
+        fk::SendStatus sendStatus(state, post, pool);
         fk::DetermineLocation determineLocation(state, pool);
         fk::ScheduledTask tasks[] = {
-            fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
+            fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
             fk::ScheduledTask{ {  0, -1 }, {  0, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
-            fk::ScheduledTask{ {  0, -1 }, {  5, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
+            fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
             fk::ScheduledTask{ { 10, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, determineLocation },
         };
         fk::Scheduler scheduler(state, clock, tasks);
