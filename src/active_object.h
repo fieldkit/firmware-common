@@ -115,33 +115,6 @@ inline bool areSame(const Task &a, const Task &b) {
     return &a == &b;
 }
 
-class Delay : public Task {
-    uint32_t duration{ 0 };
-    uint32_t dieAt{ 0 };
-    bool startOnEnqueue{ false };
-
-public:
-    Delay(uint32_t duration, bool startOnEnqueue = true) : Task("Delay"), duration(duration), dieAt(millis() + duration), startOnEnqueue(startOnEnqueue) {
-    }
-
-    void enqueued() override {
-        if (startOnEnqueue) {
-            dieAt = 0;
-        }
-    }
-
-    TaskEval task() override {
-        if (dieAt == 0) {
-            dieAt = millis() + duration;
-        }
-        if (millis() > dieAt) {
-            return TaskEval::done();
-        }
-        return TaskEval::idle();
-    }
-
-};
-
 class ActiveObject {
 private:
     const char *name{ nullptr };
@@ -167,6 +140,33 @@ private:
     void pop();
     void service(Task &task);
     Task **end();
+
+};
+
+class Delay : public Task {
+    uint32_t duration{ 0 };
+    uint32_t dieAt{ 0 };
+    bool startOnEnqueue{ false };
+
+public:
+    Delay(uint32_t duration, bool startOnEnqueue = true) : Task("Delay"), duration(duration), dieAt(millis() + duration), startOnEnqueue(startOnEnqueue) {
+    }
+
+    void enqueued() override {
+        if (startOnEnqueue) {
+            dieAt = 0;
+        }
+    }
+
+    TaskEval task() override {
+        if (dieAt == 0) {
+            dieAt = millis() + duration;
+        }
+        if (millis() > dieAt) {
+            return TaskEval::done();
+        }
+        return TaskEval::idle();
+    }
 
 };
 

@@ -49,12 +49,14 @@ bool ScheduledTask::matches(DateTime now) {
 }
 
 void Scheduler::idle() {
-    auto now = clock->now();
-    for (size_t i = 0; i < numberOfTasks; ++i) {
-        if (tasks[i].valid() && tasks[i].shouldRun(now)) {
-            auto &task = tasks[i].getTask();
-            log("%s: run task", clock->nowString());
-            push(task);
+    if (clock->isValid()) {
+        auto now = clock->now();
+        for (size_t i = 0; i < numberOfTasks; ++i) {
+            if (tasks[i].valid() && tasks[i].shouldRun(now)) {
+                auto &task = tasks[i].getTask();
+                log("%s: run task", clock->nowString());
+                push(task);
+            }
         }
     }
 }

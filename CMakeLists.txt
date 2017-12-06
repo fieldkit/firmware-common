@@ -4,6 +4,8 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../arduino-cmake-minimal/cmake/")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 include(ArduinoMinimal)
 
 # TODO: Make creating internal libraries easier?

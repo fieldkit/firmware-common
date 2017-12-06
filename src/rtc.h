@@ -25,7 +25,10 @@ public:
         valid = false;
     }
 
-public:
+    bool isValid() {
+        return valid;
+    }
+
     void setTime(DateTime dt) {
         rtc.setYear(dt.year() - 2000);
         rtc.setMonth(dt.month());

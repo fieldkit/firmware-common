@@ -30,7 +30,7 @@ const uint8_t FKFS_FILE_PRIORITY_HIGHEST = 0;
 static fkfs_t fs = { 0 };
 static fkfs_log_t fkfs_log = { 0 };
 
-RH_RF95 rf95(RFM95_PIN_CS, RFM95_PIN_INT); 
+RH_RF95 rf95(RFM95_PIN_CS, RFM95_PIN_INT);
 
 void debug_write_log(const char *str, void *arg) {
     fkfs_log_append(&fkfs_log, str);
@@ -153,17 +153,19 @@ void setup() {
     debugfpln("Core", "Idle");
 
     {
-        fk::Delay delay(100);
+        fk::Pool pool("ROOT", 128);
+        fk::GatherReadings gatherReadings(state, pool);
+        fk::SendTransmission sendTransmission(state, pool);
+        fk::SendStatus sendStatus(state, pool);
+        fk::DetermineLocation determineLocation(state, pool);
         fk::ScheduledTask tasks[] = {
-            fk::ScheduledTask{ { 45, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, delay },
-            fk::ScheduledTask{ {  0, -1 }, {  5, -1 }, { -1, -1 }, { -1, -1 }, delay },
-            fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, delay },
-            // Never:
-            fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, delay },
+            fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
+            fk::ScheduledTask{ {  0, -1 }, {  0, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
+            fk::ScheduledTask{ {  0, -1 }, {  5, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
+            fk::ScheduledTask{ { 10, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, determineLocation },
         };
         fk::Scheduler scheduler(state, clock, tasks);
 
-        fk::Pool pool("ROOT", 128);
         fk::LiveData liveData(state, pool);
         fk::NetworkSettings networkSettings {
             .ssid = FK_CONFIG_WIFI_SSID,
