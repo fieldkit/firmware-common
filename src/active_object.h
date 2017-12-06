@@ -27,12 +27,12 @@ private:
     TaskEval(TaskEvalState state) : state(state) {
     }
 
-    TaskEval(TaskEvalState state, Task &task) : state(state), task(&task) {
+    TaskEval(TaskEvalState state, Task &task) : state(state), nextTask(&task) {
     }
 
 public:
     TaskEvalState state{ TaskEvalState::Idle };
-    Task *task{ nullptr };
+    Task *nextTask{ nullptr };
 
     bool isIdle() {
         return state == TaskEvalState::Idle;
@@ -79,7 +79,7 @@ public:
 class Task {
 public:
     const char *name{ nullptr };
-    Task *tasks{ nullptr };
+    Task *nextTask{ nullptr };
 
 public:
     Task(const char *name) : name(name) {}
@@ -106,6 +106,7 @@ inline bool areSame(const Task &a, const Task &b) {
 class ActiveObject : public Task {
 private:
     Task *idleTask{ nullptr };
+    Task *tasks{ nullptr };
 
 public:
     ActiveObject();
@@ -128,6 +129,7 @@ public:
 private:
     void pop();
     void service(Task &task);
+    Task *tail();
     Task **end();
 
 };

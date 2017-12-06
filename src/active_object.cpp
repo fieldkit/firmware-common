@@ -19,14 +19,14 @@ ActiveObject::ActiveObject(const char *name, Task &idleTask) : Task(name), idleT
 }
 
 void ActiveObject::push(Task &task) {
-    log("%s enqueue", task.toString());
+    log("%s enqueue (%s)", task.toString(), tasks == nullptr ? "HEAD" : tail()->toString());
     *end() = &task;
     task.enqueued();
 }
 
 void ActiveObject::pop() {
     if (tasks != nullptr) {
-        tasks = tasks->tasks;
+        tasks = tasks->nextTask;
     }
 }
 
@@ -43,29 +43,29 @@ void ActiveObject::service(Task &active) {
 
     if (e.isYield()) {
         pop();
-        active.tasks = nullptr;
+        active.nextTask = nullptr;
         idle();
-        if (e.task != nullptr) {
-            *end() = e.task;
+        if (e.nextTask != nullptr) {
+            *end() = e.nextTask;
         }
         *end() = &active;
     } else if (e.isDone()) {
         log("%s done", active.toString());
         pop();
-        active.tasks = nullptr;
+        active.nextTask = nullptr;
         active.done();
         done(active);
-        if (e.task != nullptr) {
-            push(*e.task);
+        if (e.nextTask != nullptr) {
+            push(*e.nextTask);
         }
     } else if (e.isError()) {
         log("%s error", active.toString());
         pop();
-        active.tasks = nullptr;
+        active.nextTask = nullptr;
         active.error();
         error(active);
-        if (e.task != nullptr) {
-            push(*e.task);
+        if (e.nextTask != nullptr) {
+            push(*e.nextTask);
         }
     }
 }
@@ -94,15 +94,22 @@ void ActiveObject::error(Task &) {
 void ActiveObject::idle() {
 }
 
+Task *ActiveObject::tail() {
+    if (tasks == nullptr) {
+        return nullptr;
+    }
+    for (auto i = tasks;; i = i->nextTask) {
+        if (i->nextTask == nullptr) {
+            return i;
+        }
+    }
+}
+
 Task **ActiveObject::end() {
     if (tasks == nullptr) {
         return &tasks;
     }
-    for (auto i = tasks;; i = i->tasks) {
-        if (i->tasks == nullptr) {
-            return &i->tasks;
-        }
-    }
+    return &(tail()->nextTask);
 }
 
 }
