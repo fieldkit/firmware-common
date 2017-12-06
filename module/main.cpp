@@ -31,7 +31,11 @@ public:
     }
 };
 
-class Sensors : public fk::ActiveObject {};
+class Sensors : public fk::ActiveObject {
+public:
+    Sensors() : fk::ActiveObject("Sensors") {
+    }
+};
 
 class ExampleModule : public fk::Module {
 private:
@@ -40,7 +44,8 @@ private:
     Sensors &sensors;
 
 public:
-    ExampleModule(fk::ModuleInfo &info, Sensors &sensors) : Module(info), sensors(sensors) {
+    ExampleModule(fk::ModuleInfo &info, Sensors &sensors) :
+        Module(info), sensors(sensors) {
     }
 
 public:

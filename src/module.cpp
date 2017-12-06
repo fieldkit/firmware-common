@@ -20,7 +20,8 @@ static void module_receive_callback(int bytes) {
 }
 
 Module::Module(ModuleInfo &info)
-    : replyPool("REPLY", ModuleServicingMemory), handleIncoming{ &info, *this, outgoing, incoming, replyPool }, info(&info) {
+    : ActiveObject(info.name), replyPool("REPLY", ModuleServicingMemory),
+      handleIncoming{ &info, *this, outgoing, incoming, replyPool }, info(&info) {
 }
 
 void Module::begin() {

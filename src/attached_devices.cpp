@@ -3,7 +3,8 @@
 namespace fk {
 
 AttachedDevices::AttachedDevices(uint8_t *addresses, CoreState &state, Pool &pool)
-    : addresses(addresses), state(&state), pool(&pool), queryCapabilities(pool, 0), querySensorCapabilities(pool, 0, 0) {
+    : ActiveObject("AttachedDevices"), addresses(addresses), state(&state),
+      pool(&pool), queryCapabilities(pool, 0), querySensorCapabilities(pool, 0, 0) {
 }
 
 void AttachedDevices::scan() {
