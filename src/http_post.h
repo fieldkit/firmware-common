@@ -7,39 +7,23 @@
 
 namespace fk {
 
-class DnsResolution {
-private:
-    const char *hostName;
-    IPAddress ip;
-
-public:
-    DnsResolution(const char *hostName) : hostName(hostName), ip((uint32_t)0) {
-    }
-
-public:
-    IPAddress &ipAddress() {
-        return ip;
-    }
-
-    bool tryResolve() {
-        if (ip != 0) {
-            return true;
-        }
-        return WiFi.hostByName(hostName, ip);
-    }
-};
-
 constexpr uint32_t WifiHttpPostTimeout = 5000;
+
+struct HttpTransmissionConfig {
+    const char *url;
+    ::IPAddress cachedAddress;
+};
 
 class HttpPost : public TransmissionTask {
 private:
+    HttpTransmissionConfig *config;
     uint32_t dieAt{ 0 };
     Delay retry{ 500 };
     bool connected{ false };
     WiFiClient wcl;
 
 public:
-    HttpPost();
+    HttpPost(HttpTransmissionConfig &config);
 
 public:
     void done() override;

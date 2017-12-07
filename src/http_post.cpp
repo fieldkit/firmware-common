@@ -2,7 +2,8 @@
 
 namespace fk {
 
-HttpPost::HttpPost() : TransmissionTask("HttpPost") {
+HttpPost::HttpPost(HttpTransmissionConfig &config) :
+    TransmissionTask("HttpPost"), config(&config) {
     done();
 }
 
@@ -30,12 +31,41 @@ TaskEval HttpPost::task() {
     }
 
     if (!connected) {
+        const size_t length = strlen(config->url) + 1;
+        char urlCopy[length];
+        char *server = nullptr;
+        char *path = nullptr;
+        strncpy(urlCopy, config->url, length);
+        for (char *p = urlCopy; *p != 0; ++p) {
+            if (server == nullptr && p[0] == '/' && p[1] == '/') {
+                p += 2;
+                server = p;
+            } else if (server != nullptr && p[0] == '/') {
+                p[0] = 0;
+                path = p + 1;
+                break;
+            }
+        }
+
+        // TODO: Verify we got good values? Though this should
+        // probably have been checked before.
+        log("Connecting: '%s' / '%s'", server, path);
+
+        if ((uint32_t)config->cachedAddress == (uint32_t)0) {
+            if (!WiFi.hostByName(server, config->cachedAddress)) {
+                log("DNS failure on '%s'", server);
+            }
+        }
+
         // TODO: Fix blocking.
-        if (wcl.connect("code.conservify.org", 80)) {
+        if (config->cachedAddress != (uint32_t)0 && wcl.connect(config->cachedAddress, 80)) {
             connected = true;
             log("Connected!");
-            wcl.println("GET /time/ HTTP/1.1");
-            wcl.println("Host: code.conservify.org");
+            wcl.print("GET /");
+            wcl.print(path);
+            wcl.println(" HTTP/1.1");
+            wcl.print("Host: ");
+            wcl.println(server);
             wcl.println("Connection: close");
             wcl.println();
         } else {

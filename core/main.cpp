@@ -147,11 +147,14 @@ void setup() {
     debugfpln("Core", "Idle");
 
     {
+        fk::HttpTransmissionConfig transmissionConfig = {
+            .url = "http://code.conservify.org/ingestion"
+        };
         fk::Pool pool("ROOT", 128);
-        fk::HttpPost post;
+        fk::HttpPost transmission(transmissionConfig);
         fk::GatherReadings gatherReadings(state, pool);
-        fk::SendTransmission sendTransmission(state, post, pool);
-        fk::SendStatus sendStatus(state, post, pool);
+        fk::SendTransmission sendTransmission(state, transmission, pool);
+        fk::SendStatus sendStatus(state, transmission, pool);
         fk::DetermineLocation determineLocation(state, pool);
         fk::ScheduledTask tasks[] = {
             fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
