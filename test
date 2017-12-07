@@ -19,18 +19,18 @@ echo
 echo
 
 sleep 1
-sudo -E "/bin/bash" -c "(~/tools/bin/flasher --port $A --tail --tail-inactivity 0) | sed \"s/^/module | /\"" &
+~/tools/bin/flasher --port $A --tail --tail-inactivity 0 | sed "s/^/module | /" &
 S=$!
 
 sleep 1
-sudo -E "/bin/bash" -c "(~/tools/bin/flasher --port $B --tail --tail-inactivity 0) | sed \"s/^/  core | /\"" &
+~/tools/bin/flasher --port $B --tail --tail-inactivity 0 | sed "s/^/core   | /" &
 M=$!
 
 trap ctrl_c INT
 
 function ctrl_c() {
     echo "Killed!"
-    sudo pkill flasher
+    pkill flasher
 }
 
 wait $S
