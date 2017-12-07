@@ -126,7 +126,24 @@ void setup() {
 
     clock.begin();
 
-    debugfpln("Core", "State: %d", sizeof(state));
+#define FK_DUMP_OBJECT_SIZES
+#ifdef FK_DUMP_OBJECT_SIZES
+#define FK_DUMP_SIZE(K)  debugfpln("Core", "%s: %d", #K, sizeof(K))
+    FK_DUMP_SIZE(fk::Watchdog);
+    FK_DUMP_SIZE(fk::CoreState);
+    FK_DUMP_SIZE(fk::Clock);
+    FK_DUMP_SIZE(fk::Pool);
+    FK_DUMP_SIZE(fk::HttpPost);
+    FK_DUMP_SIZE(fk::GatherReadings);
+    FK_DUMP_SIZE(fk::SendTransmission);
+    FK_DUMP_SIZE(fk::SendStatus);
+    FK_DUMP_SIZE(fk::DetermineLocation);
+    FK_DUMP_SIZE(fk::Scheduler);
+    FK_DUMP_SIZE(fk::LiveData);
+    FK_DUMP_SIZE(fk::AppServicer);
+    FK_DUMP_SIZE(fk::Wifi);
+    FK_DUMP_SIZE(fk::SimpleNTP);
+#endif
 
     uint8_t addresses[]{ 7, 8, 9, 0 };
     {
