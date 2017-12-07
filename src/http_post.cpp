@@ -10,6 +10,11 @@ void HttpPost::enqueued() {
 }
 
 TaskEval HttpPost::task() {
+    if (WiFi.status() != WL_AP_CONNECTED && WiFi.status() != WL_CONNECTED) {
+        log("No Wifi, failing");
+        return TaskEval::error();
+    }
+
     if (dieAt == 0) {
         dieAt = millis() + WifiHttpPostTimeout;
         // TODO: Fix blocking.
@@ -21,22 +26,24 @@ TaskEval HttpPost::task() {
             wcl.println();
         } else {
             log("Not connected!");
+            wcl.stop();
+            return TaskEval::error();
         }
     }
 
     if (millis() > dieAt) {
+        wcl.stop();
         return TaskEval::error();
     }
 
-    if (WiFi.status() == WL_AP_CONNECTED || WiFi.status() == WL_CONNECTED) {
-        while (wcl.available()) {
-            auto c = wcl.read();
-            Serial.write(c);
-        }
+    while (wcl.available()) {
+        auto c = wcl.read();
+        Serial.write(c);
+    }
 
-        if (!wcl.connected()) {
-            return TaskEval::done();
-        }
+    if (!wcl.connected()) {
+        wcl.stop();
+        return TaskEval::done();
     }
 
     return TaskEval::idle();
