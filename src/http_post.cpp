@@ -3,10 +3,17 @@
 namespace fk {
 
 HttpPost::HttpPost() : TransmissionTask("HttpPost") {
+    done();
 }
 
-void HttpPost::enqueued() {
+void HttpPost::error() {
     dieAt = 0;
+    connected = false;
+}
+
+void HttpPost::done() {
+    dieAt = 0;
+    connected = false;
 }
 
 TaskEval HttpPost::task() {

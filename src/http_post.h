@@ -33,7 +33,7 @@ constexpr uint32_t WifiHttpPostTimeout = 5000;
 
 class HttpPost : public TransmissionTask {
 private:
-    uint32_t dieAt;
+    uint32_t dieAt{ 0 };
     Delay retry{ 500 };
     bool connected{ false };
     WiFiClient wcl;
@@ -42,7 +42,8 @@ public:
     HttpPost();
 
 public:
-    void enqueued() override;
+    void done() override;
+    void error() override;
     TaskEval task() override;
 
 };

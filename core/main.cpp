@@ -155,7 +155,7 @@ void setup() {
         fk::DetermineLocation determineLocation(state, pool);
         fk::ScheduledTask tasks[] = {
             fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
-            fk::ScheduledTask{ {  0, -1 }, {  0, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
+            fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
             fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
             fk::ScheduledTask{ { 10, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, determineLocation },
         };
