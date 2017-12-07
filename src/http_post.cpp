@@ -17,8 +17,15 @@ TaskEval HttpPost::task() {
 
     if (dieAt == 0) {
         dieAt = millis() + WifiHttpPostTimeout;
+    } else if (millis() > dieAt) {
+        wcl.stop();
+        return TaskEval::error();
+    }
+
+    if (!connected) {
         // TODO: Fix blocking.
         if (wcl.connect("code.conservify.org", 80)) {
+            connected = true;
             log("Connected!");
             wcl.println("GET /time/ HTTP/1.1");
             wcl.println("Host: code.conservify.org");
@@ -26,14 +33,8 @@ TaskEval HttpPost::task() {
             wcl.println();
         } else {
             log("Not connected!");
-            wcl.stop();
-            return TaskEval::error();
+            return TaskEval::yield(retry);
         }
-    }
-
-    if (millis() > dieAt) {
-        wcl.stop();
-        return TaskEval::error();
     }
 
     while (wcl.available()) {
