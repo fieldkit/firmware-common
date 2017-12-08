@@ -1,5 +1,6 @@
 #include "message_buffer.h"
 #include "i2c.h"
+#include "debug.h"
 
 namespace fk {
 
@@ -42,14 +43,15 @@ bool MessageBuffer::write(AppReplyMessage &message) {
 }
 
 bool MessageBuffer::write(const pb_field_t *fields, void *src) {
-    /*
-    if (!pb_get_encoded_size(&size, fk_app_WireMessageReply_fields, reply_message)) {
-        debugfln("fk-core: error sizing reply");
+    size_t size;
+
+    if (!pb_get_encoded_size(&size, fields, src)) {
         return false;
     }
-    */
+
     auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     if (!pb_encode_delimited(&stream, fields, src)) {
+        debugfpln("Error", "Stream needs %d, we have %d", size, sizeof(buffer));
         return false;
     }
     pos = stream.bytes_written;
