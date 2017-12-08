@@ -77,6 +77,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().capabilities.name.arg = (void *)"NOAA-CTD";
         reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
         reply.m().capabilities.sensors.arg = (void *)&sensors_array;
+
         if (!buffer->write(reply)) {
             log("Error writing reply");
         }
@@ -115,6 +116,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().type = fk_app_ReplyType_REPLY_DATA_SETS;
         reply.m().dataSets.dataSets.funcs.encode = pb_encode_array;
         reply.m().dataSets.dataSets.arg = (void *)&data_sets_array;
+
         if (!buffer->write(reply)) {
             log("Error writing reply");
         }
@@ -137,6 +139,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().dataSetData.data.funcs.encode = pb_encode_data;
         reply.m().dataSetData.data.arg = (void *)&data;
         reply.m().dataSetData.hash = 0;
+
         if (!buffer->write(reply)) {
             log("Error writing reply");
         }
@@ -148,6 +151,7 @@ void AppServicer::handle(AppQueryMessage &query) {
 
         AppReplyMessage reply(pool);
         reply.m().type = fk_app_ReplyType_REPLY_SUCCESS;
+
         if (!buffer->write(reply)) {
             log("Error writing reply");
         }
@@ -187,6 +191,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().type = fk_app_ReplyType_REPLY_LIVE_DATA_POLL;
         reply.m().liveData.samples.funcs.encode = pb_encode_array;
         reply.m().liveData.samples.arg = (void *)&live_data_array;
+
         if (!buffer->write(reply)) {
             log("Error writing reply");
         }
@@ -211,6 +216,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         copy(reply.m().schedules.transmission, transmission);
         copy(reply.m().schedules.status, status);
         copy(reply.m().schedules.location, location);
+
         if (!buffer->write(reply)) {
             log("Error writing reply");
         }
@@ -262,6 +268,8 @@ void AppServicer::handle(AppQueryMessage &query) {
         break;
     }
     }
+
+    pool->clear();
 }
 
 }

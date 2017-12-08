@@ -156,10 +156,9 @@ void setup() {
     FK_DUMP_SIZE(fkfs_log);
 #endif
 
-    fk::Pool pool("ROOT", 128);
-
     uint8_t addresses[]{ 7, 8, 9, 0 };
     {
+        fk::Pool pool("SCAN", 128);
         fk::AttachedDevices ad(addresses, state, pool);
         ad.scan();
 
@@ -173,7 +172,8 @@ void setup() {
         }
     }
 
-    pool.clear();
+    fk::Pool modulesPool("ModulesPool", 128);
+    fk::Pool appPool("AppPool", 128);
 
     fk::NetworkSettings networkSettings {
         .ssid = FK_CONFIG_WIFI_SSID,
@@ -185,10 +185,10 @@ void setup() {
         .url = "http://code.conservify.org/ingestion"
     };
     fk::HttpPost transmission(transmissionConfig);
-    fk::GatherReadings gatherReadings(state, pool);
-    fk::SendTransmission sendTransmission(state, transmission, pool);
-    fk::SendStatus sendStatus(state, transmission, pool);
-    fk::DetermineLocation determineLocation(state, pool);
+    fk::GatherReadings gatherReadings(state, modulesPool);
+    fk::SendTransmission sendTransmission(state, transmission, modulesPool);
+    fk::SendStatus sendStatus(state, transmission, modulesPool);
+    fk::DetermineLocation determineLocation(state, modulesPool);
     fk::ScheduledTask tasks[] = {
         fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
@@ -197,9 +197,9 @@ void setup() {
     };
     fk::Scheduler scheduler(state, clock, tasks);
 
-    fk::LiveData liveData(state, pool);
+    fk::LiveData liveData(state, modulesPool);
     fk::FkfsReplies fileReplies(fs);
-    fk::AppServicer appServicer(liveData, state, scheduler, fileReplies, pool);
+    fk::AppServicer appServicer(liveData, state, scheduler, fileReplies, appPool);
     fk::Wifi wifi(networkSettings, appServicer);
 
     // TODO: Fix that this is blocking when connecting.
