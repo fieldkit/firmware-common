@@ -7,6 +7,7 @@
 
 #include "active_object.h"
 #include "app_servicer.h"
+#include "network_settings.h"
 
 namespace fk {
 
@@ -23,18 +24,27 @@ public:
     TaskEval task() override;
 };
 
+enum class ListenerState {
+    Disconnected,
+    Listening,
+    Busy,
+};
+
 class Listen : public Task {
     static constexpr char Name[] = "Listen";
 
 private:
-    bool connected{ false };
+    ListenerState state{ ListenerState::Disconnected };
     Pool pool;
-    WiFiServer *server;
+    WiFiServer server;
     AppServicer *servicer;
     HandleConnection handleConnection;
 
 public:
-    Listen(WiFiServer &server, AppServicer &servicer);
+    Listen(NetworkSettings &settings, AppServicer &servicer);
+
+public:
+    void begin();
 
 public:
     TaskEval task() override;

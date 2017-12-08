@@ -11,16 +11,9 @@
 
 namespace fk {
 
-struct NetworkSettings {
-    const char *ssid;
-    const char *password;
-    uint16_t port;
-};
-
 class Wifi : public ActiveObject {
 private:
     NetworkSettings *settings;
-    WiFiServer server;
     Listen listen;
 
 public:

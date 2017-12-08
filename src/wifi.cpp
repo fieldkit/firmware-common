@@ -3,8 +3,7 @@
 namespace fk {
 
 Wifi::Wifi(NetworkSettings &settings, AppServicer &servicer)
-    : ActiveObject("Wifi", listen), settings(&settings), server(settings.port),
-      listen(server, servicer) {
+    : ActiveObject("Wifi", listen), settings(&settings), listen(settings, servicer) {
 }
 
 void Wifi::begin() {
@@ -29,7 +28,7 @@ void Wifi::begin() {
         }
     }
 
-    server.begin();
+    listen.begin();
 }
 
 }

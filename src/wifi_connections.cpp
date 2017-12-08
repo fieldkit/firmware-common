@@ -47,34 +47,45 @@ TaskEval HandleConnection::task() {
 
 constexpr char Listen::Name[];
 
-Listen::Listen(WiFiServer &server, AppServicer &servicer)
-    : Task(Name), pool("WifiService", ConnectionMemory), server(&server),
+Listen::Listen(NetworkSettings &settings, AppServicer &servicer)
+    : Task(Name), pool("WifiService", ConnectionMemory), server(settings.port),
       servicer(&servicer), handleConnection(WiFiClient(), servicer) {
+}
+
+void Listen::begin() {
+    state = ListenerState::Disconnected;
+    server.begin();
 }
 
 TaskEval Listen::task() {
     if (WiFi.status() == WL_AP_CONNECTED || WiFi.status() == WL_CONNECTED) {
-        if (!connected) {
+        if (state == ListenerState::Disconnected) {
             IpAddress4 ip{ WiFi.localIP() };
             log("Connected ip: %s", ip.toString());
-            connected = true;
+            state = ListenerState::Listening;
         }
     } else {
-        if (connected) {
+        if (state != ListenerState::Disconnected) {
             log("Disconnected");
-            connected = false;
+            state = ListenerState::Disconnected;
         }
     }
 
-    if (connected) {
+    if (state != ListenerState::Disconnected) {
+        if (state == ListenerState::Busy) {
+            state = ListenerState::Listening;
+            log("Listening...");
+        }
+
         // WiFiClient is 1480 bytes. Only has one buffer of the size
         // SOCKET_BUFFER_TCP_SIZE. Where SOCKET_BUFFER_TCP_SIZE is 1446.
-        auto wcl = server->available();
+        auto wcl = server.available();
         if (wcl) {
             log("Accepted!");
             pool.clear();
+            state = ListenerState::Busy;
             handleConnection = HandleConnection{ wcl, *servicer };
-            return TaskEval::pass(handleConnection);
+            return TaskEval::yield(handleConnection);
         }
     }
 
