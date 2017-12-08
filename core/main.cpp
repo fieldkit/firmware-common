@@ -91,6 +91,14 @@ bool setupLogging() {
     return true;
 }
 
+void synchronizeClock(fk::Clock &clock, fk::Wifi &wifi, fk::Watchdog &watchdog) {
+    fk::SimpleNTP ntp(clock);
+
+    while (!ntp.task().isDone()) {
+        watchdog.tick();
+        wifi.tick();
+    }
+}
 
 void setup() {
     Serial.begin(115200);
@@ -143,11 +151,15 @@ void setup() {
     FK_DUMP_SIZE(fk::AppServicer);
     FK_DUMP_SIZE(fk::Wifi);
     FK_DUMP_SIZE(fk::SimpleNTP);
+    FK_DUMP_SIZE(WiFiUDP);
+    FK_DUMP_SIZE(fs);
+    FK_DUMP_SIZE(fkfs_log);
 #endif
+
+    fk::Pool pool("ROOT", 128);
 
     uint8_t addresses[]{ 7, 8, 9, 0 };
     {
-        fk::Pool pool("ROOT", 128);
         fk::AttachedDevices ad(addresses, state, pool);
         ad.scan();
 
@@ -161,41 +173,40 @@ void setup() {
         }
     }
 
-    debugfpln("Core", "Idle");
+    pool.clear();
+
+    fk::NetworkSettings networkSettings {
+        .ssid = FK_CONFIG_WIFI_SSID,
+        .password = FK_CONFIG_WIFI_PASSWORD,
+        .port = FK_CONFIG_WIFI_PORT,
+    };
+
+    fk::HttpTransmissionConfig transmissionConfig = {
+        .url = "http://code.conservify.org/ingestion"
+    };
+    fk::HttpPost transmission(transmissionConfig);
+    fk::GatherReadings gatherReadings(state, pool);
+    fk::SendTransmission sendTransmission(state, transmission, pool);
+    fk::SendStatus sendStatus(state, transmission, pool);
+    fk::DetermineLocation determineLocation(state, pool);
+    fk::ScheduledTask tasks[] = {
+        fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
+        fk::ScheduledTask{ { 10, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, determineLocation },
+    };
+    fk::Scheduler scheduler(state, clock, tasks);
+
+    fk::LiveData liveData(state, pool);
+    fk::AppServicer appServicer(liveData, state, scheduler, pool);
+    fk::Wifi wifi(networkSettings, appServicer);
+
+    // TODO: Fix that this is blocking when connecting.
+    wifi.begin();
+
+    synchronizeClock(clock, wifi, watchdog);
 
     {
-        fk::HttpTransmissionConfig transmissionConfig = {
-            .url = "http://code.conservify.org/ingestion"
-        };
-        fk::Pool pool("ROOT", 128);
-        fk::HttpPost transmission(transmissionConfig);
-        fk::GatherReadings gatherReadings(state, pool);
-        fk::SendTransmission sendTransmission(state, transmission, pool);
-        fk::SendStatus sendStatus(state, transmission, pool);
-        fk::DetermineLocation determineLocation(state, pool);
-        fk::ScheduledTask tasks[] = {
-            fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
-            fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
-            fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
-            fk::ScheduledTask{ { 10, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, determineLocation },
-        };
-        fk::Scheduler scheduler(state, clock, tasks);
-
-        fk::LiveData liveData(state, pool);
-        fk::NetworkSettings networkSettings {
-            .ssid = FK_CONFIG_WIFI_SSID,
-            .password = FK_CONFIG_WIFI_PASSWORD,
-            .port = FK_CONFIG_WIFI_PORT,
-        };
-        fk::AppServicer appServicer(liveData, state, scheduler, pool);
-        fk::Wifi wifi(networkSettings, appServicer);
-        fk::SimpleNTP ntp(clock);
-
-        scheduler.push(ntp);
-
-        // TODO: Fix that this is blocking when connecting.
-        wifi.begin();
-
         while (true) {
             watchdog.tick();
             liveData.tick();
