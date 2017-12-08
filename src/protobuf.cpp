@@ -70,7 +70,6 @@ bool pb_encode_array(pb_ostream_t *stream, const pb_field_t *field, void *const 
     return true;
 }
 
-
 bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void * const *arg) {
     auto data = (pb_data_t *)*arg;
 
@@ -88,6 +87,35 @@ bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void * const 
             return false;
         }
     }
+
+#ifdef FK_PROTOBUF_VERBOSE
+    debugfpln(LOG, "Encode: (%d)", data->length);
+#endif
+
+    return true;
+}
+
+bool pb_decode_data(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+    auto pool = (Pool *)(*arg);
+    auto length = stream->bytes_left;
+
+#ifdef FK_PROTOBUF_VERBOSE
+    debugfpln(LOG, "Decode: (%d)", length);
+#endif
+
+    auto data = (pb_data_t *)pool->malloc(sizeof(pb_data_t) + length);
+    data->buffer = ((uint8_t *)data) + sizeof(pb_data_t);
+    data->length = length;
+
+    if (!pb_read(stream, (pb_byte_t *)data->buffer, length)) {
+        return false;
+    }
+
+#ifdef FK_PROTOBUF_VERBOSE
+    debugfpln(LOG, "Decode(done): (%d)", length);
+#endif
+
+    (*arg) = (void *)data;
 
     return true;
 }
