@@ -10,6 +10,12 @@ constexpr uint32_t RetryAfter = 5000;
 SimpleNTP::SimpleNTP(Clock &clock) : Task("NTP"), clock(&clock) {
 }
 
+SimpleNTP::~SimpleNTP() {
+    if (initialized) {
+        udp.stop();
+    }
+}
+
 void SimpleNTP::start() {
     if (!initialized) {
         udp.begin(2390);

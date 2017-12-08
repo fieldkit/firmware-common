@@ -19,6 +19,7 @@ private:
 
 public:
     SimpleNTP(Clock &clock);
+    ~SimpleNTP();
 
 public:
     TaskEval task() override;
