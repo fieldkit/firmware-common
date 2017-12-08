@@ -24,8 +24,8 @@ static void copy(fk_app_Schedule &to, ScheduledTask &from) {
     to.day.offset = 0;
 }
 
-AppServicer::AppServicer(LiveData &liveData, CoreState &state, Scheduler &scheduler, Pool &pool)
-    : Task("AppServicer"), query(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), pool(&pool) {
+AppServicer::AppServicer(LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, Pool &pool)
+    : Task("AppServicer"), query(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), pool(&pool) {
 }
 
 TaskEval AppServicer::task() {
@@ -235,6 +235,22 @@ void AppServicer::handle(AppQueryMessage &query) {
             log("Error writing reply");
         }
 
+        break;
+    }
+    case fk_app_QueryType_QUERY_FILES: {
+        AppReplyMessage reply(pool);
+        fileReplies->queryFilesReply(query, reply);
+        if (!buffer->write(reply)) {
+            log("Error writing reply");
+        }
+        break;
+    }
+    case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
+        AppReplyMessage reply(pool);
+        fileReplies->downloadFileReply(query, reply);
+        if (!buffer->write(reply)) {
+            log("Error writing reply");
+        }
         break;
     }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:

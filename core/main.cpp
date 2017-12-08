@@ -198,7 +198,8 @@ void setup() {
     fk::Scheduler scheduler(state, clock, tasks);
 
     fk::LiveData liveData(state, pool);
-    fk::AppServicer appServicer(liveData, state, scheduler, pool);
+    fk::FkfsReplies fileReplies(fs);
+    fk::AppServicer appServicer(liveData, state, scheduler, fileReplies, pool);
     fk::Wifi wifi(networkSettings, appServicer);
 
     // TODO: Fix that this is blocking when connecting.

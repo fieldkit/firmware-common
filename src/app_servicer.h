@@ -6,6 +6,7 @@
 #include "core_state.h"
 #include "live_data.h"
 #include "scheduler.h"
+#include "fkfs_replies.h"
 
 namespace fk {
 
@@ -16,10 +17,11 @@ private:
     LiveData *liveData;
     CoreState *state;
     Scheduler *scheduler;
+    FkfsReplies *fileReplies;
     Pool *pool;
 
 public:
-    AppServicer(LiveData &liveData, CoreState &state, Scheduler &scheduler, Pool &pool);
+    AppServicer(LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, Pool &pool);
 
 public:
     TaskEval task() override;
