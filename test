@@ -19,11 +19,11 @@ echo
 echo
 
 sleep 1
-~/tools/bin/flasher --port $A --tail --tail-inactivity 0 | sed "s/^/module | /" &
+~/tools/bin/flasher --port $A --tail --append module.log --tail-inactivity 0 | sed "s/^/module | /" &
 S=$!
 
 sleep 1
-~/tools/bin/flasher --port $B --tail --tail-inactivity 0 | sed "s/^/core   | /" &
+~/tools/bin/flasher --port $B --tail --append core.log --tail-inactivity 0 | sed "s/^/core   | /" &
 M=$!
 
 trap ctrl_c INT

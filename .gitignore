@@ -1,3 +1,5 @@
 build
 gitdeps
 core/config.h
+core.log
+module.log
