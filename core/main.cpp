@@ -50,9 +50,6 @@ bool setupLogging() {
         return false;
     }
 
-    pinMode(SD_PIN_CS, OUTPUT);
-    digitalWrite(SD_PIN_CS, HIGH);
-
     randomSeed(RANDOM_SEED);
 
     if (!sd_raw_initialize(&fs.sd, SD_PIN_CS)) {
