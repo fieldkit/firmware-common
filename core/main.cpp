@@ -31,8 +31,6 @@ const uint8_t FKFS_FILE_PRIORITY_HIGHEST = 0;
 static fkfs_t fs = { 0 };
 static fkfs_log_t fkfs_log = { 0 };
 
-RH_RF95 rf95(RFM95_PIN_CS, RFM95_PIN_INT);
-
 void debug_write_log(const char *str, void *arg) {
     fkfs_log_append(&fkfs_log, str);
 }
@@ -43,14 +41,6 @@ size_t fkfs_log_message(const char *f, ...) {
     vdebugfpln("fkfs", f, args);
     va_end(args);
     return 0;
-}
-
-bool setupRadio() {
-    if (!rf95.init()) {
-        debugfpln("Core", "LoRa missing (%d)", sizeof(rf95));
-    }
-
-    return false;
 }
 
 bool setupLogging() {
@@ -119,9 +109,6 @@ void setup() {
         while (true) {
             delay(10);
         }
-    }
-
-    if (!setupRadio()) {
     }
 
     fk::i2c_begin();
