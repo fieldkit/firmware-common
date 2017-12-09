@@ -57,9 +57,14 @@ void vdebugfln(const char *f, va_list args) {
     char buffer[FK_DEBUG_LINE_MAX];
 
     auto w = vsnprintf(buffer, FK_DEBUG_LINE_MAX - 2, f, args);
+#if FK_LOGGING_INCLUDE_CR
     buffer[w] = '\r';
     buffer[w + 1] = '\n';
     buffer[w + 2] = 0;
+#else
+    buffer[w] = '\n';
+    buffer[w + 1] = 0;
+#endif
 
     debug(buffer);
 }
