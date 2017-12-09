@@ -1,5 +1,6 @@
 build
 gitdeps
 core/config.h
+core/seed.h
 core.log
 module.log

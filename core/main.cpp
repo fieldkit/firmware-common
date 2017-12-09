@@ -13,6 +13,7 @@
 #include <fk-core.h>
 
 #include "config.h"
+#include "seed.h"
 
 extern "C" {
 
@@ -61,6 +62,8 @@ bool setupLogging() {
 
     pinMode(SD_PIN_CS, OUTPUT);
     digitalWrite(SD_PIN_CS, HIGH);
+
+    randomSeed(RANDOM_SEED);
 
     if (!sd_raw_initialize(&fs.sd, SD_PIN_CS)) {
         return false;
