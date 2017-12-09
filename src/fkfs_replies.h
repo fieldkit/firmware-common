@@ -3,6 +3,7 @@
 
 #include <fkfs.h>
 
+#include "message_buffer.h"
 #include "app_messages.h"
 
 namespace fk {
@@ -15,8 +16,8 @@ public:
     FkfsReplies(fkfs_t &fs);
 
 public:
-    void queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply);
-    void downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply);
+    void queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
+    void downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
 
 };
 

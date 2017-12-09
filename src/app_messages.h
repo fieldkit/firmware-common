@@ -17,7 +17,13 @@ public:
     AppQueryMessage(Pool *pool) : pool(pool) {
     }
 
+    bool hasToken() {
+        return message.downloadFile.token.arg != pool;
+    }
+
     fk_app_WireMessageQuery *forDecode() {
+        message.downloadFile.token.funcs.decode = pb_decode_data;
+        message.downloadFile.token.arg = (void *)pool;
         return &message;
     }
 
@@ -45,6 +51,10 @@ public:
     }
 
     fk_app_WireMessageReply *forEncode() {
+        if (message.type == fk_app_ReplyType_REPLY_DOWNLOAD_FILE) {
+            message.fileData.token.funcs.encode = pb_encode_data;
+            message.fileData.data.funcs.encode = pb_encode_data;
+        }
         return &message;
     }
 

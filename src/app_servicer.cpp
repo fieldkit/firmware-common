@@ -237,6 +237,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         copy(reply.m().schedules.transmission, transmission);
         copy(reply.m().schedules.status, status);
         copy(reply.m().schedules.location, location);
+
         if (!buffer->write(reply)) {
             log("Error writing reply");
         }
@@ -244,19 +245,22 @@ void AppServicer::handle(AppQueryMessage &query) {
         break;
     }
     case fk_app_QueryType_QUERY_FILES: {
+        log("Query files");
+
         AppReplyMessage reply(pool);
-        fileReplies->queryFilesReply(query, reply);
-        if (!buffer->write(reply)) {
-            log("Error writing reply");
-        }
+        fileReplies->queryFilesReply(query, reply, *buffer);
+
         break;
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
+        log("Download file (%d / %d)", query.m().downloadFile.id, query.m().downloadFile.page);
+        auto started = millis();
+
         AppReplyMessage reply(pool);
-        fileReplies->downloadFileReply(query, reply);
-        if (!buffer->write(reply)) {
-            log("Error writing reply");
-        }
+        fileReplies->downloadFileReply(query, reply, *buffer);
+
+        log("Done (%d)", millis() - started);
+
         break;
     }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
