@@ -59,6 +59,8 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
             break;
         }
 
+        memcpy(data + length, iter.data, iter.size);
+
         length += iter.size;
     }
 
