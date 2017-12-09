@@ -15,6 +15,22 @@ void debug_add_hook(debug_hook_fn_t hook, void *arg) {
 
 bool insideHook = false;
 
+extern "C" {
+
+// Useful for injecting log statements in third party areas for testing.
+void fklog(const char *f, ...) {
+    char buffer[FK_DEBUG_LINE_MAX];
+    va_list args;
+
+    va_start(args, f);
+    vsnprintf(buffer, FK_DEBUG_LINE_MAX, f, args);
+    va_end(args);
+
+    debug(buffer);
+}
+
+}
+
 void debug(const char *str) {
     Serial.print(str);
     if (global_hook_fn != nullptr) {
