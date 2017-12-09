@@ -18,6 +18,7 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
         replyFiles[i].time = 0;
         replyFiles[i].size = fkfsFiles[i].size;
         replyFiles[i].pages = fkfsFiles[i].size / 1024;
+        replyFiles[i].version = fkfsFiles[i].version;
         replyFiles[i].name.funcs.encode = pb_encode_string;
         replyFiles[i].name.arg = fkfsFiles[i].name;
     }
