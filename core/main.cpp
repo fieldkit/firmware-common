@@ -69,25 +69,20 @@ bool setupLogging() {
         return false;
     }
 
-    if (!fkfs_initialize_file(&fs, FKFS_FILE_LOG, FKFS_FILE_PRIORITY_LOWEST, false, "DEBUG.LOG")) {
+    if (!fkfs_initialize_file(&fs, FKFS_FILE_LOG, FKFS_FILE_PRIORITY_LOWEST, true, "FK.LOG")) {
         return false;
     }
+
+    auto wipe = true;
+    if (!fkfs_initialize(&fs, wipe)) {
+        return false;
+    }
+
+    fkfs_log_statistics(&fs);
 
     if (!fkfs_log_initialize(&fkfs_log, &fs, FKFS_FILE_LOG)) {
         return false;
     }
-
-    if (false) {
-        if (!fkfs_initialize(&fs, true)) {
-            return false;
-        }
-        fkfs_log_statistics(&fs);
-    }
-
-    if (!fkfs_initialize(&fs, false)) {
-        return false;
-    }
-    fkfs_log_statistics(&fs);
 
     debug_add_hook(debug_write_log, &fkfs_log);
 
