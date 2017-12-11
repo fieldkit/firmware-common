@@ -1,0 +1,91 @@
+#ifndef FK_CORE_MODULE_H_INCLUDED
+#define FK_CORE_MODULE_H_INCLUDED
+
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+
+#include <sd_raw.h>
+#include <fkfs.h>
+#include <fkfs_log.h>
+
+#include "app_servicer.h"
+#include "attached_devices.h"
+#include "core_state.h"
+#include "debug.h"
+#include "i2c.h"
+#include "module_controller.h"
+#include "pool.h"
+#include "wifi.h"
+#include "watchdog.h"
+#include "app_servicer.h"
+#include "scheduler.h"
+#include "rtc.h"
+#include "simple_ntp.h"
+#include "core.h"
+#include "http_post.h"
+
+namespace fk {
+
+class CoreModule {
+private:
+    static constexpr uint8_t FKFS_FILE_LOG = 0;
+    static constexpr uint8_t FKFS_FILE_DATA = 1;
+    static constexpr uint8_t FKFS_FILE_PRIORITY_LOWEST = 255;
+    static constexpr uint8_t FKFS_FILE_PRIORITY_HIGHEST = 0;
+    static constexpr uint8_t WIFI_PIN_CS = 8;
+    static constexpr uint8_t RFM95_PIN_CS = 8;
+    static constexpr uint8_t RFM95_PIN_RST = 4;
+    static constexpr uint8_t RFM95_PIN_INT = 3;
+    static constexpr uint8_t SD_PIN_CS = 10;
+
+    fkfs_t fs = { 0 };
+    fkfs_log_t fkfs_log = { 0 };
+    Watchdog watchdog;
+    FkfsData data{fs, FKFS_FILE_DATA};
+    CoreState state{data};
+    Clock clock;
+    Pool modulesPool{"ModulesPool", 128};
+    Pool appPool{"AppPool", 128};
+
+    NetworkSettings networkSettings;
+    HttpTransmissionConfig transmissionConfig = {
+        .url = "http://code.conservify.org/ingestion"
+    };
+    HttpPost transmission{transmissionConfig};
+    GatherReadings gatherReadings{state, modulesPool};
+    SendTransmission sendTransmission{state, transmission, modulesPool};
+    SendStatus sendStatus{state, transmission, modulesPool};
+    DetermineLocation determineLocation{state, modulesPool};
+    ScheduledTask tasks[4] {
+        fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
+        fk::ScheduledTask{ { 10, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, determineLocation },
+    };
+    Scheduler scheduler{state, clock, tasks};
+
+    LiveData liveData{state, modulesPool};
+    FkfsReplies fileReplies{fs};
+    AppServicer appServicer{liveData, state, scheduler, fileReplies, appPool};
+    Wifi wifi{networkSettings, appServicer};
+
+public:
+    CoreModule();
+
+public:
+    void begin();
+    void configure(NetworkSettings settings) {
+        networkSettings = settings;
+    }
+    void run();
+
+private:
+    bool setupFileSystem();
+    bool synchronizeClock();
+
+};
+
+}
+
+#endif

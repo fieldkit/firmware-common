@@ -56,7 +56,4 @@ void DetermineLocation::enqueued() {
 void DetermineLocation::done(Task &task) {
 }
 
-Core::Core() : ActiveObject("Core") {
-}
-
 }

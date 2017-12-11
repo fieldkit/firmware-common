@@ -1,5 +1,5 @@
-#ifndef FK_CORE_MODULE_H_INCLUDED
-#define FK_CORE_MODULE_H_INCLUDED
+#ifndef FK_CORE_MODULE_PARTS_H_INCLUDED
+#define FK_CORE_MODULE_PARTS_H_INCLUDED
 
 #include "active_object.h"
 #include "core_state.h"
@@ -64,16 +64,6 @@ public:
 public:
     void enqueued() override;
     void done(Task &task) override;
-
-};
-
-class Core : public ActiveObject {
-private:
-
-public:
-    Core();
-
-public:
 
 };
 

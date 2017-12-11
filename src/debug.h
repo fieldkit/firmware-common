@@ -4,7 +4,7 @@
 #include <cstdarg>
 #include <cstdint>
 
-typedef void (*debug_hook_fn_t)(const char *str, void *arg);
+typedef size_t (*debug_hook_fn_t)(const char *str, void *arg);
 
 void debug_add_hook(debug_hook_fn_t hook, void *arg);
 void debug_configure_hook(bool enabled);
