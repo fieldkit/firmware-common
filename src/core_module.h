@@ -24,6 +24,7 @@
 #include "simple_ntp.h"
 #include "core.h"
 #include "http_post.h"
+#include "discovery.h"
 
 namespace fk {
 
@@ -69,6 +70,7 @@ private:
     FkfsReplies fileReplies{fs};
     AppServicer appServicer{liveData, state, scheduler, fileReplies, appPool};
     Wifi wifi{networkSettings, appServicer};
+    Discovery discovery;
 
 public:
     CoreModule();

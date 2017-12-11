@@ -120,6 +120,7 @@ void CoreModule::run() {
             liveData.tick();
             wifi.tick();
             scheduler.tick();
+            discovery.task();
         }
     }
 }

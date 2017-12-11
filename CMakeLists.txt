@@ -38,6 +38,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/fkfs_replies.cpp
   ${COMMON_SRCS_DIR}/fkfs_data.cpp
   ${COMMON_SRCS_DIR}/core_module.cpp
+  ${COMMON_SRCS_DIR}/discovery.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})
