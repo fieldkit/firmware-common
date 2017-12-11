@@ -144,8 +144,9 @@ void setup() {
     FK_DUMP_SIZE(fk::Wifi);
     FK_DUMP_SIZE(fk::SimpleNTP);
     FK_DUMP_SIZE(WiFiUDP);
-    FK_DUMP_SIZE(fs);
-    FK_DUMP_SIZE(fkfs_log);
+    FK_DUMP_SIZE(fkfs_t);
+    FK_DUMP_SIZE(fkfs_header_t);
+    FK_DUMP_SIZE(fkfs_log_t);
 #endif
 
     uint8_t addresses[]{ 7, 8, 9, 0 };
