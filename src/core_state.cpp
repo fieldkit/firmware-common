@@ -56,4 +56,65 @@ size_t CoreState::getModuleIndex(uint8_t address) {
     return 0;
 }
 
+size_t CoreState::numberOfModules() const {
+    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
+        if (modules[i].address == 0) {
+            return i;
+        }
+    }
+    return MaximumNumberOfModules;
+}
+
+size_t CoreState::numberOfSensors() const {
+    size_t number = 0;
+    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
+        if (modules[i].address > 0) {
+            number += modules[i].numberOfSensors;
+        }
+    }
+    return number;
+}
+
+size_t CoreState::numberOfReadings() const {
+    size_t number = 0;
+    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
+        if (modules[i].address > 0) {
+            for (size_t j = 0; j < modules[i].numberOfSensors; ++j) {
+                if (modules[i].readings[j].status == SensorReadingStatus::Done) {
+                    number++;
+                }
+            }
+        }
+    }
+    return number;
+}
+
+AvailableSensorReading CoreState::getReading(size_t index) {
+    size_t number = 0;
+    for (uint8_t i = 0; i < MaximumNumberOfModules; ++i) {
+        if (modules[i].address > 0) {
+            for (uint8_t j = 0; j < modules[i].numberOfSensors; ++j) {
+                if (modules[i].readings[j].status == SensorReadingStatus::Done) {
+                    if (number == index) {
+                        return AvailableSensorReading { j, modules[i].readings[j] };
+                    }
+                    number++;
+                }
+            }
+        }
+    }
+
+    fk_assert(false);
+
+    return AvailableSensorReading { 0, modules[0].readings[0] };
+}
+
+void CoreState::clearReadings() {
+    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
+        for (size_t j = 0; j < MaximumNumberOfSensors; ++j) {
+            modules[i].readings[j].status = SensorReadingStatus::Idle;
+        }
+    }
+}
+
 }
