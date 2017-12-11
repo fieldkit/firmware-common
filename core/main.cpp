@@ -38,7 +38,9 @@ void debug_write_log(const char *str, void *arg) {
 size_t fkfs_log_message(const char *f, ...) {
     va_list args;
     va_start(args, f);
+    debug_configure_hook(false);
     vdebugfpln("fkfs", f, args);
+    debug_configure_hook(true);
     va_end(args);
     return 0;
 }

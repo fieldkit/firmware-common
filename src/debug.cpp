@@ -7,13 +7,16 @@ const uint32_t FK_DEBUG_LINE_MAX = 128;
 
 debug_hook_fn_t global_hook_fn = nullptr;
 void *global_hook_arg = nullptr;
+bool global_hook_enabled = false;
 
 void debug_add_hook(debug_hook_fn_t hook, void *arg) {
     global_hook_fn = hook;
     global_hook_arg = arg;
 }
 
-bool insideHook = false;
+void debug_configure_hook(bool enabled) {
+    global_hook_enabled = enabled;
+}
 
 extern "C" {
 
@@ -34,10 +37,10 @@ void fklog(const char *f, ...) {
 void debug(const char *str) {
     Serial.print(str);
     if (global_hook_fn != nullptr) {
-        if (!insideHook) {
-            insideHook = true;
+        if (global_hook_enabled) {
+            global_hook_enabled = false;
             global_hook_fn(str, global_hook_arg);
-            insideHook = false;
+            global_hook_enabled = true;
         }
     }
 }
