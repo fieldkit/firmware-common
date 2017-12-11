@@ -5,7 +5,7 @@
 
 namespace fk {
 
-CoreState::CoreState() {
+CoreState::CoreState(FkfsData &data) : data(&data) {
     for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
         modules[i].address = 0;
     }
@@ -36,6 +36,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
             reading.time = reply.m().sensorReading.time;
             reading.value = reply.m().sensorReading.value;
             reading.status = SensorReadingStatus::Done;
+            data->appendReading(reading);
         }
         break;
     }

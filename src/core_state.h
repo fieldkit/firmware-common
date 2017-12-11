@@ -5,6 +5,7 @@
 #include "module_info.h"
 #include "module_messages.h"
 #include "two_wire_task.h"
+#include "fkfs_data.h"
 
 namespace fk {
 
@@ -15,10 +16,11 @@ struct AvailableSensorReading {
 
 class CoreState {
 private:
+    FkfsData *data;
     ModuleInfo modules[MaximumNumberOfModules];
 
 public:
-    CoreState();
+    CoreState(FkfsData &data);
 
 public:
     ModuleInfo* attachedModules() {
@@ -34,8 +36,10 @@ public:
 
 private:
     size_t getModuleIndex(uint8_t address);
+    bool appendReading(SensorReading &reading);
 
 };
+
 }
 
 #endif

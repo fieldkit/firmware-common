@@ -25,6 +25,7 @@ const uint8_t RFM95_PIN_INT = 3;
 
 const uint8_t SD_PIN_CS = 10;
 const uint8_t FKFS_FILE_LOG = 0;
+const uint8_t FKFS_FILE_DATA = 1;
 const uint8_t FKFS_FILE_PRIORITY_LOWEST = 255;
 const uint8_t FKFS_FILE_PRIORITY_HIGHEST = 0;
 
@@ -32,7 +33,9 @@ static fkfs_t fs = { 0 };
 static fkfs_log_t fkfs_log = { 0 };
 
 void debug_write_log(const char *str, void *arg) {
-    fkfs_log_append(&fkfs_log, str);
+    if (!fkfs_log_append(&fkfs_log, str)) {
+        Serial.println("Unable to append log");
+    }
 }
 
 size_t fkfs_log_message(const char *f, ...) {
@@ -59,6 +62,10 @@ bool setupLogging() {
     }
 
     if (!fkfs_initialize_file(&fs, FKFS_FILE_LOG, FKFS_FILE_PRIORITY_LOWEST, true, "FK.LOG")) {
+        return false;
+    }
+
+    if (!fkfs_initialize_file(&fs, FKFS_FILE_DATA, FKFS_FILE_PRIORITY_HIGHEST, true, "DATA.BIN")) {
         return false;
     }
 
@@ -113,7 +120,8 @@ void setup() {
     fk::i2c_begin();
 
     fk::Watchdog watchdog;
-    fk::CoreState state;
+    fk::FkfsData data(fs, FKFS_FILE_DATA);
+    fk::CoreState state(data);
     fk::Clock clock;
 
     clock.begin();

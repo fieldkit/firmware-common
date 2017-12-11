@@ -36,6 +36,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/core.cpp
   ${COMMON_SRCS_DIR}/http_post.cpp
   ${COMMON_SRCS_DIR}/fkfs_replies.cpp
+  ${COMMON_SRCS_DIR}/fkfs_data.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})
