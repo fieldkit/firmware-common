@@ -9,10 +9,10 @@ typedef size_t (*debug_hook_fn_t)(const char *str, void *arg);
 void debug_add_hook(debug_hook_fn_t hook, void *arg);
 void debug_configure_hook(bool enabled);
 void debug(const char *str);
-void debugf(const char *f, ...);
+void debugf(const char *f, ...) __attribute__((format(printf, 1, 2)));
 void vdebugfln(const char *f, va_list args);
-void debugfln(const char *f, ...);
-void debugfpln(const char *prefix, const char *f, ...);
+void debugfln(const char *f, ...) __attribute__((format(printf, 1, 2)));
+void debugfpln(const char *prefix, const char *f, ...) __attribute__((format(printf, 2, 3)));
 void vdebugfpln(const char *prefix, const char *f, va_list args);
 
 uint32_t fk_free_memory();

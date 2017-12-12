@@ -16,7 +16,7 @@ void setup() {
 
     randomSeed(RANDOM_SEED);
 
-    debugfpln("Core", "Starting (%d free)", fk_free_memory());
+    debugfpln("Core", "Starting (%lu free)", fk_free_memory());
 
 #define FK_DUMP_OBJECT_SIZES
 #ifdef FK_DUMP_OBJECT_SIZES

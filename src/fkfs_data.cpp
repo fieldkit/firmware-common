@@ -13,7 +13,7 @@ bool FkfsData::appendReading(SensorReading &reading) {
         return false;
     }
 
-    debugfpln("Data", "Appended reading file.", file);
+    debugfpln("Data", "Appended reading file.");
     return true;
 }
 

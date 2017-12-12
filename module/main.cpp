@@ -66,7 +66,7 @@ void setup() {
         delay(100);
     }
 
-    debugfpln("Module", "Starting (%d free)", fk_free_memory());
+    debugfpln("Module", "Starting (%lu free)", fk_free_memory());
 
     fk::ModuleInfo info = {
         8,

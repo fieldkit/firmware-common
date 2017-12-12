@@ -49,7 +49,7 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
     if (query.hasToken() && rawPreviousToken != nullptr && rawPreviousToken->length > 0) {
         fk_assert(rawPreviousToken->length == sizeof(fkfs_iterator_token_t));
         memcpy((void *)&token, (void *)rawPreviousToken->buffer, sizeof(fkfs_iterator_token_t));
-        debugfpln("Files", "Using previous token (%d, %d -> %d)", token.block, token.offset, token.lastBlock);
+        debugfpln("Files", "Using previous token (%lu, %d -> %lu)", token.block, token.offset, token.lastBlock);
     } else {
         debugfpln("Files", "Starting download");
     }
@@ -74,7 +74,7 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
         .buffer = &token,
     };
 
-    debugfpln("Files", "Done (%d bytes), sending token (%d, %d -> %d)", length, token.block, token.offset, token.lastBlock);
+    debugfpln("Files", "Done (%d bytes), sending token (%lu, %d -> %lu)", length, token.block, token.offset, token.lastBlock);
 
     reply.m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
     reply.m().fileData.data.funcs.encode = pb_encode_data;

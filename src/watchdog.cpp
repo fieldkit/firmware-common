@@ -11,7 +11,7 @@ constexpr const char Log[] = "Watchdog";
 void Watchdog::tick() {
     if (millis() > time) {
         time = millis() + Interval;
-        debugfpln(Log, "Tick (%d free)", fk_free_memory());
+        debugfpln(Log, "Tick (%lu free)", fk_free_memory());
     }
 }
 
