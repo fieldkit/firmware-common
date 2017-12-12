@@ -7,6 +7,6 @@ set(LIBRARIES
   ../module-protocol
 )
 
-set(EXTRA_CXX_FLAGS_PROJECT "-Wall -Werror")
-
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")
+
+target_compile_options(fk-core PUBLIC -Wall -Werror)
