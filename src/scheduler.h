@@ -44,6 +44,8 @@ public:
 
     bool matches(DateTime now);
 
+    uint32_t getNextRunTime(DateTime &after);
+
     Task &getTask() {
         return *task;
     }
@@ -77,6 +79,8 @@ public:
 
 public:
     ScheduledTask &getTaskSchedule(ScheduleKind kind);
+    uint32_t getNextTaskTime(DateTime &after);
+    uint32_t getNextTaskTime();
 
 };
 

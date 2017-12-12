@@ -13,9 +13,29 @@ constexpr size_t length(char const (&)[N]) {
 
 constexpr size_t MaximumLengthOfTimeString = length("0000/00/00 00:00:00");
 
-class Clock {
+inline void timeToString(char *buffer, size_t length, DateTime dt) {
+    snprintf(buffer, length, "%d/%d/%d %02d:%02d:%02d",
+             dt.year(), dt.month(), dt.day(),
+             dt.hour(), dt.minute(), dt.second());
+}
+
+class FormattedTime {
 private:
     char buffer[MaximumLengthOfTimeString + 1];
+
+public:
+    FormattedTime(DateTime dt) {
+        timeToString(buffer, sizeof(buffer), dt);
+    }
+
+    const char *toString() {
+        return buffer;
+    }
+
+};
+
+class Clock {
+private:
     bool valid{ false };
     RTCZero rtc;
 
@@ -54,13 +74,6 @@ public:
 
     uint32_t getTime() {
         return now().unixtime();
-    }
-
-    const char *nowString() {
-        auto dt = now();
-        snprintf(buffer, sizeof(buffer), "%d/%d/%d %02d:%02d:%02d",
-                 dt.year(), dt.month(), dt.day(), dt.hour(), dt.minute(), dt.second());
-        return buffer;
     }
 
 };
