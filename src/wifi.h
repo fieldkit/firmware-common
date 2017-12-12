@@ -12,12 +12,42 @@
 
 namespace fk {
 
+class ConnectToWifiAp : public Task {
+private:
+    CoreState *state;
+    size_t networkNumber{ 0 };
+
+public:
+    ConnectToWifiAp(CoreState &state) : Task("ConnectWifiAp"), state(&state) {
+    }
+
+public:
+    TaskEval task() override;
+
+};
+
+class CreateWifiAp : public Task {
+private:
+    CoreState *state;
+
+public:
+    CreateWifiAp(CoreState &state) : Task("ConnectWifiAp"), state(&state) {
+    }
+
+public:
+    TaskEval task() override;
+
+};
+
 class Wifi : public ActiveObject {
 public:
     static constexpr uint16_t ServerPort = 54321;
 
 private:
+    uint32_t version{ 0 };
     CoreState *state;
+    ConnectToWifiAp connectToWifiAp;
+    CreateWifiAp createWifiAp;
     Listen listen;
 
 public:
@@ -25,6 +55,9 @@ public:
 
 public:
     void begin();
+    void done(Task &task) override;
+    void error(Task &task) override;
+    void idle() override;
 
 };
 

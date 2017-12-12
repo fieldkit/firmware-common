@@ -94,6 +94,12 @@ void ActiveObject::error(Task &) {
 void ActiveObject::idle() {
 }
 
+void ActiveObject::cancel() {
+    while (tail() != nullptr) {
+        pop();
+    }
+}
+
 Task *ActiveObject::tail() {
     if (tasks == nullptr) {
         return nullptr;

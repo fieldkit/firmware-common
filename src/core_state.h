@@ -40,6 +40,7 @@ public:
 public:
     void configure(NetworkSettings settings) {
         networkSettings = settings;
+        networkSettings.version = millis();
     }
     NetworkSettings &getNetworkSettings() {
         return networkSettings;

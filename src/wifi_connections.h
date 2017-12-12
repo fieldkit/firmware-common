@@ -25,6 +25,7 @@ public:
 };
 
 enum class ListenerState {
+    Idle,
     Disconnected,
     Listening,
     Busy,
@@ -34,7 +35,7 @@ class Listen : public Task {
     static constexpr char Name[] = "Listen";
 
 private:
-    ListenerState state{ ListenerState::Disconnected };
+    ListenerState state{ ListenerState::Idle };
     Pool pool;
     WiFiServer server;
     AppServicer *servicer;
@@ -45,6 +46,7 @@ public:
 
 public:
     void begin();
+    void end();
 
 public:
     TaskEval task() override;

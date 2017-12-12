@@ -120,15 +120,18 @@ public:
     void push(Task &task);
     void tick();
     bool isIdle();
+    void cancel();
 
 public:
     virtual void done(Task &task);
     virtual void error(Task &task);
     virtual void idle();
 
+protected:
+    void service(Task &task);
+
 private:
     void pop();
-    void service(Task &task);
     Task *tail();
     Task **end();
 

@@ -24,13 +24,14 @@ struct NetworkInfo {
 
 struct NetworkSettings {
     bool createAccessPoint;
+    uint32_t version;
     NetworkInfo networks[MaximumRememberedNetworks];
 
-    NetworkSettings() : createAccessPoint(true) {
+    NetworkSettings() : createAccessPoint(true), version(0) {
         memzero(networks, sizeof(networks));
     }
 
-    NetworkSettings(bool ap, NetworkInfo info) : createAccessPoint(ap) {
+    NetworkSettings(bool ap, NetworkInfo info) : createAccessPoint(ap), version(0) {
         memzero(networks, sizeof(networks));
         memcpy(&networks[0], &info, sizeof(NetworkInfo));
     }

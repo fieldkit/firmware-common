@@ -53,11 +53,21 @@ Listen::Listen(uint16_t port, AppServicer &servicer)
 }
 
 void Listen::begin() {
-    state = ListenerState::Disconnected;
-    server.begin();
+    if (state == ListenerState::Idle) {
+        state = ListenerState::Disconnected;
+        server.begin();
+    }
+}
+
+void Listen::end() {
+    if (state != ListenerState::Idle) {
+        state = ListenerState::Idle;
+    }
 }
 
 TaskEval Listen::task() {
+    begin();
+
     if (WiFi.status() == WL_AP_CONNECTED || WiFi.status() == WL_CONNECTED) {
         if (state == ListenerState::Disconnected) {
             IpAddress4 ip{ WiFi.localIP() };
@@ -85,7 +95,7 @@ TaskEval Listen::task() {
             pool.clear();
             state = ListenerState::Busy;
             handleConnection = HandleConnection{ wcl, *servicer };
-            return TaskEval::yield(handleConnection);
+            return TaskEval::pass(handleConnection);
         }
     }
 
