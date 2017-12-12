@@ -31,6 +31,7 @@ public:
     void handle(AppQueryMessage &query);
 
 private:
+    void configureNetworkSettings();
     void networkSettingsReply();
 
 };

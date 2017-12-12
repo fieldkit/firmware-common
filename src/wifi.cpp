@@ -35,8 +35,8 @@ TaskEval ConnectToWifiAp::task() {
     auto network = settings.networks[networkNumber];
 
     if (network.ssid[0] == 0) {
-        networkNumber++;
         log("N[%d] No network configured (%s)", networkNumber, getWifiStatus());
+        networkNumber++;
         return TaskEval::yield();
     }
 

@@ -264,31 +264,12 @@ void AppServicer::handle(AppQueryMessage &query) {
         break;
     }
     case fk_app_QueryType_QUERY_CONFIGURE_NETWORK_SETTINGS: {
-        log("Configure network settings...");
-
-        pb_array_t *networksArray = (pb_array_t *)query.m().networkSettings.networks.arg;
-        auto newNetworks = (fk_app_NetworkInfo *)networksArray->buffer;
-
-        log("Networks: %d", networksArray->length);
-
-        auto settings = state->getNetworkSettings();
-        settings.createAccessPoint = query.m().networkSettings.createAccessPoint;
-        for (size_t i = 0; i < max(MaximumRememberedNetworks, networksArray->length); ++i) {
-            settings.networks[i] = NetworkInfo{
-                (const char *)newNetworks[i].ssid.arg,
-                (const char *)newNetworks[i].password.arg
-            };
-        }
-
-        state->configure(settings);
-
+        configureNetworkSettings();
         networkSettingsReply();
 
         break;
     }
     case fk_app_QueryType_QUERY_NETWORK_SETTINGS: {
-        log("Network settings");
-
         networkSettingsReply();
 
         break;
@@ -306,7 +287,34 @@ void AppServicer::handle(AppQueryMessage &query) {
     pool->clear();
 }
 
+void AppServicer::configureNetworkSettings() {
+    log("Configure network settings...");
+
+    pb_array_t *networksArray = (pb_array_t *)query.m().networkSettings.networks.arg;
+    auto newNetworks = (fk_app_NetworkInfo *)networksArray->buffer;
+
+    log("Networks: %d", networksArray->length);
+
+    auto settings = state->getNetworkSettings();
+    settings.createAccessPoint = query.m().networkSettings.createAccessPoint;
+    for (size_t i = 0; i < MaximumRememberedNetworks; ++i) {
+        if (i < networksArray->length) {
+            settings.networks[i] = NetworkInfo{
+                (const char *)newNetworks[i].ssid.arg,
+                (const char *)newNetworks[i].password.arg
+            };
+        }
+        else {
+            settings.networks[i] = NetworkInfo{};
+        }
+    }
+
+    state->configure(settings);
+}
+
 void AppServicer::networkSettingsReply() {
+    log("Network settings");
+
     auto currentSettings = state->getNetworkSettings();
     fk_app_NetworkInfo networks[MaximumRememberedNetworks];
     for (auto i = 0; i < MaximumRememberedNetworks; ++i) {
