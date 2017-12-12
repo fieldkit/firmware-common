@@ -263,6 +263,36 @@ void AppServicer::handle(AppQueryMessage &query) {
 
         break;
     }
+    case fk_app_QueryType_QUERY_CONFIGURE_NETWORK_SETTINGS: {
+        log("Configure network settings...");
+
+        pb_array_t *networksArray = (pb_array_t *)query.m().networkSettings.networks.arg;
+        auto newNetworks = (fk_app_NetworkInfo *)networksArray->buffer;
+
+        log("Networks: %d", networksArray->length);
+
+        auto settings = state->getNetworkSettings();
+        settings.createAccessPoint = query.m().networkSettings.createAccessPoint;
+        for (size_t i = 0; i < max(MaximumRememberedNetworks, networksArray->length); ++i) {
+            settings.networks[i] = NetworkInfo{
+                (const char *)newNetworks[i].ssid.arg,
+                (const char *)newNetworks[i].password.arg
+            };
+        }
+
+        state->configure(settings);
+
+        networkSettingsReply();
+
+        break;
+    }
+    case fk_app_QueryType_QUERY_NETWORK_SETTINGS: {
+        log("Network settings");
+
+        networkSettingsReply();
+
+        break;
+    }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
     default: {
         AppReplyMessage reply(pool);
@@ -274,6 +304,33 @@ void AppServicer::handle(AppQueryMessage &query) {
     }
 
     pool->clear();
+}
+
+void AppServicer::networkSettingsReply() {
+    auto currentSettings = state->getNetworkSettings();
+    fk_app_NetworkInfo networks[MaximumRememberedNetworks];
+    for (auto i = 0; i < MaximumRememberedNetworks; ++i) {
+        networks[i].ssid.arg = currentSettings.networks[i].ssid;
+        networks[i].ssid.funcs.encode = pb_encode_string;
+        networks[i].password.arg = currentSettings.networks[i].password;
+        networks[i].password.funcs.encode = pb_encode_string;
+    }
+
+    pb_array_t networksArray = {
+        .length = sizeof(networks) / sizeof(fk_app_NetworkInfo),
+        .itemSize = sizeof(fk_app_NetworkInfo),
+        .buffer = &networks,
+        .fields = fk_app_NetworkInfo_fields,
+    };
+
+    AppReplyMessage reply(pool);
+    reply.m().type = fk_app_ReplyType_REPLY_NETWORK_SETTINGS;
+    reply.m().networkSettings.createAccessPoint = currentSettings.createAccessPoint;
+    reply.m().networkSettings.networks.arg = &networksArray;
+    reply.m().networkSettings.networks.funcs.encode = pb_encode_array;
+    if (!buffer->write(reply)) {
+        log("Error writing reply");
+    }
 }
 
 }

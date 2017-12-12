@@ -17,15 +17,15 @@ void Wifi::begin() {
         if (settings.createAccessPoint) {
             log("Creating AP");
 
-            auto status = WiFi.beginAP(settings.ssid);
+            auto status = WiFi.beginAP("FK-HELP");
             if (status != WL_AP_LISTENING) {
                 log("Error creating AP");
                 return;
             }
         } else {
-            log("Connecting to AP");
-            WiFi.begin(settings.ssid, settings.password);
-            log("Waiting on connection...");
+            log("Connecting to AP...");
+            auto network = settings.networks[0];
+            WiFi.begin(network.ssid, network.password);
         }
     }
 

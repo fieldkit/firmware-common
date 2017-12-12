@@ -1,3 +1,5 @@
+#include <fk-app-protocol.h>
+
 #include "protobuf.h"
 #include "debug.h"
 #include "pool.h"
@@ -70,7 +72,39 @@ bool pb_encode_array(pb_ostream_t *stream, const pb_field_t *field, void *const 
     return true;
 }
 
-bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void * const *arg) {
+bool pb_decode_array(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+    auto array = (pb_array_t *)*arg;
+
+    // HACK: This is a hack. I'm wondering if there's a better way around this.
+    // Maybe a template pointer of some kind?
+    if (array->fields == fk_app_NetworkInfo_fields) {
+        fk_app_NetworkInfo info;
+        info.ssid.funcs.decode = pb_decode_string;
+        info.ssid.arg = array->pool;
+        info.password.funcs.decode = pb_decode_string;
+        info.password.arg = array->pool;
+
+        if (!pb_decode(stream, fk_app_NetworkInfo_fields, &info)) {
+            return false;
+        }
+
+        // TODO: Wasteful.
+        auto previous = (const void *)array->buffer;
+        array->length++;
+        array->buffer = array->pool->malloc(array->itemSize * array->length);
+        void *ptr = ((uint8_t *)array->buffer) + ((array->length - 1) * array->itemSize);
+        if (previous != nullptr) {
+            memcpy(array->buffer, previous, ((array->length - 1) * array->itemSize));
+        }
+        memcpy(ptr, &info, array->itemSize);
+    } else {
+        debugfpln(LOG, "Error in pb_decode_array. Unknown type.");
+    }
+
+    return true;
+}
+
+bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void *const *arg) {
     auto data = (pb_data_t *)*arg;
 
     if (!pb_encode_tag_for_field(stream, field)) {

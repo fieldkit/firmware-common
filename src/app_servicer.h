@@ -30,6 +30,9 @@ public:
     bool handle(MessageBuffer &buffer);
     void handle(AppQueryMessage &query);
 
+private:
+    void networkSettingsReply();
+
 };
 
 }

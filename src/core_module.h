@@ -46,8 +46,8 @@ private:
     FkfsData data{fs, FKFS_FILE_DATA};
     CoreState state{data};
     Clock clock;
-    Pool modulesPool{"ModulesPool", 128};
-    Pool appPool{"AppPool", 128};
+    Pool modulesPool{"ModulesPool", 256};
+    Pool appPool{"AppPool", 256};
 
     HttpTransmissionConfig transmissionConfig = {
         .url = "http://code.conservify.org/ingestion"
