@@ -41,7 +41,7 @@ private:
     HandleConnection handleConnection;
 
 public:
-    Listen(NetworkSettings &settings, AppServicer &servicer);
+    Listen(uint16_t port, AppServicer &servicer);
 
 public:
     void begin();

@@ -49,7 +49,6 @@ private:
     Pool modulesPool{"ModulesPool", 128};
     Pool appPool{"AppPool", 128};
 
-    NetworkSettings networkSettings;
     HttpTransmissionConfig transmissionConfig = {
         .url = "http://code.conservify.org/ingestion"
     };
@@ -69,7 +68,7 @@ private:
     LiveData liveData{state, modulesPool};
     FkfsReplies fileReplies{fs};
     AppServicer appServicer{liveData, state, scheduler, fileReplies, appPool};
-    Wifi wifi{networkSettings, appServicer};
+    Wifi wifi{state, appServicer};
     Discovery discovery;
 
 public:
@@ -77,8 +76,8 @@ public:
 
 public:
     void begin();
-    void configure(NetworkSettings settings) {
-        networkSettings = settings;
+    CoreState &getState() {
+        return state;
     }
     void run();
 

@@ -7,17 +7,21 @@
 
 #include "active_object.h"
 #include "wifi_connections.h"
+#include "core_state.h"
 #include "app_servicer.h"
 
 namespace fk {
 
 class Wifi : public ActiveObject {
+public:
+    static constexpr uint16_t ServerPort = 54321;
+
 private:
-    NetworkSettings *settings;
+    CoreState *state;
     Listen listen;
 
 public:
-    Wifi(NetworkSettings &settings, AppServicer &servicer);
+    Wifi(CoreState &state, AppServicer &servicer);
 
 public:
     void begin();

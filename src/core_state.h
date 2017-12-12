@@ -6,6 +6,7 @@
 #include "module_messages.h"
 #include "two_wire_task.h"
 #include "fkfs_data.h"
+#include "network_settings.h"
 
 namespace fk {
 
@@ -16,8 +17,9 @@ struct AvailableSensorReading {
 
 class CoreState {
 private:
-    FkfsData *data;
+    NetworkSettings networkSettings;
     ModuleInfo modules[MaximumNumberOfModules];
+    FkfsData *data;
 
 public:
     CoreState(FkfsData &data);
@@ -30,9 +32,18 @@ public:
     size_t numberOfSensors() const;
     size_t numberOfReadings() const;
 
+public:
     void merge(uint8_t address, ModuleReplyMessage &reply);
     AvailableSensorReading getReading(size_t index);
     void clearReadings();
+
+public:
+    void configure(NetworkSettings settings) {
+        networkSettings = settings;
+    }
+    NetworkSettings &getNetworkSettings() {
+        return networkSettings;
+    }
 
 private:
     size_t getModuleIndex(uint8_t address);

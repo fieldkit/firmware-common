@@ -3,6 +3,5 @@
 
 #define FK_CONFIG_WIFI_SSID      ""
 #define FK_CONFIG_WIFI_PASSWORD  ""
-#define FK_CONFIG_WIFI_PORT      54321
 
 #endif

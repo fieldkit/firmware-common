@@ -4,9 +4,9 @@
 namespace fk {
 
 struct NetworkSettings {
+    bool createAccessPoint;
     const char *ssid;
     const char *password;
-    uint16_t port;
 };
 
 }

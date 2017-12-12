@@ -47,8 +47,8 @@ TaskEval HandleConnection::task() {
 
 constexpr char Listen::Name[];
 
-Listen::Listen(NetworkSettings &settings, AppServicer &servicer)
-    : Task(Name), pool("WifiService", ConnectionMemory), server(settings.port),
+Listen::Listen(uint16_t port, AppServicer &servicer)
+    : Task(Name), pool("WifiService", ConnectionMemory), server(port),
       servicer(&servicer), handleConnection(WiFiClient(), servicer) {
 }
 

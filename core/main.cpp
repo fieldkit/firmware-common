@@ -43,10 +43,10 @@ void setup() {
 
     fk::CoreModule coreModule;
     coreModule.begin();
-    coreModule.configure(fk::NetworkSettings {
+    coreModule.getState().configure(fk::NetworkSettings {
+            .createAccessPoint = false,
             .ssid = FK_CONFIG_WIFI_SSID,
             .password = FK_CONFIG_WIFI_PASSWORD,
-            .port = FK_CONFIG_WIFI_PORT,
         }
     );
 

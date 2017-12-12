@@ -2,8 +2,8 @@
 
 namespace fk {
 
-Wifi::Wifi(NetworkSettings &settings, AppServicer &servicer)
-    : ActiveObject("Wifi", listen), settings(&settings), listen(settings, servicer) {
+Wifi::Wifi(CoreState &state, AppServicer &servicer)
+    : ActiveObject("Wifi", listen), state(&state), listen(ServerPort, servicer) {
 }
 
 void Wifi::begin() {
@@ -13,17 +13,18 @@ void Wifi::begin() {
         log("No wifi");
         return;
     } else {
-        if (false) {
+        auto settings = state->getNetworkSettings();
+        if (settings.createAccessPoint) {
             log("Creating AP");
 
-            auto status = WiFi.beginAP(settings->ssid);
+            auto status = WiFi.beginAP(settings.ssid);
             if (status != WL_AP_LISTENING) {
                 log("Error creating AP");
                 return;
             }
         } else {
             log("Connecting to AP");
-            WiFi.begin(settings->ssid, settings->password);
+            WiFi.begin(settings.ssid, settings.password);
             log("Waiting on connection...");
         }
     }
