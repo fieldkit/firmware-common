@@ -23,7 +23,7 @@ void Discovery::ping() {
     IPAddress ip = WiFi.localIP();
     IPAddress destination(ip[0], ip[1], ip[2], 255);
 
-    log("Ping");
+    // log("Ping");
 
     // Why is this API like this? So weird.
     WiFiUDP udp;

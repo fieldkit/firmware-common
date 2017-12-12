@@ -29,6 +29,10 @@ public:
     }
 };
 
+const char *getWifiStatus(uint8_t status);
+
+const char *getWifiStatus();
+
 }
 
 #endif

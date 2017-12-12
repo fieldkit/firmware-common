@@ -1,29 +1,7 @@
 #include "wifi.h"
+#include "utils.h"
 
 namespace fk {
-
-static const char *getWifiStatus(uint8_t status) {
-    switch (status) {
-    case WL_NO_SHIELD: return "WL_NO_SHIELD";
-    case WL_IDLE_STATUS: return "WL_IDLE_STATUS";
-    case WL_NO_SSID_AVAIL: return "WL_NO_SSID_AVAIL";
-    case WL_SCAN_COMPLETED: return "WL_SCAN_COMPLETED";
-    case WL_CONNECTED: return "WL_CONNECTED";
-    case WL_CONNECT_FAILED: return "WL_CONNECT_FAILED";
-    case WL_CONNECTION_LOST: return "WL_CONNECTION_LOST";
-    case WL_DISCONNECTED: return "WL_DISCONNECTED";
-    case WL_AP_LISTENING: return "WL_AP_LISTENING";
-    case WL_AP_CONNECTED: return "WL_AP_CONNECTED";
-    case WL_AP_FAILED: return "WL_AP_FAILED";
-    case WL_PROVISIONING: return "WL_PROVISIONING";
-    case WL_PROVISIONING_FAILED: return "WL_PROVISIONING_FAILED";
-    default: return "Unknown";
-    }
-}
-
-static const char *getWifiStatus() {
-    return getWifiStatus(WiFi.status());
-}
 
 TaskEval ConnectToWifiAp::task() {
     if (networkNumber >= MaximumRememberedNetworks) {
@@ -83,6 +61,32 @@ void Wifi::error(Task &task) {
     if (areSame(task, connectToWifiAp)) {
         push(createWifiAp);
     }
+    else {
+        push(delay);
+    }
+}
+
+bool Wifi::readyToServe() {
+    return WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_CONNECTED;
+}
+
+bool Wifi::isListening() {
+    return WiFi.status() == WL_AP_LISTENING;
+}
+
+bool Wifi::isDisconnected() {
+    return WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_IDLE_STATUS;
+}
+
+void Wifi::ensureDisconnected() {
+    if (!isDisconnected()) {
+        WiFi.disconnect();
+        while (!isDisconnected()) {
+            ::delay(1000);
+            log("Disconnecting... (%s)", getWifiStatus());
+        }
+        log("Disconnected (%s)", getWifiStatus());
+    }
 }
 
 void Wifi::idle() {
@@ -90,24 +94,25 @@ void Wifi::idle() {
         return;
     }
 
+    uint8_t newStatus = WiFi.status();
+    if (newStatus != status) {
+        log("Changed: %s", getWifiStatus());
+        status = newStatus;
+    }
+
     auto settings = state->getNetworkSettings();
     if (version == settings.version) {
-        service(listen);
+        if (readyToServe()) {
+            service(listen);
+        }
         return;
     }
 
     log("New configuration...");
     version = settings.version;
     listen.end();
+    ensureDisconnected();
     cancel();
-
-    if (WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_LISTENING) {
-        WiFi.disconnect();
-        while (WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_LISTENING) {
-
-        }
-        log("Disconnected (%s)", getWifiStatus());
-    }
 
     push(connectToWifiAp);
 }

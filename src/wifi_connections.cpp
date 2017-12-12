@@ -54,13 +54,17 @@ Listen::Listen(uint16_t port, AppServicer &servicer)
 
 void Listen::begin() {
     if (state == ListenerState::Idle) {
-        state = ListenerState::Disconnected;
         server.begin();
+        state = ListenerState::Disconnected;
+        log("Server began (possibly failed, though)");
+    } else {
+        state = ListenerState::Disconnected;
     }
 }
 
 void Listen::end() {
     if (state != ListenerState::Idle) {
+        log("Ended");
         state = ListenerState::Idle;
     }
 }
@@ -68,25 +72,7 @@ void Listen::end() {
 TaskEval Listen::task() {
     begin();
 
-    if (WiFi.status() == WL_AP_CONNECTED || WiFi.status() == WL_CONNECTED) {
-        if (state == ListenerState::Disconnected) {
-            IpAddress4 ip{ WiFi.localIP() };
-            log("Connected ip: %s", ip.toString());
-            state = ListenerState::Listening;
-        }
-    } else {
-        if (state != ListenerState::Disconnected) {
-            log("Disconnected");
-            state = ListenerState::Disconnected;
-        }
-    }
-
-    if (state != ListenerState::Disconnected) {
-        if (state == ListenerState::Busy) {
-            state = ListenerState::Listening;
-            log("Listening...");
-        }
-
+    if (state == ListenerState::Disconnected) {
         // WiFiClient is 1480 bytes. Only has one buffer of the size
         // SOCKET_BUFFER_TCP_SIZE. Where SOCKET_BUFFER_TCP_SIZE is 1446.
         auto wcl = server.available();

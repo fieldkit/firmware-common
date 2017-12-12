@@ -45,9 +45,11 @@ public:
 
 private:
     uint32_t version{ 0 };
+    uint8_t status{ WL_IDLE_STATUS };
     CoreState *state;
     ConnectToWifiAp connectToWifiAp;
     CreateWifiAp createWifiAp;
+    Delay delay{ 5000 };
     Listen listen;
 
 public:
@@ -58,6 +60,12 @@ public:
     void done(Task &task) override;
     void error(Task &task) override;
     void idle() override;
+
+private:
+    bool isListening();
+    bool isDisconnected();
+    void ensureDisconnected();
+    bool readyToServe();
 
 };
 
