@@ -263,14 +263,25 @@ void AppServicer::handle(AppQueryMessage &query) {
 
         break;
     }
+    case fk_app_QueryType_QUERY_NETWORK_SETTINGS: {
+        networkSettingsReply();
+
+        break;
+    }
     case fk_app_QueryType_QUERY_CONFIGURE_NETWORK_SETTINGS: {
         configureNetworkSettings();
         networkSettingsReply();
 
         break;
     }
-    case fk_app_QueryType_QUERY_NETWORK_SETTINGS: {
-        networkSettingsReply();
+    case fk_app_QueryType_QUERY_IDENTITY: {
+        identityReply();
+
+        break;
+    }
+    case fk_app_QueryType_QUERY_CONFIGURE_IDENTITY: {
+        configureIdentity();
+        identityReply();
 
         break;
     }
@@ -336,6 +347,28 @@ void AppServicer::networkSettingsReply() {
     reply.m().networkSettings.createAccessPoint = currentSettings.createAccessPoint;
     reply.m().networkSettings.networks.arg = &networksArray;
     reply.m().networkSettings.networks.funcs.encode = pb_encode_array;
+    if (!buffer->write(reply)) {
+        log("Error writing reply");
+    }
+}
+
+void AppServicer::configureIdentity() {
+    DeviceIdentity identity{
+        (const char *)query.m().identity.device.arg,
+        (const char *)query.m().identity.stream.arg,
+    };
+
+    state->configure(identity);
+}
+
+void AppServicer::identityReply() {
+    log("Identity");
+
+    auto identity = state->getIdentity();
+    AppReplyMessage reply(pool);
+    reply.m().type = fk_app_ReplyType_REPLY_IDENTITY;
+    reply.m().identity.device.arg = identity.device;
+    reply.m().identity.stream.arg = identity.stream;
     if (!buffer->write(reply)) {
         log("Error writing reply");
     }

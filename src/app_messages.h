@@ -37,6 +37,11 @@ public:
         message.networkSettings.networks.funcs.decode = pb_decode_array;
         message.networkSettings.networks.arg = (void *)&networksArray;
 
+        message.identity.device.funcs.decode = pb_decode_string;
+        message.identity.device.arg = (void *)pool;
+        message.identity.stream.funcs.decode = pb_decode_string;
+        message.identity.stream.arg = (void *)pool;
+
         return &message;
     }
 
@@ -69,6 +74,12 @@ public:
         }
         if (message.fileData.data.arg != nullptr) {
             message.fileData.data.funcs.encode = pb_encode_data;
+        }
+        if (message.identity.device.arg != nullptr) {
+            message.identity.device.funcs.encode = pb_encode_string;
+        }
+        if (message.identity.stream.arg != nullptr) {
+            message.identity.stream.funcs.encode = pb_encode_string;
         }
         return &message;
     }
