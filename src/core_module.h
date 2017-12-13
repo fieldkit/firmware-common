@@ -54,8 +54,9 @@ private:
     };
     HttpPost transmission{transmissionConfig};
     GatherReadings gatherReadings{state, modulesPool};
-    SendTransmission sendTransmission{state, transmission, modulesPool};
-    SendStatus sendStatus{state, transmission, modulesPool};
+    JsonMessageBuilder builder{state};
+    SendTransmission sendTransmission{builder, transmission, modulesPool};
+    SendStatus sendStatus{builder, transmission, modulesPool};
     DetermineLocation determineLocation{state, modulesPool};
     ScheduledTask tasks[4] {
         fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },

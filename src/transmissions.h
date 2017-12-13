@@ -2,23 +2,46 @@
 #define FK_TRANSMISSIONS_H_INCLUDED
 
 #include "active_object.h"
+#include "core_state.h"
 
 namespace fk {
 
-constexpr uint32_t MaximumTransmissionLength = 128;
+class MessageBuilder {
+public:
+    virtual bool write(Stream &stream) = 0;
 
-class TransmissionTask : public ActiveObject {
+};
+
+class JsonMessageBuilder : public MessageBuilder {
 private:
-    char buffer[MaximumTransmissionLength];
+    CoreState *state;
 
 public:
-    TransmissionTask(const char *name) : ActiveObject(name) {
-        buffer[0] = 0;
+    JsonMessageBuilder(CoreState &state) : state(&state) {
     }
 
 public:
-    void prepare(const char *message) {
-        strncpy(buffer, message, sizeof(buffer));
+    bool write(Stream &stream) override;
+
+};
+
+class TransmissionTask : public ActiveObject {
+private:
+    MessageBuilder *builder{ nullptr };
+
+public:
+    TransmissionTask(const char *name) : ActiveObject(name) {
+    }
+
+public:
+    void prepare(MessageBuilder &mb) {
+        builder = &mb;
+    }
+
+    void write(Stream &stream) {
+        if (!builder->write(stream)) {
+            log("Error writing message.");
+        }
     }
 
 };

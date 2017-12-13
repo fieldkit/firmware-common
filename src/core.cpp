@@ -24,22 +24,24 @@ void GatherReadings::done(Task &task) {
     }
 }
 
-SendTransmission::SendTransmission(CoreState &state, TransmissionTask &method, Pool &pool) :
-    ActiveObject("SendTransmission"), state(&state), method(&method) {
+SendTransmission::SendTransmission(MessageBuilder &builder, TransmissionTask &method, Pool &pool) :
+    ActiveObject("SendTransmission"), builder(&builder), method(&method) {
 }
 
 void SendTransmission::enqueued() {
+    method->prepare(*builder);
     push(*method);
 }
 
 void SendTransmission::done(Task &task) {
 }
 
-SendStatus::SendStatus(CoreState &state, TransmissionTask &method, Pool &pool) :
-    ActiveObject("SendStatus"), state(&state), method(&method) {
+SendStatus::SendStatus(MessageBuilder &builder, TransmissionTask &method, Pool &pool) :
+    ActiveObject("SendStatus"), builder(&builder), method(&method) {
 }
 
 void SendStatus::enqueued() {
+    method->prepare(*builder);
     push(*method);
 }
 

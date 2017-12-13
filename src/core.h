@@ -28,11 +28,11 @@ public:
 
 class SendTransmission : public ActiveObject {
 private:
-    CoreState *state;
+    MessageBuilder *builder;
     TransmissionTask *method;
 
 public:
-    SendTransmission(CoreState &state, TransmissionTask &method, Pool &pool);
+    SendTransmission(MessageBuilder &builder, TransmissionTask &method, Pool &pool);
 
 public:
     void enqueued() override;
@@ -42,11 +42,11 @@ public:
 
 class SendStatus : public ActiveObject {
 private:
-    CoreState *state;
+    MessageBuilder *builder;
     TransmissionTask *method;
 
 public:
-    SendStatus(CoreState &state, TransmissionTask &method, Pool &pool);
+    SendStatus(MessageBuilder &builder, TransmissionTask &method, Pool &pool);
 
 public:
     void enqueued() override;

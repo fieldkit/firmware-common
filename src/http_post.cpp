@@ -2,6 +2,60 @@
 
 namespace fk {
 
+constexpr char FkMessageJsonContentType[] = "application/vnd.fk.message+json";
+constexpr char FkMessageUrl[] = "https://api.fkdev.org/messages/ingestion";
+/*
+  curl -X POST -H 'Content-Type: application/vnd.fk.message+json' -d
+  '{"location":[35.522944900000006,-114.6705695],"time":1513106541,"device":"HTTP-test-generator","stream":"1","values":{"cpu":"100","humidity":"100","temp":"100"}}'
+  https://api.fkdev.org/messages/ingestion
+*/
+
+inline void writeLocation(float *coordinates, Stream &stream) {
+    stream.print("\"location\":[");
+    for (size_t i = 0; i < MaximumCoordinates; ++i) {
+        if (i > 0) {
+            stream.print(",");
+        }
+        stream.print(coordinates[i]);
+    }
+    stream.print("]");
+}
+
+inline void writeTime(uint32_t time, Stream &stream) {
+    stream.print("\"time\":");
+    stream.print(time);
+}
+
+inline void writeDevice(DeviceIdentity &identity, Stream &stream) {
+    stream.print("\"device\":");
+    stream.print("\"");
+    stream.print(identity.device);
+    stream.print("\"");
+    stream.print(",");
+    stream.print("\"stream\":");
+    stream.print("\"");
+    stream.print(identity.stream);
+    stream.print("\"");
+}
+
+inline void writeValues(Stream &stream) {
+    stream.print("\"values\":{");
+    stream.print("}");
+}
+
+bool JsonMessageBuilder::write(Stream &stream) {
+    stream.print("{");
+    writeLocation(state->getLocation(), stream);
+    stream.print(",");
+    writeTime(millis(), stream);
+    stream.print(",");
+    writeDevice(state->getIdentity(), stream);
+    stream.print(",");
+    writeValues(stream);
+    stream.print("}");
+    return true;
+}
+
 HttpPost::HttpPost(HttpTransmissionConfig &config) :
     TransmissionTask("HttpPost"), config(&config) {
     done();
@@ -78,6 +132,9 @@ TaskEval HttpPost::task() {
                 wcl.println(parsed.server);
                 wcl.println("Connection: close");
                 wcl.println();
+                write(wcl);
+                write(Serial);
+                Serial.println("");
             } else {
                 log("Not connected!");
                 return TaskEval::yield(retry);
