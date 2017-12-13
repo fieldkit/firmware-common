@@ -3,7 +3,6 @@
 #include "utils.h"
 #include "debug.h"
 
-
 namespace fk {
 
 const char *getWifiStatus(uint8_t status) {
@@ -29,7 +28,29 @@ const char *getWifiStatus() {
     return getWifiStatus(WiFi.status());
 }
 
+void HttpResponseParser::begin() {
+    buffer[0] = pos = spacesSeen = 0;
 }
+
+void HttpResponseParser::write(uint8_t c) {
+    if (spacesSeen < 2) {
+        if (c == ' ') {
+            spacesSeen++;
+            if (spacesSeen == 2) {
+                statusCode = atoi(buffer);
+            }
+            buffer[0] = pos = 0;
+        } else {
+            if (pos < MaxStatusCodeLength - 1) {
+                buffer[pos++] = c;
+                buffer[pos] = 0;
+            }
+        }
+    }
+}
+
+}
+
 namespace std {
 
 void __throw_bad_alloc() {

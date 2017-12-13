@@ -85,6 +85,27 @@ public:
 
 };
 
+class HttpResponseParser {
+    static constexpr size_t MaxStatusCodeLength = 4;
+
+private:
+    // This only needs to be big enough to hold a status code.
+    char buffer[MaxStatusCodeLength];
+    uint8_t spacesSeen{ 0 };
+    uint8_t pos{ 0 };
+    uint16_t statusCode{ 0 };
+
+public:
+    void begin();
+    void write(uint8_t c);
+
+public:
+    uint16_t getStatusCode() {
+        return statusCode;
+    }
+
+};
+
 const char *getWifiStatus(uint8_t status);
 
 const char *getWifiStatus();

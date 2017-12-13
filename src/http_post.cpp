@@ -37,6 +37,8 @@ TaskEval HttpPost::task() {
         strncpy(urlCopy, config->url, length);
         Url parsed(urlCopy);
 
+        parser.begin();
+
         // TODO: Verify we got good values? Though this should
         // probably have been checked before.
         if (parsed.server != nullptr && parsed.path != nullptr) {
@@ -69,9 +71,6 @@ TaskEval HttpPost::task() {
                 wcl.println();
                 write(wcl);
                 wcl.flush();
-
-                write(Serial);
-                Serial.println("");
             } else {
                 log("Not connected!");
                 return TaskEval::yield(retry);
@@ -83,11 +82,12 @@ TaskEval HttpPost::task() {
 
     while (wcl.available()) {
         auto c = wcl.read();
-        Serial.write(c);
+        parser.write(c);
     }
 
     if (!wcl.connected()) {
         wcl.stop();
+        log("Done (statusCode=%d)", parser.getStatusCode());
         return TaskEval::done();
     }
 

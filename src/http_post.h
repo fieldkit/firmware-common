@@ -4,6 +4,7 @@
 #include <WiFi101.h>
 
 #include "transmissions.h"
+#include "utils.h"
 
 namespace fk {
 
@@ -17,6 +18,7 @@ struct HttpTransmissionConfig {
 class HttpPost : public TransmissionTask {
 private:
     HttpTransmissionConfig *config;
+    HttpResponseParser parser;
     uint32_t dieAt{ 0 };
     Delay retry{ 500 };
     bool connected{ false };
