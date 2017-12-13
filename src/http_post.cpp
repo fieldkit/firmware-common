@@ -2,60 +2,6 @@
 
 namespace fk {
 
-constexpr char FkMessageJsonContentType[] = "application/vnd.fk.message+json";
-constexpr char FkMessageUrl[] = "https://api.fkdev.org/messages/ingestion";
-/*
-  curl -X POST -H 'Content-Type: application/vnd.fk.message+json' -d
-  '{"location":[35.522944900000006,-114.6705695],"time":1513106541,"device":"HTTP-test-generator","stream":"1","values":{"cpu":"100","humidity":"100","temp":"100"}}'
-  https://api.fkdev.org/messages/ingestion
-*/
-
-inline void writeLocation(float *coordinates, Stream &stream) {
-    stream.print("\"location\":[");
-    for (size_t i = 0; i < MaximumCoordinates; ++i) {
-        if (i > 0) {
-            stream.print(",");
-        }
-        stream.print(coordinates[i]);
-    }
-    stream.print("]");
-}
-
-inline void writeTime(uint32_t time, Stream &stream) {
-    stream.print("\"time\":");
-    stream.print(time);
-}
-
-inline void writeDevice(DeviceIdentity &identity, Stream &stream) {
-    stream.print("\"device\":");
-    stream.print("\"");
-    stream.print(identity.device);
-    stream.print("\"");
-    stream.print(",");
-    stream.print("\"stream\":");
-    stream.print("\"");
-    stream.print(identity.stream);
-    stream.print("\"");
-}
-
-inline void writeValues(Stream &stream) {
-    stream.print("\"values\":{");
-    stream.print("}");
-}
-
-bool JsonMessageBuilder::write(Stream &stream) {
-    stream.print("{");
-    writeLocation(state->getLocation(), stream);
-    stream.print(",");
-    writeTime(millis(), stream);
-    stream.print(",");
-    writeDevice(state->getIdentity(), stream);
-    stream.print(",");
-    writeValues(stream);
-    stream.print("}");
-    return true;
-}
-
 HttpPost::HttpPost(HttpTransmissionConfig &config) :
     TransmissionTask("HttpPost"), config(&config) {
     done();
@@ -91,6 +37,27 @@ public:
     }
 };
 
+class StreamBuffer : public Print {
+public:
+    char *buffer;
+    size_t size;
+    size_t pos{ 0 };
+
+public:
+    StreamBuffer(char *buffer, size_t size) : buffer(buffer), size(size) {
+    }
+
+    size_t write(uint8_t c) override {
+        if (pos < size) {
+            buffer[pos++] = c;
+            buffer[pos] = 0;
+            return 1;
+        }
+        return 0;
+    }
+
+};
+
 TaskEval HttpPost::task() {
     if (WiFi.status() != WL_AP_CONNECTED && WiFi.status() != WL_CONNECTED) {
         log("No Wifi, failing");
@@ -123,18 +90,27 @@ TaskEval HttpPost::task() {
 
             // TODO: Fix blocking.
             if (config->cachedAddress != (uint32_t)0 && wcl.connect(config->cachedAddress, 80)) {
+                char buffer[1024];
+                StreamBuffer stream(buffer, sizeof(buffer));
+                write(stream);
+                write(Serial);
+                Serial.println("");
+
                 connected = true;
                 log("Connected!");
-                wcl.print("GET /");
+                wcl.print("POST /");
                 wcl.print(parsed.path);
                 wcl.println(" HTTP/1.1");
                 wcl.print("Host: ");
                 wcl.println(parsed.server);
+                wcl.print("Content-Type: ");
+                wcl.println(getContentType());
+                wcl.print("Content-Length: ");
+                wcl.println(stream.pos);
                 wcl.println("Connection: close");
                 wcl.println();
-                write(wcl);
-                write(Serial);
-                Serial.println("");
+                wcl.print(stream.buffer);
+                wcl.flush();
             } else {
                 log("Not connected!");
                 return TaskEval::yield(retry);

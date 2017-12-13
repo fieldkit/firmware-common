@@ -41,6 +41,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/core_module.cpp
   ${COMMON_SRCS_DIR}/discovery.cpp
   ${COMMON_SRCS_DIR}/utils.cpp
+  ${COMMON_SRCS_DIR}/json_message_builder.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})

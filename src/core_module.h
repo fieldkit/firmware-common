@@ -24,6 +24,7 @@
 #include "simple_ntp.h"
 #include "core.h"
 #include "http_post.h"
+#include "json_message_builder.h"
 #include "discovery.h"
 
 namespace fk {
@@ -50,7 +51,7 @@ private:
     Pool appPool{"AppPool", 256};
 
     HttpTransmissionConfig transmissionConfig = {
-        .url = "http://code.conservify.org/ingestion"
+        .url = "https://api.fkdev.org/messages/ingestion?token=TOKEN",
     };
     HttpPost transmission{transmissionConfig};
     GatherReadings gatherReadings{state, modulesPool};

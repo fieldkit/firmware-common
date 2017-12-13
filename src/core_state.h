@@ -11,7 +11,8 @@
 namespace fk {
 
 struct AvailableSensorReading {
-    uint8_t sensor;
+    uint8_t id;
+    SensorInfo &sensor;
     SensorReading &reading;
 };
 

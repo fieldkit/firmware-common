@@ -97,7 +97,7 @@ AvailableSensorReading CoreState::getReading(size_t index) {
             for (uint8_t j = 0; j < modules[i].numberOfSensors; ++j) {
                 if (modules[i].readings[j].status == SensorReadingStatus::Done) {
                     if (number == index) {
-                        return AvailableSensorReading { j, modules[i].readings[j] };
+                        return AvailableSensorReading { j, modules[i].sensors[j], modules[i].readings[j] };
                     }
                     number++;
                 }
@@ -107,7 +107,11 @@ AvailableSensorReading CoreState::getReading(size_t index) {
 
     fk_assert(false);
 
-    return AvailableSensorReading { 0, modules[0].readings[0] };
+    return AvailableSensorReading {
+        0,
+        modules[0].sensors[0],
+        modules[0].readings[0]
+    };
 }
 
 void CoreState::clearReadings() {

@@ -8,20 +8,8 @@ namespace fk {
 
 class MessageBuilder {
 public:
-    virtual bool write(Stream &stream) = 0;
-
-};
-
-class JsonMessageBuilder : public MessageBuilder {
-private:
-    CoreState *state;
-
-public:
-    JsonMessageBuilder(CoreState &state) : state(&state) {
-    }
-
-public:
-    bool write(Stream &stream) override;
+    virtual bool write(Print &stream) = 0;
+    virtual const char *getContentType() = 0;
 
 };
 
@@ -38,10 +26,15 @@ public:
         builder = &mb;
     }
 
-    void write(Stream &stream) {
+public:
+    void write(Print &stream) {
         if (!builder->write(stream)) {
             log("Error writing message.");
         }
+    }
+
+    const char *getContentType() {
+        return builder->getContentType();
     }
 
 };
