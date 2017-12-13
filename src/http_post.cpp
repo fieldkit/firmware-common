@@ -1,4 +1,5 @@
 #include "http_post.h"
+#include "utils.h"
 
 namespace fk {
 
@@ -16,47 +17,6 @@ void HttpPost::done() {
     dieAt = 0;
     connected = false;
 }
-
-struct Url {
-public:
-    char *server{ nullptr };
-    char *path{ nullptr };
-
-public:
-    Url(char *url) {
-        for (auto p = url; p[0] != 0 && p[1] != 0; ++p) {
-            if (server == nullptr && p[0] == '/' && p[1] == '/') {
-                p += 2;
-                server = p;
-            } else if (server != nullptr && p[0] == '/') {
-                p[0] = 0;
-                path = p + 1;
-                break;
-            }
-        }
-    }
-};
-
-class StreamBuffer : public Print {
-public:
-    char *buffer;
-    size_t size;
-    size_t pos{ 0 };
-
-public:
-    StreamBuffer(char *buffer, size_t size) : buffer(buffer), size(size) {
-    }
-
-    size_t write(uint8_t c) override {
-        if (pos < size) {
-            buffer[pos++] = c;
-            buffer[pos] = 0;
-            return 1;
-        }
-        return 0;
-    }
-
-};
 
 TaskEval HttpPost::task() {
     if (WiFi.status() != WL_AP_CONNECTED && WiFi.status() != WL_CONNECTED) {
@@ -90,11 +50,9 @@ TaskEval HttpPost::task() {
 
             // TODO: Fix blocking.
             if (config->cachedAddress != (uint32_t)0 && wcl.connect(config->cachedAddress, 80)) {
-                char buffer[1024];
-                StreamBuffer stream(buffer, sizeof(buffer));
-                write(stream);
-                write(Serial);
-                Serial.println("");
+                PrintSizeCalculator sizeCalc;
+                write(sizeCalc);
+                log("Size: %d", sizeCalc.getSize());
 
                 connected = true;
                 log("Connected!");
@@ -106,11 +64,14 @@ TaskEval HttpPost::task() {
                 wcl.print("Content-Type: ");
                 wcl.println(getContentType());
                 wcl.print("Content-Length: ");
-                wcl.println(stream.pos);
+                wcl.println(sizeCalc.getSize());
                 wcl.println("Connection: close");
                 wcl.println();
-                wcl.print(stream.buffer);
+                write(wcl);
                 wcl.flush();
+
+                write(Serial);
+                Serial.println("");
             } else {
                 log("Not connected!");
                 return TaskEval::yield(retry);
