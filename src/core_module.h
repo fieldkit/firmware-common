@@ -55,7 +55,7 @@ private:
     };
     HttpPost transmission{transmissionConfig};
     GatherReadings gatherReadings{state, modulesPool};
-    JsonMessageBuilder builder{state};
+    JsonMessageBuilder builder{state, clock};
     SendTransmission sendTransmission{builder, transmission, modulesPool};
     SendStatus sendStatus{builder, transmission, modulesPool};
     DetermineLocation determineLocation{state, modulesPool};

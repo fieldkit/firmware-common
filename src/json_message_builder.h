@@ -2,6 +2,7 @@
 #define FK_JSON_MESSAGE_BUILDER_H_INCLUDED
 
 #include "transmissions.h"
+#include "rtc.h"
 
 namespace fk {
 
@@ -10,9 +11,10 @@ constexpr char FkMessageJsonContentType[] = "application/vnd.fk.message+json";
 class JsonMessageBuilder : public MessageBuilder {
 private:
     CoreState *state;
+    Clock *clock;
 
 public:
-    JsonMessageBuilder(CoreState &state) : state(&state) {
+    JsonMessageBuilder(CoreState &state, Clock &clock) : state(&state), clock(&clock) {
     }
 
 public:

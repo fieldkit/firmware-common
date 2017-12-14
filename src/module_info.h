@@ -2,6 +2,7 @@
 #define FK_MODULE_INFO_H_INCLUDED
 
 #include <cstdint>
+#include <cstring>
 
 namespace fk {
 
@@ -34,6 +35,25 @@ struct ModuleInfo {
     char name[MaximumModuleNameLength];
     SensorInfo sensors[MaximumNumberOfSensors];
     SensorReading readings[MaximumNumberOfSensors];
+};
+
+constexpr size_t MaximumCoordinates = 3;
+constexpr size_t MaximumDeviceLength = 32 + 1;
+constexpr size_t MaximumStreamLength = 8 + 1;
+
+struct DeviceIdentity {
+    char device[MaximumDeviceLength];
+    char stream[MaximumStreamLength];
+
+    DeviceIdentity() {
+        device[0] = 0;
+        stream[0] = 0;
+    }
+
+    DeviceIdentity(const char *d, const char *s) {
+        strncpy(device, d, sizeof(device));
+        strncpy(stream, s, sizeof(stream));
+    }
 };
 
 }

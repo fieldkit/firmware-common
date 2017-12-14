@@ -22,14 +22,14 @@ void JsonMessageBuilder::writeLocation(Print &stream) {
         if (i > 0) {
             stream.print(",");
         }
-        stream.print(coordinates[i]);
+        stream.print(coordinates[i], 6);
     }
     stream.print("]");
 }
 
 void JsonMessageBuilder::writeTime(Print &stream) {
     stream.print("\"time\":");
-    stream.print(millis());
+    stream.print(clock->getTime());
 }
 
 void JsonMessageBuilder::writeIdentity(Print &stream) {
