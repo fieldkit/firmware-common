@@ -21,7 +21,7 @@ static void module_receive_callback(int bytes) {
 
 Module::Module(ModuleInfo &info)
     : ActiveObject(info.name), replyPool("REPLY", ModuleServicingMemory),
-      handleIncoming{ &info, *this, outgoing, incoming, replyPool }, info(&info) {
+      moduleServicer{ &info, *this, outgoing, incoming, replyPool }, info(&info) {
 }
 
 void Module::begin() {
@@ -38,8 +38,8 @@ void Module::resume() {
 
 void Module::receive(size_t bytes) {
     if (bytes > 0) {
-        handleIncoming.read(bytes);
-        push(handleIncoming);
+        moduleServicer.read(bytes);
+        push(moduleServicer);
     }
 }
 

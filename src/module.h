@@ -12,7 +12,7 @@ private:
     Pool replyPool;
     MessageBuffer outgoing;
     MessageBuffer incoming;
-    ModuleServicer handleIncoming;
+    ModuleServicer moduleServicer;
     ModuleInfo *info;
 
 public:
