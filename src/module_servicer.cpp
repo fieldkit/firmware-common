@@ -68,15 +68,17 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
         reply.m().readingStatus.state = fk_module_ReadingState_BEGIN;
-        reply.m().readingStatus.backoff = 5000;
-
-        outgoing.write(reply);
 
         for (size_t i = 0; i < info->numberOfSensors; ++i) {
             info->readings[i].status = SensorReadingStatus::Busy;
         }
 
-        callbacks->beginReading(info->readings);
+        auto status = callbacks->beginReading(info->readings);
+        if (status.backoff > 0) {
+            reply.m().readingStatus.backoff = status.backoff;
+        }
+
+        outgoing.write(reply);
 
         break;
     }
@@ -86,6 +88,11 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
         reply.m().readingStatus.state = fk_module_ReadingState_IDLE;
+
+        auto status = callbacks->readingStatus(info->readings);
+        if (status.backoff > 0) {
+            reply.m().readingStatus.backoff = status.backoff;
+        }
 
         for (size_t i = 0; i < info->numberOfSensors; ++i) {
             if (info->readings[i].status == SensorReadingStatus::Busy) {

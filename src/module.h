@@ -28,7 +28,8 @@ public:
     void reply();
 
 public:
-    virtual void beginReading(SensorReading *readings) override;
+    ModuleReadingStatus beginReading(SensorReading *readings) override;
+    ModuleReadingStatus readingStatus(SensorReading *readings) override;
 
 };
 

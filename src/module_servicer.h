@@ -8,10 +8,21 @@
 
 namespace fk {
 
+struct ModuleReadingStatus {
+    uint32_t backoff{ 0 };
+
+    ModuleReadingStatus() {
+    }
+
+    ModuleReadingStatus(uint32_t backoff) : backoff(backoff) {
+    }
+};
+
 // TODO: Rename this
 class ModuleCallbacks {
 public:
-    virtual void beginReading(SensorReading *readings) = 0;
+    virtual ModuleReadingStatus beginReading(SensorReading *readings) = 0;
+    virtual ModuleReadingStatus readingStatus(SensorReading *readings) = 0;
 
 };
 
