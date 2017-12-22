@@ -42,6 +42,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/discovery.cpp
   ${COMMON_SRCS_DIR}/utils.cpp
   ${COMMON_SRCS_DIR}/json_message_builder.cpp
+  ${COMMON_SRCS_DIR}/leds.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})
