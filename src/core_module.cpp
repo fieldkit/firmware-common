@@ -100,7 +100,7 @@ bool CoreModule::synchronizeClock() {
 void CoreModule::run() {
     uint8_t addresses[]{ 7, 8, 9, 0 };
     {
-        fk::Pool pool("SCAN", 128);
+        fk::Pool pool("SCAN", 256);
         fk::AttachedDevices ad(addresses, state, pool);
         ad.scan();
 

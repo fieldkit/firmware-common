@@ -140,10 +140,15 @@ private:
 class Delay : public Task {
     uint32_t duration{ 0 };
     uint32_t dieAt{ 0 };
-    bool startOnEnqueue{ false };
+    bool startOnEnqueue{ true };
 
 public:
     Delay(uint32_t duration, bool startOnEnqueue = true) : Task("Delay"), duration(duration), dieAt(millis() + duration), startOnEnqueue(startOnEnqueue) {
+    }
+
+    void adjust(uint32_t d) {
+        duration = d;
+        dieAt = 0;
     }
 
     void enqueued() override {

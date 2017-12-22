@@ -17,6 +17,7 @@ TaskEval TwoWireTask::task() {
     if (dieAt == 0) {
         buffer.write(query);
         if (!buffer.send(address)) {
+            log("Error: Unable to send.");
             return TaskEval::error();
         }
 
@@ -25,13 +26,16 @@ TaskEval TwoWireTask::task() {
         checkAt = millis() + 100;
         return TaskEval::idle();
     } else if (millis() > dieAt) {
+        log("Error: No reply in time.");
         return TaskEval::error();
     }
 
     if (!buffer.receive(address)) {
+        log("Error: Unable to receive.");
         return TaskEval::error();
     }
     if (!buffer.read(reply)) {
+        log("Error: Unable to read reply.");
         return TaskEval::error();
     }
 

@@ -68,6 +68,7 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
         reply.m().readingStatus.state = fk_module_ReadingState_BEGIN;
+        reply.m().readingStatus.backoff = 5000;
 
         outgoing.write(reply);
 

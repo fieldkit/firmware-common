@@ -8,13 +8,26 @@ GatherReadings::GatherReadings(CoreState &state, Pool &pool) :
 
 void GatherReadings::enqueued() {
     push(beginTakeReading);
-    push(delay);
-    push(queryReadingStatus);
 }
 
 void GatherReadings::done(Task &task) {
-    if (areSame(task, queryReadingStatus)) {
+    if (areSame(task, beginTakeReading)) {
+        if (beginTakeReading.getBackoff() > 0) {
+            log("Using backoff of %d", beginTakeReading.getBackoff());
+            delay.adjust(beginTakeReading.getBackoff());
+        } else {
+            delay.adjust(300);
+        }
+        push(delay);
+        push(queryReadingStatus);
+    } else if (areSame(task, queryReadingStatus)) {
         if (queryReadingStatus.isBusy()) {
+            if (queryReadingStatus.getBackoff() > 0) {
+                log("Using backoff of %d", queryReadingStatus.getBackoff());
+                delay.adjust(queryReadingStatus.getBackoff());
+            } else {
+                delay.adjust(300);
+            }
             push(delay);
             push(queryReadingStatus);
         } else if (queryReadingStatus.isDone()) {

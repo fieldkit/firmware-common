@@ -80,6 +80,10 @@ public:
     }
 
 public:
+    uint32_t getBackoff() {
+            return reply.m().readingStatus.backoff;
+    }
+
     bool isDone() {
         return reply.m().readingStatus.state == fk_module_ReadingState_DONE;
     }
@@ -103,6 +107,10 @@ public:
     }
 
 public:
+    uint32_t getBackoff() {
+        return reply.m().readingStatus.backoff;
+    }
+
     bool isDone() {
         return reply.m().readingStatus.state == fk_module_ReadingState_DONE;
     }
