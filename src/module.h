@@ -29,7 +29,6 @@ public:
 
 public:
     virtual void beginReading(SensorReading *readings) override;
-    virtual void readingDone(SensorReading *readings);
 
 };
 

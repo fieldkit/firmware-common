@@ -64,9 +64,6 @@ void Module::reply() {
 void Module::beginReading(SensorReading *) {
 }
 
-void Module::readingDone(SensorReading *) {
-}
-
 Module *Module::active{ nullptr };
 
 }
