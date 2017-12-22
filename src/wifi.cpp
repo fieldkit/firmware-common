@@ -1,5 +1,6 @@
 #include "wifi.h"
 #include "utils.h"
+#include "hardware.h"
 
 namespace fk {
 
@@ -46,7 +47,7 @@ Wifi::Wifi(CoreState &state, AppServicer &servicer)
 }
 
 void Wifi::begin() {
-    WiFi.setPins(8, 7, 4, 2);
+    WiFi.setPins(Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
 
     if (WiFi.status() == WL_NO_SHIELD) {
         log("Error: no wifi");

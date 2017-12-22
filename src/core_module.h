@@ -35,11 +35,6 @@ private:
     static constexpr uint8_t FKFS_FILE_DATA = 1;
     static constexpr uint8_t FKFS_FILE_PRIORITY_LOWEST = 255;
     static constexpr uint8_t FKFS_FILE_PRIORITY_HIGHEST = 0;
-    static constexpr uint8_t WIFI_PIN_CS = 8;
-    static constexpr uint8_t RFM95_PIN_CS = 8;
-    static constexpr uint8_t RFM95_PIN_RST = 4;
-    static constexpr uint8_t RFM95_PIN_INT = 3;
-    static constexpr uint8_t SD_PIN_CS = 10;
 
     fkfs_t fs = { 0 };
     fkfs_log_t fkfs_log = { 0 };

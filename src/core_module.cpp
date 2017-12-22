@@ -1,4 +1,5 @@
 #include "core_module.h"
+#include "hardware.h"
 
 namespace fk {
 
@@ -27,15 +28,19 @@ CoreModule::CoreModule() {
 }
 
 void CoreModule::begin() {
-    pinMode(SD_PIN_CS, OUTPUT);
-    pinMode(WIFI_PIN_CS, OUTPUT);
-    digitalWrite(SD_PIN_CS, HIGH);
-    digitalWrite(WIFI_PIN_CS, HIGH);
+    pinMode(Hardware::SD_PIN_CS, OUTPUT);
+    pinMode(Hardware::WIFI_PIN_CS, OUTPUT);
+    pinMode(Hardware::RFM95_PIN_CS, OUTPUT);
+    pinMode(Hardware::FLASH_PIN_CS, OUTPUT);
+    digitalWrite(Hardware::SD_PIN_CS, HIGH);
+    digitalWrite(Hardware::WIFI_PIN_CS, HIGH);
+    digitalWrite(Hardware::RFM95_PIN_CS, HIGH);
+    digitalWrite(Hardware::FLASH_PIN_CS, HIGH);
 
     delay(10);
 
     if (!setupFileSystem()) {
-        debugfpln("Core", "No sd");
+        debugfpln("Core", "No sd (%d)", Hardware::SD_PIN_CS);
         while (true) {
             delay(10);
         }
@@ -53,7 +58,7 @@ bool CoreModule::setupFileSystem() {
         return false;
     }
 
-    if (!sd_raw_initialize(&fs.sd, SD_PIN_CS)) {
+    if (!sd_raw_initialize(&fs.sd, Hardware::SD_PIN_CS)) {
         return false;
     }
 
