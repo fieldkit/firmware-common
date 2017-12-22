@@ -5,6 +5,7 @@
 
 const uint32_t FK_DEBUG_LINE_MAX = 128;
 
+Stream *debug_uart = &Serial;
 debug_hook_fn_t global_hook_fn = nullptr;
 void *global_hook_arg = nullptr;
 bool global_hook_enabled = false;
@@ -16,6 +17,14 @@ void debug_add_hook(debug_hook_fn_t hook, void *arg) {
 
 void debug_configure_hook(bool enabled) {
     global_hook_enabled = enabled;
+}
+
+Stream *debug_uart_get() {
+    return debug_uart;
+}
+
+void debug_uart_set(Stream &standardOut) {
+    debug_uart = &standardOut;
 }
 
 extern "C" {
@@ -35,7 +44,7 @@ void fklog(const char *f, ...) {
 }
 
 void debug(const char *str) {
-    Serial.print(str);
+    debug_uart->print(str);
     if (global_hook_fn != nullptr) {
         if (global_hook_enabled) {
             global_hook_enabled = false;
@@ -103,7 +112,7 @@ uint32_t fk_free_memory() {
 
 void __fk_assert(const char *msg, const char *file, int lineno) {
     debugfln("ASSERTION: %s:%d '%s'", file, lineno, msg);
-    Serial.flush();
+    debug_uart->flush();
     while (1) {
         delay(1000);
     }

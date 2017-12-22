@@ -6,7 +6,7 @@ extern "C" {
 
 static size_t debug_write_log(const char *str, void *arg) {
     if (!fkfs_log_append((fkfs_log_t *)arg, str)) {
-        Serial.println("Unable to append log");
+        debug_uart_get()->println("Unable to append log");
     }
     return 0;
 }

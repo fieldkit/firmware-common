@@ -10,8 +10,13 @@ extern "C" {
 void setup() {
     Serial.begin(115200);
 
-    while (!Serial) {
+    while (!Serial && millis() < 2000) {
         delay(100);
+    }
+
+    if (!Serial) {
+        Serial5.begin(115200);
+        debug_uart_set(Serial5);
     }
 
     randomSeed(RANDOM_SEED);
