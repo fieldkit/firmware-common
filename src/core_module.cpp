@@ -70,7 +70,7 @@ bool CoreModule::setupFileSystem() {
         return false;
     }
 
-    auto wipe = true;
+    auto wipe = false;
     if (!fkfs_initialize(&fs, wipe)) {
         return false;
     }
