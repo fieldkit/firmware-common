@@ -21,7 +21,7 @@ TaskEval Discovery::task() {
 void Discovery::ping() {
     // TODO: Fix hack to get the broadcast address.
     IPAddress ip = WiFi.localIP();
-    IPAddress destination(ip[0], ip[1], ip[2], 255);
+    auto destination = IPAddress(ip[0], ip[1], ip[2], 255);
 
     // log("Ping");
 

@@ -21,11 +21,13 @@ TaskEval ConnectToWifiAp::task() {
 
     log("N[%d] Connecting to AP '%s'... (%s)", networkNumber, network.ssid, getWifiStatus());
     if (WiFi.begin(network.ssid, network.password) != WL_CONNECTED) {
+        log("N[%d] Failed (%s)", networkNumber, getWifiStatus());
         networkNumber++;
         return TaskEval::yield();
     }
 
-    log("N[%d] Connected (%s)", networkNumber, getWifiStatus());
+    IpAddress4 ip{ WiFi.localIP() };
+    log("N[%d] Connected (%s) (%s)", networkNumber, getWifiStatus(), ip.toString());
 
     return TaskEval::done();
 }
