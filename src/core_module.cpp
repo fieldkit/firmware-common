@@ -37,6 +37,9 @@ void CoreModule::begin() {
     digitalWrite(Hardware::RFM95_PIN_CS, HIGH);
     digitalWrite(Hardware::FLASH_PIN_CS, HIGH);
 
+    leds.setup();
+    watchdog.setup();
+
     delay(10);
 
     if (!setupFileSystem()) {

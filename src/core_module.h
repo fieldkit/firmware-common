@@ -26,6 +26,7 @@
 #include "http_post.h"
 #include "json_message_builder.h"
 #include "discovery.h"
+#include "leds.h"
 
 namespace fk {
 
@@ -44,6 +45,7 @@ private:
     Clock clock;
     Pool modulesPool{"ModulesPool", 256};
     Pool appPool{"AppPool", 256};
+    Leds leds;
 
     HttpTransmissionConfig transmissionConfig = {
         .url = "https://api.fkdev.org/messages/ingestion?token=TOKEN",

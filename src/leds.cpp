@@ -54,6 +54,12 @@ void Leds::clear() {
     nextChange = 0;
 }
 
+void Leds::alive() {
+    digitalWrite(A5, HIGH);
+    delay(100);
+    digitalWrite(A5, LOW);
+}
+
 void Leds::fatal() {
     status = LedStatus::Fatal;
     nextChange = 0;

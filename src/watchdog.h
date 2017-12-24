@@ -3,13 +3,17 @@
 
 #include <cstdint>
 
+#include "leds.h"
+
 namespace fk {
 
 class Watchdog {
 private:
     uint32_t time { 0 };
+    Leds leds;
 
 public:
+    void setup();
     void tick();
 
 };

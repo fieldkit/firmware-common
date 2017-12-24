@@ -30,6 +30,7 @@ public:
 public:
     void clear();
     void fatal();
+    void alive();
 
 };
 
