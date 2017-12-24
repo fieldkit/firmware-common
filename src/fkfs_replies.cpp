@@ -43,7 +43,9 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
     fkfs_iterator_token_t token = { 0 };
     fkfs_file_iter_t iter = { 0 };
     uint8_t data[1024];
-    size_t length = 0;
+    size_t total = 0;
+    auto started = millis();
+    auto buffersSent = 0;
 
     auto rawPreviousToken = (pb_data_t *)query.m().downloadFile.token.arg;
     if (query.hasToken() && rawPreviousToken != nullptr && rawPreviousToken->length > 0) {
@@ -54,18 +56,8 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
         debugfpln("Files", "Starting download");
     }
 
-    while (fkfs_file_iterate(fs, query.m().downloadFile.id, &iter, &token)) {
-        if (length + iter.size >= sizeof(data)) {
-            break;
-        }
-
-        memcpy(data + length, iter.data, iter.size);
-
-        length += iter.size;
-    }
-
     pb_data_t dataData = {
-        .length = length,
+        .length = 0,
         .buffer = data,
     };
 
@@ -74,17 +66,42 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
         .buffer = &token,
     };
 
-    debugfpln("Files", "Done (%d bytes), sending token (%lu, %d -> %lu)", length, token.block, token.offset, token.lastBlock);
-
     reply.m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
     reply.m().fileData.data.funcs.encode = pb_encode_data;
     reply.m().fileData.data.arg = (void *)&dataData;
     reply.m().fileData.token.funcs.encode = pb_encode_data;
     reply.m().fileData.token.arg = (void *)&tokenData;
 
-    if (!buffer.write(reply)) {
-        debugfpln("Error", "Error writing reply");
+    while (fkfs_file_iterate(fs, query.m().downloadFile.id, &iter, &token)) {
+        if (dataData.length + iter.size >= sizeof(data)) {
+            if (!buffer.write(reply)) {
+                debugfpln("Error", "Error writing reply");
+            }
+
+            buffer.write();
+            buffersSent++;
+
+            dataData.length = 0;
+        }
+
+        memcpy(data + dataData.length, iter.data, iter.size);
+
+        dataData.length += iter.size;
+        total += iter.size;
+
+        if (total >= 4096 * 8) {
+            break;
+        }
     }
+
+    if (buffer.position() > 0 || buffersSent == 0) {
+        if (!buffer.write(reply)) {
+            debugfpln("Error", "Error writing reply");
+        }
+        buffer.write();
+    }
+
+    debugfpln("Files", "Done (%d bytes), sending token (%lu, %d -> %lu) (took %lu)", total, token.block, token.offset, token.lastBlock, millis() - started);
 }
 
 }

@@ -20,8 +20,8 @@ TaskEval HandleConnection::task() {
         return TaskEval::error();
     }
     if (wcl.available()) {
-        WifiMessageBuffer buffer;
-        auto bytesRead = buffer.read(wcl);
+        WifiMessageBuffer buffer{ wcl };
+        auto bytesRead = buffer.read();
         if (bytesRead > 0) {
             log("Read %d bytes", bytesRead);
             if (!servicer->handle(buffer)) {
@@ -31,10 +31,8 @@ TaskEval HandleConnection::task() {
             } else {
                 auto e = servicer->task();
                 if (!e.isIdle()) {
-                    auto bytesWritten = wcl.write(buffer.ptr(), buffer.position());
+                    auto bytesWritten = buffer.write();
                     log("Wrote %d bytes (%d)", bytesWritten, fk_free_memory());
-                    fk_assert(bytesWritten == buffer.position());
-                    buffer.clear();
                     wcl.stop();
                     return e;
                 }

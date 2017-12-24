@@ -65,6 +65,15 @@ private:
     bool write(const pb_field_t *fields, void *src);
     bool read(const pb_field_t *fields, void *src);
 
+public:
+    virtual size_t read() {
+        return 0;
+    }
+
+    virtual size_t write() {
+        return 0;
+    }
+
 };
 
 }
