@@ -244,6 +244,20 @@ void AppServicer::handle(AppQueryMessage &query) {
 
         break;
     }
+    case fk_app_QueryType_QUERY_RESET: {
+        log("Reset");
+
+        fileReplies->resetAll();
+
+        AppReplyMessage reply(pool);
+        reply.m().type = fk_app_ReplyType_REPLY_SUCCESS;
+
+        if (!buffer->write(reply)) {
+            log("Error writing reply");
+        }
+
+        break;
+    }
     case fk_app_QueryType_QUERY_FILES: {
         log("Query files");
 

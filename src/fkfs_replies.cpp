@@ -104,4 +104,8 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
     debugfpln("Files", "Done (%d bytes), sending token (%lu, %d -> %lu) (took %lu)", total, token.block, token.offset, token.lastBlock, millis() - started);
 }
 
+void FkfsReplies::resetAll() {
+    fkfs_file_truncate_all(fs);
+}
+
 }
