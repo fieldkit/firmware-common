@@ -34,6 +34,8 @@ private:
     void configureNetworkSettings();
     void networkSettingsReply();
 
+    void statusReply();
+
     void configureIdentity();
     void identityReply();
 

@@ -18,6 +18,7 @@
 #include "pool.h"
 #include "wifi.h"
 #include "watchdog.h"
+#include "power_management.h"
 #include "app_servicer.h"
 #include "scheduler.h"
 #include "rtc.h"
@@ -40,6 +41,7 @@ private:
     fkfs_t fs = { 0 };
     fkfs_log_t fkfs_log = { 0 };
     Watchdog watchdog;
+    Power power;
     FkfsData data{fs, FKFS_FILE_DATA};
     CoreState state{data};
     Clock clock;

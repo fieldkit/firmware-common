@@ -39,6 +39,7 @@ void CoreModule::begin() {
 
     leds.setup();
     watchdog.setup();
+    power.setup();
 
     delay(10);
 
@@ -125,6 +126,7 @@ void CoreModule::run() {
     {
         while (true) {
             watchdog.tick();
+            power.tick();
             liveData.tick();
             wifi.tick();
             scheduler.tick();

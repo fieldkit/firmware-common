@@ -1,3 +1,5 @@
+#include <FuelGauge.h>
+
 #include "app_servicer.h"
 
 namespace fk {
@@ -299,6 +301,11 @@ void AppServicer::handle(AppQueryMessage &query) {
 
         break;
     }
+    case fk_app_QueryType_QUERY_STATUS: {
+        statusReply();
+
+        break;
+    }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
     default: {
         AppReplyMessage reply(pool);
@@ -361,6 +368,22 @@ void AppServicer::networkSettingsReply() {
     reply.m().networkSettings.createAccessPoint = currentSettings.createAccessPoint;
     reply.m().networkSettings.networks.arg = &networksArray;
     reply.m().networkSettings.networks.funcs.encode = pb_encode_array;
+    if (!buffer->write(reply)) {
+        log("Error writing reply");
+    }
+}
+
+void AppServicer::statusReply() {
+    log("Status");
+
+    FuelGauge fuelGage;
+    AppReplyMessage reply(pool);
+    reply.m().type = fk_app_ReplyType_REPLY_STATUS;
+    reply.m().status.uptime = millis();
+    reply.m().status.batteryPercentage = fuelGage.stateOfCharge();
+    reply.m().status.batteryVoltage = fuelGage.cellVoltage();
+    reply.m().status.gpsHasFix = false;
+    reply.m().status.gpsSatellites = 0;
     if (!buffer->write(reply)) {
         log("Error writing reply");
     }
