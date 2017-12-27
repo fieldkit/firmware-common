@@ -4,6 +4,8 @@
 #undef HIGH
 #undef LOW
 
+#include <AtSamd.h>
+
 #include "watchdog.h"
 #include "debug.h"
 
@@ -31,6 +33,8 @@ void Watchdog::setup() {
         break;
     }
     }
+
+    wdt_enable(WDT_PERIOD_8X);
 }
 
 void Watchdog::tick() {
@@ -38,7 +42,11 @@ void Watchdog::tick() {
         time = millis() + Interval;
         IpAddress4 ip{ WiFi.localIP() };
         debugfpln(Log, "Tick (%lu free) (%s)", fk_free_memory(), ip.toString());
+    }
+
+    if (wdt_read_early_warning()) {
         leds.alive();
+        wdt_checkin();
     }
 }
 
