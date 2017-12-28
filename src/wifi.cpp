@@ -93,7 +93,7 @@ void Wifi::ensureDisconnected() {
 }
 
 void Wifi::idle() {
-    if (WiFi.status() == WL_NO_SHIELD) {
+    if (disabled) {
         return;
     }
 
@@ -103,9 +103,21 @@ void Wifi::idle() {
         status = newStatus;
     }
 
+    if (status == WL_NO_SHIELD) {
+        return;
+    }
+
     auto settings = state->getNetworkSettings();
     if (version == settings.version) {
-        if (readyToServe()) {
+        if (listen.inactive()) {
+            if (isListening() || readyToServe())  {
+                WiFi.maxLowPowerMode();
+                WiFi.end();
+                log("Disabled");
+                disabled = true;
+            }
+        }
+        else if (readyToServe()) {
             service(listen);
         }
         return;

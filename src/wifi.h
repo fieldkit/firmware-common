@@ -31,7 +31,7 @@ private:
     CoreState *state;
 
 public:
-    CreateWifiAp(CoreState &state) : Task("ConnectWifiAp"), state(&state) {
+    CreateWifiAp(CoreState &state) : Task("CreateWifiAp"), state(&state) {
     }
 
 public:
@@ -51,6 +51,7 @@ private:
     CreateWifiAp createWifiAp;
     Delay delay{ 5000 };
     Listen listen;
+    bool disabled{ false };
 
 public:
     Wifi(CoreState &state, AppServicer &servicer);

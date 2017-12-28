@@ -52,6 +52,7 @@ Listen::Listen(uint16_t port, AppServicer &servicer)
 
 void Listen::begin() {
     if (state == ListenerState::Idle) {
+        lastActivity = millis();
         server.begin();
         state = ListenerState::Disconnected;
         log("Server began (possibly failed, though)");
@@ -67,6 +68,10 @@ void Listen::end() {
     }
 }
 
+bool Listen::inactive() {
+    return millis() - lastActivity > (30 * 1000);
+}
+
 TaskEval Listen::task() {
     begin();
 
@@ -75,6 +80,7 @@ TaskEval Listen::task() {
         // SOCKET_BUFFER_TCP_SIZE. Where SOCKET_BUFFER_TCP_SIZE is 1446.
         auto wcl = server.available();
         if (wcl) {
+            lastActivity = millis();
             log("Accepted!");
             pool.clear();
             state = ListenerState::Busy;

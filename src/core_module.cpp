@@ -90,17 +90,6 @@ bool CoreModule::setupFileSystem() {
     return true;
 }
 
-bool CoreModule::synchronizeClock() {
-    fk::SimpleNTP ntp(clock);
-
-    while (!ntp.task().isDone()) {
-        watchdog.tick();
-        wifi.tick();
-    }
-
-    return true;
-}
-
 void CoreModule::run() {
     uint8_t addresses[]{ 7, 8, 9, 0 };
     {
@@ -121,12 +110,14 @@ void CoreModule::run() {
     // TODO: Fix that this is blocking when connecting.
     wifi.begin();
 
-    synchronizeClock();
+    fk::SimpleNTP ntp(clock);
+
+    scheduler.push(ntp);
 
     {
         while (true) {
-            watchdog.tick();
             power.tick();
+            watchdog.tick();
             liveData.tick();
             wifi.tick();
             scheduler.tick();

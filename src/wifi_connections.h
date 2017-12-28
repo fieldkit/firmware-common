@@ -35,6 +35,7 @@ class Listen : public Task {
     static constexpr char Name[] = "Listen";
 
 private:
+    uint32_t lastActivity{ 0 };
     ListenerState state{ ListenerState::Idle };
     Pool pool;
     WiFiServer server;
@@ -47,6 +48,7 @@ public:
 public:
     void begin();
     void end();
+    bool inactive();
 
 public:
     TaskEval task() override;

@@ -84,7 +84,6 @@ public:
 
 private:
     bool setupFileSystem();
-    bool synchronizeClock();
 
 };
 
