@@ -107,6 +107,10 @@ void CoreModule::run() {
         }
     }
 
+    if (state.numberOfModules() == 0) {
+        leds.noAttachedModules();
+    }
+
     // TODO: Fix that this is blocking when connecting.
     wifi.begin();
 
@@ -122,6 +126,7 @@ void CoreModule::run() {
             wifi.tick();
             scheduler.tick();
             discovery.task();
+            leds.tick();
         }
     }
 }

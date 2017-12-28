@@ -7,7 +7,8 @@ namespace fk {
 
 enum class LedStatus {
     None,
-    Fatal
+    NoAttachedModules,
+    Fatal,
 };
 
 class Leds : public ActiveObject {
@@ -28,9 +29,10 @@ public:
     void off();
 
 public:
+    void alive();
     void clear();
     void fatal();
-    void alive();
+    void noAttachedModules();
 
 };
 

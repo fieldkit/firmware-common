@@ -9,9 +9,15 @@ Leds::Leds() {
 
 void Leds::idle() {
     switch (status) {
+    case LedStatus::NoAttachedModules:  {
+        if (nextChange < millis()) {
+            digitalWrite(A3, !digitalRead(A3));
+            nextChange = millis() + 500;
+        }
+        break;
+    }
     case LedStatus::Fatal:  {
         if (nextChange < millis()) {
-            // Simple toggle.
             all(!digitalRead(A1));
             nextChange = millis() + 100;
         }
@@ -49,19 +55,24 @@ void Leds::off() {
     all(LOW);
 }
 
-void Leds::clear() {
-    status = LedStatus::None;
-    nextChange = 0;
-}
-
 void Leds::alive() {
     digitalWrite(A5, HIGH);
     delay(100);
     digitalWrite(A5, LOW);
 }
 
+void Leds::clear() {
+    status = LedStatus::None;
+    nextChange = 0;
+}
+
 void Leds::fatal() {
     status = LedStatus::Fatal;
+    nextChange = 0;
+}
+
+void Leds::noAttachedModules() {
+    status = LedStatus::NoAttachedModules;
     nextChange = 0;
 }
 
