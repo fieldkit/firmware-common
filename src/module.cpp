@@ -5,6 +5,7 @@
 
 namespace fk {
 
+constexpr uint32_t IdleRebootInterval = 1000 * 60 * 10;
 constexpr uint32_t ModuleServicingMemory = 128;
 
 static void module_request_callback() {
@@ -38,6 +39,7 @@ void Module::resume() {
 
 void Module::receive(size_t bytes) {
     if (bytes > 0) {
+        lastActivity = millis();
         moduleServicer.read(bytes);
         push(moduleServicer);
     }
@@ -59,6 +61,13 @@ void Module::reply() {
     // message before trying to receive one.
     outgoing.clear();
     replyPool.clear();
+}
+
+void Module::idle() {
+    if (millis() - lastActivity > IdleRebootInterval) {
+        log("Reboot due to inactivity.");
+        NVIC_SystemReset();
+    }
 }
 
 ModuleReadingStatus Module::beginReading(SensorReading *) {

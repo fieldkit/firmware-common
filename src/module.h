@@ -13,6 +13,7 @@ private:
     MessageBuffer outgoing;
     MessageBuffer incoming;
     ModuleServicer moduleServicer;
+    uint32_t lastActivity{ 0 };
     ModuleInfo *info;
 
 public:
@@ -26,6 +27,9 @@ public:
     void resume();
     void receive(size_t bytes);
     void reply();
+
+public:
+    void idle() override;
 
 public:
     ModuleReadingStatus beginReading(SensorReading *readings) override;
