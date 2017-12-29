@@ -3,8 +3,8 @@
 
 namespace fk {
 
-HttpPost::HttpPost(HttpTransmissionConfig &config) :
-    TransmissionTask("HttpPost"), config(&config) {
+HttpPost::HttpPost(Wifi &wifi, HttpTransmissionConfig &config) :
+    TransmissionTask("HttpPost"), wifi(&wifi), config(&config) {
     done();
 }
 
@@ -19,6 +19,10 @@ void HttpPost::done() {
 }
 
 TaskEval HttpPost::task() {
+    if (wifi->isDisabled()) {
+        log("Wifi disabled, failing");
+        return TaskEval::error();
+    }
     if (WiFi.status() != WL_AP_CONNECTED && WiFi.status() != WL_CONNECTED) {
         log("No Wifi, failing");
         return TaskEval::error();

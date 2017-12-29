@@ -1,8 +1,7 @@
 #ifndef FK_HTTP_POST_H_INCLUDED
 #define FK_HTTP_POST_H_INCLUDED
 
-#include <WiFi101.h>
-
+#include "wifi.h"
 #include "transmissions.h"
 #include "utils.h"
 
@@ -17,6 +16,7 @@ struct HttpTransmissionConfig {
 
 class HttpPost : public TransmissionTask {
 private:
+    Wifi *wifi;
     HttpTransmissionConfig *config;
     HttpResponseParser parser;
     uint32_t dieAt{ 0 };
@@ -25,7 +25,7 @@ private:
     WiFiClient wcl;
 
 public:
-    HttpPost(HttpTransmissionConfig &config);
+    HttpPost(Wifi &wifi, HttpTransmissionConfig &config);
 
 public:
     void done() override;
