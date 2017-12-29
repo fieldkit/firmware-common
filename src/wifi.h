@@ -46,6 +46,7 @@ public:
 private:
     uint32_t version{ 0 };
     uint8_t status{ WL_IDLE_STATUS };
+    uint32_t lastActivityAt{ 0 };
     CoreState *state;
     ConnectToWifiAp connectToWifiAp;
     CreateWifiAp createWifiAp;
@@ -57,6 +58,9 @@ public:
     Wifi(CoreState &state, AppServicer &servicer);
 
 public:
+    bool isDisabled() {
+        return disabled;
+    }
     void begin();
     void done(Task &task) override;
     void error(Task &task) override;

@@ -4,8 +4,11 @@
 
 namespace fk {
 
+constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 10;
+
 TaskEval ConnectToWifiAp::task() {
     if (networkNumber >= MaximumRememberedNetworks) {
+        networkNumber = 0;
         log("No more networks (%s)", getWifiStatus());
         return TaskEval::error();
     }
@@ -94,6 +97,13 @@ void Wifi::ensureDisconnected() {
 
 void Wifi::idle() {
     if (disabled) {
+        if (millis() - lastActivityAt > WifiAwakenInterval) {
+            log("Enabling...");
+            begin();
+            log("Enabled");
+            disabled = false;
+
+        }
         return;
     }
 
@@ -109,16 +119,18 @@ void Wifi::idle() {
 
     auto settings = state->getNetworkSettings();
     if (version == settings.version) {
+        if (readyToServe()) {
+            service(listen);
+        }
         if (listen.inactive()) {
             if (isListening() || readyToServe())  {
                 WiFi.maxLowPowerMode();
                 WiFi.end();
                 log("Disabled");
+                lastActivityAt = millis();
                 disabled = true;
+                version = 0;
             }
-        }
-        else if (readyToServe()) {
-            service(listen);
         }
         return;
     }
