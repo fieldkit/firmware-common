@@ -4,29 +4,42 @@
 
 namespace fk {
 
-Leds::Leds() {
-}
-
-void Leds::idle() {
-    switch (status) {
-    case LedStatus::NoAttachedModules:  {
+TaskEval Blinker::task() {
+    switch (kind) {
+    case BlinkerKind::Fatal:  {
+        if (nextChange < millis()) {
+            auto value = !digitalRead(A1);
+            digitalWrite(A3, value);
+            digitalWrite(A4, value);
+            digitalWrite(A5, value);
+            nextChange = millis() + 100;
+        }
+        break;
+    }
+    case BlinkerKind::NoAttachedModules:  {
         if (nextChange < millis()) {
             digitalWrite(A3, !digitalRead(A3));
             nextChange = millis() + 500;
         }
         break;
     }
-    case LedStatus::Fatal:  {
-        if (nextChange < millis()) {
-            all(!digitalRead(A1));
-            nextChange = millis() + 100;
-        }
+    case BlinkerKind::Alive:  {
+        digitalWrite(A4, HIGH);
+        break;
+    }
+    case BlinkerKind::Reading:  {
+        digitalWrite(A4, HIGH);
         break;
     }
     default: {
         break;
     }
     }
+
+    return TaskEval::idle();
+}
+
+Leds::Leds() {
 }
 
 void Leds::setup() {
@@ -38,7 +51,14 @@ void Leds::setup() {
     pinMode(A3, OUTPUT);
     pinMode(A4, OUTPUT);
     pinMode(A5, OUTPUT);
-    off();
+
+    all(LOW);
+}
+
+void Leds::idle() {
+    for (auto i = 0; i < MaximumBlinkers; ++i) {
+        blinkers[i].task();
+    }
 }
 
 void Leds::all(bool value) {
@@ -47,33 +67,47 @@ void Leds::all(bool value) {
     digitalWrite(A5, value);
 }
 
-void Leds::on() {
-    all(HIGH);
-}
-
-void Leds::off() {
-    all(LOW);
-}
-
 void Leds::alive() {
     digitalWrite(A5, HIGH);
     delay(100);
     digitalWrite(A5, LOW);
 }
 
-void Leds::clear() {
-    status = LedStatus::None;
-    nextChange = 0;
+void Leds::push(BlinkerKind kind) {
+    for (auto i = 0; i < MaximumBlinkers; ++i) {
+        if (blinkers[i].isIdle()) {
+            log("Blinker #%d is %d", i, kind);
+            blinkers[i] = Blinker{ kind };
+            return;
+        }
+    }
+
+    log("No available blinkers for %d", kind);
+}
+
+void Leds::clear(BlinkerKind kind) {
+    for (auto i = 0; i < MaximumBlinkers; ++i) {
+        if (blinkers[i].isOfKind(kind)) {
+            log("Clearing blinker #%d", i);
+            blinkers[i].clear();
+        }
+    }
 }
 
 void Leds::fatal() {
-    status = LedStatus::Fatal;
-    nextChange = 0;
+    push(BlinkerKind::Fatal);
+}
+
+void Leds::beginReading() {
+    push(BlinkerKind::Reading);
+}
+
+void Leds::doneReading() {
+    clear(BlinkerKind::Reading);
 }
 
 void Leds::noAttachedModules() {
-    status = LedStatus::NoAttachedModules;
-    nextChange = 0;
+    push(BlinkerKind::NoAttachedModules);
 }
 
 }

@@ -5,33 +5,64 @@
 
 namespace fk {
 
-enum class LedStatus {
+enum class BlinkerKind {
     None,
-    NoAttachedModules,
     Fatal,
+    NoAttachedModules,
+    Alive,
+    Reading,
+};
+
+class Blinker : public Task {
+private:
+    BlinkerKind kind{ BlinkerKind::None };
+    uint32_t nextChange{ 0 };
+
+public:
+    Blinker(BlinkerKind kind = BlinkerKind::None) : Task("Blinker"), kind(kind) {
+    }
+
+public:
+    TaskEval task() override;
+
+public:
+    bool isOfKind(BlinkerKind k) {
+        return kind == k;
+    }
+
+    bool isIdle() {
+        return isOfKind(BlinkerKind::None);
+    }
+
+    void clear() {
+        kind = BlinkerKind::None;
+    }
+
 };
 
 class Leds : public ActiveObject {
+    static constexpr uint8_t MaximumBlinkers = 3;
+
 private:
-    LedStatus status{ LedStatus::None };
-    uint32_t nextChange{ 0 };
+    Blinker blinkers[MaximumBlinkers];
 
 public:
     Leds();
 
 public:
+    void setup();
     void idle() override;
 
-public:
-    void setup();
+private:
     void all(bool value);
-    void on();
-    void off();
+    void push(BlinkerKind kind);
+    void clear(BlinkerKind kind);
 
 public:
     void alive();
-    void clear();
     void fatal();
+    void beginReading();
+    void doneReading();
     void noAttachedModules();
 
 };
