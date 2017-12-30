@@ -21,7 +21,7 @@ void setup() {
 
     randomSeed(RANDOM_SEED);
 
-    debugfpln("Core", "Starting (%lu free)", fk_free_memory());
+    debugfpln("Core", "Starting hash(%s)", FIRMWARE_GIT_HASH);
 
 #define FK_DUMP_OBJECT_SIZES
 #ifdef FK_DUMP_OBJECT_SIZES
