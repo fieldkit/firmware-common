@@ -15,10 +15,9 @@ void Power::setup() {
 void Power::tick() {
     if (millis() > time) {
         time = millis() + Interval;
-        auto stateOfCharge = gauge.stateOfCharge();
+        auto percentage = gauge.stateOfCharge();
         auto voltage = gauge.cellVoltage();
-        gauge.version();
-        debugfpln(Log, "Tick (%.2f%% / %.2fmv)", stateOfCharge, voltage);
+        state->updateBattery(percentage, voltage);
     }
 }
 

@@ -113,6 +113,7 @@ void Wifi::idle() {
     if (newStatus != status) {
         log("Changed: %s", getWifiStatus());
         status = newStatus;
+        state->updateIp(WiFi.localIP());
     }
 
     if (status == WL_NO_SHIELD) {

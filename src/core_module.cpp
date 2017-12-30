@@ -24,6 +24,29 @@ static size_t fkfs_log_message(const char *f, ...) {
 
 }
 
+class Status {
+private:
+    uint32_t lastTick{ 0 };
+    CoreState *state;
+
+public:
+    Status(CoreState &state) : state(&state) {
+    }
+
+public:
+    void tick() {
+        if (millis() - lastTick > 5000) {
+            IpAddress4 ip{ state->getStatus().ip };
+            debugfpln("Status", "Status (%.2f%% / %.2fmv) (%lu free) (%s)",
+                      state->getStatus().batteryPercentage, state->getStatus().batteryVoltage,
+                      fk_free_memory(), ip.toString());
+            lastTick = millis();
+        }
+    }
+
+};
+
+
 CoreModule::CoreModule() {
 }
 
@@ -119,10 +142,14 @@ void CoreModule::run() {
     scheduler.push(ntp);
 
     {
+        Status status{ state };
+
         while (true) {
             constexpr int32_t NumberOfTimes = 8;
             uint32_t times[NumberOfTimes] = { 0 };
             auto i = 0;
+
+            status.tick();
 
             times[i++] = millis();
             leds.tick();

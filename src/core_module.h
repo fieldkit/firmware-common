@@ -41,7 +41,7 @@ private:
     fkfs_t fs = { 0 };
     fkfs_log_t fkfs_log = { 0 };
     Watchdog watchdog;
-    Power power;
+    Power power{ state };
     FkfsData data{fs, FKFS_FILE_DATA};
     CoreState state{data};
     Clock clock;

@@ -9,7 +9,6 @@ namespace fk {
 
 class Watchdog {
 private:
-    uint32_t time { 0 };
     Leds leds;
 
 public:

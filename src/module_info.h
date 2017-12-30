@@ -56,6 +56,15 @@ struct DeviceIdentity {
     }
 };
 
+struct DeviceStatus {
+    float batteryPercentage{ 0.0 };
+    float batteryVoltage{ 0.0 };
+    uint32_t ip{ 0 };
+
+    DeviceStatus() {
+    }
+};
+
 }
 
 #endif
