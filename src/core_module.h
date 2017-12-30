@@ -70,7 +70,7 @@ private:
     FkfsReplies fileReplies{fs};
     AppServicer appServicer{liveData, state, scheduler, fileReplies, appPool};
     Wifi wifi{state, appServicer};
-    Discovery discovery;
+    Discovery discovery{ wifi };
 
 public:
     CoreModule();

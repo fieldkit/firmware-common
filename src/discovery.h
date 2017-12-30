@@ -8,11 +8,12 @@ namespace fk {
 
 class Discovery : public Task {
 private:
+    Wifi *wifi;
     static constexpr uint16_t FK_CORE_PORT_UDP = 54321;
     uint32_t pingAt{ 0 };
 
 public:
-    Discovery();
+    Discovery(Wifi &wifi);
 
 public:
     void enqueued() override;

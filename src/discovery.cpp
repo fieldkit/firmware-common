@@ -2,7 +2,7 @@
 
 namespace fk {
 
-Discovery::Discovery() : Task("Discovery") {
+Discovery::Discovery(Wifi &wifi) : Task("Discovery"), wifi(&wifi) {
 }
 
 void Discovery::enqueued() {
@@ -11,7 +11,9 @@ void Discovery::enqueued() {
 
 TaskEval Discovery::task() {
     if (pingAt < millis()) {
-        ping();
+        if (!wifi->isDisabled()) {
+            ping();
+        }
         pingAt = millis() + 5000;
     }
 
@@ -20,7 +22,7 @@ TaskEval Discovery::task() {
 
 void Discovery::ping() {
     log("PING");
-    
+
     // TODO: Fix hack to get the broadcast address.
     IPAddress ip = WiFi.localIP();
     auto destination = IPAddress(ip[0], ip[1], ip[2], 255);
