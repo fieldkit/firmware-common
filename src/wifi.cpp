@@ -126,10 +126,10 @@ void Wifi::idle() {
             if (isListening() || readyToServe())  {
                 WiFi.maxLowPowerMode();
                 WiFi.end();
-                log("Disabled");
                 lastActivityAt = millis();
                 disabled = true;
                 version = 0;
+                log("Disabled");
             }
         }
         return;

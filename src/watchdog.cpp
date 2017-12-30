@@ -43,8 +43,8 @@ void Watchdog::tick() {
         IpAddress4 ip{ WiFi.localIP() };
         debugfpln(Log, "Tick (%lu free) (%s)", fk_free_memory(), ip.toString());
 
-        leds.alive();
         wdt_checkin();
+        leds.alive();
     }
 }
 

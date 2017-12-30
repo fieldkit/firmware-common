@@ -19,6 +19,8 @@ TaskEval Discovery::task() {
 }
 
 void Discovery::ping() {
+    log("PING");
+    
     // TODO: Fix hack to get the broadcast address.
     IPAddress ip = WiFi.localIP();
     auto destination = IPAddress(ip[0], ip[1], ip[2], 255);
@@ -33,6 +35,7 @@ void Discovery::ping() {
         udp.endPacket();
         udp.stop();
     }
+    log("DONE");
 }
 
 }

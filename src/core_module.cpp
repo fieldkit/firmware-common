@@ -120,13 +120,36 @@ void CoreModule::run() {
 
     {
         while (true) {
-            power.tick();
-            watchdog.tick();
-            liveData.tick();
-            wifi.tick();
-            scheduler.tick();
-            discovery.task();
+            constexpr int32_t NumberOfTimes = 8;
+            uint32_t times[NumberOfTimes] = { 0 };
+            auto i = 0;
+
+            times[i++] = millis();
             leds.tick();
+            times[i++] = millis();
+            power.tick();
+            times[i++] = millis();
+            watchdog.tick();
+            times[i++] = millis();
+            liveData.tick();
+            times[i++] = millis();
+            wifi.tick();
+            times[i++] = millis();
+            scheduler.tick();
+            times[i++] = millis();
+            discovery.task();
+            times[i++] = millis();
+
+            auto diff = times[NumberOfTimes - 1] - times[0];
+            if (diff > 500) {
+                debugfpln("Core", "Long Tick: %lu", diff);
+                for (auto i = 1; i < NumberOfTimes; ++i) {
+                    diff = times[i] - times[0];
+                    if (diff > 0) {
+                        debugfpln("Core", "Time[%d]: %lu", i, diff);
+                    }
+                }
+            }
         }
     }
 }
