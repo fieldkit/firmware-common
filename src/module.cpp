@@ -31,6 +31,8 @@ void Module::begin() {
 
     active = this;
 
+    leds.setup();
+    watchdog.setup();
     clock.begin();
 
     resume();
@@ -67,6 +69,8 @@ void Module::reply() {
 }
 
 void Module::idle() {
+    watchdog.tick();
+
     if (millis() - lastActivity > IdleRebootInterval) {
         log("Reboot due to inactivity.");
         NVIC_SystemReset();

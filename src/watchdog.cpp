@@ -19,8 +19,6 @@ constexpr uint32_t Interval = 5000;
 constexpr const char Log[] = "Watchdog";
 
 void Watchdog::setup() {
-    leds.setup();
-
     switch (system_get_reset_cause()) {
     case SYSTEM_RESET_CAUSE_SOFTWARE: debugfpln(Log, "ResetCause: Software"); break;
     case SYSTEM_RESET_CAUSE_WDT: debugfpln(Log, "ResetCause: WDT"); break;
@@ -42,7 +40,7 @@ void Watchdog::idle() {
         wdt_clear_early_warning();
         wdt_checkin();
 
-        leds.alive();
+        leds->alive();
     }
 }
 

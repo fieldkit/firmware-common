@@ -9,9 +9,12 @@ namespace fk {
 
 class Watchdog : public ActiveObject {
 private:
-    Leds leds;
+    Leds *leds;
 
 public:
+    Watchdog(Leds &leds) : leds(&leds) {
+    }
+
     void setup();
 
 public:

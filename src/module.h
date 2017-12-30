@@ -4,6 +4,8 @@
 #include "active_object.h"
 #include "module_messages.h"
 #include "module_servicer.h"
+#include "watchdog.h"
+#include "leds.h"
 
 namespace fk {
 
@@ -14,6 +16,8 @@ private:
     MessageBuffer incoming;
     ModuleServicer moduleServicer;
     uint32_t lastActivity{ 0 };
+    Leds leds;
+    Watchdog watchdog{ leds };
     ModuleInfo *info;
 
 public:
