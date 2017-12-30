@@ -20,12 +20,12 @@ void HttpPost::done() {
 
 TaskEval HttpPost::task() {
     if (wifi->isDisabled()) {
-        log("Wifi disabled, failing");
-        return TaskEval::error();
+        log("Wifi disabled");
+        return TaskEval::done();
     }
     if (WiFi.status() != WL_AP_CONNECTED && WiFi.status() != WL_CONNECTED) {
-        log("No Wifi, failing");
-        return TaskEval::error();
+        log("Wifi disconnected");
+        return TaskEval::done();
     }
 
     if (dieAt == 0) {

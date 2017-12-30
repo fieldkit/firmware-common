@@ -52,7 +52,7 @@ void Blinker::clear() {
     kind = BlinkerKind::None;
 }
 
-Leds::Leds() {
+Leds::Leds() : ActiveObject("LEDs") {
 }
 
 void Leds::setup() {
