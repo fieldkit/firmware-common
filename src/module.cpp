@@ -2,6 +2,7 @@
 
 #include "i2c.h"
 #include "module.h"
+#include "rtc.h"
 
 namespace fk {
 
@@ -29,6 +30,8 @@ void Module::begin() {
     fk_assert(active == nullptr);
 
     active = this;
+
+    clock.begin();
 
     resume();
 }
