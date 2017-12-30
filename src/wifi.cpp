@@ -4,7 +4,7 @@
 
 namespace fk {
 
-constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 10;
+constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 2;
 
 TaskEval ConnectToWifiAp::task() {
     if (networkNumber >= MaximumRememberedNetworks) {
@@ -73,15 +73,15 @@ void Wifi::error(Task &task) {
 }
 
 bool Wifi::readyToServe() {
-    return WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_CONNECTED;
+    return status == WL_CONNECTED || status == WL_AP_CONNECTED;
 }
 
 bool Wifi::isListening() {
-    return WiFi.status() == WL_AP_LISTENING;
+    return status == WL_AP_LISTENING;
 }
 
 bool Wifi::isDisconnected() {
-    return WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_IDLE_STATUS;
+    return status == WL_DISCONNECTED || status == WL_IDLE_STATUS;
 }
 
 void Wifi::ensureDisconnected() {
