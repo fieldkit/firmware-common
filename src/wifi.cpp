@@ -124,11 +124,28 @@ void Wifi::idle() {
         }
         if (listen.inactive()) {
             if (isListening() || readyToServe())  {
-                WiFi.maxLowPowerMode();
                 WiFi.end();
                 lastActivityAt = millis();
                 disabled = true;
                 version = 0;
+                state->updateIp(0);
+
+                // Allow me to explain:
+                // I was seeing this very strange problem where after a Disable
+                // the WDT would kick off. It was always preceeded by fkfs
+                // activity and so things eventually led me to the SPI bus code.
+                // I was inside of sd_raw, in the code for sd_raw_command.
+                // There's a call to sd_raw_flush and that's where the hang
+                // occured. In there it waits until the "Data Register is Empty"
+                // (ATSAMD SerCOM.CPP line 305) I'm assuming there's some kind
+                // of flush that doesn't happen. This "reset" fixes the problem.
+                // If I do this, and don't do the call to maxLowPowerMode
+                // anymore and also move the log call you see below to after the
+                // reset of the bus things work more often. There is still a WDT
+                // reset occuring, though just doesn't seem to happen around here.
+                SPI.end();
+                SPI.begin();
+
                 log("Disabled");
             }
         }
