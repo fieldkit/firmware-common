@@ -1,10 +1,12 @@
+#include <SPI.h>
+
 #include "wifi.h"
 #include "utils.h"
 #include "hardware.h"
 
 namespace fk {
 
-constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 2;
+constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
 
 TaskEval ConnectToWifiAp::task() {
     if (networkNumber >= MaximumRememberedNetworks) {

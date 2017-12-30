@@ -39,11 +39,13 @@ void Watchdog::setup() {
 
 void Watchdog::tick() {
     if (wdt_read_early_warning()) {
+        wdt_clear_early_warning();
+        wdt_checkin();
+
         time = millis() + Interval;
         IpAddress4 ip{ WiFi.localIP() };
         debugfpln(Log, "Tick (%lu free) (%s)", fk_free_memory(), ip.toString());
 
-        wdt_checkin();
         leds.alive();
     }
 }
