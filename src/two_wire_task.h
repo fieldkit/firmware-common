@@ -44,7 +44,11 @@ public:
     QueryCapabilities(Pool &pool, uint8_t address) : TwoWireTask(Name, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_CAPABILITIES;
         query.m().queryCapabilities.version = FK_MODULE_PROTOCOL_VERSION;
-        query.m().queryCapabilities.callerTime = clock_now();
+    }
+
+    void enqueued() override {
+        TwoWireTask::enqueued();
+        query.m().queryCapabilities.callerTime = clock.getTime();
     }
 
     size_t numberOfSensors() {
@@ -79,10 +83,14 @@ public:
     BeginTakeReading(Pool &pool, uint8_t address) : TwoWireTask(Name, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS;
         query.m().beginTakeReadings.index = 0;
-        query.m().beginTakeReadings.callerTime = clock_now();
     }
 
 public:
+    void enqueued() override {
+        TwoWireTask::enqueued();
+        query.m().beginTakeReadings.callerTime = clock.getTime();
+    }
+
     uint32_t getBackoff() {
             return reply.m().readingStatus.backoff;
     }

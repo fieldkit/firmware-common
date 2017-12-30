@@ -33,9 +33,9 @@ TaskEval ModuleServicer::task() {
 bool ModuleServicer::handle(ModuleQueryMessage &query) {
     switch (query.m().type) {
     case fk_module_QueryType_QUERY_CAPABILITIES: {
-        log("Module info");
+        log("Module info (%lu)", query.m().beginTakeReadings.callerTime);
 
-        clock_set(query.m().queryCapabilities.callerTime);
+        clock.setTime(query.m().queryCapabilities.callerTime);
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES;
@@ -66,9 +66,9 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         break;
     }
     case fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS: {
-        log("Begin readings");
+        log("Begin readings (%lu)", query.m().beginTakeReadings.callerTime);
 
-        clock_set(query.m().beginTakeReadings.callerTime);
+        clock.setTime(query.m().beginTakeReadings.callerTime);
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;

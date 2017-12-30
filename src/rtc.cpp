@@ -3,26 +3,46 @@
 
 namespace fk {
 
-uint32_t clock_set(uint32_t now) {
-    Clock clock;
-    auto previous = clock.now().unixtime();
-    auto diff = now - previous;
-    clock.setTime(now);
-    if (abs(diff) > 10) {
-        FormattedTime nowFormatted{ clock.now() };
-        debugfpln("Clock", "Clock changed: %s", nowFormatted.toString());
-    }
-    return 0;
+Clock clock;
+
+void Clock::begin() {
+    rtc.begin();
+    valid = false;
 }
 
-uint32_t clock_now(void) {
-    Clock clock;
-    auto now = clock.now();
-    // TODO: Check for uninitialized clock. This could be better.
-    if (now.year() > 2010) {
-        return now.unixtime();
+void Clock::setTime(DateTime dt) {
+    rtc.setYear(dt.year() - 2000);
+    rtc.setMonth(dt.month());
+    rtc.setDay(dt.day());
+    rtc.setHours(dt.hour());
+    rtc.setMinutes(dt.minute());
+    rtc.setSeconds(dt.second());
+    valid = true;
+}
+
+void Clock::setTime(uint32_t unix) {
+    if (unix == 0) {
+        debugfpln("Clock", "Ignoring invalid time");
+        return;
     }
-    return 0;
+
+    setTime(DateTime(unix));
+
+    FormattedTime nowFormatted{ clock.now() };
+    debugfpln("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), unix);
+}
+
+DateTime Clock::now() {
+    return DateTime(rtc.getYear(),
+                    rtc.getMonth(),
+                    rtc.getDay(),
+                    rtc.getHours(),
+                    rtc.getMinutes(),
+                    rtc.getSeconds());
+}
+
+uint32_t Clock::getTime() {
+    return now().unixtime();
 }
 
 }

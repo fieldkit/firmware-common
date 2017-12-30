@@ -40,47 +40,20 @@ private:
     RTCZero rtc;
 
 public:
-    void begin() {
-        rtc.begin();
-        valid = false;
-    }
-
+    void begin();
     bool isValid() {
         return valid;
     }
 
-    void setTime(DateTime dt) {
-        rtc.setYear(dt.year() - 2000);
-        rtc.setMonth(dt.month());
-        rtc.setDay(dt.day());
-        rtc.setHours(dt.hour());
-        rtc.setMinutes(dt.minute());
-        rtc.setSeconds(dt.second());
-        valid = true;
-    }
-
-    void setTime(uint32_t unix) {
-        setTime(DateTime(unix));
-    }
-
-    DateTime now() {
-        return DateTime(rtc.getYear(),
-                        rtc.getMonth(),
-                        rtc.getDay(),
-                        rtc.getHours(),
-                        rtc.getMinutes(),
-                        rtc.getSeconds());
-    }
-
-    uint32_t getTime() {
-        return now().unixtime();
-    }
+public:
+    void setTime(DateTime dt);
+    void setTime(uint32_t unix);
+    DateTime now();
+    uint32_t getTime();
 
 };
 
-uint32_t clock_set(uint32_t now);
-
-uint32_t clock_now(void);
+extern Clock clock;
 
 }
 

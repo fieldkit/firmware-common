@@ -44,7 +44,6 @@ private:
     Power power{ state };
     FkfsData data{fs, FKFS_FILE_DATA};
     CoreState state{data};
-    Clock clock;
     Pool modulesPool{"ModulesPool", 256};
     Pool appPool{"AppPool", 256};
     Leds leds;
