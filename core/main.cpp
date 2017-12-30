@@ -7,7 +7,27 @@
 
 extern "C" {
 
+#define DEBUG_MTB_ENABLE
+
+#ifdef DEBUG_MTB_ENABLE
+#define DEBUG_MTB_SIZE 256
+__attribute__((__aligned__(DEBUG_MTB_SIZE * sizeof(uint32_t)))) uint32_t mtb[DEBUG_MTB_SIZE];
+
+void HardFault_Handler(void) {
+    // Turn off the micro trace buffer so we don't fill it up in the infinite loop below.
+    REG_MTB_MASTER = 0x00000000 + 6;
+    while (true) {
+    }
+}
+#endif
+
 void setup() {
+#ifdef DEBUG_MTB_ENABLE
+    REG_MTB_POSITION = ((uint32_t) (mtb - REG_MTB_BASE)) & 0xFFFFFFF8;
+    REG_MTB_FLOW = ((uint32_t) mtb + DEBUG_MTB_SIZE * sizeof(uint32_t)) & 0xFFFFFFF8;
+    REG_MTB_MASTER = 0x80000000 + 6;
+#endif
+
     Serial.begin(115200);
 
     while (!Serial && millis() < 2000) {
