@@ -26,16 +26,14 @@ public:
     TaskEval task() override;
 
 public:
+    void clear();
+
     bool isOfKind(BlinkerKind k) {
         return kind == k;
     }
 
     bool isIdle() {
         return isOfKind(BlinkerKind::None);
-    }
-
-    void clear() {
-        kind = BlinkerKind::None;
     }
 
 };

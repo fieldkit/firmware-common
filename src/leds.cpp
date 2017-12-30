@@ -24,7 +24,6 @@ TaskEval Blinker::task() {
         break;
     }
     case BlinkerKind::Alive:  {
-        digitalWrite(A4, HIGH);
         break;
     }
     case BlinkerKind::Reading:  {
@@ -37,6 +36,20 @@ TaskEval Blinker::task() {
     }
 
     return TaskEval::idle();
+}
+
+void Blinker::clear() {
+    switch (kind) {
+    case BlinkerKind::Reading:  {
+        digitalWrite(A4, LOW);
+        break;
+    }
+    default: {
+        break;
+    }
+    }
+
+    kind = BlinkerKind::None;
 }
 
 Leds::Leds() {

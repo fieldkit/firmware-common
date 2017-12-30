@@ -52,7 +52,7 @@ private:
         .url = "https://api.fkdev.org/messages/ingestion?token=TOKEN",
     };
     HttpPost transmission{wifi, transmissionConfig};
-    GatherReadings gatherReadings{state, modulesPool};
+    GatherReadings gatherReadings{state, leds, modulesPool};
     JsonMessageBuilder builder{state, clock};
     SendTransmission sendTransmission{builder, transmission, modulesPool};
     SendStatus sendStatus{builder, transmission, modulesPool};

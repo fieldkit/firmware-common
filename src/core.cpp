@@ -1,12 +1,14 @@
 #include "core.h"
+#include "leds.h"
 
 namespace fk {
 
-GatherReadings::GatherReadings(CoreState &state, Pool &pool) :
-    ActiveObject("GatherReadings"), state(&state), beginTakeReading(pool, 8), queryReadingStatus(pool, 8) {
+GatherReadings::GatherReadings(CoreState &state, Leds &leds, Pool &pool) :
+    ActiveObject("GatherReadings"), state(&state), leds(&leds), beginTakeReading(pool, 8), queryReadingStatus(pool, 8) {
 }
 
 void GatherReadings::enqueued() {
+    leds->beginReading();
     push(beginTakeReading);
 }
 
@@ -33,6 +35,8 @@ void GatherReadings::done(Task &task) {
         } else if (queryReadingStatus.isDone()) {
             state->merge(8, queryReadingStatus.replyMessage());
             push(queryReadingStatus);
+        } else {
+            leds->doneReading();
         }
     }
 }

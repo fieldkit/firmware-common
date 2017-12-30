@@ -10,15 +10,18 @@
 
 namespace fk {
 
+class Leds;
+
 class GatherReadings : public ActiveObject {
 private:
     CoreState *state;
+    Leds *leds;
     Delay delay{ 300 };
     BeginTakeReading beginTakeReading;
     QueryReadingStatus queryReadingStatus;
 
 public:
-    GatherReadings(CoreState &state, Pool &pool);
+    GatherReadings(CoreState &state, Leds &leds, Pool &pool);
 
 public:
     void enqueued() override;
