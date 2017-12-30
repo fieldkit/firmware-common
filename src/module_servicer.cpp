@@ -1,5 +1,6 @@
 #include "module_servicer.h"
 #include "module.h"
+#include "rtc.h"
 
 namespace fk {
 
@@ -34,6 +35,8 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
     case fk_module_QueryType_QUERY_CAPABILITIES: {
         log("Module info");
 
+        clock_set(query.m().queryCapabilities.callerTime);
+
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_CAPABILITIES;
         reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
@@ -64,6 +67,8 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
     }
     case fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS: {
         log("Begin readings");
+
+        clock_set(query.m().beginTakeReadings.callerTime);
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;

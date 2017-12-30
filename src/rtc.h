@@ -78,6 +78,10 @@ public:
 
 };
 
+uint32_t clock_set(uint32_t now);
+
+uint32_t clock_now(void);
+
 }
 
 #endif

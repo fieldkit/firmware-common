@@ -1,6 +1,7 @@
 #ifndef FK_TWO_WIRE_TASK_H_INCLUDED
 #define FK_TWO_WIRE_TASK_H_INCLUDED
 
+#include "rtc.h"
 #include "active_object.h"
 #include "message_buffer.h"
 #include "module_messages.h"
@@ -43,7 +44,7 @@ public:
     QueryCapabilities(Pool &pool, uint8_t address) : TwoWireTask(Name, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_CAPABILITIES;
         query.m().queryCapabilities.version = FK_MODULE_PROTOCOL_VERSION;
-        query.m().queryCapabilities.callerTime = 0;
+        query.m().queryCapabilities.callerTime = clock_now();
     }
 
     size_t numberOfSensors() {
@@ -77,6 +78,8 @@ class BeginTakeReading : public TwoWireTask {
 public:
     BeginTakeReading(Pool &pool, uint8_t address) : TwoWireTask(Name, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS;
+        query.m().beginTakeReadings.index = 0;
+        query.m().beginTakeReadings.callerTime = clock_now();
     }
 
 public:
