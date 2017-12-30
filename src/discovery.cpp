@@ -2,22 +2,16 @@
 
 namespace fk {
 
-Discovery::Discovery(Wifi &wifi) : Task("Discovery"), wifi(&wifi) {
+Discovery::Discovery(Wifi &wifi) : ActiveObject("Discovery"), wifi(&wifi) {
 }
 
-void Discovery::enqueued() {
-    pingAt = millis() + 5000;
-}
-
-TaskEval Discovery::task() {
+void Discovery::idle() {
     if (pingAt < millis()) {
         if (!wifi->isDisabled()) {
             ping();
         }
         pingAt = millis() + 5000;
     }
-
-    return TaskEval::yield();
 }
 
 void Discovery::ping() {

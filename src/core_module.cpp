@@ -24,7 +24,7 @@ static size_t fkfs_log_message(const char *f, ...) {
 
 }
 
-class Status {
+class Status : public ActiveObject {
 private:
     uint32_t lastTick{ 0 };
     CoreState *state;
@@ -34,7 +34,7 @@ public:
     }
 
 public:
-    void tick() {
+    void idle() override {
         if (millis() - lastTick > 5000) {
             IpAddress4 ip{ state->getStatus().ip };
             debugfpln("Status", "Status (%.2f%% / %.2fmv) (%lu free) (%s)",
@@ -55,6 +55,7 @@ void CoreModule::begin() {
     pinMode(Hardware::WIFI_PIN_CS, OUTPUT);
     pinMode(Hardware::RFM95_PIN_CS, OUTPUT);
     pinMode(Hardware::FLASH_PIN_CS, OUTPUT);
+
     digitalWrite(Hardware::SD_PIN_CS, HIGH);
     digitalWrite(Hardware::WIFI_PIN_CS, HIGH);
     digitalWrite(Hardware::RFM95_PIN_CS, HIGH);
@@ -164,7 +165,7 @@ void CoreModule::run() {
             times[i++] = millis();
             scheduler.tick();
             times[i++] = millis();
-            discovery.task();
+            discovery.tick();
             times[i++] = millis();
 
             auto diff = times[NumberOfTimes - 1] - times[0];

@@ -4,11 +4,12 @@
 #include <cstdint>
 #include <FuelGauge.h>
 
+#include "active_object.h"
 #include "core_state.h"
 
 namespace fk {
 
-class Power {
+class Power : public ActiveObject {
 private:
     CoreState *state;
     FuelGauge gauge;
@@ -20,7 +21,9 @@ public:
 
 public:
     void setup();
-    void tick();
+
+public:
+    void idle() override;
 
 };
 

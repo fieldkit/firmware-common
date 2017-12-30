@@ -7,13 +7,15 @@
 
 namespace fk {
 
-class Watchdog {
+class Watchdog : public ActiveObject {
 private:
     Leds leds;
 
 public:
     void setup();
-    void tick();
+
+public:
+    void idle() override;
 
 };
 

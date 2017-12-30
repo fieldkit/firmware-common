@@ -6,7 +6,7 @@
 
 namespace fk {
 
-class Discovery : public Task {
+class Discovery : public ActiveObject {
 private:
     Wifi *wifi;
     static constexpr uint16_t FK_CORE_PORT_UDP = 54321;
@@ -16,8 +16,7 @@ public:
     Discovery(Wifi &wifi);
 
 public:
-    void enqueued() override;
-    TaskEval task() override;
+    void idle() override;
 
 public:
     void ping();

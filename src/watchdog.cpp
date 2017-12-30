@@ -37,7 +37,7 @@ void Watchdog::setup() {
     wdt_enable(WDT_PERIOD_8X);
 }
 
-void Watchdog::tick() {
+void Watchdog::idle() {
     if (wdt_read_early_warning()) {
         wdt_clear_early_warning();
         wdt_checkin();

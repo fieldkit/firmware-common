@@ -12,7 +12,7 @@ void Power::setup() {
     gauge.powerOn();
 }
 
-void Power::tick() {
+void Power::idle() {
     if (millis() > time) {
         time = millis() + Interval;
         auto percentage = gauge.stateOfCharge();
