@@ -71,13 +71,21 @@ void ActiveObject::service(Task &active) {
 }
 
 void ActiveObject::tick() {
+    auto began = millis();
+    auto ran = "Idle";
     if (!isIdle()) {
+        ran = tasks->toString();
         service(*tasks);
     } else if (idleTask != nullptr) {
+        ran = idleTask->toString();
         service(*idleTask);
         idle();
     } else {
         idle();
+    }
+    auto ended = millis();
+    if (ended - began > 500) {
+        log("Long tick from %s (%d) (****)", ran, ended - began);
     }
 }
 
