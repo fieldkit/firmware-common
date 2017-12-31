@@ -7,7 +7,7 @@
 
 extern "C" {
 
-#define DEBUG_MTB_ENABLE
+// #define DEBUG_MTB_ENABLE
 
 #ifdef DEBUG_MTB_ENABLE
 #define DEBUG_MTB_SIZE 256
