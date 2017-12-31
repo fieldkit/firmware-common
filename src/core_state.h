@@ -73,6 +73,8 @@ public:
         deviceStatus.ip = ip;
     }
 
+    void updateLocation(float lon, float lat, float altitude);
+
 private:
     size_t getModuleIndex(uint8_t address);
     bool appendReading(SensorReading &reading);

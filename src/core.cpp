@@ -3,6 +3,9 @@
 
 namespace fk {
 
+constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
+constexpr uint32_t GpsStatusInterval = 1 * 1000;
+
 GatherReadings::GatherReadings(CoreState &state, Leds &leds, Pool &pool) :
     ActiveObject("GatherReadings"), state(&state), leds(&leds), beginTakeReading(pool, 8), queryReadingStatus(pool, 8) {
 }
@@ -65,11 +68,51 @@ void SendStatus::enqueued() {
 void SendStatus::done(Task &task) {
 }
 
+void ReadGPS::enqueued() {
+    started = millis();
+    Serial1.begin(9600);
+}
+
+TaskEval ReadGPS::task() {
+    if (millis() - started > GpsFixAttemptInterval) {
+        log("No GPS fix.");
+        return TaskEval::error();
+    }
+
+    while (Serial1.available()) {
+        auto c = (char)Serial1.read();
+        gps.encode(c);
+    }
+
+    if (millis() - lastStatus > GpsStatusInterval) {
+        float flat, flon;
+        uint32_t age;
+        gps.f_get_position(&flat, &flon, &age);
+
+        auto satellites = gps.satellites();
+        auto hdop = gps.hdop();
+        auto altitude = gps.f_altitude();
+
+        log("GPS: sats(%d) hdop(%d) loc(%f, %f) alt(%f)", satellites, hdop, flon, flat, altitude);
+
+        if (flon != TinyGPS::GPS_INVALID_F_ANGLE && flat != TinyGPS::GPS_INVALID_F_ANGLE && altitude != TinyGPS::GPS_INVALID_F_ALTITUDE) {
+            state->updateLocation(flon, flat, altitude);
+            return TaskEval::done();
+        }
+
+        lastStatus = millis();
+    }
+
+    return TaskEval::idle();
+}
+
 DetermineLocation::DetermineLocation(CoreState &state, Pool &pool) :
-    ActiveObject("DetermineLocation"), state(&state) {
+    ActiveObject("DetermineLocation"), state(&state), readGps(state) {
 }
 
 void DetermineLocation::enqueued() {
+    push(readGps);
+   
 }
 
 void DetermineLocation::done(Task &task) {

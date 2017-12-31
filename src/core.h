@@ -1,6 +1,8 @@
 #ifndef FK_CORE_MODULE_PARTS_H_INCLUDED
 #define FK_CORE_MODULE_PARTS_H_INCLUDED
 
+#include <TinyGPS.h>
+
 #include "active_object.h"
 #include "core_state.h"
 
@@ -57,9 +59,27 @@ public:
 
 };
 
+class ReadGPS : public Task {
+private:
+    CoreState *state;
+    TinyGPS gps;
+    uint32_t lastStatus{ 0 };
+    uint32_t started{ 0 };
+
+public:
+    ReadGPS(CoreState &state) : Task("GPS"), state(&state) {
+    }
+
+public:
+    void enqueued() override;
+    TaskEval task() override;
+
+};
+
 class DetermineLocation : public ActiveObject {
 private:
     CoreState *state;
+    ReadGPS readGps;
 
 public:
     DetermineLocation(CoreState &state, Pool &pool);
