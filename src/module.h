@@ -36,8 +36,8 @@ public:
     void idle() override;
 
 public:
-    ModuleReadingStatus beginReading(SensorReading *readings) override;
-    ModuleReadingStatus readingStatus(SensorReading *readings) override;
+    ModuleReadingStatus beginReading(PendingSensorReading &pending) override;
+    ModuleReadingStatus readingStatus(PendingSensorReading &pending) override;
 
 };
 

@@ -78,7 +78,9 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
             info->readings[i].status = SensorReadingStatus::Busy;
         }
 
-        auto status = callbacks->beginReading(info->readings);
+        pending.elapsed = 0;
+        pending.readings = info->readings;
+        auto status = callbacks->beginReading(pending);
         if (status.backoff > 0) {
             reply.m().readingStatus.backoff = status.backoff;
         }
@@ -94,7 +96,8 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
         reply.m().readingStatus.state = fk_module_ReadingState_IDLE;
 
-        auto status = callbacks->readingStatus(info->readings);
+        pending.readings = info->readings;
+        auto status = callbacks->readingStatus(pending);
         if (status.backoff > 0) {
             reply.m().readingStatus.backoff = status.backoff;
         }

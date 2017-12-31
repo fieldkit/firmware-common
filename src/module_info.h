@@ -29,6 +29,11 @@ struct SensorReading {
     SensorReadingStatus status;
 };
 
+struct PendingSensorReading {
+    uint32_t elapsed;
+    SensorReading *readings;
+};
+
 struct ModuleInfo {
     uint8_t address;
     uint8_t numberOfSensors;

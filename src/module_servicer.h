@@ -21,8 +21,8 @@ struct ModuleReadingStatus {
 // TODO: Rename this
 class ModuleCallbacks {
 public:
-    virtual ModuleReadingStatus beginReading(SensorReading *readings) = 0;
-    virtual ModuleReadingStatus readingStatus(SensorReading *readings) = 0;
+    virtual ModuleReadingStatus beginReading(PendingSensorReading &pending) = 0;
+    virtual ModuleReadingStatus readingStatus(PendingSensorReading &pending) = 0;
 
 };
 
@@ -30,6 +30,7 @@ class ModuleServicer : public Task {
 private:
     ModuleInfo *info;
     ModuleCallbacks *callbacks;
+    PendingSensorReading pending;
     MessageBuffer &outgoing;
     MessageBuffer &incoming;
     Pool *pool;

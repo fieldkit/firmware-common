@@ -77,11 +77,11 @@ void Module::idle() {
     }
 }
 
-ModuleReadingStatus Module::beginReading(SensorReading *) {
+ModuleReadingStatus Module::beginReading(PendingSensorReading &pending) {
     return ModuleReadingStatus();
 }
 
-ModuleReadingStatus Module::readingStatus(SensorReading *readings) {
+ModuleReadingStatus Module::readingStatus(PendingSensorReading &pending) {
     return ModuleReadingStatus();
 }
 

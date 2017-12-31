@@ -49,10 +49,10 @@ public:
     }
 
 public:
-    virtual fk::ModuleReadingStatus beginReading(fk::SensorReading *readings) override {
+    virtual fk::ModuleReadingStatus beginReading(fk::PendingSensorReading &pending) override {
         log("Readings!");
 
-        sensors.push(takeFakeReadings.into(readings));
+        sensors.push(takeFakeReadings.into(pending.readings));
 
         return fk::ModuleReadingStatus();
     }
