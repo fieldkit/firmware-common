@@ -35,6 +35,15 @@ struct NetworkSettings {
         memzero(networks, sizeof(networks));
         memcpy(&networks[0], &info, sizeof(NetworkInfo));
     }
+
+    template<size_t N>
+    NetworkSettings(bool ap, NetworkInfo (&infos)[N]) : createAccessPoint(ap), version(0) {
+        memzero(networks, sizeof(networks));
+        for (auto i = 0; i < N; ++i) {
+            memcpy(&networks[i], &infos[i], sizeof(NetworkInfo));
+        }
+    }
+
 };
 
 }

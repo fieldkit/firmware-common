@@ -66,16 +66,20 @@ void setup() {
     FK_DUMP_SIZE(fkfs_log_t);
 #endif
 
+    fk::NetworkInfo networks[] = {
+        {
+            FK_CONFIG_WIFI_1_SSID,
+            FK_CONFIG_WIFI_1_PASSWORD,
+        },
+        {
+            FK_CONFIG_WIFI_2_SSID,
+            FK_CONFIG_WIFI_2_PASSWORD,
+        }
+    };
+
     fk::CoreModule coreModule;
     coreModule.begin();
-    coreModule.getState().configure(fk::NetworkSettings {
-        false,
-            fk::NetworkInfo{
-            FK_CONFIG_WIFI_SSID,
-            FK_CONFIG_WIFI_PASSWORD,
-        }
-        }
-    );
+    coreModule.getState().configure(fk::NetworkSettings{ false, networks });
 
     coreModule.run();
 }
