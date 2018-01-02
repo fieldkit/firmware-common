@@ -18,6 +18,7 @@ public:
 public:
     void queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
     void downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
+    void eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
     void resetAll();
 
 };

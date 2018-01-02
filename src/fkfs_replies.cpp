@@ -104,6 +104,12 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
     debugfpln("Files", "Done (%d bytes), sending token (%lu, %d -> %lu) (took %lu)", total, token.block, token.offset, token.lastBlock, millis() - started);
 }
 
+void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    fkfs_file_truncate(fs, query.m().eraseFile.id);
+
+    return queryFilesReply(query, reply, buffer);
+}
+
 void FkfsReplies::resetAll() {
     fkfs_file_truncate_all(fs);
 }

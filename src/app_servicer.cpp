@@ -279,6 +279,14 @@ void AppServicer::handle(AppQueryMessage &query) {
 
         break;
     }
+    case fk_app_QueryType_QUERY_ERASE_FILE: {
+        log("Erase file (%d / %d)", query.m().eraseFile.id);
+
+        AppReplyMessage reply(pool);
+        fileReplies->eraseFileReply(query, reply, *buffer);
+
+        break;
+    }
     case fk_app_QueryType_QUERY_NETWORK_SETTINGS: {
         networkSettingsReply();
 
