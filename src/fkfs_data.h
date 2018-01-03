@@ -16,7 +16,8 @@ public:
     FkfsData(fkfs_t &fs, uint8_t file);
 
 public:
-    bool appendReading(SensorReading &reading);
+    bool appendLocation(DeviceLocation &location);
+    bool appendReading(DeviceLocation &location, SensorReading &reading);
 
 };
 

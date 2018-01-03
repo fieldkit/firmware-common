@@ -70,6 +70,14 @@ struct DeviceStatus {
     }
 };
 
+struct DeviceLocation {
+    uint32_t time;
+    float coordinates[MaximumCoordinates];
+
+    DeviceLocation() : time(0), coordinates{ 0.0, 0.0, 0.0 } {
+    }
+};
+
 }
 
 #endif

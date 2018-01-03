@@ -36,7 +36,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
             reading.time = reply.m().sensorReading.time;
             reading.value = reply.m().sensorReading.value;
             reading.status = SensorReadingStatus::Done;
-            data->appendReading(reading);
+            data->appendReading(location, reading);
         }
         break;
     }
@@ -122,11 +122,31 @@ void CoreState::clearReadings() {
     }
 }
 
+void CoreState::configure(DeviceIdentity newIdentity) {
+    deviceIdentity = newIdentity;
+}
+
+void CoreState::configure(NetworkSettings newSettings) {
+    networkSettings = newSettings;
+    networkSettings.version = millis();
+}
+
+void CoreState::updateBattery(float percentage, float voltage) {
+    deviceStatus.batteryPercentage = percentage;
+    deviceStatus.batteryVoltage = voltage;
+}
+
+void CoreState::updateIp(uint32_t ip) {
+    deviceStatus.ip = ip;
+}
+
 void CoreState::updateLocation(uint32_t time, float longitude, float latitude, float altitude) {
     location.time = time;
     location.coordinates[0] = longitude;
     location.coordinates[1] = latitude;
     location.coordinates[2] = altitude;
+
+    data->appendLocation(location);
 }
 
 }
