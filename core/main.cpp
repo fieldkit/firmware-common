@@ -41,7 +41,12 @@ void setup() {
 
     randomSeed(RANDOM_SEED);
 
-    debugfpln("Core", "Starting hash(%s)", FIRMWARE_GIT_HASH);
+    {
+        fk::SerialNumber serialNumber;
+        debugfpln("Core", "Starting");
+        debugfpln("Core", "Serial(%s)", serialNumber.toString());
+        debugfpln("Core", "Hash(%s)", FIRMWARE_GIT_HASH);
+    }
 
 #define FK_DUMP_OBJECT_SIZES
 #ifdef FK_DUMP_OBJECT_SIZES

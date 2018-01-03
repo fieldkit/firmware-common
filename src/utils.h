@@ -110,6 +110,22 @@ const char *getWifiStatus(uint8_t status);
 
 const char *getWifiStatus();
 
+class SerialNumber {
+private:
+    uint32_t values[4];
+    char buffer[37];
+
+public:
+    SerialNumber();
+
+public:
+    const char *toString();
+    uint32_t asDWord() {
+        return values[0];
+    }
+
+};
+
 }
 
 #endif
