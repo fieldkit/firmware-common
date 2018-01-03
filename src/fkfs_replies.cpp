@@ -46,14 +46,18 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
     size_t total = 0;
     auto started = millis();
     auto buffersSent = 0;
+    auto pageSize = (size_t)(8 * 4096);
+    if (query.m().downloadFile.pageSize > 0) {
+        pageSize = query.m().downloadFile.pageSize;
+    }
 
     auto rawPreviousToken = (pb_data_t *)query.m().downloadFile.token.arg;
     if (query.hasToken() && rawPreviousToken != nullptr && rawPreviousToken->length > 0) {
         fk_assert(rawPreviousToken->length == sizeof(fkfs_iterator_token_t));
         memcpy((void *)&token, (void *)rawPreviousToken->buffer, sizeof(fkfs_iterator_token_t));
-        debugfpln("Files", "Using previous token (%lu, %d -> %lu)", token.block, token.offset, token.lastBlock);
+        debugfpln("Files", "Using previous token (pageSize = %d) (%lu, %d -> %lu)", pageSize, token.block, token.offset, token.lastBlock);
     } else {
-        debugfpln("Files", "Starting download");
+        debugfpln("Files", "Starting download (pageSize = %d)", pageSize);
     }
 
     pb_data_t dataData = {
@@ -89,7 +93,7 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
         dataData.length += iter.size;
         total += iter.size;
 
-        if (total >= 4096 * 8) {
+        if (total >= pageSize) {
             break;
         }
     }
