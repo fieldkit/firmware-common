@@ -1,3 +1,10 @@
+#include <reset.h>
+#undef min
+#undef max
+#undef HIGH
+#undef LOW
+
+#include <AtSamd.h>
 #include <FuelGauge.h>
 
 #include "app_servicer.h"
@@ -79,6 +86,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().capabilities.name.arg = (void *)"NOAA-CTD";
         reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
         reply.m().capabilities.sensors.arg = (void *)&sensors_array;
+        reply.m().capabilities.deviceId = system_get_device_id();
 
         if (!buffer->write(reply)) {
             log("Error writing reply");
@@ -414,6 +422,7 @@ void AppServicer::identityReply() {
     reply.m().type = fk_app_ReplyType_REPLY_IDENTITY;
     reply.m().identity.device.arg = identity.device;
     reply.m().identity.stream.arg = identity.stream;
+    reply.m().identity.deviceId = system_get_device_id();
     if (!buffer->write(reply)) {
         log("Error writing reply");
     }
