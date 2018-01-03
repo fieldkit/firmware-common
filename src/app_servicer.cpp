@@ -5,6 +5,8 @@
 
 namespace fk {
 
+#define FK_CORE_DEFAULT_NAME "FieldKit Device" 
+
 static void copy( ScheduledTask &to, fk_app_Schedule &from) {
     to.setSecond(TimeSpec{ (int8_t)from.second.fixed, (int8_t)from.second.interval });
     to.setMinute(TimeSpec{ (int8_t)from.minute.fixed, (int8_t)from.minute.interval });
@@ -79,7 +81,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
         reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
         reply.m().capabilities.name.funcs.encode = pb_encode_string;
-        reply.m().capabilities.name.arg = (void *)"NOAA-CTD";
+        reply.m().capabilities.name.arg = (void *)FK_CORE_DEFAULT_NAME;
         reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
         reply.m().capabilities.sensors.arg = (void *)&sensors_array;
         reply.m().capabilities.deviceId = serialNumber.asDWord();
