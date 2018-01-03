@@ -16,7 +16,8 @@ bool JsonMessageBuilder::write(Print &stream) {
 }
 
 void JsonMessageBuilder::writeLocation(Print &stream) {
-    auto coordinates = state->getLocation();
+    auto location = state->getLocation();
+    auto coordinates = location.coordinates;
     stream.print("\"location\":[");
     for (size_t i = 0; i < MaximumCoordinates; ++i) {
         if (i > 0) {

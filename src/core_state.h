@@ -16,12 +16,17 @@ struct AvailableSensorReading {
     SensorReading &reading;
 };
 
+struct DeviceLocation {
+    float coordinates[MaximumCoordinates]{ -118.3604684, 34.0071882, 12.75 };
+    uint32_t time;
+};
+
 class CoreState {
 private:
     NetworkSettings networkSettings;
     ModuleInfo modules[MaximumNumberOfModules];
     DeviceStatus deviceStatus;
-    float coordinates[MaximumCoordinates]{ -118.3604684, 34.0071882, 12.75 };
+    DeviceLocation location;
     DeviceIdentity deviceIdentity;
     FkfsData *data;
 
@@ -35,8 +40,8 @@ public:
     size_t numberOfModules() const;
     size_t numberOfSensors() const;
     size_t numberOfReadings() const;
-    float *getLocation() {
-        return coordinates;
+    DeviceLocation &getLocation() {
+        return location;
     }
     DeviceIdentity &getIdentity() {
         return deviceIdentity;
@@ -73,7 +78,7 @@ public:
         deviceStatus.ip = ip;
     }
 
-    void updateLocation(float lon, float lat, float altitude);
+    void updateLocation(uint32_t time, float longitude, float latitude, float altitude);
 
 private:
     size_t getModuleIndex(uint8_t address);

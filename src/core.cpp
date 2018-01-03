@@ -86,17 +86,23 @@ TaskEval ReadGPS::task() {
 
     if (millis() - lastStatus > GpsStatusInterval) {
         float flat, flon;
-        uint32_t age;
-        gps.f_get_position(&flat, &flon, &age);
+        uint32_t positionAage;
+        gps.f_get_position(&flat, &flon, &positionAage);
 
         auto satellites = gps.satellites();
         auto hdop = gps.hdop();
         auto altitude = gps.f_altitude();
 
-        log("GPS: sats(%d) hdop(%d) loc(%f, %f) alt(%f)", satellites, hdop, flon, flat, altitude);
+        auto year = 0;
+        uint8_t month, day, hour, minute, second, hundredths;
+        uint32_t age;
+        gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
+        DateTime dateTime(year, month, day, hour, minute, second);
+
+        log("Sats(%d) Hdop(%d) Loc(%f, %f) Alt(%f)", satellites, hdop, flon, flat, altitude);
 
         if (flon != TinyGPS::GPS_INVALID_F_ANGLE && flat != TinyGPS::GPS_INVALID_F_ANGLE && altitude != TinyGPS::GPS_INVALID_F_ALTITUDE) {
-            state->updateLocation(flon, flat, altitude);
+            state->updateLocation(dateTime.unixtime(), flon, flat, altitude);
             return TaskEval::done();
         }
 

@@ -122,10 +122,11 @@ void CoreState::clearReadings() {
     }
 }
 
-void CoreState::updateLocation(float lon, float lat, float altitude) {
-    coordinates[0] = lon;
-    coordinates[1] = lat;
-    coordinates[2] = altitude;
+void CoreState::updateLocation(uint32_t time, float longitude, float latitude, float altitude) {
+    location.time = time;
+    location.coordinates[0] = longitude;
+    location.coordinates[1] = latitude;
+    location.coordinates[2] = altitude;
 }
 
 }
