@@ -123,4 +123,8 @@ void Leds::noAttachedModules() {
     push(BlinkerKind::NoAttachedModules);
 }
 
+void Leds::haveAttachedModules() {
+    clear(BlinkerKind::NoAttachedModules);
+}
+
 }

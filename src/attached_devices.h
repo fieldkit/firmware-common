@@ -7,23 +7,30 @@
 
 namespace fk {
 
+class Leds;
+
 class AttachedDevices : public ActiveObject {
 private:
-    uint8_t *addresses;
+    uint32_t lastScanAt{ 0 };
+    uint8_t *addresses{ nullptr };
+    uint8_t addressIndex{ 0 };
     CoreState *state;
+    Leds *leds;
     Pool *pool;
     QueryCapabilities queryCapabilities;
     QuerySensorCapabilities querySensorCapabilities;
 
 public:
-    AttachedDevices(uint8_t *addresses, CoreState &state, Pool &pool);
+    AttachedDevices(uint8_t *addresses, CoreState &state, Leds &leds, Pool &pool);
 
 public:
     void scan();
     void done(Task &task) override;
     void error(Task &task) override;
+    void idle() override;
 
 private:
+    void resume();
     void query(uint8_t address);
 
 };

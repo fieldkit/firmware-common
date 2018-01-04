@@ -62,6 +62,7 @@ public:
     void beginReading();
     void doneReading();
     void noAttachedModules();
+    void haveAttachedModules();
 
 };
 

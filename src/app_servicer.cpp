@@ -62,7 +62,7 @@ void AppServicer::handle(AppQueryMessage &query) {
                 sensors[sensorIndex].unitOfMeasure.arg = (void *)attached[moduleIndex].sensors[i].unitOfMeasure;
                 sensors[sensorIndex].frequency = 60;
 
-                log("%d / %d: %s", sensorIndex, numberOfSensors, sensors[sensorIndex].name.arg);
+                // log("%d / %d: %s", sensorIndex, numberOfSensors, sensors[sensorIndex].name.arg);
 
                 sensorIndex++;
             }

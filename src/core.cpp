@@ -11,6 +11,11 @@ GatherReadings::GatherReadings(CoreState &state, Leds &leds, Pool &pool) :
 }
 
 void GatherReadings::enqueued() {
+    if (state->numberOfModules() == 0) {
+        log("No attached modules.");
+        return;
+    }
+
     leds->beginReading();
     push(beginTakeReading);
 }

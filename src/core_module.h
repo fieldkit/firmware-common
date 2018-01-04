@@ -57,6 +57,8 @@ private:
     SendTransmission sendTransmission{builder, transmission, modulesPool};
     SendStatus sendStatus{builder, transmission, modulesPool};
     DetermineLocation determineLocation{state, modulesPool};
+    uint8_t addresses[4]{ 7, 8, 9, 0 };
+    AttachedDevices attachedDevices{addresses, state, leds, modulesPool};
     ScheduledTask tasks[4] {
         fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },

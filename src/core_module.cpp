@@ -115,46 +115,23 @@ bool CoreModule::setupFileSystem() {
 }
 
 void CoreModule::run() {
-    uint8_t addresses[]{ 7, 8, 9, 0 };
-    {
-        fk::Pool pool("SCAN", 256);
-        fk::AttachedDevices ad(addresses, state, pool);
-        ad.scan();
-
-        while (true) {
-            watchdog.tick();
-            ad.tick();
-
-            if (ad.isIdle()) {
-                break;
-            }
-        }
-    }
-
-    if (state.numberOfModules() == 0) {
-        leds.noAttachedModules();
-    }
-
-    // TODO: Fix that this is blocking when connecting.
-    wifi.begin();
-
     fk::SimpleNTP ntp(clock);
+    Status status{ state };
+
+    wifi.begin();
 
     scheduler.push(ntp);
 
-    {
-        Status status{ state };
-
-        while (true) {
-            status.tick();
-            leds.tick();
-            power.tick();
-            watchdog.tick();
-            liveData.tick();
-            wifi.tick();
-            scheduler.tick();
-            discovery.tick();
-        }
+    while (true) {
+        status.tick();
+        leds.tick();
+        power.tick();
+        watchdog.tick();
+        liveData.tick();
+        wifi.tick();
+        scheduler.tick();
+        discovery.tick();
+        attachedDevices.tick();
     }
 }
 
