@@ -113,7 +113,18 @@ uint32_t fk_free_memory() {
 void __fk_assert(const char *msg, const char *file, int lineno) {
     debugfln("ASSERTION: %s:%d '%s'", file, lineno, msg);
     debug_uart->flush();
+
     while (1) {
-        delay(1000);
+        // This will happen until the WDT kicks is back to Reset, hopefully. I'm
+        // flashing these just to sort of give the user an idea that something's
+        // going wrong if they happen to be around.
+        digitalWrite(A3, LOW);
+        digitalWrite(A4, LOW);
+        digitalWrite(A5, LOW);
+        delay(100);
+        digitalWrite(A3, HIGH);
+        digitalWrite(A4, HIGH);
+        digitalWrite(A5, HIGH);
+        delay(100);
     }
 }
