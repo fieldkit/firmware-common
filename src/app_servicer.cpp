@@ -181,7 +181,7 @@ void AppServicer::handle(AppQueryMessage &query) {
 
         for (size_t i = 0; i < numberOfReadings; ++i) {
             auto available = state->getReading(i);
-            samples[i].sensor = i;
+            samples[i].sensor = available.id;
             samples[i].time = available.reading.time;
             samples[i].value = available.reading.value;
         }
