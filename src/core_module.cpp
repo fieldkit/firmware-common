@@ -129,7 +129,10 @@ void CoreModule::run() {
         watchdog.tick();
         liveData.tick();
         wifi.tick();
-        scheduler.tick();
+        // This is ugly.
+        if (liveData.isIdle()) {
+            scheduler.tick();
+        }
         discovery.tick();
         attachedDevices.tick();
     }

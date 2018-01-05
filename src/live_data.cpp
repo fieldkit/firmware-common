@@ -2,22 +2,22 @@
 
 namespace fk {
 
-LiveData::LiveData(CoreState &state, Pool &pool) :
+LiveData::LiveData(CoreState &state, Leds &leds, Pool &pool) :
     ActiveObject("LiveData"),
-    state(&state), pool(&pool), checkDelay(250), takeReadingsDelay(1000),
-    beginTakeReading(pool, 8), queryReadingStatus(pool, 8) {
+    interval{ 0 }, state(&state), pool(&pool), gatherReadings(state, leds, pool) {
 }
 
 void LiveData::start(uint32_t newInterval) {
     if (interval != newInterval) {
-        interval = newInterval;
-        takeReadingsDelay = Delay{ interval, true };
+        if (state->numberOfModules() == 0) {
+            log("No attached modules.");
+            return;
+        }
 
         log("Started");
 
-        push(beginTakeReading);
-        push(checkDelay);
-        push(queryReadingStatus);
+        interval = newInterval;
+        push(gatherReadings);
     }
 }
 
@@ -30,25 +30,10 @@ void LiveData::done(Task &task) {
         return;
     }
 
-    if (areSame(task, queryReadingStatus)) {
-        state->merge(8, queryReadingStatus.replyMessage());
-
-        if (queryReadingStatus.isBusy()) {
-            push(checkDelay);
-            push(queryReadingStatus);
-        } else if (queryReadingStatus.isDone()) {
-            push(queryReadingStatus);
+    if (areSame(task, gatherReadings)) {
+        if (interval > 0) {
+            push(gatherReadings);
         }
-        else {
-            push(takeReadingsDelay);
-        }
-    }
-
-    if (areSame(task, takeReadingsDelay)) {
-        takeReadingsDelay = Delay{ interval, true };
-        push(beginTakeReading);
-        push(checkDelay);
-        push(queryReadingStatus);
     }
 }
 

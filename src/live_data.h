@@ -3,6 +3,7 @@
 
 #include "active_object.h"
 #include "core_state.h"
+#include "core.h"
 
 namespace fk {
 
@@ -13,13 +14,10 @@ private:
     Pool *pool;
 
 private:
-    Delay checkDelay;
-    Delay takeReadingsDelay;
-    BeginTakeReading beginTakeReading;
-    QueryReadingStatus queryReadingStatus;
+    GatherReadings gatherReadings;
 
 public:
-    LiveData(CoreState &state, Pool &pool);
+    LiveData(CoreState &state, Leds &leds, Pool &pool);
 
 public:
     void start(uint32_t newInterval);

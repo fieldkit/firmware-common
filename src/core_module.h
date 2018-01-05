@@ -67,7 +67,7 @@ private:
     };
     Scheduler scheduler{state, clock, tasks};
 
-    LiveData liveData{state, modulesPool};
+    LiveData liveData{state, leds, modulesPool};
     FkfsReplies fileReplies{fs};
     AppServicer appServicer{liveData, state, scheduler, fileReplies, appPool};
     Wifi wifi{state, appServicer};
@@ -78,10 +78,12 @@ public:
 
 public:
     void begin();
+    void run();
+
+public:
     CoreState &getState() {
         return state;
     }
-    void run();
 
 private:
     bool setupFileSystem();
