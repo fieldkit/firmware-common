@@ -6,6 +6,7 @@ namespace fk {
 
 constexpr uint32_t ConnectionTimeout = 5000;
 constexpr uint32_t ConnectionMemory = 128;
+constexpr uint32_t InactivityTimeout = 30 * 1000;
 
 HandleConnection::HandleConnection(WiFiClient wcl, AppServicer &servicer)
     : Task("HandleConnection"), wcl(wcl), servicer(&servicer) {
@@ -69,7 +70,7 @@ void Listen::end() {
 }
 
 bool Listen::inactive() {
-    return millis() - lastActivity > (30 * 1000);
+    return millis() - lastActivity > InactivityTimeout;
 }
 
 TaskEval Listen::task() {

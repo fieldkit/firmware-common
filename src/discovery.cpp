@@ -2,6 +2,8 @@
 
 namespace fk {
 
+constexpr uint32_t PingInterval = 2500;
+
 Discovery::Discovery(Wifi &wifi) : ActiveObject("Discovery"), wifi(&wifi) {
 }
 
@@ -10,7 +12,7 @@ void Discovery::idle() {
         if (!wifi->isDisabled()) {
             ping();
         }
-        pingAt = millis() + 5000;
+        pingAt = millis() + PingInterval;
     }
 }
 
@@ -18,8 +20,6 @@ void Discovery::ping() {
     // TODO: Fix hack to get the broadcast address.
     IPAddress ip = WiFi.localIP();
     auto destination = IPAddress(ip[0], ip[1], ip[2], 255);
-
-    // log("Ping");
 
     // Why is this API like this? So weird.
     WiFiUDP udp;
