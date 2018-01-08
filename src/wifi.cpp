@@ -82,19 +82,17 @@ bool Wifi::isListening() {
     return status == WL_AP_LISTENING;
 }
 
-bool Wifi::isDisconnected() {
-    return status == WL_DISCONNECTED || status == WL_IDLE_STATUS;
-}
-
 void Wifi::ensureDisconnected() {
-    if (!isDisconnected()) {
-        WiFi.disconnect();
-        while (!isDisconnected()) {
-            ::delay(1000);
-            log("Disconnecting... (%s)", getWifiStatus());
-        }
-        log("Disconnected (%s)", getWifiStatus());
+    if (WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_IDLE_STATUS) {
+        return;
     }
+
+    WiFi.disconnect();
+    while (WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_IDLE_STATUS) {
+        ::delay(1000);
+        log("Disconnecting... (%s)", getWifiStatus());
+    }
+    log("Disconnected (%s)", getWifiStatus());
 }
 
 void Wifi::idle() {

@@ -68,7 +68,6 @@ public:
 
 private:
     bool isListening();
-    bool isDisconnected();
     void ensureDisconnected();
     bool readyToServe();
 
