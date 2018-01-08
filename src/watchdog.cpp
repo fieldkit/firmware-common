@@ -32,7 +32,7 @@ void Watchdog::setup() {
     }
     }
 
-    wdt_enable(WDT_PERIOD_4X, true);
+    wdt_enable(WDT_PERIOD_4X, false);
 }
 
 void Watchdog::idle() {
