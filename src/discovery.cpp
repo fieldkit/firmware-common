@@ -1,4 +1,5 @@
 #include "discovery.h"
+#include "device_id.h"
 
 namespace fk {
 
@@ -24,8 +25,9 @@ void Discovery::ping() {
     // Why is this API like this? So weird.
     WiFiUDP udp;
     if (udp.begin(FK_CORE_PORT_UDP)) {
+        DeviceId deviceId;
         udp.beginPacket(destination, FK_CORE_PORT_UDP);
-        udp.write(".");
+        udp.write(deviceId.toBuffer(), deviceId.length());
         udp.endPacket();
         udp.stop();
     }
