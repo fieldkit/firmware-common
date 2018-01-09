@@ -88,11 +88,12 @@ void Wifi::ensureDisconnected() {
     }
 
     WiFi.disconnect();
-    while (WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_IDLE_STATUS) {
+    while (!(WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_IDLE_STATUS)) {
         ::delay(1000);
-        log("Disconnecting... (%s)", getWifiStatus());
+        log("Disconnecting(%s)...", getWifiStatus());
     }
-    log("Disconnected (%s)", getWifiStatus());
+
+    log("Disconnected(%s)", getWifiStatus());
 }
 
 void Wifi::idle() {
