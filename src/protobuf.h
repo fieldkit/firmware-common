@@ -22,6 +22,8 @@ typedef struct pb_array_t {
 
 bool pb_encode_array(pb_ostream_t *stream, const pb_field_t *field, void *const *arg);
 
+bool pb_encode_uint32_array(pb_ostream_t *stream, const pb_field_t *field, void *const *arg);
+
 bool pb_decode_array(pb_istream_t *stream, const pb_field_t *field, void **arg);
 
 typedef struct pb_data_t {

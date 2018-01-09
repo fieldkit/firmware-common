@@ -72,6 +72,25 @@ bool pb_encode_array(pb_ostream_t *stream, const pb_field_t *field, void *const 
     return true;
 }
 
+bool pb_encode_uint32_array(pb_ostream_t *stream, const pb_field_t *field, void *const *arg) {
+    auto array = (pb_array_t *)*arg;
+
+    auto ptr = (uint32_t *)array->buffer;
+    for (size_t i = 0; i < array->length; ++i) {
+        if (!pb_encode_tag_for_field(stream, field)) {
+            return false;
+        }
+
+        if (!pb_encode_varint(stream, *ptr)) {
+            return false;
+        }
+
+        ptr++;
+    }
+
+    return true;
+}
+
 bool pb_decode_array(pb_istream_t *stream, const pb_field_t *field, void **arg) {
     auto array = (pb_array_t *)*arg;
 

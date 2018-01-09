@@ -75,7 +75,13 @@ void AppServicer::handle(AppQueryMessage &query) {
             .fields = fk_app_SensorCapabilities_fields,
         };
 
-        SerialNumber serialNumber;
+        uint32_t deviceId[4] = { 1, 2, 3, 4 };
+        pb_array_t deviceIdArray = {
+            .length = sizeof(deviceId) / sizeof(uint32_t),
+            .itemSize = sizeof(uint32_t),
+            .buffer = deviceId,
+            .fields = nullptr,
+        };
 
         AppReplyMessage reply(pool);
         reply.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
@@ -84,7 +90,8 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().capabilities.name.arg = (void *)FK_CORE_DEFAULT_NAME;
         reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
         reply.m().capabilities.sensors.arg = (void *)&sensors_array;
-        // reply.m().capabilities.deviceId = serialNumber.asDWord();
+        reply.m().capabilities.deviceId.funcs.encode = pb_encode_uint32_array;
+        reply.m().capabilities.deviceId.arg = &deviceIdArray;
 
         if (!buffer->write(reply)) {
             log("Error writing reply");
@@ -415,14 +422,21 @@ void AppServicer::configureIdentity() {
 void AppServicer::identityReply() {
     log("Identity");
 
-    SerialNumber serialNumber;
+    uint32_t deviceId[4] = { 1, 2, 3, 4 };
+    pb_array_t deviceIdArray = {
+        .length = sizeof(deviceId) / sizeof(uint32_t),
+        .itemSize = sizeof(uint32_t),
+        .buffer = deviceId,
+        .fields = nullptr,
+    };
 
     auto identity = state->getIdentity();
     AppReplyMessage reply(pool);
     reply.m().type = fk_app_ReplyType_REPLY_IDENTITY;
     reply.m().identity.device.arg = identity.device;
     reply.m().identity.stream.arg = identity.stream;
-    // reply.m().identity.deviceId = serialNumber.asDWord();
+    reply.m().identity.deviceId.funcs.encode = pb_encode_uint32_array;
+    reply.m().identity.deviceId.arg = &deviceIdArray;
     if (!buffer->write(reply)) {
         log("Error writing reply");
     }
