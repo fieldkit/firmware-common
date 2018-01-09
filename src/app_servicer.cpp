@@ -84,7 +84,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         reply.m().capabilities.name.arg = (void *)FK_CORE_DEFAULT_NAME;
         reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
         reply.m().capabilities.sensors.arg = (void *)&sensors_array;
-        reply.m().capabilities.deviceId = serialNumber.asDWord();
+        // reply.m().capabilities.deviceId = serialNumber.asDWord();
 
         if (!buffer->write(reply)) {
             log("Error writing reply");
@@ -422,7 +422,7 @@ void AppServicer::identityReply() {
     reply.m().type = fk_app_ReplyType_REPLY_IDENTITY;
     reply.m().identity.device.arg = identity.device;
     reply.m().identity.stream.arg = identity.stream;
-    reply.m().identity.deviceId = serialNumber.asDWord();
+    // reply.m().identity.deviceId = serialNumber.asDWord();
     if (!buffer->write(reply)) {
         log("Error writing reply");
     }
