@@ -61,7 +61,7 @@ SerialNumber::SerialNumber() {
 }
 
 const char *SerialNumber::toString() {
-    sprintf(buffer, "%8lx-%8lx-%8lx-%8lx", values[0], values[1], values[2], values[3]);
+    sprintf(buffer, "%8lx%8lx%8lx%8lx", values[0], values[1], values[2], values[3]);
     return buffer;
 }
 

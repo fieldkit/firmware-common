@@ -323,11 +323,9 @@ void AppServicer::capabilitiesReply() {
     };
 
     DeviceId deviceId;
-    pb_array_t deviceIdArray = {
-        .length = 4,
-        .itemSize = sizeof(uint32_t),
-        .buffer = deviceId.toInts(),
-        .fields = nullptr,
+    pb_data_t deviceIdData = {
+        .length = deviceId.length(),
+        .buffer = deviceId.toBuffer(),
     };
 
     AppReplyMessage reply(pool);
@@ -337,8 +335,8 @@ void AppServicer::capabilitiesReply() {
     reply.m().capabilities.name.arg = (void *)FK_CORE_DEFAULT_NAME;
     reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
     reply.m().capabilities.sensors.arg = (void *)&sensors_array;
-    reply.m().capabilities.deviceId.funcs.encode = pb_encode_uint32_array;
-    reply.m().capabilities.deviceId.arg = &deviceIdArray;
+    reply.m().capabilities.deviceId.funcs.encode = pb_encode_data;
+    reply.m().capabilities.deviceId.arg = &deviceIdData;
 
     if (!buffer->write(reply)) {
         log("Error writing reply");
@@ -428,11 +426,9 @@ void AppServicer::identityReply() {
     log("Identity");
 
     DeviceId deviceId;
-    pb_array_t deviceIdArray = {
-        .length = 4,
-        .itemSize = sizeof(uint32_t),
-        .buffer = deviceId.toInts(),
-        .fields = nullptr,
+    pb_data_t deviceIdData = {
+        .length = deviceId.length(),
+        .buffer = deviceId.toBuffer(),
     };
 
     auto identity = state->getIdentity();
@@ -440,8 +436,8 @@ void AppServicer::identityReply() {
     reply.m().type = fk_app_ReplyType_REPLY_IDENTITY;
     reply.m().identity.device.arg = identity.device;
     reply.m().identity.stream.arg = identity.stream;
-    reply.m().identity.deviceId.funcs.encode = pb_encode_uint32_array;
-    reply.m().identity.deviceId.arg = &deviceIdArray;
+    reply.m().identity.deviceId.funcs.encode = pb_encode_data;
+    reply.m().identity.deviceId.arg = &deviceIdData;
     if (!buffer->write(reply)) {
         log("Error writing reply");
     }

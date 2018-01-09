@@ -7,7 +7,8 @@ namespace fk {
 
 class DeviceId {
 private:
-    uint32_t values[4];
+    size_t len{ 0 };
+    uint8_t data[4 * 4];
     char buffer[37];
 
 public:
@@ -15,8 +16,11 @@ public:
 
 public:
     const char *toString();
-    uint32_t *toInts() {
-        return values;
+    size_t length() {
+        return len;
+    }
+    uint8_t *toBuffer() {
+        return data;
     }
 
 };

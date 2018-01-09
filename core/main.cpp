@@ -4,6 +4,7 @@
 
 #include "config.h"
 #include "seed.h"
+#include "device_id.h"
 
 extern "C" {
 
@@ -43,8 +44,10 @@ void setup() {
 
     {
         fk::SerialNumber serialNumber;
+        fk::DeviceId deviceId;
         debugfpln("Core", "Starting");
         debugfpln("Core", "Serial(%s)", serialNumber.toString());
+        debugfpln("Core", "DeviceId(%s)", deviceId.toString());
         debugfpln("Core", "Hash(%s)", FIRMWARE_GIT_HASH);
     }
 
