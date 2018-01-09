@@ -2,6 +2,7 @@
 
 #include "app_servicer.h"
 #include "utils.h"
+#include "device_id.h"
 
 namespace fk {
 
@@ -47,55 +48,7 @@ bool AppServicer::handle(MessageBuffer &buffer) {
 void AppServicer::handle(AppQueryMessage &query) {
     switch (query.m().type) {
     case fk_app_QueryType_QUERY_CAPABILITIES: {
-        log("Query caps");
-
-        auto *attached = state->attachedModules();
-        auto numberOfSensors = state->numberOfSensors();
-        auto sensorIndex = 0;
-        fk_app_SensorCapabilities sensors[numberOfSensors];
-        for (size_t moduleIndex = 0; attached[moduleIndex].address > 0; ++moduleIndex) {
-            for (size_t i = 0; i < attached[moduleIndex].numberOfSensors; ++i) {
-                sensors[sensorIndex].id = i;
-                sensors[sensorIndex].name.funcs.encode = pb_encode_string;
-                sensors[sensorIndex].name.arg = (void *)attached[moduleIndex].sensors[i].name;
-                sensors[sensorIndex].unitOfMeasure.funcs.encode = pb_encode_string;
-                sensors[sensorIndex].unitOfMeasure.arg = (void *)attached[moduleIndex].sensors[i].unitOfMeasure;
-                sensors[sensorIndex].frequency = 60;
-
-                // log("%d / %d: %s", sensorIndex, numberOfSensors, sensors[sensorIndex].name.arg);
-
-                sensorIndex++;
-            }
-        }
-
-        pb_array_t sensors_array = {
-            .length = numberOfSensors,
-            .itemSize = sizeof(fk_app_SensorCapabilities),
-            .buffer = sensors,
-            .fields = fk_app_SensorCapabilities_fields,
-        };
-
-        uint32_t deviceId[4] = { 1, 2, 3, 4 };
-        pb_array_t deviceIdArray = {
-            .length = sizeof(deviceId) / sizeof(uint32_t),
-            .itemSize = sizeof(uint32_t),
-            .buffer = deviceId,
-            .fields = nullptr,
-        };
-
-        AppReplyMessage reply(pool);
-        reply.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
-        reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
-        reply.m().capabilities.name.funcs.encode = pb_encode_string;
-        reply.m().capabilities.name.arg = (void *)FK_CORE_DEFAULT_NAME;
-        reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
-        reply.m().capabilities.sensors.arg = (void *)&sensors_array;
-        reply.m().capabilities.deviceId.funcs.encode = pb_encode_uint32_array;
-        reply.m().capabilities.deviceId.arg = &deviceIdArray;
-
-        if (!buffer->write(reply)) {
-            log("Error writing reply");
-        }
+        capabilitiesReply();
 
         break;
     }
@@ -340,6 +293,58 @@ void AppServicer::handle(AppQueryMessage &query) {
     pool->clear();
 }
 
+void AppServicer::capabilitiesReply() {
+    log("Query caps");
+
+    auto *attached = state->attachedModules();
+    auto numberOfSensors = state->numberOfSensors();
+    auto sensorIndex = 0;
+    fk_app_SensorCapabilities sensors[numberOfSensors];
+    for (size_t moduleIndex = 0; attached[moduleIndex].address > 0; ++moduleIndex) {
+        for (size_t i = 0; i < attached[moduleIndex].numberOfSensors; ++i) {
+            sensors[sensorIndex].id = i;
+            sensors[sensorIndex].name.funcs.encode = pb_encode_string;
+            sensors[sensorIndex].name.arg = (void *)attached[moduleIndex].sensors[i].name;
+            sensors[sensorIndex].unitOfMeasure.funcs.encode = pb_encode_string;
+            sensors[sensorIndex].unitOfMeasure.arg = (void *)attached[moduleIndex].sensors[i].unitOfMeasure;
+            sensors[sensorIndex].frequency = 60;
+
+            // log("%d / %d: %s", sensorIndex, numberOfSensors, sensors[sensorIndex].name.arg);
+
+            sensorIndex++;
+        }
+    }
+
+    pb_array_t sensors_array = {
+        .length = numberOfSensors,
+        .itemSize = sizeof(fk_app_SensorCapabilities),
+        .buffer = sensors,
+        .fields = fk_app_SensorCapabilities_fields,
+    };
+
+    DeviceId deviceId;
+    pb_array_t deviceIdArray = {
+        .length = 4,
+        .itemSize = sizeof(uint32_t),
+        .buffer = deviceId.toInts(),
+        .fields = nullptr,
+    };
+
+    AppReplyMessage reply(pool);
+    reply.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
+    reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
+    reply.m().capabilities.name.funcs.encode = pb_encode_string;
+    reply.m().capabilities.name.arg = (void *)FK_CORE_DEFAULT_NAME;
+    reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
+    reply.m().capabilities.sensors.arg = (void *)&sensors_array;
+    reply.m().capabilities.deviceId.funcs.encode = pb_encode_uint32_array;
+    reply.m().capabilities.deviceId.arg = &deviceIdArray;
+
+    if (!buffer->write(reply)) {
+        log("Error writing reply");
+    }
+}
+
 void AppServicer::configureNetworkSettings() {
     log("Configure network settings...");
 
@@ -422,11 +427,11 @@ void AppServicer::configureIdentity() {
 void AppServicer::identityReply() {
     log("Identity");
 
-    uint32_t deviceId[4] = { 1, 2, 3, 4 };
+    DeviceId deviceId;
     pb_array_t deviceIdArray = {
-        .length = sizeof(deviceId) / sizeof(uint32_t),
+        .length = 4,
         .itemSize = sizeof(uint32_t),
-        .buffer = deviceId,
+        .buffer = deviceId.toInts(),
         .fields = nullptr,
     };
 

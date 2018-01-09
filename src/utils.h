@@ -120,8 +120,8 @@ public:
 
 public:
     const char *toString();
-    uint32_t asDWord() {
-        return values[0];
+    uint32_t *toInts() {
+        return values;
     }
 
 };

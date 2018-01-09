@@ -31,6 +31,8 @@ public:
     void handle(AppQueryMessage &query);
 
 private:
+    void capabilitiesReply();
+
     void configureNetworkSettings();
     void networkSettingsReply();
 
