@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include <cstdint>
+#include "wiring_private.h"
 
 #include "debug.h"
 #include "i2c.h"
@@ -8,6 +8,7 @@ namespace fk {
 
 bool TwoWireBus::begin() {
     bus->begin();
+
     return true;
 }
 
@@ -15,6 +16,16 @@ bool TwoWireBus::begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRe
     bus->begin(address);
     bus->onReceive(onReceive);
     bus->onRequest(onRequest);
+
+    if (bus == &Wire11and13) {
+        pinPeripheral(11, PIO_SERCOM);
+        pinPeripheral(13, PIO_SERCOM);
+    }
+    else if (bus == &Wire4and3) {
+        pinPeripheral(4, PIO_SERCOM_ALT);
+        pinPeripheral(3, PIO_SERCOM_ALT);
+    }
+
     return true;
 }
 
@@ -55,6 +66,22 @@ size_t TwoWireBus::read(uint8_t *ptr, size_t size, size_t bytes) {
         ptr[i] = bus->read();
     }
     return bytes;
+}
+
+TwoWire Wire11and13{ &sercom1, 11, 13 };
+
+TwoWire Wire4and3{ &sercom2, 4, 3 };
+
+extern "C" {
+
+void SERCOM1_Handler(void) {
+    fk::Wire11and13.onService();
+}
+
+void SERCOM2_Handler(void) {
+    fk::Wire4and3.onService();
+}
+
 }
 
 }

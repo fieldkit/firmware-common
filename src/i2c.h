@@ -29,6 +29,9 @@ public:
 
 };
 
+extern TwoWire Wire11and13;
+extern TwoWire Wire4and3;
+
 }
 
 #endif
