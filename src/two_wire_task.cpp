@@ -12,7 +12,7 @@ TaskEval TwoWireTask::task() {
         return TaskEval::idle();
     }
 
-    MessageBuffer buffer;
+    TwoWireMessageBuffer buffer{ *bus };
 
     if (dieAt == 0) {
         buffer.write(query);

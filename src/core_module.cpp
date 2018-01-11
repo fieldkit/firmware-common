@@ -74,7 +74,7 @@ void CoreModule::begin() {
         }
     }
 
-    i2c_begin();
+    bus.begin();
 
     clock.begin();
 }

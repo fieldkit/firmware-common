@@ -39,13 +39,14 @@ public:
 
 class ExampleModule : public fk::Module {
 private:
+    fk::TwoWireBus bus{ Wire };
     fk::Delay fiveSeconds{ 5000 };
     TakeFakeReadings takeFakeReadings;
     Sensors &sensors;
 
 public:
     ExampleModule(fk::ModuleInfo &info, Sensors &sensors) :
-        Module(info), sensors(sensors) {
+        Module(bus, info), sensors(sensors) {
     }
 
 public:

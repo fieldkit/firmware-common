@@ -6,14 +6,16 @@
 #include "module_servicer.h"
 #include "watchdog.h"
 #include "leds.h"
+#include "i2c.h"
 
 namespace fk {
 
 class Module : public ActiveObject, public ModuleCallbacks {
 private:
+    TwoWireBus *bus;
     Pool replyPool;
-    MessageBuffer outgoing;
-    MessageBuffer incoming;
+    TwoWireMessageBuffer outgoing;
+    TwoWireMessageBuffer incoming;
     ModuleServicer moduleServicer;
     uint32_t lastActivity{ 0 };
     Leds leds;
@@ -24,7 +26,7 @@ public:
     static Module *active;
 
 public:
-    Module(ModuleInfo &info);
+    Module(TwoWireBus &bus, ModuleInfo &info);
 
 public:
     void begin();

@@ -9,36 +9,28 @@ namespace fk {
 
 class MacAddressEeprom {
 private:
+    TwoWireBus *bus;
     uint8_t address{ 0x50 };
 
 public:
-    bool read128bMac(uint8_t *id) {
-        Wire.begin();
+    MacAddressEeprom(TwoWireBus &bus) : bus(&bus) {
+    }
 
-        Wire.beginTransmission(address);
-        Wire.write(0xf8);
-        if (Wire.endTransmission() != 0) {
+public:
+    bool read128bMac(uint8_t *id) {
+        uint8_t buffer[] = { 0xf8 };
+        if (!bus->send(address, buffer, sizeof(buffer))) {
             return false;
         }
 
-        Wire.requestFrom(address, 8);
+        bus->receive(address, id, 8);
 
-        auto valid = false;
-        uint8_t index = 0;
-        while (Wire.available() && index < 8) {
-            uint8_t value = Wire.read();
-            if (value != 0) {
-                valid = true;
-            }
-            id[index++] = value;
-        }
-
-        return valid;
+        return true;
     }
 };
 
-DeviceId::DeviceId() {
-    MacAddressEeprom macAddressChip;
+DeviceId::DeviceId(TwoWireBus &bus) {
+    MacAddressEeprom macAddressChip{ bus };
     if (!macAddressChip.read128bMac(data)) {
         SerialNumber serialNumber;
         memcpy(data, (uint8_t *)serialNumber.toInts(), sizeof(uint32_t) * 4);

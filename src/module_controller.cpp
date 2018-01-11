@@ -2,8 +2,8 @@
 
 namespace fk {
 
-ModuleController::ModuleController(uint8_t address, Pool &pool)
-    : oneSecond(1000), beginTakeReading(pool, address), queryReadingStatus(pool, address) {
+ModuleController::ModuleController(TwoWireBus &bus, uint8_t address, Pool &pool)
+    : oneSecond(1000), beginTakeReading(bus, pool, address), queryReadingStatus(bus, pool, address) {
 }
 
 void ModuleController::beginReading() {

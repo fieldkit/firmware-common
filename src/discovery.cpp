@@ -5,7 +5,7 @@ namespace fk {
 
 constexpr uint32_t PingInterval = 2500;
 
-Discovery::Discovery(Wifi &wifi) : ActiveObject("Discovery"), wifi(&wifi) {
+Discovery::Discovery(TwoWireBus &bus, Wifi &wifi) : ActiveObject("Discovery"), bus(&bus), wifi(&wifi) {
 }
 
 void Discovery::idle() {
@@ -25,7 +25,7 @@ void Discovery::ping() {
     // Why is this API like this? So weird.
     WiFiUDP udp;
     if (udp.begin(FK_CORE_PORT_UDP)) {
-        DeviceId deviceId;
+        DeviceId deviceId{ *bus };
         udp.beginPacket(destination, FK_CORE_PORT_UDP);
         udp.write(deviceId.toBuffer(), deviceId.length());
         udp.endPacket();

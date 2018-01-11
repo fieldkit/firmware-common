@@ -4,24 +4,24 @@
 
 namespace fk {
 
-ModuleServicer::ModuleServicer(ModuleInfo *info, ModuleCallbacks &callbacks, MessageBuffer &o, MessageBuffer &i, Pool &pool)
-    : Task("ModuleServicer"), info(info), callbacks(&callbacks), outgoing(o), incoming(i), pool(&pool) {
+ModuleServicer::ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, Pool &pool)
+    : Task("ModuleServicer"), bus(&bus), info(&info), callbacks(&callbacks), outgoing(&o), incoming(&i), pool(&pool) {
 }
 
 void ModuleServicer::read(size_t bytes) {
-    incoming.read(bytes);
+    incoming->readIncoming(bytes);
 }
 
 TaskEval ModuleServicer::task() {
     ModuleQueryMessage query(*pool);
-    auto status = incoming.read(query);
-    incoming.clear();
+    auto status = incoming->read(query);
+    incoming->clear();
     if (!status) {
         log("Malformed message");
         return TaskEval::error();
     }
 
-    fk_assert(outgoing.empty());
+    fk_assert(outgoing->empty());
 
     if (!handle(query)) {
         return TaskEval::error();
@@ -44,7 +44,7 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().capabilities.name.arg = (void *)info->name;
         reply.m().capabilities.numberOfSensors = info->numberOfSensors;
 
-        outgoing.write(reply);
+        outgoing->write(reply);
 
         break;
     }
@@ -61,7 +61,7 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().sensorCapabilities.name.arg = (void *)sensor.name;
         reply.m().sensorCapabilities.unitOfMeasure.arg = (void *)sensor.unitOfMeasure;
 
-        outgoing.write(reply);
+        outgoing->write(reply);
 
         break;
     }
@@ -85,7 +85,7 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
             reply.m().readingStatus.backoff = status.backoff;
         }
 
-        outgoing.write(reply);
+        outgoing->write(reply);
 
         break;
     }
@@ -120,7 +120,7 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
             }
         }
 
-        outgoing.write(reply);
+        outgoing->write(reply);
 
         break;
     }

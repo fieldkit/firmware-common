@@ -51,14 +51,15 @@ private:
     HttpTransmissionConfig transmissionConfig = {
         .url = "https://api.fkdev.org/messages/ingestion?token=TOKEN",
     };
+    TwoWireBus bus{ Wire };
     HttpPost transmission{wifi, transmissionConfig};
-    GatherReadings gatherReadings{state, leds, modulesPool};
+    GatherReadings gatherReadings{bus, state, leds, modulesPool};
     JsonMessageBuilder builder{state, clock};
-    SendTransmission sendTransmission{builder, transmission, modulesPool};
-    SendStatus sendStatus{builder, transmission, modulesPool};
-    DetermineLocation determineLocation{state, modulesPool};
+    SendTransmission sendTransmission{bus, builder, transmission, modulesPool};
+    SendStatus sendStatus{bus, builder, transmission, modulesPool};
+    DetermineLocation determineLocation{bus, state, modulesPool};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
-    AttachedDevices attachedDevices{addresses, state, leds, modulesPool};
+    AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
     ScheduledTask tasks[4] {
         fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
@@ -67,11 +68,11 @@ private:
     };
     Scheduler scheduler{state, clock, tasks};
 
-    LiveData liveData{state, leds, modulesPool};
+    LiveData liveData{bus, state, leds, modulesPool};
     FkfsReplies fileReplies{fs};
-    AppServicer appServicer{liveData, state, scheduler, fileReplies, appPool};
+    AppServicer appServicer{bus, liveData, state, scheduler, fileReplies, appPool};
     Wifi wifi{state, appServicer};
-    Discovery discovery{ wifi };
+    Discovery discovery{ bus, wifi };
 
 public:
     CoreModule();

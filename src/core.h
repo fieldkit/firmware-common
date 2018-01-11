@@ -23,7 +23,7 @@ private:
     QueryReadingStatus queryReadingStatus;
 
 public:
-    GatherReadings(CoreState &state, Leds &leds, Pool &pool);
+    GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, Pool &pool);
 
 public:
     void enqueued() override;
@@ -37,7 +37,7 @@ private:
     TransmissionTask *method;
 
 public:
-    SendTransmission(MessageBuilder &builder, TransmissionTask &method, Pool &pool);
+    SendTransmission(TwoWireBus &bus, MessageBuilder &builder, TransmissionTask &method, Pool &pool);
 
 public:
     void enqueued() override;
@@ -51,7 +51,7 @@ private:
     TransmissionTask *method;
 
 public:
-    SendStatus(MessageBuilder &builder, TransmissionTask &method, Pool &pool);
+    SendStatus(TwoWireBus &bus, MessageBuilder &builder, TransmissionTask &method, Pool &pool);
 
 public:
     void enqueued() override;
@@ -67,7 +67,7 @@ private:
     uint32_t started{ 0 };
 
 public:
-    ReadGPS(CoreState &state) : Task("GPS"), state(&state) {
+    ReadGPS(TwoWireBus &bus, CoreState &state) : Task("GPS"), state(&state) {
     }
 
 public:
@@ -82,7 +82,7 @@ private:
     ReadGPS readGps;
 
 public:
-    DetermineLocation(CoreState &state, Pool &pool);
+    DetermineLocation(TwoWireBus &bus, CoreState &state, Pool &pool);
 
 public:
     void enqueued() override;

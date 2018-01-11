@@ -8,7 +8,7 @@ namespace fk {
 
 #define FK_CORE_DEFAULT_NAME "FieldKit Device" 
 
-static void copy( ScheduledTask &to, fk_app_Schedule &from) {
+static void copy(ScheduledTask &to, fk_app_Schedule &from) {
     to.setSecond(TimeSpec{ (int8_t)from.second.fixed, (int8_t)from.second.interval });
     to.setMinute(TimeSpec{ (int8_t)from.minute.fixed, (int8_t)from.minute.interval });
     to.setHour(TimeSpec{ (int8_t)from.hour.fixed, (int8_t)from.hour.interval });
@@ -30,8 +30,8 @@ static void copy(fk_app_Schedule &to, ScheduledTask &from) {
     to.day.offset = 0;
 }
 
-AppServicer::AppServicer(LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, Pool &pool)
-    : Task("AppServicer"), query(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), pool(&pool) {
+AppServicer::AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, Pool &pool)
+    : Task("AppServicer"), bus(&bus), query(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), pool(&pool) {
 }
 
 TaskEval AppServicer::task() {
@@ -322,7 +322,7 @@ void AppServicer::capabilitiesReply() {
         .fields = fk_app_SensorCapabilities_fields,
     };
 
-    DeviceId deviceId;
+    DeviceId deviceId{ *bus };
     pb_data_t deviceIdData = {
         .length = deviceId.length(),
         .buffer = deviceId.toBuffer(),
@@ -425,7 +425,7 @@ void AppServicer::configureIdentity() {
 void AppServicer::identityReply() {
     log("Identity");
 
-    DeviceId deviceId;
+    DeviceId deviceId{ *bus };
     pb_data_t deviceIdData = {
         .length = deviceId.length(),
         .buffer = deviceId.toBuffer(),

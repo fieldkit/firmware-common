@@ -4,13 +4,14 @@
 #include <fk-app-protocol.h>
 #include <fk-module-protocol.h>
 
+#include "i2c.h"
 #include "app_messages.h"
 #include "module_messages.h"
 
 namespace fk {
 
 class MessageBuffer {
-private:
+protected:
     uint8_t buffer[4096 + 64];
     size_t pos{ 0 };
 
@@ -55,12 +56,6 @@ public:
 
     bool write(AppReplyMessage &message);
 
-    bool send(uint8_t address);
-
-    bool receive(uint8_t address);
-
-    bool read(size_t bytes);
-
 private:
     bool write(const pb_field_t *fields, void *src);
     bool read(const pb_field_t *fields, void *src);
@@ -73,6 +68,21 @@ public:
     virtual size_t write() {
         return 0;
     }
+
+};
+
+class TwoWireMessageBuffer : public MessageBuffer {
+private:
+    TwoWireBus *bus;
+
+public:
+    TwoWireMessageBuffer(TwoWireBus &bus) : bus(&bus) {
+    }
+
+public:
+    bool send(uint8_t address);
+    bool receive(uint8_t address);
+    bool readIncoming(size_t bytes);
 
 };
 

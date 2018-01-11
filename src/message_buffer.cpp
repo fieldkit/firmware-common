@@ -1,22 +1,7 @@
 #include "message_buffer.h"
-#include "i2c.h"
 #include "debug.h"
 
 namespace fk {
-
-bool MessageBuffer::send(uint8_t address) {
-    return i2c_device_send(address, buffer, pos);
-}
-
-bool MessageBuffer::receive(uint8_t address) {
-    pos = i2c_device_receive(address, buffer, sizeof(buffer));
-    return pos > 0;
-}
-
-bool MessageBuffer::read(size_t bytes) {
-    pos = i2c_device_read(buffer, sizeof(buffer), bytes);
-    return pos > 0;
-}
 
 bool MessageBuffer::write(ModuleQueryMessage &message) {
     return write(fk_module_WireMessageQuery_fields, message.forEncode());
@@ -64,6 +49,20 @@ bool MessageBuffer::read(const pb_field_t *fields, void *src) {
         return false;
     }
     return true;
+}
+
+bool TwoWireMessageBuffer::send(uint8_t address) {
+    return bus->send(address, buffer, pos);
+}
+
+bool TwoWireMessageBuffer::receive(uint8_t address) {
+    pos = bus->receive(address, buffer, sizeof(buffer));
+    return pos > 0;
+}
+
+bool TwoWireMessageBuffer::readIncoming(size_t bytes) {
+    pos = bus->read(buffer, sizeof(buffer), bytes);
+    return pos > 0;
 }
 
 }

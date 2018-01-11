@@ -11,6 +11,7 @@ class Leds;
 
 class AttachedDevices : public ActiveObject {
 private:
+    TwoWireBus *bus;
     uint32_t lastScanAt{ 0 };
     uint8_t *addresses{ nullptr };
     uint8_t addressIndex{ 0 };
@@ -21,7 +22,7 @@ private:
     QuerySensorCapabilities querySensorCapabilities;
 
 public:
-    AttachedDevices(uint8_t *addresses, CoreState &state, Leds &leds, Pool &pool);
+    AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, Pool &pool);
 
 public:
     void scan();

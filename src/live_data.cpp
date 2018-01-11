@@ -2,9 +2,9 @@
 
 namespace fk {
 
-LiveData::LiveData(CoreState &state, Leds &leds, Pool &pool) :
+LiveData::LiveData(TwoWireBus &bus, CoreState &state, Leds &leds, Pool &pool) :
     ActiveObject("LiveData"),
-    interval{ 0 }, state(&state), pool(&pool), gatherReadings(state, leds, pool) {
+    interval{ 0 }, state(&state), pool(&pool), gatherReadings(bus, state, leds, pool) {
 }
 
 void LiveData::start(uint32_t newInterval) {

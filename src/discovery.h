@@ -8,12 +8,13 @@ namespace fk {
 
 class Discovery : public ActiveObject {
 private:
+    TwoWireBus *bus;
     Wifi *wifi;
     static constexpr uint16_t FK_CORE_PORT_UDP = 54321;
     uint32_t pingAt{ 0 };
 
 public:
-    Discovery(Wifi &wifi);
+    Discovery(TwoWireBus &bus, Wifi &wifi);
 
 public:
     void idle() override;

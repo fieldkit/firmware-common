@@ -17,7 +17,8 @@ private:
     GatherReadings gatherReadings;
 
 public:
-    LiveData(CoreState &state, Leds &leds, Pool &pool);
+
+    LiveData(TwoWireBus &bus, CoreState &state, Leds &leds, Pool &pool);
 
 public:
     void start(uint32_t newInterval);

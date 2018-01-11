@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "i2c.h"
+
 namespace fk {
 
 class DeviceId {
@@ -12,7 +14,7 @@ private:
     char buffer[37];
 
 public:
-    DeviceId();
+    DeviceId(TwoWireBus &bus);
 
 public:
     const char *toString();

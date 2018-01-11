@@ -28,15 +28,16 @@ public:
 
 class ModuleServicer : public Task {
 private:
+    TwoWireBus *bus;
     ModuleInfo *info;
     ModuleCallbacks *callbacks;
     PendingSensorReading pending;
-    MessageBuffer &outgoing;
-    MessageBuffer &incoming;
+    TwoWireMessageBuffer *outgoing;
+    TwoWireMessageBuffer *incoming;
     Pool *pool;
 
 public:
-    ModuleServicer(ModuleInfo *info, ModuleCallbacks &callbacks, MessageBuffer &o, MessageBuffer &i, Pool &pool);
+    ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, Pool &pool);
 
 public:
     TaskEval task() override;

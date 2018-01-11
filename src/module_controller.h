@@ -3,6 +3,7 @@
 
 #include "active_object.h"
 #include "two_wire_task.h"
+#include "i2c.h"
 
 namespace fk {
 
@@ -13,7 +14,7 @@ private:
     QueryReadingStatus queryReadingStatus;
 
 public:
-    ModuleController(uint8_t address, Pool &pool);
+    ModuleController(TwoWireBus &bus, uint8_t address, Pool &pool);
 
 public:
     void done(Task &task) override;

@@ -12,6 +12,7 @@ namespace fk {
 
 class AppServicer : public Task {
 private:
+    TwoWireBus *bus;
     MessageBuffer *buffer{ nullptr };
     AppQueryMessage query;
     LiveData *liveData;
@@ -21,7 +22,7 @@ private:
     Pool *pool;
 
 public:
-    AppServicer(LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, Pool &pool);
+    AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, Pool &pool);
 
 public:
     TaskEval task() override;

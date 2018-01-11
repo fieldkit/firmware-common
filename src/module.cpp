@@ -1,6 +1,5 @@
 #include <Wire.h>
 
-#include "i2c.h"
 #include "module.h"
 #include "rtc.h"
 
@@ -21,9 +20,9 @@ static void module_receive_callback(int bytes) {
     fk::Module::active->receive((size_t)bytes);
 }
 
-Module::Module(ModuleInfo &info)
-    : ActiveObject(info.name), replyPool("REPLY", ModuleServicingMemory),
-      moduleServicer{ &info, *this, outgoing, incoming, replyPool }, info(&info) {
+Module::Module(TwoWireBus &bus, ModuleInfo &info)
+    : ActiveObject(info.name), bus(&bus), replyPool("REPLY", ModuleServicingMemory),
+      outgoing{ bus }, incoming{ bus }, moduleServicer{ bus, info, *this, outgoing, incoming, replyPool }, info(&info) {
 }
 
 void Module::begin() {
@@ -39,7 +38,7 @@ void Module::begin() {
 }
 
 void Module::resume() {
-    i2c_begin(info->address, module_receive_callback, module_request_callback);
+    bus->begin(info->address, module_receive_callback, module_request_callback);
 }
 
 void Module::receive(size_t bytes) {
@@ -57,7 +56,7 @@ void Module::reply() {
         outgoing.write(reply);
     }
 
-    if (!i2c_device_send(0, outgoing.ptr(), outgoing.position())) {
+    if (!bus->send(0, outgoing.ptr(), outgoing.position())) {
         log("Error sending reply");
     }
 

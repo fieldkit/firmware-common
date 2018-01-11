@@ -6,8 +6,8 @@ namespace fk {
 constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
 constexpr uint32_t GpsStatusInterval = 1 * 1000;
 
-GatherReadings::GatherReadings(CoreState &state, Leds &leds, Pool &pool) :
-    ActiveObject("GatherReadings"), state(&state), leds(&leds), beginTakeReading(pool, 8), queryReadingStatus(pool, 8) {
+GatherReadings::GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, Pool &pool) :
+    ActiveObject("GatherReadings"), state(&state), leds(&leds), beginTakeReading(bus, pool, 8), queryReadingStatus(bus, pool, 8) {
 }
 
 void GatherReadings::enqueued() {
@@ -49,7 +49,7 @@ void GatherReadings::done(Task &task) {
     }
 }
 
-SendTransmission::SendTransmission(MessageBuilder &builder, TransmissionTask &method, Pool &pool) :
+SendTransmission::SendTransmission(TwoWireBus &bus, MessageBuilder &builder, TransmissionTask &method, Pool &pool) :
     ActiveObject("SendTransmission"), builder(&builder), method(&method) {
 }
 
@@ -61,7 +61,7 @@ void SendTransmission::enqueued() {
 void SendTransmission::done(Task &task) {
 }
 
-SendStatus::SendStatus(MessageBuilder &builder, TransmissionTask &method, Pool &pool) :
+SendStatus::SendStatus(TwoWireBus &bus, MessageBuilder &builder, TransmissionTask &method, Pool &pool) :
     ActiveObject("SendStatus"), builder(&builder), method(&method) {
 }
 
@@ -117,8 +117,8 @@ TaskEval ReadGPS::task() {
     return TaskEval::idle();
 }
 
-DetermineLocation::DetermineLocation(CoreState &state, Pool &pool) :
-    ActiveObject("DetermineLocation"), state(&state), readGps(state) {
+DetermineLocation::DetermineLocation(TwoWireBus &bus, CoreState &state, Pool &pool) :
+    ActiveObject("DetermineLocation"), state(&state), readGps(bus, state) {
 }
 
 void DetermineLocation::enqueued() {

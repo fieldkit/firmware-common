@@ -5,6 +5,7 @@
 #include "config.h"
 #include "seed.h"
 #include "device_id.h"
+#include "i2c.h"
 
 extern "C" {
 
@@ -40,12 +41,16 @@ void setup() {
         debug_uart_set(Serial5);
     }
 
+    debugfpln("Core", "Starting");
+
+    fk::TwoWireBus bus{ Wire };
+    bus.begin();
+
     randomSeed(RANDOM_SEED);
 
     {
         fk::SerialNumber serialNumber;
-        fk::DeviceId deviceId;
-        debugfpln("Core", "Starting");
+        fk::DeviceId deviceId{ bus };
         debugfpln("Core", "Serial(%s)", serialNumber.toString());
         debugfpln("Core", "DeviceId(%s)", deviceId.toString());
         debugfpln("Core", "Hash(%s)", FIRMWARE_GIT_HASH);
