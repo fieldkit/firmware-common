@@ -67,12 +67,7 @@ void CoreModule::begin() {
 
     delay(10);
 
-    if (!setupFileSystem()) {
-        debugfpln("Core", "No sd (%d)", Hardware::SD_PIN_CS);
-        while (true) {
-            delay(10);
-        }
-    }
+    fk_assert(setupFileSystem());
 
     bus.begin();
 

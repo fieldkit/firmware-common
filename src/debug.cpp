@@ -114,6 +114,10 @@ void __fk_assert(const char *msg, const char *file, int lineno) {
     debugfln("ASSERTION: %s:%d '%s'", file, lineno, msg);
     debug_uart->flush();
 
+    pinMode(A3, OUTPUT);
+    pinMode(A4, OUTPUT);
+    pinMode(A5, OUTPUT);
+
     while (1) {
         // This will happen until the WDT kicks is back to Reset, hopefully. I'm
         // flashing these just to sort of give the user an idea that something's
