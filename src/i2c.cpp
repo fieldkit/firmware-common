@@ -33,6 +33,23 @@ bool TwoWireBus::begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRe
     return true;
 }
 
+bool TwoWireBus::send(uint8_t address, const char *ptr) {
+    if (address > 0) {
+        bus->beginTransmission(address);
+        bus->write(ptr);
+        switch (bus->endTransmission()) {
+        case 0:
+            return true;
+        default:
+            return false;
+        }
+    } else {
+        bus->write(ptr);
+    }
+
+    return true;
+}
+
 bool TwoWireBus::send(uint8_t address, const void *ptr, size_t size) {
     if (address > 0) {
         bus->beginTransmission(address);
@@ -62,6 +79,22 @@ size_t TwoWireBus::receive(uint8_t address, uint8_t *ptr, size_t size) {
     }
 
     return bytes;
+}
+
+uint8_t TwoWireBus::requestFrom(uint8_t address, size_t quantity, bool stopBit) {
+    return bus->requestFrom(address, quantity, stopBit);
+}
+
+uint32_t TwoWireBus::available() {
+    return bus->available();
+}
+
+uint8_t TwoWireBus::endTransmission() {
+    return bus->endTransmission();
+}
+
+uint8_t TwoWireBus::read() {
+    return bus->read();
 }
 
 size_t TwoWireBus::read(uint8_t *ptr, size_t size, size_t bytes) {
