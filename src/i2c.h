@@ -20,12 +20,14 @@ public:
     }
 
 public:
-    bool begin();
+    bool begin(uint32_t speed = 0);
     bool begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRequestHandler onRequest);
 
     bool send(uint8_t address, const void *ptr, size_t size);
     size_t receive(uint8_t address, uint8_t *ptr, size_t size);
     size_t read(uint8_t *ptr, size_t size, size_t bytes);
+
+    void flush();
 
 };
 

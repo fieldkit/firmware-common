@@ -6,8 +6,12 @@
 
 namespace fk {
 
-bool TwoWireBus::begin() {
+bool TwoWireBus::begin(uint32_t speed) {
     bus->begin();
+
+    if (speed > 0) {
+        Wire.setClock(speed);
+    }
 
     return true;
 }
@@ -67,6 +71,18 @@ size_t TwoWireBus::read(uint8_t *ptr, size_t size, size_t bytes) {
     }
     return bytes;
 }
+
+void TwoWireBus::flush() {
+    if (bus->available()) {
+        auto flushed = 0;
+        while (bus->available()) {
+            flushed++;
+            bus->read();
+        }
+        debugfpln("I2C", "Flushed %d bytes", flushed);
+    }
+}
+
 
 TwoWire Wire11and13{ &sercom1, 11, 13 };
 
