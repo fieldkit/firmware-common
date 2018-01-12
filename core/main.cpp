@@ -6,6 +6,7 @@
 #include "seed.h"
 #include "device_id.h"
 #include "i2c.h"
+#include "fkfs_data.h"
 
 extern "C" {
 

@@ -7,6 +7,18 @@
 
 namespace fk {
 
+struct DataEntry {
+    uint32_t version{ 0 };
+    DeviceLocation location;
+    SensorReading reading;
+
+    DataEntry(DeviceLocation location) : location(location) {
+    }
+
+    DataEntry(DeviceLocation location, SensorReading reading) : location(location), reading(reading) {
+    }
+};
+
 class FkfsData {
 private:
     fkfs_t *fs;

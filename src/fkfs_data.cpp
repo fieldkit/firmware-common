@@ -6,18 +6,6 @@ namespace fk {
 
 constexpr const char Log[] = "Data";
 
-struct DataEntry {
-    uint32_t version{ 0 };
-    DeviceLocation location;
-    SensorReading reading;
-
-    DataEntry(DeviceLocation location) : location(location) {
-    }
-
-    DataEntry(DeviceLocation location, SensorReading reading) : location(location), reading(reading) {
-    }
-};
-
 FkfsData::FkfsData(fkfs_t &fs, uint8_t file) : fs(&fs), file(file) {
 }
 
