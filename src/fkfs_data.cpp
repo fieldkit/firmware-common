@@ -7,6 +7,7 @@ namespace fk {
 constexpr const char Log[] = "Data";
 
 struct DataEntry {
+    uint32_t version{ 0 };
     DeviceLocation location;
     SensorReading reading;
 

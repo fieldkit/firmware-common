@@ -36,6 +36,11 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
             reading.time = reply.m().sensorReading.time;
             reading.value = reply.m().sensorReading.value;
             reading.status = SensorReadingStatus::Done;
+
+            if (reading.time == 0) {
+                reading.time = clock.getTime();
+            }
+
             data->appendReading(location, reading);
         }
         break;
@@ -140,7 +145,12 @@ void CoreState::updateIp(uint32_t ip) {
     deviceStatus.ip = ip;
 }
 
+void CoreState::updateLocationFixFailed() {
+    location.fix = false;
+}
+
 void CoreState::updateLocation(uint32_t time, float longitude, float latitude, float altitude) {
+    location.fix = true;
     location.time = time;
     location.coordinates[0] = longitude;
     location.coordinates[1] = latitude;

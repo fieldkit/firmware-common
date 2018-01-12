@@ -81,6 +81,7 @@ void ReadGPS::enqueued() {
 TaskEval ReadGPS::task() {
     if (millis() - started > GpsFixAttemptInterval) {
         log("No GPS fix.");
+        state->updateLocationFixFailed();
         return TaskEval::error();
     }
 
@@ -123,7 +124,6 @@ DetermineLocation::DetermineLocation(TwoWireBus &bus, CoreState &state, Pool &po
 
 void DetermineLocation::enqueued() {
     push(readGps);
-   
 }
 
 void DetermineLocation::done(Task &task) {

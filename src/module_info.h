@@ -71,6 +71,7 @@ struct DeviceStatus {
 };
 
 struct DeviceLocation {
+    uint8_t fix;
     uint32_t time;
     float coordinates[MaximumCoordinates];
 

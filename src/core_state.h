@@ -66,6 +66,7 @@ public:
     void merge(uint8_t address, ModuleReplyMessage &reply);
     void updateBattery(float percentage, float voltage);
     void updateIp(uint32_t ip);
+    void updateLocationFixFailed();
     void updateLocation(uint32_t time, float longitude, float latitude, float altitude);
 
 private:
