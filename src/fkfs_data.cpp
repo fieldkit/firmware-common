@@ -21,8 +21,8 @@ bool FkfsData::appendLocation(DeviceLocation &location) {
     return true;
 }
 
-bool FkfsData::appendReading(DeviceLocation &location, SensorInfo &sensor, SensorReading &reading) {
-    auto entry = DataEntry{location, reading};
+bool FkfsData::appendReading(DeviceLocation &location, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading) {
+    auto entry = DataEntry{location, LoggedSensorReading{ sensorId, reading }};
 
     if (!fkfs_file_append(fs, file, sizeof(DataEntry), (uint8_t *)&entry)) {
         debugfpln("Data", "Error appending data file.");

@@ -7,15 +7,27 @@
 
 namespace fk {
 
+struct LoggedSensorReading {
+    uint32_t time{ 0 };
+    uint32_t sensor{ 0 };
+    float value{ 0.0f };
+
+    LoggedSensorReading() {
+    }
+
+    LoggedSensorReading(uint32_t sensor, SensorReading reading) : time(reading.time), sensor(sensor), value(reading.value) {
+    }
+};
+
 struct DataEntry {
     uint32_t version{ 0 };
     DeviceLocation location;
-    SensorReading reading;
+    LoggedSensorReading reading;
 
     DataEntry(DeviceLocation location) : location(location) {
     }
 
-    DataEntry(DeviceLocation location, SensorReading reading) : location(location), reading(reading) {
+    DataEntry(DeviceLocation location, LoggedSensorReading reading) : location(location), reading(reading) {
     }
 };
 
@@ -29,7 +41,7 @@ public:
 
 public:
     bool appendLocation(DeviceLocation &location);
-    bool appendReading(DeviceLocation &location, SensorInfo &sensor, SensorReading &reading);
+    bool appendReading(DeviceLocation &location, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading);
 
 };
 
