@@ -56,61 +56,16 @@ void AppServicer::handle(AppQueryMessage &query) {
     case fk_app_QueryType_QUERY_DATA_SETS: {
         log("Query ds");
 
-        fk_app_DataSet dataSets[] = {
-            {
-                .id = 0,
-                .sensor = 0,
-                .time = millis(),
-                .size = 100,
-                .pages = 10,
-                .hash = 0,
-                .name = {
-                    .funcs = {
-                        .encode = pb_encode_string,
-                    },
-                    .arg = (void *)"DS #1",
-                },
-            },
-        };
-
-        pb_array_t data_sets_array = {
-            .length = sizeof(dataSets) / sizeof(fk_app_DataSet),
-            .itemSize = sizeof(fk_app_DataSet),
-            .buffer = &dataSets,
-            .fields = fk_app_DataSet_fields,
-        };
-
         AppReplyMessage reply(pool);
-        reply.m().type = fk_app_ReplyType_REPLY_DATA_SETS;
-        reply.m().dataSets.dataSets.funcs.encode = pb_encode_array;
-        reply.m().dataSets.dataSets.arg = (void *)&data_sets_array;
-
-        if (!buffer->write(reply)) {
-            log("Error writing reply");
-        }
+        fileReplies->dataSetsReply(query, reply, *buffer);
 
         break;
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_DATA_SET: {
         log("Download ds %d page=%d", query.m().downloadDataSet.id, query.m().downloadDataSet.page);
 
-        uint8_t page[1024] = { 0 };
-        pb_data_t data = {
-            .length = 1024,
-            .buffer = page,
-        };
-
         AppReplyMessage reply(pool);
-        reply.m().type = fk_app_ReplyType_REPLY_DOWNLOAD_DATA_SET;
-        reply.m().dataSetData.time = millis();
-        reply.m().dataSetData.page = query.m().downloadDataSet.page;
-        reply.m().dataSetData.data.funcs.encode = pb_encode_data;
-        reply.m().dataSetData.data.arg = (void *)&data;
-        reply.m().dataSetData.hash = 0;
-
-        if (!buffer->write(reply)) {
-            log("Error writing reply");
-        }
+        fileReplies->downloadDataSetReply(query, reply, *buffer);
 
         break;
     }
@@ -118,11 +73,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         log("Erase ds");
 
         AppReplyMessage reply(pool);
-        reply.m().type = fk_app_ReplyType_REPLY_SUCCESS;
-
-        if (!buffer->write(reply)) {
-            log("Error writing reply");
-        }
+        fileReplies->eraseDataSetReply(query, reply, *buffer);
 
         break;
     }

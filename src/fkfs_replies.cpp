@@ -3,7 +3,16 @@
 
 namespace fk {
 
+constexpr uint32_t DefaultPageSize = (size_t)(8 * 4096);
+
 FkfsReplies::FkfsReplies(fkfs_t &fs) : fs(&fs) {
+}
+
+void FkfsReplies::log(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln("Files", f, args);
+    va_end(args);
 }
 
 void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -17,7 +26,7 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
         replyFiles[i].id = i;
         replyFiles[i].time = 0;
         replyFiles[i].size = fkfsFiles[i].size;
-        replyFiles[i].pages = fkfsFiles[i].size / 1024;
+        replyFiles[i].pages = fkfsFiles[i].size / DefaultPageSize;
         replyFiles[i].version = fkfsFiles[i].version;
         replyFiles[i].name.funcs.encode = pb_encode_string;
         replyFiles[i].name.arg = fkfsFiles[i].name;
@@ -35,29 +44,28 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     reply.m().files.files.arg = (void *)&filesArray;
 
     if (!buffer.write(reply)) {
-        debugfpln("Error", "Error writing reply");
+        log("Error writing reply");
     }
 }
 
-void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *incomingToken, AppReplyMessage &reply, MessageBuffer &buffer) {
     fkfs_iterator_token_t token = { 0 };
     fkfs_file_iter_t iter = { 0 };
     uint8_t data[1024];
     size_t total = 0;
     auto started = millis();
     auto buffersSent = 0;
-    auto pageSize = (size_t)(8 * 4096);
-    if (query.m().downloadFile.pageSize > 0) {
-        pageSize = query.m().downloadFile.pageSize;
+    auto pageSize = DefaultPageSize;
+    if (customPageSize > 0) {
+        pageSize = customPageSize;
     }
 
-    auto rawPreviousToken = (pb_data_t *)query.m().downloadFile.token.arg;
-    if (query.hasToken() && rawPreviousToken != nullptr && rawPreviousToken->length > 0) {
-        fk_assert(rawPreviousToken->length == sizeof(fkfs_iterator_token_t));
-        memcpy((void *)&token, (void *)rawPreviousToken->buffer, sizeof(fkfs_iterator_token_t));
-        debugfpln("Files", "Using previous token (pageSize = %d) (%lu, %d -> %lu)", pageSize, token.block, token.offset, token.lastBlock);
+    if (incomingToken != nullptr && incomingToken->length > 0) {
+        fk_assert(incomingToken->length == sizeof(fkfs_iterator_token_t));
+        memcpy((void *)&token, (void *)incomingToken->buffer, sizeof(fkfs_iterator_token_t));
+        log("Using previous token (pageSize = %lu) (%lu, %d -> %lu)", pageSize, token.block, token.offset, token.lastBlock);
     } else {
-        debugfpln("Files", "Starting download (pageSize = %d)", pageSize);
+        log("Starting download (pageSize = %lu)", pageSize);
     }
 
     pb_data_t dataData = {
@@ -76,10 +84,10 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
     reply.m().fileData.token.funcs.encode = pb_encode_data;
     reply.m().fileData.token.arg = (void *)&tokenData;
 
-    while (fkfs_file_iterate(fs, query.m().downloadFile.id, &iter, &token)) {
+    while (fkfs_file_iterate(fs, id, &iter, &token)) {
         if (dataData.length + iter.size >= sizeof(data)) {
             if (!buffer.write(reply)) {
-                debugfpln("Error", "Error writing reply");
+                log("Error writing reply");
             }
 
             buffer.write();
@@ -100,12 +108,16 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
 
     if (buffer.position() > 0 || buffersSent == 0) {
         if (!buffer.write(reply)) {
-            debugfpln("Error", "Error writing reply");
+            log("Error writing reply");
         }
         buffer.write();
     }
 
-    debugfpln("Files", "Done (%d bytes), sending token (%lu, %d -> %lu) (took %lu)", total, token.block, token.offset, token.lastBlock, millis() - started);
+    log("Done (%d bytes), sending token (%lu, %d -> %lu) (took %lu)", total, token.block, token.offset, token.lastBlock, millis() - started);
+}
+
+void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    sendPageOfFile(query.m().downloadFile.id, query.m().downloadFile.pageSize, query.getDownloadToken(), reply, buffer);
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -116,6 +128,56 @@ void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply,
 
 void FkfsReplies::resetAll() {
     fkfs_file_truncate_all(fs);
+}
+
+void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    fkfs_file_info_t fkfsFile;
+
+    // My plan is to pusht his into FkfsData and possibly consolidate fkfs handling.
+    fkfs_get_file(fs, 1, &fkfsFile);
+
+    fk_app_DataSet dataSets[] = {
+        {
+            .id = 1,
+            .sensor = 0,
+            .time = 0,
+            .size = fkfsFile.size,
+            .pages = fkfsFile.size / DefaultPageSize,
+            .hash = 0,
+            .name = {
+                .funcs = {
+                    .encode = pb_encode_string,
+                },
+                .arg = (void *)fkfsFile.name,
+            },
+        },
+    };
+
+    pb_array_t data_sets_array = {
+        .length = (size_t)(fkfsFile.size > 0 ? 1 : 0),
+        .itemSize = sizeof(fk_app_DataSet),
+        .buffer = &dataSets,
+        .fields = fk_app_DataSet_fields,
+    };
+
+    reply.m().type = fk_app_ReplyType_REPLY_DATA_SETS;
+    reply.m().dataSets.dataSets.funcs.encode = pb_encode_array;
+    reply.m().dataSets.dataSets.arg = (void *)&data_sets_array;
+
+    if (!buffer.write(reply)) {
+        log("Error writing reply");
+    }
+}
+
+void FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    sendPageOfFile(1, query.m().downloadDataSet.pageSize, query.getDownloadToken(), reply, buffer);
+}
+
+void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    // We only have one data set right now.
+    fkfs_file_truncate(fs, 1);
+
+    dataSetsReply(query, reply, buffer);
 }
 
 }

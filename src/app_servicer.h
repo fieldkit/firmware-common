@@ -41,7 +41,6 @@ private:
 
     void configureIdentity();
     void identityReply();
-
 };
 
 }
