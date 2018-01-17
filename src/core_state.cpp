@@ -33,6 +33,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
         if (reply.m().readingStatus.state == fk_module_ReadingState_DONE) {
             auto sensorIndex = reply.m().sensorReading.sensor;
             auto& reading = module.readings[sensorIndex];
+            auto& sensor = module.sensors[sensorIndex];
             reading.time = reply.m().sensorReading.time;
             reading.value = reply.m().sensorReading.value;
             reading.status = SensorReadingStatus::Done;
@@ -41,7 +42,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
                 reading.time = clock.getTime();
             }
 
-            data->appendReading(location, reading);
+            data->appendReading(location, sensor, reading);
         }
         break;
     }

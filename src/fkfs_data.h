@@ -29,7 +29,7 @@ public:
 
 public:
     bool appendLocation(DeviceLocation &location);
-    bool appendReading(DeviceLocation &location, SensorReading &reading);
+    bool appendReading(DeviceLocation &location, SensorInfo &sensor, SensorReading &reading);
 
 };
 

@@ -21,7 +21,7 @@ bool FkfsData::appendLocation(DeviceLocation &location) {
     return true;
 }
 
-bool FkfsData::appendReading(DeviceLocation &location, SensorReading &reading) {
+bool FkfsData::appendReading(DeviceLocation &location, SensorInfo &sensor, SensorReading &reading) {
     auto entry = DataEntry{location, reading};
 
     if (!fkfs_file_append(fs, file, sizeof(DataEntry), (uint8_t *)&entry)) {
@@ -29,7 +29,7 @@ bool FkfsData::appendReading(DeviceLocation &location, SensorReading &reading) {
         return false;
     }
 
-    debugfpln(Log, "Appended reading (%lu, %f)", reading.time, reading.value);
+    debugfpln(Log, "Appended reading (%lu, '%s' = %f)", reading.time, sensor.name, reading.value);
     return true;
 }
 
