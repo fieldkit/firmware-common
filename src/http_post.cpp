@@ -27,6 +27,10 @@ TaskEval HttpPost::task() {
         log("Wifi disconnected");
         return TaskEval::done();
     }
+    if (isEmpty()) {
+        log("Empty message, skipping");
+        return TaskEval::done();
+    }
 
     if (dieAt == 0) {
         dieAt = millis() + WifiHttpPostTimeout;

@@ -2,6 +2,14 @@
 
 namespace fk {
 
+JsonMessageBuilder::JsonMessageBuilder(CoreState &state, Clock &clock)
+    : state(&state), clock(&clock) {
+}
+
+bool JsonMessageBuilder::isEmpty() {
+    return state->numberOfReadings() == 0;
+}
+
 bool JsonMessageBuilder::write(Print &stream) {
     stream.print("{");
     writeLocation(stream);

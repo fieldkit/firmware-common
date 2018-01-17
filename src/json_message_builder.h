@@ -14,10 +14,10 @@ private:
     Clock *clock;
 
 public:
-    JsonMessageBuilder(CoreState &state, Clock &clock) : state(&state), clock(&clock) {
-    }
+    JsonMessageBuilder(CoreState &state, Clock &clock);
 
 public:
+    bool isEmpty() override;
     bool write(Print &stream) override;
 
 public:

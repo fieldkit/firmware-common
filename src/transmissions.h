@@ -8,6 +8,7 @@ namespace fk {
 
 class MessageBuilder {
 public:
+    virtual bool isEmpty() = 0;
     virtual bool write(Print &stream) = 0;
     virtual const char *getContentType() = 0;
 
@@ -18,24 +19,17 @@ private:
     MessageBuilder *builder{ nullptr };
 
 public:
-    TransmissionTask(const char *name) : ActiveObject(name) {
-    }
+    TransmissionTask(const char *name);
 
 public:
-    void prepare(MessageBuilder &mb) {
-        builder = &mb;
-    }
+    void prepare(MessageBuilder &mb);
 
 public:
-    void write(Print &stream) {
-        if (!builder->write(stream)) {
-            log("Error writing message.");
-        }
+    bool isEmpty() {
+        return builder->isEmpty();
     }
-
-    const char *getContentType() {
-        return builder->getContentType();
-    }
+    void write(Print &stream);
+    const char *getContentType();
 
 };
 
