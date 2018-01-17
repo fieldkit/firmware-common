@@ -38,6 +38,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
             reading.value = reply.m().sensorReading.value;
             reading.status = SensorReadingStatus::Done;
 
+            // Try and help modules that don't have accurate clocks.
             if (reading.time == 0) {
                 reading.time = clock.getTime();
             }
@@ -130,6 +131,12 @@ void CoreState::clearReadings() {
 
 void CoreState::configure(DeviceIdentity newIdentity) {
     deviceIdentity = newIdentity;
+}
+
+void CoreState::setDeviceId(const char *deviceId) {
+    if (deviceIdentity.device[0] == 0) {
+        strncpy(deviceIdentity.device, deviceId, MaximumDeviceLength);
+    }
 }
 
 void CoreState::configure(NetworkSettings newSettings) {

@@ -58,6 +58,7 @@ public:
     AvailableSensorReading getReading(size_t index);
 
 public:
+    void setDeviceId(const char *deviceId);
     void configure(DeviceIdentity newIdentity);
     void configure(NetworkSettings newSettings);
 

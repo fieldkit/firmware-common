@@ -1,5 +1,6 @@
 #include "core_module.h"
 #include "hardware.h"
+#include "device_id.h"
 
 namespace fk {
 
@@ -70,6 +71,9 @@ void CoreModule::begin() {
     fk_assert(setupFileSystem());
 
     bus.begin();
+
+    DeviceId deviceId{ bus };
+    state.setDeviceId(deviceId.toString());
 
     clock.begin();
 }

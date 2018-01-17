@@ -43,7 +43,7 @@ struct ModuleInfo {
 };
 
 constexpr size_t MaximumCoordinates = 3;
-constexpr size_t MaximumDeviceLength = 32 + 1;
+constexpr size_t MaximumDeviceLength = 40 + 1;
 constexpr size_t MaximumStreamLength = 8 + 1;
 
 struct DeviceIdentity {
