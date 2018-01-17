@@ -123,7 +123,7 @@ void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &rep
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     fkfs_file_truncate(fs, query.m().eraseFile.id);
 
-    return queryFilesReply(query, reply, buffer);
+    queryFilesReply(query, reply, buffer);
 }
 
 void FkfsReplies::resetAll() {
