@@ -16,6 +16,8 @@ void AttachedDevices::scan() {
 void AttachedDevices::resume() {
     if (addresses[addressIndex] > 0) {
         query(addresses[addressIndex]);
+    } else {
+        state->doneScanning();
     }
 }
 

@@ -26,6 +26,9 @@ static size_t fkfs_log_message(const char *f, ...) {
 
 }
 
+FileSystem::FileSystem(TwoWireBus &bus) : data{ fs, bus, FKFS_FILE_DATA } {
+}
+
 bool FileSystem::setup() {
     fkfs_configure_logging(fkfs_log_message);
 

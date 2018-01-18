@@ -20,9 +20,11 @@ private:
 private:
     fkfs_t fs = { 0 };
     fkfs_log_t fkfs_log = { 0 };
+    FkfsData data;
+    FkfsReplies replies{ fs, FKFS_FILE_DATA };
 
-    FkfsData data{ fs, FKFS_FILE_DATA };
-    FkfsReplies replies{ fs };
+public:
+    FileSystem(TwoWireBus &bus);
 
 public:
     bool setup();

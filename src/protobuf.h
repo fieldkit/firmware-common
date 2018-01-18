@@ -8,6 +8,8 @@
 
 namespace fk {
 
+constexpr size_t ProtoBufEncodeOverhead = 16;
+
 bool pb_encode_string(pb_ostream_t *stream, const pb_field_t *field, void *const *arg);
 
 bool pb_decode_string(pb_istream_t *stream, const pb_field_t *field, void **arg);

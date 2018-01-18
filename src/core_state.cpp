@@ -11,6 +11,14 @@ CoreState::CoreState(FkfsData &data) : data(&data) {
     }
 }
 
+void CoreState::started() {
+    data->appendMetadata(*this);
+}
+
+void CoreState::doneScanning() {
+    data->appendMetadata(*this);
+}
+
 void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
     auto index = getModuleIndex(address);
     auto& module = modules[index];

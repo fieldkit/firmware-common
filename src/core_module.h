@@ -34,7 +34,8 @@ namespace fk {
 
 class CoreModule {
 private:
-    FileSystem fileSystem;
+    TwoWireBus bus{ Wire };
+    FileSystem fileSystem{ bus };
     Watchdog watchdog{ leds };
     Power power{ state };
     CoreState state{fileSystem.getData()};
@@ -45,7 +46,6 @@ private:
     HttpTransmissionConfig transmissionConfig = {
         .url = "https://api.fkdev.org/messages/ingestion?token=TOKEN",
     };
-    TwoWireBus bus{ Wire };
     HttpPost transmission{wifi, transmissionConfig};
     GatherReadings gatherReadings{bus, state, leds, modulesPool};
     JsonMessageBuilder builder{state, clock};

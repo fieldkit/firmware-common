@@ -55,6 +55,8 @@ void CoreModule::begin() {
     state.setDeviceId(deviceId.toString());
 
     clock.begin();
+
+    state.started();
 }
 
 void CoreModule::run() {

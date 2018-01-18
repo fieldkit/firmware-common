@@ -5,7 +5,7 @@ namespace fk {
 
 constexpr uint32_t DefaultPageSize = (size_t)(8 * 4096);
 
-FkfsReplies::FkfsReplies(fkfs_t &fs) : fs(&fs) {
+FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId) {
 }
 
 void FkfsReplies::log(const char *f, ...) const {
@@ -134,11 +134,11 @@ void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, 
     fkfs_file_info_t fkfsFile;
 
     // My plan is to pusht his into FkfsData and possibly consolidate fkfs handling.
-    fkfs_get_file(fs, 1, &fkfsFile);
+    fkfs_get_file(fs, dataFileId, &fkfsFile);
 
     fk_app_DataSet dataSets[] = {
         {
-            .id = 1,
+            .id = dataFileId,
             .sensor = 0,
             .time = 0,
             .size = fkfsFile.size,
@@ -170,12 +170,12 @@ void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, 
 }
 
 void FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    sendPageOfFile(1, query.m().downloadDataSet.pageSize, query.getDownloadToken(), reply, buffer);
+    sendPageOfFile(dataFileId, query.m().downloadDataSet.pageSize, query.getDownloadToken(), reply, buffer);
 }
 
 void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     // We only have one data set right now.
-    fkfs_file_truncate(fs, 1);
+    fkfs_file_truncate(fs, dataFileId);
 
     dataSetsReply(query, reply, buffer);
 }
