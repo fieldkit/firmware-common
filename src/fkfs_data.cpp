@@ -18,35 +18,6 @@ constexpr const char Log[] = "Data";
 FkfsData::FkfsData(fkfs_t &fs, TwoWireBus &bus, uint8_t file) : fs(&fs), bus(&bus), file(file) {
 }
 
-void FkfsData::log(const char *f, ...) const {
-    va_list args;
-    va_start(args, f);
-    vdebugfpln(Log, f, args);
-    va_end(args);
-}
-
-size_t FkfsData::append(fk_data_DataRecord &record) {
-    size_t size;
-
-    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &record)) {
-        return false;
-    }
-
-    uint8_t buffer[size + ProtoBufEncodeOverhead];
-    auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, &record)) {
-        log("Error encoding data file record (%d/%d bytes)", size, sizeof(buffer));
-        return 0;
-    }
-
-    if (!fkfs_file_append(fs, file, stream.bytes_written, buffer)) {
-        log("Error appending data file.");
-        return 0;
-    }
-
-    return stream.bytes_written;
-}
-
 bool FkfsData::appendMetadata(CoreState &state) {
     fk_data_DataRecord record = fk_data_DataRecord_init_default;
 
@@ -131,6 +102,35 @@ bool FkfsData::appendReading(DeviceLocation &location, uint32_t sensorId, Sensor
     log("Appended reading (%d bytes) (%lu, '%s' = %f)", size, reading.time, sensor.name, reading.value);
 
     return true;
+}
+
+size_t FkfsData::append(fk_data_DataRecord &record) {
+    size_t size;
+
+    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &record)) {
+        return false;
+    }
+
+    uint8_t buffer[size + ProtoBufEncodeOverhead];
+    auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, &record)) {
+        log("Error encoding data file record (%d/%d bytes)", size, sizeof(buffer));
+        return 0;
+    }
+
+    if (!fkfs_file_append(fs, file, stream.bytes_written, buffer)) {
+        log("Error appending data file.");
+        return 0;
+    }
+
+    return stream.bytes_written;
+}
+
+void FkfsData::log(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln(Log, f, args);
+    va_end(args);
 }
 
 }

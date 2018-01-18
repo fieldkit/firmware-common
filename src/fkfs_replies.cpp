@@ -8,13 +8,6 @@ constexpr uint32_t DefaultPageSize = (size_t)(8 * 4096);
 FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId) {
 }
 
-void FkfsReplies::log(const char *f, ...) const {
-    va_list args;
-    va_start(args, f);
-    vdebugfpln("Files", f, args);
-    va_end(args);
-}
-
 void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     auto numberOfFiles = fkfs_number_of_files(fs);
     fkfs_file_info_t fkfsFiles[numberOfFiles];
@@ -178,6 +171,13 @@ void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &rep
     fkfs_file_truncate(fs, dataFileId);
 
     dataSetsReply(query, reply, buffer);
+}
+
+void FkfsReplies::log(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln("Files", f, args);
+    va_end(args);
 }
 
 }
