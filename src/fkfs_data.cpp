@@ -1,5 +1,3 @@
-#include <fk-data-protocol.h>
-
 #include "fkfs_data.h"
 
 #include "debug.h"
@@ -9,6 +7,28 @@ namespace fk {
 constexpr const char Log[] = "Data";
 
 FkfsData::FkfsData(fkfs_t &fs, uint8_t file) : fs(&fs), file(file) {
+}
+
+size_t FkfsData::append(fk_data_DataRecord &record) {
+    size_t size;
+
+    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &record)) {
+        return false;
+    }
+
+    uint8_t buffer[FK_DATA_PROTOCOL_MAX_DATA_MESSAGE];
+    auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, &record)) {
+        debugfpln(Log, "Stream needs %d, we have %d", size, sizeof(buffer));
+        return 0;
+    }
+
+    if (!fkfs_file_append(fs, file, stream.bytes_written, buffer)) {
+        debugfpln(Log, "Error appending data file.");
+        return 0;
+    }
+
+    return stream.bytes_written;
 }
 
 bool FkfsData::appendLocation(DeviceLocation &location) {
@@ -21,24 +41,10 @@ bool FkfsData::appendLocation(DeviceLocation &location) {
     record.loggedReading.location.latitude = location.coordinates[1];
     record.loggedReading.location.altitude = location.coordinates[2];
 
-    size_t size;
+    auto size = append(record);
 
-    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &record)) {
-        return false;
-    }
+    debugfpln(Log, "Appended location (%d bytes)", size);
 
-    uint8_t buffer[FK_DATA_PROTOCOL_MAX_DATA_MESSAGE];
-    auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, &record)) {
-        debugfpln(Log, "Stream needs %d, we have %d", size, sizeof(buffer));
-        return false;
-    }
-
-    if (!fkfs_file_append(fs, file, stream.bytes_written, buffer)) {
-        debugfpln("Data", "Error appending data file.");
-    }
-
-    debugfpln(Log, "Appended location (%d bytes)", stream.bytes_written);
     return true;
 }
 
@@ -55,24 +61,10 @@ bool FkfsData::appendReading(DeviceLocation &location, uint32_t sensorId, Sensor
     record.loggedReading.reading.sensor = sensorId;
     record.loggedReading.reading.value = reading.value;
 
-    size_t size;
+    auto size = append(record);
 
-    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &record)) {
-        return false;
-    }
+    debugfpln(Log, "Appended reading (%d bytes) (%lu, '%s' = %f)", size, reading.time, sensor.name, reading.value);
 
-    uint8_t buffer[FK_DATA_PROTOCOL_MAX_DATA_MESSAGE];
-    auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, &record)) {
-        debugfpln(Log, "Stream needs %d, we have %d", size, sizeof(buffer));
-        return false;
-    }
-
-    if (!fkfs_file_append(fs, file, stream.bytes_written, buffer)) {
-        debugfpln("Data", "Error appending data file.");
-    }
-
-    debugfpln(Log, "Appended reading (%d bytes) (%lu, '%s' = %f)", stream.bytes_written, reading.time, sensor.name, reading.value);
     return true;
 }
 
