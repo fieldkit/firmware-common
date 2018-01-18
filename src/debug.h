@@ -36,4 +36,8 @@ void __fk_assert(const char *msg, const char *file, int lineno);
 
 #define fk_memzero(ptr, size) memset(ptr, 0, size)
 
+const char *firmware_version_get();
+
+void firmware_version_set(const char *hash);
+
 #endif

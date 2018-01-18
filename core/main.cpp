@@ -47,6 +47,8 @@ void setup() {
 
     debugfpln("Core", "Starting");
 
+    firmware_version_set(FIRMWARE_GIT_HASH);
+
     fk::TwoWireBus bus{ Wire };
     bus.begin();
 

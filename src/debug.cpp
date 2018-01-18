@@ -27,6 +27,16 @@ void debug_uart_set(Stream &standardOut) {
     debug_uart = &standardOut;
 }
 
+const char *global_firmware_version = "<unknown>";
+
+const char *firmware_version_get() {
+    return global_firmware_version;
+}
+
+void firmware_version_set(const char *hash) {
+    global_firmware_version = hash;
+}
+
 extern "C" {
 
 // Useful for injecting log statements in third party areas for testing.
