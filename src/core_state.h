@@ -10,12 +10,6 @@
 
 namespace fk {
 
-struct AvailableSensorReading {
-    uint8_t id;
-    SensorInfo &sensor;
-    SensorReading &reading;
-};
-
 class CoreState {
 private:
     NetworkSettings networkSettings;
