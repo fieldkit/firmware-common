@@ -47,6 +47,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/rtc.cpp
   ${COMMON_SRCS_DIR}/device_id.cpp
   ${COMMON_SRCS_DIR}/transmissions.cpp
+  ${COMMON_SRCS_DIR}/file_system.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})

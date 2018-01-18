@@ -28,22 +28,16 @@
 #include "json_message_builder.h"
 #include "discovery.h"
 #include "leds.h"
+#include "file_system.h"
 
 namespace fk {
 
 class CoreModule {
 private:
-    static constexpr uint8_t FKFS_FILE_LOG = 0;
-    static constexpr uint8_t FKFS_FILE_DATA = 1;
-    static constexpr uint8_t FKFS_FILE_PRIORITY_LOWEST = 255;
-    static constexpr uint8_t FKFS_FILE_PRIORITY_HIGHEST = 0;
-
-    fkfs_t fs = { 0 };
-    fkfs_log_t fkfs_log = { 0 };
+    FileSystem fileSystem;
     Watchdog watchdog{ leds };
     Power power{ state };
-    FkfsData data{fs, FKFS_FILE_DATA};
-    CoreState state{data};
+    CoreState state{fileSystem.getData()};
     Pool modulesPool{"ModulesPool", 256};
     Pool appPool{"AppPool", 256};
     Leds leds;
@@ -69,8 +63,7 @@ private:
     Scheduler scheduler{state, clock, tasks};
 
     LiveData liveData{bus, state, leds, modulesPool};
-    FkfsReplies fileReplies{fs};
-    AppServicer appServicer{bus, liveData, state, scheduler, fileReplies, appPool};
+    AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), appPool};
     Wifi wifi{state, appServicer};
     Discovery discovery{ bus, wifi };
 
@@ -85,9 +78,6 @@ public:
     CoreState &getState() {
         return state;
     }
-
-private:
-    bool setupFileSystem();
 
 };
 
