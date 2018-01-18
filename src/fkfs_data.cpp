@@ -1,3 +1,5 @@
+#include <fk-data-protocol.h>
+
 #include "fkfs_data.h"
 
 #include "debug.h"
@@ -10,11 +12,30 @@ FkfsData::FkfsData(fkfs_t &fs, uint8_t file) : fs(&fs), file(file) {
 }
 
 bool FkfsData::appendLocation(DeviceLocation &location) {
-    auto entry = DataEntry{location};
+    fk_data_DataRecord record = fk_data_DataRecord_init_default;
 
-    if (!fkfs_file_append(fs, file, sizeof(DataEntry), (uint8_t *)&entry)) {
-        debugfpln("Data", "Error appending data file.");
+    record.loggedReading.version = 1;
+    record.loggedReading.location.fix = location.fix;
+    record.loggedReading.location.time = location.time;
+    record.loggedReading.location.longitude = location.coordinates[0];
+    record.loggedReading.location.latitude = location.coordinates[1];
+    record.loggedReading.location.altitude = location.coordinates[2];
+
+    size_t size;
+
+    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &record)) {
         return false;
+    }
+
+    uint8_t buffer[FK_DATA_PROTOCOL_MAX_DATA_MESSAGE];
+    auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, &record)) {
+        debugfpln(Log, "Stream needs %d, we have %d", size, sizeof(buffer));
+        return false;
+    }
+
+    if (!fkfs_file_append(fs, file, stream.bytes_written, buffer)) {
+        debugfpln("Data", "Error appending data file.");
     }
 
     debugfpln(Log, "Appended location.");
@@ -22,11 +43,33 @@ bool FkfsData::appendLocation(DeviceLocation &location) {
 }
 
 bool FkfsData::appendReading(DeviceLocation &location, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading) {
-    auto entry = DataEntry{location, LoggedSensorReading{ sensorId, reading }};
+    fk_data_DataRecord record = fk_data_DataRecord_init_default;
 
-    if (!fkfs_file_append(fs, file, sizeof(DataEntry), (uint8_t *)&entry)) {
-        debugfpln("Data", "Error appending data file.");
+    record.loggedReading.version = 1;
+    record.loggedReading.location.fix = location.fix;
+    record.loggedReading.location.time = location.time;
+    record.loggedReading.location.longitude = location.coordinates[0];
+    record.loggedReading.location.latitude = location.coordinates[1];
+    record.loggedReading.location.altitude = location.coordinates[2];
+    record.loggedReading.reading.time = reading.time;
+    record.loggedReading.reading.sensor = sensorId;
+    record.loggedReading.reading.value = reading.value;
+
+    size_t size;
+
+    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &record)) {
         return false;
+    }
+
+    uint8_t buffer[FK_DATA_PROTOCOL_MAX_DATA_MESSAGE];
+    auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, &record)) {
+        debugfpln(Log, "Stream needs %d, we have %d", size, sizeof(buffer));
+        return false;
+    }
+
+    if (!fkfs_file_append(fs, file, stream.bytes_written, buffer)) {
+        debugfpln("Data", "Error appending data file.");
     }
 
     debugfpln(Log, "Appended reading (%lu, '%s' = %f)", reading.time, sensor.name, reading.value);
