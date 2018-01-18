@@ -38,7 +38,7 @@ bool FkfsData::appendLocation(DeviceLocation &location) {
         debugfpln("Data", "Error appending data file.");
     }
 
-    debugfpln(Log, "Appended location.");
+    debugfpln(Log, "Appended location (%d bytes)", stream.bytes_written);
     return true;
 }
 
@@ -72,7 +72,7 @@ bool FkfsData::appendReading(DeviceLocation &location, uint32_t sensorId, Sensor
         debugfpln("Data", "Error appending data file.");
     }
 
-    debugfpln(Log, "Appended reading (%lu, '%s' = %f)", reading.time, sensor.name, reading.value);
+    debugfpln(Log, "Appended reading (%d bytes) (%lu, '%s' = %f)", stream.bytes_written, reading.time, sensor.name, reading.value);
     return true;
 }
 
