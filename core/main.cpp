@@ -40,7 +40,7 @@ void setup() {
     if (!Serial) {
         // The call to end here seems to free up some memory.
         Serial.end();
-        USBDevice.detach();
+        // USBDevice.detach(); Leave this so we can program w/o the programmer.
         Serial5.begin(115200);
         debug_uart_set(Serial5);
     }
