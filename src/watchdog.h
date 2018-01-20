@@ -15,7 +15,9 @@ public:
     Watchdog(Leds &leds) : leds(&leds) {
     }
 
+public:
     void setup();
+    void started();
 
 public:
     void idle() override;

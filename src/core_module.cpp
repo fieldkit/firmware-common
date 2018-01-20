@@ -49,6 +49,8 @@ void CoreModule::begin() {
 
     fk_assert(fileSystem.setup());
 
+    watchdog.started();
+
     bus.begin();
 
     DeviceId deviceId{ bus };
