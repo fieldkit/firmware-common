@@ -109,6 +109,7 @@ TaskEval ReadGPS::task() {
 
         if (flon != TinyGPS::GPS_INVALID_F_ANGLE && flat != TinyGPS::GPS_INVALID_F_ANGLE && altitude != TinyGPS::GPS_INVALID_F_ALTITUDE) {
             state->updateLocation(dateTime.unixtime(), flon, flat, altitude);
+            clock.setTime(dateTime);
             return TaskEval::done();
         }
 
