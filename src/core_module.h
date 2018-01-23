@@ -39,8 +39,8 @@ private:
     Watchdog watchdog{ leds };
     Power power{ state };
     CoreState state{fileSystem.getData()};
-    Pool modulesPool{"ModulesPool", 256};
-    Pool appPool{"AppPool", 256};
+    Pool modulesPool{"ModulesPool", 256 + 128};
+    Pool appPool{"AppPool", 256 + 128};
     Leds leds;
 
     HttpTransmissionConfig transmissionConfig = {
