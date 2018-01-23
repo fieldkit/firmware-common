@@ -81,9 +81,9 @@ void Leds::all(bool value) {
 }
 
 void Leds::alive() {
-    digitalWrite(A5, HIGH);
+    digitalWrite(A3, HIGH);
     delay(100);
-    digitalWrite(A5, LOW);
+    digitalWrite(A3, LOW);
 }
 
 void Leds::push(BlinkerKind kind) {
