@@ -26,6 +26,7 @@ public:
 
 public:
     void start();
+    void stop();
     bool send();
 
 };

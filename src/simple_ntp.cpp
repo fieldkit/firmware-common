@@ -11,9 +11,7 @@ SimpleNTP::SimpleNTP(Clock &clock) : Task("NTP"), clock(&clock) {
 }
 
 SimpleNTP::~SimpleNTP() {
-    if (initialized) {
-        udp.stop();
-    }
+    stop();
 }
 
 void SimpleNTP::start() {
@@ -23,6 +21,13 @@ void SimpleNTP::start() {
     }
 
     send();
+}
+
+void SimpleNTP::stop() {
+    if (initialized) {
+        udp.stop();
+        initialized = false;
+    }
 }
 
 bool SimpleNTP::send() {
@@ -74,6 +79,9 @@ TaskEval SimpleNTP::task() {
 
             return TaskEval::done();
         }
+    }
+    else {
+        stop();
     }
     return TaskEval::yield();
 }
