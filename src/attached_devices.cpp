@@ -26,6 +26,7 @@ void AttachedDevices::idle() {
     if (lastScanAt == 0 || millis() - lastScanAt > rescanInterval) {
         log("Starting scan...");
         lastScanAt = millis();
+        pool->clear();
         scan();
     }
 }
