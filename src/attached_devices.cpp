@@ -22,12 +22,11 @@ void AttachedDevices::resume() {
 }
 
 void AttachedDevices::idle() {
-    if (state->numberOfModules() == 0) {
-        if (lastScanAt == 0 || millis() - lastScanAt > 30 * 1000) {
-            log("Starting scan...");
-            lastScanAt = millis();
-            scan();
-        }
+    uint32_t rescanInterval = (state->numberOfModules() == 0 ? 30 : 60 * 5) * 1000;
+    if (lastScanAt == 0 || millis() - lastScanAt > rescanInterval) {
+        log("Starting scan...");
+        lastScanAt = millis();
+        scan();
     }
 }
 
