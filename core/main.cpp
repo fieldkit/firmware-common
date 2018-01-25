@@ -11,6 +11,7 @@
 extern "C" {
 
 // #define DEBUG_MTB_ENABLE
+// #define DEBUG_UART_FALLBACK
 
 #ifdef DEBUG_MTB_ENABLE
 #define DEBUG_MTB_SIZE 256
@@ -37,6 +38,7 @@ void setup() {
         delay(100);
     }
 
+#ifdef DEBUG_UART_FALLBACK
     if (!Serial) {
         // The call to end here seems to free up some memory.
         Serial.end();
@@ -44,6 +46,7 @@ void setup() {
         Serial5.begin(115200);
         debug_uart_set(Serial5);
     }
+#endif
 
     debugfpln("Core", "Starting");
 
