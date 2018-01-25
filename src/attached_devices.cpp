@@ -63,9 +63,13 @@ void AttachedDevices::done(Task &task) {
     }
 }
 
-void AttachedDevices::error(Task &) {
-    addressIndex++;
-    resume();
+void AttachedDevices::error(Task &task) {
+    if (areSame(task, querySensorCapabilities)) {
+        state->scanFailure();
+    } else {
+        addressIndex++;
+        resume();
+    }
 }
 
 }

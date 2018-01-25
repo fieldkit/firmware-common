@@ -19,6 +19,10 @@ void CoreState::doneScanning() {
     data->appendMetadata(*this);
 }
 
+void CoreState::scanFailure() {
+    memzero(modules, sizeof(modules));
+}
+
 void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
     auto index = getModuleIndex(address);
     auto& module = modules[index];

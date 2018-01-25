@@ -54,6 +54,7 @@ public:
 public:
     void started();
     void doneScanning();
+    void scanFailure();
 
     void setDeviceId(const char *deviceId);
     void configure(DeviceIdentity newIdentity);
