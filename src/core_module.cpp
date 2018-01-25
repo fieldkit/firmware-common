@@ -74,14 +74,15 @@ void CoreModule::run() {
         leds.tick();
         power.tick();
         watchdog.tick();
-        liveData.tick();
-        wifi.tick();
-        // This is ugly.
-        if (liveData.isIdle()) {
-            scheduler.tick();
-        }
-        discovery.tick();
         attachedDevices.tick();
+        if (attachedDevices.isIdle()) {
+            liveData.tick();
+            if (liveData.isIdle()) {
+                scheduler.tick();
+            }
+            wifi.tick();
+            discovery.tick();
+        }
     }
 }
 
