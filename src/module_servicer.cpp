@@ -21,7 +21,14 @@ TaskEval ModuleServicer::task() {
         return TaskEval::error();
     }
 
-    fk_assert(outgoing->empty());
+    if (!outgoing->empty()) {
+        log("Not empty: %d (%d)", outgoing->position(), query.m().type);
+        // outgoing->clear();
+        fk_assert(outgoing->empty());
+    }
+    else {
+        log("Handling: %d (%d)", outgoing->position(), query.m().type);
+    }
 
     if (!handle(query)) {
         return TaskEval::error();
