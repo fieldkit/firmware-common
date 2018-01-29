@@ -12,7 +12,29 @@ struct TimeSpec {
     int8_t interval;
 };
 
-class ScheduledTask {
+class SchedulerTask {
+public:
+};
+
+class PeriodicTask : public SchedulerTask {
+private:
+    uint32_t interval{ 0 };
+    uint32_t lastRan{ 0 };
+    Task *task;
+
+public:
+    PeriodicTask(uint32_t interval, Task &task) : interval(interval), task(&task) {
+    }
+
+public:
+    bool shouldRun();
+    Task &getTask() {
+        return *task;
+    }
+
+};
+
+class ScheduledTask : public SchedulerTask {
 private:
     TimeSpec second;
     TimeSpec minute;
@@ -65,12 +87,14 @@ private:
     CoreState *state;
     Clock *clock;
     ScheduledTask *tasks;
+    PeriodicTask *periodic;
     size_t numberOfTasks;
+    size_t numberOfPeriodics;
 
 public:
-    template<size_t N>
-    Scheduler(CoreState &state, Clock &clock, ScheduledTask (&tasks)[N]) :
-        ActiveObject("Scheduler"), state(&state), clock(&clock), tasks(tasks), numberOfTasks(N) {
+    template<size_t N, size_t M>
+    Scheduler(CoreState &state, Clock &clock, ScheduledTask (&tasks)[N], PeriodicTask (&periodic)[M]) :
+        ActiveObject("Scheduler"), state(&state), clock(&clock), tasks(tasks), periodic(periodic), numberOfTasks(N), numberOfPeriodics(M) {
         fk_assert(N >= (size_t)ScheduleKind::NumberOfMandatorySchedules);
     }
 

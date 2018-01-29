@@ -16,6 +16,14 @@ static bool matches(const TimeSpec &spec, int8_t value) {
     return true;
 }
 
+bool PeriodicTask::shouldRun() {
+    if (millis() - lastRan > interval) {
+        lastRan = millis();
+        return true;
+    }
+    return false;
+}
+
 bool ScheduledTask::shouldRun(DateTime now) {
     if (matches(now)) {
         if (lastRan.unixtime() == now.unixtime()) {
@@ -93,6 +101,10 @@ void Scheduler::idle() {
                 push(task);
             }
         }
+    }
+    for (size_t i = 0; i < numberOfPeriodics; ++i) {
+        auto &task = tasks[i].getTask();
+        push(task);
     }
 }
 
