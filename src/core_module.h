@@ -54,14 +54,15 @@ private:
     DetermineLocation determineLocation{bus, state, modulesPool};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
-    PeriodicTask periodics[1] {
+    PeriodicTask periodics[2] {
+        fk::PeriodicTask{ 30 * 1000, gatherReadings },
         fk::PeriodicTask{ 30 * 1000, determineLocation },
     };
     ScheduledTask scheduled[4] {
-        fk::ScheduledTask{ { -1, 30 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
+        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
-        fk::ScheduledTask{ { 10, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, determineLocation },
+        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, determineLocation },
     };
     Scheduler scheduler{state, clock, scheduled, periodics};
 
