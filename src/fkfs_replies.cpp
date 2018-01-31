@@ -71,13 +71,18 @@ void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *i
         .buffer = &token,
     };
 
+    fkfs_iterator_config_t config = {
+        .maxBlocks = 0,
+        .maxTime = 4000
+    };
+
     reply.m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
     reply.m().fileData.data.funcs.encode = pb_encode_data;
     reply.m().fileData.data.arg = (void *)&dataData;
     reply.m().fileData.token.funcs.encode = pb_encode_data;
     reply.m().fileData.token.arg = (void *)&tokenData;
 
-    while (fkfs_file_iterate(fs, id, &iter, &token)) {
+    while (fkfs_file_iterate(fs, id, &config, &iter, &token)) {
         if (dataData.length + iter.size >= sizeof(data)) {
             if (!buffer.write(reply)) {
                 log("Error writing reply");
