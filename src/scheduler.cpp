@@ -103,8 +103,10 @@ void Scheduler::idle() {
         }
     }
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
-        auto &task = tasks[i].getTask();
-        push(task);
+        if (periodic[i].shouldRun()) {
+            auto &task = periodic[i].getTask();
+            push(task);
+        }
     }
 }
 
