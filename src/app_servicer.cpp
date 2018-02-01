@@ -6,7 +6,7 @@
 
 namespace fk {
 
-#define FK_CORE_DEFAULT_NAME "FieldKit Device" 
+#define FK_CORE_DEFAULT_NAME "FieldKit Device"
 
 static void copy(ScheduledTask &to, fk_app_Schedule &from) {
     to.setSecond(TimeSpec{ (int8_t)from.second.fixed, (int8_t)from.second.interval });

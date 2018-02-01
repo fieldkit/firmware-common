@@ -129,6 +129,10 @@ public:
 
 };
 
+uint32_t crc32_update(uint32_t crc, uint8_t data);
+
+uint32_t crc32_update(uint32_t crc, uint8_t *data, size_t size);
+
 }
 
 #endif
