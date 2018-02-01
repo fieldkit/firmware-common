@@ -77,8 +77,6 @@ void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *i
         .maxTime = 4000
     };
 
-    uint32_t hash = 0;
-
     reply.m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
     reply.m().fileData.data.funcs.encode = pb_encode_data;
     reply.m().fileData.data.arg = (void *)&dataData;
@@ -87,7 +85,7 @@ void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *i
 
     while (fkfs_file_iterate(fs, id, &config, &iter, &token)) {
         if (dataData.length + iter.size >= sizeof(data)) {
-            reply.m().fileData.hash = hash;
+            reply.m().fileData.hash = crc32_checksum(data, dataData.length);
 
             if (!buffer.write(reply)) {
                 log("Error writing reply");
@@ -96,11 +94,9 @@ void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *i
 
             buffersSent++;
             dataData.length = 0;
-            hash = 0;
         }
 
         memcpy(data + dataData.length, iter.data, iter.size);
-        hash = crc32_update(hash, iter.data, iter.size);
 
         dataData.length += iter.size;
         total += iter.size;
@@ -111,7 +107,7 @@ void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *i
     }
 
     if (buffer.position() > 0 || buffersSent == 0) {
-        reply.m().fileData.hash = hash;
+        reply.m().fileData.hash = crc32_checksum(data, dataData.length);
 
         if (!buffer.write(reply)) {
             log("Error writing reply");

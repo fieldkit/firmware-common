@@ -89,12 +89,12 @@ uint32_t crc32_update(uint32_t crc, uint8_t data) {
     return crc;
 }
 
-
-uint32_t crc32_update(uint32_t crc, uint8_t *data, size_t size) {
-    while (--size > 0) {
+uint32_t crc32_checksum(uint8_t *data, size_t size) {
+    uint32_t crc = ~0;
+    while (size-- > 0) {
         crc = crc32_update(crc, *(data++));
     }
-    return crc;
+    return ~crc;
 }
 
 }
