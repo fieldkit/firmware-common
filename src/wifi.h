@@ -39,6 +39,19 @@ public:
 
 };
 
+class ScanNetworks : public Task {
+private:
+    uint32_t begunAt{ 0 };
+
+public:
+    ScanNetworks() : Task("ScanNetworks") {
+    }
+
+public:
+    TaskEval task() override;
+
+};
+
 class Wifi : public ActiveObject {
 public:
     static constexpr uint16_t ServerPort = 54321;
@@ -50,6 +63,7 @@ private:
     CoreState *state;
     ConnectToWifiAp connectToWifiAp;
     CreateWifiAp createWifiAp;
+    ScanNetworks scanNetworks;
     Delay delay{ 5000 };
     Listen listen;
     bool disabled{ false };

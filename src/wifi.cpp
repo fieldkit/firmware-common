@@ -7,6 +7,7 @@
 namespace fk {
 
 constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
+constexpr uint32_t ScanDuration = 10 * 1000;
 
 TaskEval ConnectToWifiAp::task() {
     if (networkNumber >= MaximumRememberedNetworks) {
@@ -49,6 +50,49 @@ TaskEval CreateWifiAp::task() {
     return TaskEval::done();
 }
 
+static const char *encryptionType(int32_t type) {
+    switch (type) {
+    case ENC_TYPE_WEP: return "WEP";
+    case ENC_TYPE_TKIP: return "WPA";
+    case ENC_TYPE_CCMP: return "WPA2";
+    case ENC_TYPE_NONE: return "None";
+    case ENC_TYPE_AUTO: return "Auto";
+    }
+    return "UNknown";
+}
+
+TaskEval ScanNetworks::task() {
+    if (begunAt == 0) {
+        log("Starting scan (%s)", getWifiStatus());
+
+        if (m2m_wifi_request_scan(M2M_WIFI_CH_ALL) < 0) {
+            return TaskEval::error();
+        }
+
+        begunAt = millis() + ScanDuration;
+    }
+
+    if (begunAt > millis()) {
+        return TaskEval::idle();
+    }
+
+    if ((WiFi.status() & WL_SCAN_COMPLETED) == WL_SCAN_COMPLETED) {
+        auto numberOfNetworks = m2m_wifi_get_num_ap_found();
+
+        log("Scan done: found %d, took %ldms (%s)", numberOfNetworks, millis() - begunAt, getWifiStatus());
+
+        for (auto i = 0; i < numberOfNetworks; i++) {
+            log("Network[%d] %s %lddbm %s", i, WiFi.SSID(i), WiFi.RSSI(i), encryptionType(WiFi.encryptionType(i)));
+        }
+
+        begunAt = 0;
+
+        return TaskEval::done();
+    }
+
+    return TaskEval::idle();
+}
+
 Wifi::Wifi(CoreState &state, AppServicer &servicer)
     : ActiveObject("Wifi"), state(&state), connectToWifiAp(state), createWifiAp(state), listen(ServerPort, servicer) {
 }
@@ -63,11 +107,14 @@ void Wifi::begin() {
 }
 
 void Wifi::done(Task &task) {
+    if (areSame(task, scanNetworks)) {
+        push(createWifiAp);
+    }
 }
 
 void Wifi::error(Task &task) {
     if (areSame(task, connectToWifiAp)) {
-        push(createWifiAp);
+        push(scanNetworks);
     }
     else {
         push(delay);
@@ -88,6 +135,7 @@ void Wifi::ensureDisconnected() {
     }
 
     WiFi.disconnect();
+
     while (!(WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_IDLE_STATUS)) {
         ::delay(1000);
         log("Disconnecting(%s)...", getWifiStatus());
@@ -108,7 +156,7 @@ void Wifi::idle() {
         return;
     }
 
-    uint8_t newStatus = WiFi.status();
+    auto newStatus = WiFi.status();
     if (newStatus != status) {
         log("Changed: %s", getWifiStatus());
         status = newStatus;
