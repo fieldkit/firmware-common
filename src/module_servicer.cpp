@@ -22,12 +22,8 @@ TaskEval ModuleServicer::task() {
     }
 
     if (!outgoing->empty()) {
-        log("Not empty: %d (%d)", outgoing->position(), query.m().type);
-        // outgoing->clear();
-        fk_assert(outgoing->empty());
-    }
-    else {
-        log("Handling: %d (%d)", outgoing->position(), query.m().type);
+        log("Orphaned reply! QueryType=%d ReplySize=%d", outgoing->position(), query.m().type);
+        outgoing->clear();
     }
 
     if (!handle(query)) {
