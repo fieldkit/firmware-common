@@ -31,6 +31,7 @@ public:
 
 DeviceId::DeviceId(TwoWireBus &bus) {
     MacAddressEeprom macAddressChip{ bus };
+    memset(data, 0, sizeof(data));
     if (!macAddressChip.read128bMac(data)) {
         SerialNumber serialNumber;
         memcpy(data, (uint8_t *)serialNumber.toInts(), sizeof(uint32_t) * 4);

@@ -8,18 +8,20 @@ class Status : public ActiveObject {
 private:
     uint32_t lastTick{ 0 };
     CoreState *state;
+    TwoWireBus *bus;
 
 public:
-    Status(CoreState &state) : state(&state) {
+    Status(CoreState &state, TwoWireBus &bus) : state(&state), bus(&bus) {
     }
 
 public:
     void idle() override {
         if (millis() - lastTick > 5000) {
+            DeviceId deviceId{ *bus };
             IpAddress4 ip{ state->getStatus().ip };
-            debugfpln("Status", "Status (%.2f%% / %.2fmv) (%lu free) (%s)",
+            debugfpln("Status", "Status (%.2f%% / %.2fmv) (%lu free) (%s) (%s)",
                       state->getStatus().batteryPercentage, state->getStatus().batteryVoltage,
-                      fk_free_memory(), ip.toString());
+                      fk_free_memory(), ip.toString(), deviceId.toString());
             lastTick = millis();
         }
     }
@@ -63,7 +65,7 @@ void CoreModule::begin() {
 
 void CoreModule::run() {
     fk::SimpleNTP ntp(clock);
-    Status status{ state };
+    Status status{ state, bus };
 
     wifi.begin();
 
