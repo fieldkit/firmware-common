@@ -72,10 +72,10 @@ TaskEval SimpleNTP::task() {
 
             // Rezero to get UnixTime.
             auto oldEpoch = clock->getTime();
-            auto epoch = secondsSince1900 - SeventyYears;
+            auto epoch = (uint32_t)(secondsSince1900 - SeventyYears);
             clock->setTime(epoch);
 
-            log("UTC: %llu (old = %lu)", epoch, oldEpoch);
+            log("UTC: %lu (old = %lu)", epoch, oldEpoch);
 
             return TaskEval::done();
         }
