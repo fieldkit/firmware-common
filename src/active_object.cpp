@@ -85,7 +85,7 @@ void ActiveObject::tick() {
     }
     auto ended = millis();
     if (ended - began > 500) {
-        log("Long tick from %s (%d) (****)", ran, ended - began);
+        log("Long tick from %s (%lu) (****)", ran, ended - began);
     }
 }
 

@@ -62,7 +62,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         break;
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_DATA_SET: {
-        log("Download ds %d page=%d", query.m().downloadDataSet.id, query.m().downloadDataSet.page);
+        log("Download ds %lu page=%lu", query.m().downloadDataSet.id, query.m().downloadDataSet.page);
 
         AppReplyMessage reply(pool);
         fileReplies->downloadDataSetReply(query, reply, *buffer);
@@ -78,7 +78,7 @@ void AppServicer::handle(AppQueryMessage &query) {
         break;
     }
     case fk_app_QueryType_QUERY_LIVE_DATA_POLL: {
-        log("Live ds (interval = %d)", query.m().liveDataPoll.interval);
+        log("Live ds (interval = %lu)", query.m().liveDataPoll.interval);
 
         if (query.m().liveDataPoll.interval > 0) {
             liveData->start(query.m().liveDataPoll.interval);
@@ -186,18 +186,18 @@ void AppServicer::handle(AppQueryMessage &query) {
         break;
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
-        log("Download file (%d / %d)", query.m().downloadFile.id, query.m().downloadFile.page);
+        log("Download file (%lu / %lu)", query.m().downloadFile.id, query.m().downloadFile.page);
         auto started = millis();
 
         AppReplyMessage reply(pool);
         fileReplies->downloadFileReply(query, reply, *buffer);
 
-        log("Done (%d)", millis() - started);
+        log("Done (%lu)", millis() - started);
 
         break;
     }
     case fk_app_QueryType_QUERY_ERASE_FILE: {
-        log("Erase file (%d / %d)", query.m().eraseFile.id);
+        log("Erase file (%lu)", query.m().eraseFile.id);
 
         AppReplyMessage reply(pool);
         fileReplies->eraseFileReply(query, reply, *buffer);

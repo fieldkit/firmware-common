@@ -54,7 +54,7 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
     case fk_module_QueryType_QUERY_SENSOR_CAPABILITIES: {
         auto index = query.m().querySensorCapabilities.sensor;
 
-        log("Sensor #%d: info", index);
+        log("Sensor #%lu: info", index);
 
         SensorInfo &sensor = info->sensors[index];
 

@@ -95,7 +95,7 @@ public:
         return name;
     }
 
-    void log(const char *f, ...) const;
+    void log(const char *f, ...) const __attribute__((format(printf, 2, 3)));
 
 };
 

@@ -75,7 +75,7 @@ TaskEval SimpleNTP::task() {
             auto epoch = secondsSince1900 - SeventyYears;
             clock->setTime(epoch);
 
-            log("UTC: %lu (old = %lu)", epoch, oldEpoch);
+            log("UTC: %llu (old = %lu)", epoch, oldEpoch);
 
             return TaskEval::done();
         }

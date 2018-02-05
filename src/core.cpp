@@ -23,7 +23,7 @@ void GatherReadings::enqueued() {
 void GatherReadings::done(Task &task) {
     if (areSame(task, beginTakeReading)) {
         if (beginTakeReading.getBackoff() > 0) {
-            log("Using backoff of %d", beginTakeReading.getBackoff());
+            log("Using backoff of %lu", beginTakeReading.getBackoff());
             delay.adjust(beginTakeReading.getBackoff());
         } else {
             delay.adjust(300);
@@ -33,7 +33,7 @@ void GatherReadings::done(Task &task) {
     } else if (areSame(task, queryReadingStatus)) {
         if (queryReadingStatus.isBusy()) {
             if (queryReadingStatus.getBackoff() > 0) {
-                log("Using backoff of %d", queryReadingStatus.getBackoff());
+                log("Using backoff of %lu", queryReadingStatus.getBackoff());
                 delay.adjust(queryReadingStatus.getBackoff());
             } else {
                 delay.adjust(300);
@@ -105,7 +105,7 @@ TaskEval ReadGPS::task() {
         gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
         DateTime dateTime(year, month, day, hour, minute, second);
 
-        log("Sats(%d) Hdop(%d) Loc(%f, %f) Alt(%f)", satellites, hdop, flon, flat, altitude);
+        log("Sats(%d) Hdop(%lu) Loc(%f, %f) Alt(%f)", satellites, hdop, flon, flat, altitude);
 
         if (flon != TinyGPS::GPS_INVALID_F_ANGLE && flat != TinyGPS::GPS_INVALID_F_ANGLE && altitude != TinyGPS::GPS_INVALID_F_ALTITUDE) {
             state->updateLocation(dateTime.unixtime(), flon, flat, altitude);
