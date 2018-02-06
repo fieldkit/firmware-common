@@ -28,7 +28,6 @@ public:
 
 };
 
-
 CoreModule::CoreModule() {
 }
 
@@ -69,6 +68,7 @@ void CoreModule::run() {
 
     wifi.begin();
 
+    scheduler.push(dataIteratorTask);
     scheduler.push(ntp);
 
     while (true) {

@@ -29,6 +29,7 @@
 #include "discovery.h"
 #include "leds.h"
 #include "file_system.h"
+#include "fkfs_tasks.h"
 
 namespace fk {
 
@@ -54,6 +55,7 @@ private:
     DetermineLocation determineLocation{bus, state, modulesPool};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
+    DataIteratorTask dataIteratorTask{ fileSystem.fkfs() };
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 30 * 1000, gatherReadings },
         fk::PeriodicTask{ 30 * 1000, determineLocation },

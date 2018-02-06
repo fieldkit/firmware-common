@@ -38,6 +38,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/http_post.cpp
   ${COMMON_SRCS_DIR}/fkfs_replies.cpp
   ${COMMON_SRCS_DIR}/fkfs_data.cpp
+  ${COMMON_SRCS_DIR}/fkfs_tasks.cpp
   ${COMMON_SRCS_DIR}/core_module.cpp
   ${COMMON_SRCS_DIR}/discovery.cpp
   ${COMMON_SRCS_DIR}/utils.cpp
