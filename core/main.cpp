@@ -11,7 +11,8 @@
 extern "C" {
 
 // #define DEBUG_MTB_ENABLE
-// #define DEBUG_UART_FALLBACK
+#define DEBUG_UART_FALLBACK
+// #define DEBUG_DUMP_OBJECT_SIZES
 
 #ifdef DEBUG_MTB_ENABLE
 #define DEBUG_MTB_SIZE 256
@@ -65,8 +66,7 @@ void setup() {
         debugfpln("Core", "Hash(%s)", FIRMWARE_GIT_HASH);
     }
 
-#define FK_DUMP_OBJECT_SIZES
-#ifdef FK_DUMP_OBJECT_SIZES
+#ifdef DEBUG_DUMP_OBJECT_SIZES
 #define FK_DUMP_SIZE(K)  debugfpln("Core", "%s: %d", #K, sizeof(K))
     FK_DUMP_SIZE(fk::Watchdog);
     FK_DUMP_SIZE(fk::CoreState);
@@ -102,7 +102,6 @@ void setup() {
     fk::CoreModule coreModule;
     coreModule.begin();
     coreModule.getState().configure(fk::NetworkSettings{ false, networks });
-
     coreModule.run();
 }
 
