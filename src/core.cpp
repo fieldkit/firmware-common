@@ -80,7 +80,6 @@ void ReadGPS::enqueued() {
 
 TaskEval ReadGPS::task() {
     if (millis() - started > GpsFixAttemptInterval) {
-        log("No GPS fix.");
         state->updateLocationFixFailed();
         return TaskEval::error();
     }
@@ -105,12 +104,14 @@ TaskEval ReadGPS::task() {
         gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
         DateTime dateTime(year, month, day, hour, minute, second);
 
-        log("Sats(%d) Hdop(%lu) Loc(%f, %f) Alt(%f)", satellites, hdop, flon, flat, altitude);
-
         if (flon != TinyGPS::GPS_INVALID_F_ANGLE && flat != TinyGPS::GPS_INVALID_F_ANGLE && altitude != TinyGPS::GPS_INVALID_F_ALTITUDE) {
+            log("Sats(%d) Hdop(%lu) Time(%lu) Loc(%f, %f) Alt(%f)", satellites, hdop, dateTime.unixtime(), flon, flat, altitude);
             state->updateLocation(dateTime.unixtime(), flon, flat, altitude);
             clock.setTime(dateTime);
             return TaskEval::done();
+        }
+        else {
+            log("No fix");
         }
 
         lastStatus = millis();
