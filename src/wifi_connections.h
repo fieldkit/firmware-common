@@ -8,20 +8,45 @@
 #include "active_object.h"
 #include "app_servicer.h"
 #include "network_settings.h"
+#include "wifi_message_buffer.h"
 
 namespace fk {
 
-class HandleConnection : public Task {
+class ReadAppQuery : public Task {
 private:
     uint32_t dieAt{ 0 };
-    WiFiClient wcl;
+    WiFiClient *wcl;
     AppServicer *servicer;
+    WifiMessageBuffer *buffer;
 
 public:
-    HandleConnection(WiFiClient wcl, AppServicer &servicer);
+    ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, WifiMessageBuffer &buffer);
 
 public:
+    void enqueued() override {
+        dieAt = 0;
+    }
     TaskEval task() override;
+};
+
+class HandleConnection : public ActiveObject {
+private:
+    AppServicer *servicer;
+    WiFiClient wcl;
+    WifiMessageBuffer buffer;
+    ReadAppQuery readAppQuery;
+
+public:
+    HandleConnection(AppServicer &servicer);
+
+    void setConnection(WiFiClient &newClient) {
+        wcl = newClient;
+        buffer.setConnection(wcl);
+    }
+
+public:
+    void enqueued() override;
+    void done() override;
 };
 
 enum class ListenerState {
@@ -32,8 +57,6 @@ enum class ListenerState {
 };
 
 class Listen : public Task {
-    static constexpr char Name[] = "Listen";
-
 private:
     uint32_t lastActivity{ 0 };
     ListenerState state{ ListenerState::Idle };

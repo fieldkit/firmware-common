@@ -1,5 +1,4 @@
 #include "wifi_connections.h"
-#include "wifi_message_buffer.h"
 #include "utils.h"
 
 namespace fk {
@@ -8,35 +7,30 @@ constexpr uint32_t ConnectionTimeout = 5000;
 constexpr uint32_t ConnectionMemory = 128;
 constexpr uint32_t InactivityTimeout = 30 * 1000;
 
-HandleConnection::HandleConnection(WiFiClient wcl, AppServicer &servicer)
-    : Task("HandleConnection"), wcl(wcl), servicer(&servicer) {
+ReadAppQuery::ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, WifiMessageBuffer &buffer) :
+    Task("ReadAppQuery"), wcl(&wcl), servicer(&servicer), buffer(&buffer) {
 }
 
-TaskEval HandleConnection::task() {
+TaskEval ReadAppQuery::task() {
+    log("Task");
     if (dieAt == 0) {
         dieAt = millis() + ConnectionTimeout;
     } else if (millis() > dieAt) {
-        wcl.stop();
+        wcl->stop();
         log("Connection timed out.");
         return TaskEval::error();
     }
-    if (wcl.available()) {
-        WifiMessageBuffer buffer{ wcl };
-        auto bytesRead = buffer.read();
+    else if (wcl->available()) {
+        log("Available %p", buffer);
+        auto bytesRead = buffer->read();
         if (bytesRead > 0) {
             log("Read %d bytes", bytesRead);
-            if (!servicer->handle(buffer)) {
-                wcl.stop();
+            if (!servicer->handle(*buffer)) {
+                wcl->stop();
                 log("Error parsing query");
                 return TaskEval::error();
             } else {
-                auto e = servicer->task();
-                if (!e.isIdle()) {
-                    auto bytesWritten = buffer.write();
-                    log("Wrote %d bytes (%lu)", bytesWritten, fk_free_memory());
-                    wcl.stop();
-                    return e;
-                }
+                return TaskEval::pass(*servicer);
             }
         }
     }
@@ -44,11 +38,23 @@ TaskEval HandleConnection::task() {
     return TaskEval::idle();
 }
 
-constexpr char Listen::Name[];
+HandleConnection::HandleConnection(AppServicer &servicer)
+    : ActiveObject("HandleConnection"), servicer(&servicer), readAppQuery(wcl, servicer, buffer) {
+}
+
+void HandleConnection::enqueued() {
+    push(readAppQuery);
+}
+
+void HandleConnection::done() {
+    auto bytesWritten = buffer.write();
+    log("Wrote %d bytes (%lu)", bytesWritten, fk_free_memory());
+    wcl.stop();
+}
 
 Listen::Listen(uint16_t port, AppServicer &servicer)
-    : Task(Name), pool("WifiService", ConnectionMemory), server(port),
-      servicer(&servicer), handleConnection(WiFiClient(), servicer) {
+    : Task("Listen"), pool("WifiService", ConnectionMemory), server(port),
+      servicer(&servicer), handleConnection(servicer) {
 }
 
 void Listen::begin() {
@@ -85,7 +91,7 @@ TaskEval Listen::task() {
             log("Accepted!");
             pool.clear();
             state = ListenerState::Busy;
-            handleConnection = HandleConnection{ wcl, *servicer };
+            handleConnection.setConnection(wcl);
             return TaskEval::pass(handleConnection);
         }
     }

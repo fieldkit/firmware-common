@@ -10,11 +10,13 @@ private:
     WiFiClient *wcl;
 
 public:
-    WifiMessageBuffer(WiFiClient &wcl) : wcl(&wcl) {
+    void setConnection(WiFiClient &newClient) {
+        wcl = &newClient;
     }
 
 public:
     size_t read() override {
+        debugfpln("Debug", "Read %p", wcl);
         auto pos = (size_t)wcl->read(ptr(), size());
         move(pos);
         return pos;

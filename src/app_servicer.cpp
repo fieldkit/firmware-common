@@ -35,17 +35,19 @@ AppServicer::AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, 
 }
 
 TaskEval AppServicer::task() {
-    handle(query);
-
-    return TaskEval::done();
+    return handle();
 }
 
 bool AppServicer::handle(MessageBuffer &buffer) {
     this->buffer = &buffer;
-    return this->buffer->read(query);
+    auto e = this->buffer->read(query);
+    /*
+    if (!e.isIdle()) {
+        }*/
+    return e;
 }
 
-void AppServicer::handle(AppQueryMessage &query) {
+TaskEval AppServicer::handle() {
     switch (query.m().type) {
     case fk_app_QueryType_QUERY_CAPABILITIES: {
         capabilitiesReply();
@@ -242,6 +244,8 @@ void AppServicer::handle(AppQueryMessage &query) {
     }
 
     pool->clear();
+
+    return TaskEval::done();
 }
 
 void AppServicer::capabilitiesReply() {

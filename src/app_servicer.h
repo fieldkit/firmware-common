@@ -29,9 +29,10 @@ public:
 
 public:
     bool handle(MessageBuffer &buffer);
-    void handle(AppQueryMessage &query);
 
 private:
+    TaskEval handle();
+
     void capabilitiesReply();
 
     void configureNetworkSettings();
