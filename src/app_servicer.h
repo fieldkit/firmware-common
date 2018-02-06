@@ -13,8 +13,9 @@ namespace fk {
 class AppServicer : public Task {
 private:
     TwoWireBus *bus;
-    MessageBuffer *buffer{ nullptr };
+    MessageBuffer *buffer{nullptr};
     AppQueryMessage query;
+    AppReplyMessage reply;
     LiveData *liveData;
     CoreState *state;
     Scheduler *scheduler;

@@ -31,20 +31,16 @@ static void copy(fk_app_Schedule &to, ScheduledTask &from) {
 }
 
 AppServicer::AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, Pool &pool)
-    : Task("AppServicer"), bus(&bus), query(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), pool(&pool) {
-}
-
-TaskEval AppServicer::task() {
-    return handle();
+    : Task("AppServicer"), bus(&bus), query(&pool), reply(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), pool(&pool) {
 }
 
 bool AppServicer::handle(MessageBuffer &buffer) {
     this->buffer = &buffer;
-    auto e = this->buffer->read(query);
-    /*
-    if (!e.isIdle()) {
-        }*/
-    return e;
+    return this->buffer->read(query);
+}
+
+TaskEval AppServicer::task() {
+    return handle();
 }
 
 TaskEval AppServicer::handle() {
@@ -58,7 +54,6 @@ TaskEval AppServicer::handle() {
     case fk_app_QueryType_QUERY_DATA_SETS: {
         log("Query ds");
 
-        AppReplyMessage reply(pool);
         fileReplies->dataSetsReply(query, reply, *buffer);
 
         break;
@@ -66,7 +61,6 @@ TaskEval AppServicer::handle() {
     case fk_app_QueryType_QUERY_DOWNLOAD_DATA_SET: {
         log("Download ds %lu page=%lu", query.m().downloadDataSet.id, query.m().downloadDataSet.page);
 
-        AppReplyMessage reply(pool);
         fileReplies->downloadDataSetReply(query, reply, *buffer);
 
         break;
@@ -74,7 +68,6 @@ TaskEval AppServicer::handle() {
     case fk_app_QueryType_QUERY_ERASE_DATA_SET: {
         log("Erase ds");
 
-        AppReplyMessage reply(pool);
         fileReplies->eraseDataSetReply(query, reply, *buffer);
 
         break;
@@ -108,7 +101,6 @@ TaskEval AppServicer::handle() {
             .fields = fk_app_LiveDataSample_fields,
         };
 
-        AppReplyMessage reply(pool);
         reply.m().type = fk_app_ReplyType_REPLY_LIVE_DATA_POLL;
         reply.m().liveData.samples.funcs.encode = pb_encode_array;
         reply.m().liveData.samples.arg = (void *)&live_data_array;
@@ -127,7 +119,6 @@ TaskEval AppServicer::handle() {
         auto &status = scheduler->getTaskSchedule(ScheduleKind::Status);
         auto &location = scheduler->getTaskSchedule(ScheduleKind::Location);
 
-        AppReplyMessage reply(pool);
         reply.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
         copy(readings, reply.m().schedules.readings);
         copy(transmission, reply.m().schedules.transmission);
@@ -152,7 +143,6 @@ TaskEval AppServicer::handle() {
         auto &status = scheduler->getTaskSchedule(ScheduleKind::Status);
         auto &location = scheduler->getTaskSchedule(ScheduleKind::Location);
 
-        AppReplyMessage reply(pool);
         reply.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
         copy(reply.m().schedules.readings, readings);
         copy(reply.m().schedules.transmission, transmission);
@@ -170,7 +160,6 @@ TaskEval AppServicer::handle() {
 
         fileReplies->resetAll();
 
-        AppReplyMessage reply(pool);
         reply.m().type = fk_app_ReplyType_REPLY_SUCCESS;
 
         if (!buffer->write(reply)) {
@@ -191,7 +180,6 @@ TaskEval AppServicer::handle() {
         log("Download file (%lu / %lu)", query.m().downloadFile.id, query.m().downloadFile.page);
         auto started = millis();
 
-        AppReplyMessage reply(pool);
         fileReplies->downloadFileReply(query, reply, *buffer);
 
         log("Done (%lu)", millis() - started);
@@ -201,7 +189,6 @@ TaskEval AppServicer::handle() {
     case fk_app_QueryType_QUERY_ERASE_FILE: {
         log("Erase file (%lu)", query.m().eraseFile.id);
 
-        AppReplyMessage reply(pool);
         fileReplies->eraseFileReply(query, reply, *buffer);
 
         break;
@@ -235,7 +222,6 @@ TaskEval AppServicer::handle() {
     }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
     default: {
-        AppReplyMessage reply(pool);
         reply.error("Unknown query");
         buffer->write(reply);
 
@@ -283,7 +269,6 @@ void AppServicer::capabilitiesReply() {
         .buffer = deviceId.toBuffer(),
     };
 
-    AppReplyMessage reply(pool);
     reply.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
     reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
     reply.m().capabilities.name.funcs.encode = pb_encode_string;
@@ -301,7 +286,7 @@ void AppServicer::capabilitiesReply() {
 void AppServicer::configureNetworkSettings() {
     log("Configure network settings...");
 
-    pb_array_t *networksArray = (pb_array_t *)query.m().networkSettings.networks.arg;
+    auto networksArray = (pb_array_t *)query.m().networkSettings.networks.arg;
     auto newNetworks = (fk_app_NetworkInfo *)networksArray->buffer;
 
     log("Networks: %d", networksArray->length);
@@ -342,7 +327,6 @@ void AppServicer::networkSettingsReply() {
         .fields = fk_app_NetworkInfo_fields,
     };
 
-    AppReplyMessage reply(pool);
     reply.m().type = fk_app_ReplyType_REPLY_NETWORK_SETTINGS;
     reply.m().networkSettings.createAccessPoint = currentSettings.createAccessPoint;
     reply.m().networkSettings.networks.arg = &networksArray;
@@ -356,7 +340,6 @@ void AppServicer::statusReply() {
     log("Status");
 
     FuelGauge fuelGage;
-    AppReplyMessage reply(pool);
     reply.m().type = fk_app_ReplyType_REPLY_STATUS;
     reply.m().status.uptime = millis();
     reply.m().status.batteryPercentage = fuelGage.stateOfCharge();
@@ -387,7 +370,6 @@ void AppServicer::identityReply() {
     };
 
     auto identity = state->getIdentity();
-    AppReplyMessage reply(pool);
     reply.m().type = fk_app_ReplyType_REPLY_IDENTITY;
     reply.m().identity.device.arg = identity.device;
     reply.m().identity.stream.arg = identity.stream;
