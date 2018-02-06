@@ -99,7 +99,7 @@ bool FkfsData::appendReading(DeviceLocation &location, uint32_t sensorId, Sensor
 
     auto size = append(record);
 
-    log("Appended reading (%d bytes) (%lu, '%s' = %f)", size, reading.time, sensor.name, reading.value);
+    log("Appended reading (%d bytes) (%lu, %d, '%s' = %f)", size, reading.time, sensorId, sensor.name, reading.value);
 
     return true;
 }
