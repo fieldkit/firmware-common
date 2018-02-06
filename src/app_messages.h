@@ -18,6 +18,10 @@ public:
     AppQueryMessage(Pool *pool) : pool(pool) {
     }
 
+    void clear() {
+        message = fk_app_WireMessageQuery_init_default;
+    }
+
     pb_data_t *getDownloadToken() {
         if (message.downloadFile.token.arg != pool) {
             return (pb_data_t *)message.downloadFile.token.arg;
@@ -71,6 +75,10 @@ private:
 
 public:
     AppReplyMessage(Pool *pool) : pool(pool) {
+    }
+
+    void clear() {
+        message = fk_app_WireMessageReply_init_default;
     }
 
     fk_app_WireMessageReply *forDecode() {

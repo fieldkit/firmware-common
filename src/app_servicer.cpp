@@ -44,6 +44,9 @@ TaskEval AppServicer::task() {
 }
 
 TaskEval AppServicer::handle() {
+    buffer->clear();
+    reply.clear();
+
     switch (query.m().type) {
     case fk_app_QueryType_QUERY_CAPABILITIES: {
         capabilitiesReply();
@@ -171,7 +174,6 @@ TaskEval AppServicer::handle() {
     case fk_app_QueryType_QUERY_FILES: {
         log("Query files");
 
-        AppReplyMessage reply(pool);
         fileReplies->queryFilesReply(query, reply, *buffer);
 
         break;
