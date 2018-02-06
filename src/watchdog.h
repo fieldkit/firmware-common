@@ -12,7 +12,7 @@ private:
     Leds *leds;
 
 public:
-    Watchdog(Leds &leds) : leds(&leds) {
+    Watchdog(Leds &leds) : ActiveObject("Watchdog"), leds(&leds) {
     }
 
 public:

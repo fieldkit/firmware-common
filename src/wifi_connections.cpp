@@ -12,7 +12,6 @@ ReadAppQuery::ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, WifiMessageBu
 }
 
 TaskEval ReadAppQuery::task() {
-    log("Task");
     if (dieAt == 0) {
         dieAt = millis() + ConnectionTimeout;
     } else if (millis() > dieAt) {
@@ -21,7 +20,6 @@ TaskEval ReadAppQuery::task() {
         return TaskEval::error();
     }
     else if (wcl->available()) {
-        log("Available %p", buffer);
         auto bytesRead = buffer->read();
         if (bytesRead > 0) {
             log("Read %d bytes", bytesRead);
@@ -39,7 +37,7 @@ TaskEval ReadAppQuery::task() {
 }
 
 HandleConnection::HandleConnection(AppServicer &servicer)
-    : ActiveObject("HandleConnection"), servicer(&servicer), readAppQuery(wcl, servicer, buffer) {
+    : ActiveObject("HandleConnection"), servicer(&servicer), buffer(), readAppQuery(wcl, servicer, buffer) {
 }
 
 void HandleConnection::enqueued() {
@@ -47,8 +45,7 @@ void HandleConnection::enqueued() {
 }
 
 void HandleConnection::done() {
-    auto bytesWritten = buffer.write();
-    log("Wrote %d bytes (%lu)", bytesWritten, fk_free_memory());
+    buffer.write();
     wcl.stop();
 }
 

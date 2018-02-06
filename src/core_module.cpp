@@ -11,7 +11,7 @@ private:
     TwoWireBus *bus;
 
 public:
-    Status(CoreState &state, TwoWireBus &bus) : state(&state), bus(&bus) {
+    Status(CoreState &state, TwoWireBus &bus) : ActiveObject("Status"), state(&state), bus(&bus) {
     }
 
 public:

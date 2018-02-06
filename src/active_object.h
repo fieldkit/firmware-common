@@ -109,7 +109,6 @@ private:
     Task *tasks{ nullptr };
 
 public:
-    ActiveObject();
     ActiveObject(const char *name);
     ActiveObject(const char *name, Task &idleTask);
 

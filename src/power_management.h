@@ -16,7 +16,7 @@ private:
     uint32_t time { 0 };
 
 public:
-    Power(CoreState &state) : state(&state) {
+    Power(CoreState &state) : ActiveObject("PM"), state(&state) {
     }
 
 public:

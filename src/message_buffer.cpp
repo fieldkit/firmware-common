@@ -41,8 +41,6 @@ bool MessageBuffer::write(const pb_field_t *fields, void *src) {
     }
     pos = stream.bytes_written;
 
-    debugfpln("Buffer", "Wrote %d", pos);
-
     return true;
 }
 

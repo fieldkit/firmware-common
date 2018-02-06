@@ -9,9 +9,6 @@ void Task::log(const char *f, ...) const {
     va_end(args);
 }
 
-ActiveObject::ActiveObject() : Task("AO") {
-}
-
 ActiveObject::ActiveObject(const char *name) : Task(name) {
 }
 
