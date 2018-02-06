@@ -56,8 +56,8 @@ private:
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
     PeriodicTask periodics[2] {
-        fk::PeriodicTask{ 30 * 1000, gatherReadings },
-        fk::PeriodicTask{ 30 * 1000, determineLocation },
+        fk::PeriodicTask{ 20 * 1000, gatherReadings },
+        fk::PeriodicTask{ 20 * 1000, determineLocation },
     };
     ScheduledTask scheduled[4] {
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
