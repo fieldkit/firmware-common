@@ -27,17 +27,26 @@ private:
     };
     bool finished{ false };
     uint32_t startedAt{ 0 };
+    uint32_t statusAt{ 0 };
     size_t totalBytes{ 0 };
+
+public:
+    fkfs_iterator_token_t *resumeToken() {
+        return &token;
+    }
 
 public:
     FkfsIterator(fkfs_t &fs, uint8_t file) : fs(&fs), file(file) {
     }
 
-    FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t resumeToken) : fs(&fs), file(file), token(resumeToken) {
+    FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t *resumeToken) : fs(&fs), file(file) {
+        if (resumeToken != nullptr) {
+            memcpy(&token, resumeToken, sizeof(fkfs_iterator_token_t));
+        }
     }
 
 public:
-    void resume(fkfs_iterator_token_t resumeToken) {
+    void resume(fkfs_iterator_token_t &resumeToken) {
         token = resumeToken;
     }
 
@@ -45,14 +54,20 @@ public:
         if (!finished) {
             if (startedAt == 0) {
                 startedAt = millis();
+                statusAt = startedAt;
             }
+
+            if (millis() - statusAt > 1000) {
+                debugfpln("FkfsIterator", "Iterating %d after %lu...", totalBytes, millis() - startedAt);
+                statusAt = millis();
+            }
+
             if (fkfs_file_iterate(fs, file, &config, &iter, &token)) {
                 totalBytes += iter.size;
                 return DataBlock{ iter.data, iter.size };
             }
             else {
                 finished = true;
-
                 debugfpln("FkfsIterator", "Finished %d after %lu", totalBytes, millis() - startedAt);
             }
         }

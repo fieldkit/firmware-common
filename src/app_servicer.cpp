@@ -180,13 +180,7 @@ TaskEval AppServicer::handle() {
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
         log("Download file (%lu / %lu)", query.m().downloadFile.id, query.m().downloadFile.page);
-        auto started = millis();
-
-        fileReplies->downloadFileReply(query, reply, *buffer);
-
-        log("Done (%lu)", millis() - started);
-
-        break;
+        return fileReplies->downloadFileReply(query, reply, *buffer);
     }
     case fk_app_QueryType_QUERY_ERASE_FILE: {
         log("Erase file (%lu)", query.m().eraseFile.id);

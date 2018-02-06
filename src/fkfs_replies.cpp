@@ -6,7 +6,7 @@ namespace fk {
 
 constexpr uint32_t DefaultPageSize = (size_t)(8 * 4096);
 
-FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId) {
+FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId), downloadFileTask(nullptr) {
 }
 
 void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -42,7 +42,7 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     }
 }
 
-void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *incomingToken, AppReplyMessage &reply, MessageBuffer &buffer) {
+void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer) {
     fkfs_iterator_token_t token = { 0 };
     fkfs_file_iter_t iter = { 0 };
     uint8_t data[1024];
@@ -54,9 +54,9 @@ void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *i
         pageSize = customPageSize;
     }
 
-    if (incomingToken != nullptr && incomingToken->length > 0) {
-        fk_assert(incomingToken->length == sizeof(fkfs_iterator_token_t));
-        memcpy((void *)&token, (void *)incomingToken->buffer, sizeof(fkfs_iterator_token_t));
+    if (resumeToken != nullptr && resumeToken->length > 0) {
+        fk_assert(resumeToken->length == sizeof(fkfs_iterator_token_t));
+        memcpy((void *)&token, (void *)resumeToken->buffer, sizeof(fkfs_iterator_token_t));
         log("Using previous token (pageSize = %lu) (%lu, %d -> %lu)", pageSize, token.block, token.offset, token.lastBlock);
     } else {
         log("Starting download (pageSize = %lu)", pageSize);
@@ -118,8 +118,23 @@ void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *i
     log("Done (%d bytes), sending token (%lu, %d -> %lu) (took %lu)", total, token.block, token.offset, token.lastBlock, millis() - started);
 }
 
-void FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    sendPageOfFile(query.m().downloadFile.id, query.m().downloadFile.pageSize, query.getDownloadToken(), reply, buffer);
+TaskEval FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    if (downloadFileTask != nullptr) {
+        delete downloadFileTask;
+    }
+
+    fkfs_iterator_token_t *resumeToken = nullptr;
+    auto rawToken = query.getDownloadToken();
+    if (rawToken != nullptr && rawToken->length > 0) {
+        fk_assert(rawToken->length == sizeof(fkfs_iterator_token_t));
+        resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
+    }
+
+    downloadFileTask = new DownloadFileTask(fs, query.m().downloadFile.id, resumeToken, reply, buffer);
+
+    log("Created DownloadFileTask %lu...", fk_free_memory());
+
+    return TaskEval::pass(*downloadFileTask);
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -129,7 +144,15 @@ void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply,
 }
 
 void FkfsReplies::resetAll() {
-    fkfs_file_truncate_all(fs);
+    if (!fkfs_file_truncate_all(fs)) {
+        log("Error: Unable to truncateAll");
+    }
+
+    if (!fkfs_initialize(fs, true)) {
+        log("Error: Unable to resetAll");
+    }
+
+    NVIC_SystemReset();
 }
 
 void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -187,6 +210,46 @@ void FkfsReplies::log(const char *f, ...) const {
     va_start(args, f);
     vdebugfpln("Files", f, args);
     va_end(args);
+}
+
+DownloadFileTask::DownloadFileTask(fkfs_t *fs, uint8_t file, fkfs_iterator_token_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer) :
+    Task("DownloadFile"), reply(&reply), buffer(&buffer), iterator(*fs, file, resumeToken) {
+}
+
+TaskEval DownloadFileTask::task() {
+    auto data = iterator.move();
+    if (data && data.size > 0) {
+        pb_data_t dataData = {
+            .length = data.size,
+            .buffer = data.ptr,
+        };
+
+        fkfs_iterator_token_t empty = { 0 };
+
+        pb_data_t tokenData = {
+            .length = sizeof(fkfs_iterator_token_t),
+            .buffer = &empty,
+        };
+
+        reply->clear();
+        reply->m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
+        reply->m().fileData.data.funcs.encode = pb_encode_data;
+        reply->m().fileData.data.arg = (void *)&dataData;
+        reply->m().fileData.token.funcs.encode = pb_encode_data;
+        reply->m().fileData.token.arg = (void *)&tokenData;
+
+        if (!buffer->write(*reply)) {
+            log("Error writing reply");
+        }
+
+        buffer->write();
+    }
+
+    if (iterator.isFinished()) {
+        return TaskEval::done();
+    }
+
+    return TaskEval::idle();
 }
 
 }
