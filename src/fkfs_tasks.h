@@ -29,6 +29,7 @@ private:
     uint32_t startedAt{ 0 };
     uint32_t statusAt{ 0 };
     size_t totalBytes{ 0 };
+    size_t iteratedBytes{ 0 };
 
 public:
     fkfs_iterator_token_t *resumeToken() {
@@ -50,25 +51,39 @@ public:
         token = resumeToken;
     }
 
+    void status() {
+        debugfpln("FkfsIterator", "%d/%d bytes, %lums, %.2f", iteratedBytes, totalBytes,
+                  millis() - startedAt, ((float)iteratedBytes / totalBytes) * 100.0f);
+    }
+
     DataBlock move() {
         if (!finished) {
             if (startedAt == 0) {
+                fkfs_file_info_t info = { 0 };
+                if (!fkfs_get_file(fs, file, &info)) {
+                    debugfpln("FkfsIterator", "Error: Unable to get file information!");
+                    return DataBlock{ nullptr, 0 };
+                }
+
                 startedAt = millis();
                 statusAt = startedAt;
+                totalBytes = info.size;
+                iteratedBytes = 0;
+                status();
             }
 
             if (millis() - statusAt > 1000) {
-                debugfpln("FkfsIterator", "Iterating %d after %lu...", totalBytes, millis() - startedAt);
+                status();
                 statusAt = millis();
             }
 
             if (fkfs_file_iterate(fs, file, &config, &iter, &token)) {
-                totalBytes += iter.size;
+                iteratedBytes += iter.size;
                 return DataBlock{ iter.data, iter.size };
             }
             else {
                 finished = true;
-                debugfpln("FkfsIterator", "Finished %d after %lu", totalBytes, millis() - startedAt);
+                status();
             }
         }
         return DataBlock{ nullptr, 0 };
