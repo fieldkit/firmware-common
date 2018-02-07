@@ -59,6 +59,10 @@ bool FileSystem::setup() {
         return false;
     }
 
+    // This ensures our first line is on a newline by itself.
+    fkfs_log_append(&fkfs_log, "\n\nStartup\n\n");
+    fkfs_log_flush(&fkfs_log);
+
     debug_add_hook(debug_write_log, &fkfs_log);
 
     return true;
