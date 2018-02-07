@@ -88,6 +88,7 @@ private:
     Clock *clock;
     ScheduledTask *tasks;
     PeriodicTask *periodic;
+    uint32_t lastCheckAt{ 0 };
     size_t numberOfTasks;
     size_t numberOfPeriodics;
 

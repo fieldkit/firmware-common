@@ -2,6 +2,8 @@
 
 namespace fk {
 
+constexpr uint32_t CheckInterval = 500;
+
 static bool valid(const TimeSpec &spec) {
     return spec.fixed > -1 || spec.interval > -1;
 }
@@ -93,6 +95,10 @@ void Scheduler::idle() {
         return;
     }
     if (clock->isValid()) {
+        if (millis() - lastCheckAt < CheckInterval) {
+            return;
+        }
+        lastCheckAt = millis();
         auto now = clock->now();
         for (size_t i = 0; i < numberOfTasks; ++i) {
             if (tasks[i].valid() && tasks[i].shouldRun(now)) {
