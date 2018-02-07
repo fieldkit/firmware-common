@@ -75,6 +75,8 @@ void SendStatus::done(Task &task) {
 
 void ReadGPS::enqueued() {
     started = millis();
+    // Ensure we have a fresh start and aren't going to re-use an old fix.
+    gps = TinyGPS();
     Serial1.begin(9600);
 }
 
