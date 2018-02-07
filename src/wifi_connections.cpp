@@ -45,8 +45,17 @@ void HandleConnection::enqueued() {
 }
 
 void HandleConnection::done() {
-    buffer.write();
-    wcl.stop();
+    if (!buffer.empty()) {
+        buffer.write();
+    }
+    if (wcl && wcl.connected()) {
+        log("Stop connection");
+        wcl.flush();
+        wcl.stop();
+    }
+    else {
+        log("No connection!");
+    }
 }
 
 Listen::Listen(uint16_t port, AppServicer &servicer)
