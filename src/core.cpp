@@ -4,7 +4,7 @@
 namespace fk {
 
 constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
-constexpr uint32_t GpsStatusInterval = 1 * 1000;
+constexpr uint32_t GpsStatusInterval = 1 * 500;
 
 GatherReadings::GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, Pool &pool) :
     ActiveObject("GatherReadings"), state(&state), leds(&leds), beginTakeReading(bus, pool, 8), queryReadingStatus(bus, pool, 8) {
@@ -91,12 +91,17 @@ TaskEval ReadGPS::task() {
         gps.encode(c);
     }
 
-    if (millis() - lastStatus > GpsStatusInterval) {
+    if (millis() - lastStatus < GpsStatusInterval) {
+        lastStatus = millis();
+        return TaskEval::idle();
+    }
+
+    auto satellites = gps.satellites();
+    if (satellites != TinyGPS::GPS_INVALID_SATELLITES) {
         float flat, flon;
         uint32_t positionAage;
         gps.f_get_position(&flat, &flon, &positionAage);
 
-        auto satellites = gps.satellites();
         auto hdop = gps.hdop();
         auto altitude = gps.f_altitude();
 
@@ -106,28 +111,13 @@ TaskEval ReadGPS::task() {
         gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
         DateTime dateTime(year, month, day, hour, minute, second);
 
-        if (flon != TinyGPS::GPS_INVALID_F_ANGLE && flat != TinyGPS::GPS_INVALID_F_ANGLE && altitude != TinyGPS::GPS_INVALID_F_ALTITUDE) {
-            log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", dateTime.unixtime(), satellites, hdop, flon, flat, altitude);
-            state->updateLocation(dateTime.unixtime(), flon, flat, altitude);
-            clock.setTime(dateTime);
-            return TaskEval::done();
-        }
-
-        lastStatus = millis();
+        log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", dateTime.unixtime(), satellites, hdop, flon, flat, altitude);
+        state->updateLocation(dateTime.unixtime(), flon, flat, altitude);
+        clock.setTime(dateTime);
+        return TaskEval::done();
     }
 
     return TaskEval::idle();
-}
-
-DetermineLocation::DetermineLocation(TwoWireBus &bus, CoreState &state, Pool &pool) :
-    ActiveObject("DetermineLocation"), state(&state), readGps(bus, state) {
-}
-
-void DetermineLocation::enqueued() {
-    push(readGps);
-}
-
-void DetermineLocation::done(Task &task) {
 }
 
 }

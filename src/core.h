@@ -76,20 +76,6 @@ public:
 
 };
 
-class DetermineLocation : public ActiveObject {
-private:
-    CoreState *state;
-    ReadGPS readGps;
-
-public:
-    DetermineLocation(TwoWireBus &bus, CoreState &state, Pool &pool);
-
-public:
-    void enqueued() override;
-    void done(Task &task) override;
-
-};
-
 }
 
 #endif

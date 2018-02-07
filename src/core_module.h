@@ -52,18 +52,18 @@ private:
     JsonMessageBuilder builder{state, clock};
     SendTransmission sendTransmission{bus, builder, transmission, modulesPool};
     SendStatus sendStatus{bus, builder, transmission, modulesPool};
-    DetermineLocation determineLocation{bus, state, modulesPool};
+    ReadGPS readGps{bus, state};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
     PeriodicTask periodics[2] {
-        fk::PeriodicTask{ 20 * 1000, determineLocation },
+        fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 20 * 1000, gatherReadings },
     };
     ScheduledTask scheduled[4] {
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
-        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
-        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, determineLocation },
+        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
+        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
+        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, readGps },
     };
     Scheduler scheduler{state, clock, scheduled, periodics};
 
