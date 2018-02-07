@@ -28,7 +28,8 @@ public:
 class FkfsReplies {
 private:
     fkfs_t *fs;
-    uint8_t dataFileId{0};
+    uint8_t dataFileId{ 0 };
+    Pool taskPool{ "Tasks", sizeof(DownloadFileTask) + 4 };
     DownloadFileTask *downloadFileTask;
 
 public:

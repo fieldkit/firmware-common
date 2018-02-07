@@ -1,3 +1,5 @@
+#include <new>
+
 #include "fkfs_replies.h"
 #include "debug.h"
 #include "utils.h"
@@ -119,10 +121,9 @@ void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *r
 }
 
 TaskEval FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    if (downloadFileTask != nullptr) {
-        delete downloadFileTask;
-    }
+    taskPool.clear();
 
+    auto ptr = taskPool.malloc(sizeof(DownloadFileTask));
     fkfs_iterator_token_t *resumeToken = nullptr;
     auto rawToken = query.getDownloadToken();
     if (rawToken != nullptr && rawToken->length > 0) {
@@ -130,9 +131,9 @@ TaskEval FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage 
         resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
     }
 
-    downloadFileTask = new DownloadFileTask(fs, query.m().downloadFile.id, resumeToken, reply, buffer);
+    downloadFileTask = new (ptr) DownloadFileTask(fs, query.m().downloadFile.id, resumeToken, reply, buffer);
 
-    log("Created DownloadFileTask %lu...", fk_free_memory());
+    log("Created DownloadFileTask = %p (%lu free)", downloadFileTask, fk_free_memory());
 
     return TaskEval::pass(*downloadFileTask);
 }
