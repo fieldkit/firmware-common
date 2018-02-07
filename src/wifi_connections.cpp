@@ -5,7 +5,7 @@ namespace fk {
 
 constexpr uint32_t ConnectionTimeout = 5000;
 constexpr uint32_t ConnectionMemory = 128;
-constexpr uint32_t InactivityTimeout = 30 * 1000;
+constexpr uint32_t InactivityTimeout = 60 * 1000;
 
 ReadAppQuery::ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, WifiMessageBuffer &buffer) :
     Task("ReadAppQuery"), wcl(&wcl), servicer(&servicer), buffer(&buffer) {
