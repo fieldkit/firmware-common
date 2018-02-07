@@ -82,6 +82,9 @@ void Listen::end() {
 }
 
 bool Listen::inactive() {
+    if (state == ListenerState::Busy) {
+        return false;
+    }
     return millis() - lastActivity > InactivityTimeout;
 }
 
