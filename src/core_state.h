@@ -18,6 +18,7 @@ private:
     DeviceLocation location;
     DeviceIdentity deviceIdentity;
     FkfsData *data;
+    bool busy{ false };
 
 public:
     CoreState(FkfsData &data);
@@ -67,6 +68,14 @@ public:
     void updateIp(uint32_t ip);
     void updateLocationFixFailed();
     void updateLocation(uint32_t time, float longitude, float latitude, float altitude);
+
+    bool isBusy() {
+        return busy;
+    }
+
+    void setBusy(bool value) {
+        busy = value;
+    }
 
 private:
     size_t getModuleIndex(uint8_t address);

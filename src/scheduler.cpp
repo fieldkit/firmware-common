@@ -89,6 +89,9 @@ bool ScheduledTask::matches(DateTime now) {
 }
 
 void Scheduler::idle() {
+    if (state->isBusy()) {
+        return;
+    }
     if (clock->isValid()) {
         auto now = clock->now();
         for (size_t i = 0; i < numberOfTasks; ++i) {

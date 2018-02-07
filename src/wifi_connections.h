@@ -72,6 +72,9 @@ public:
     void begin();
     void end();
     bool inactive();
+    bool hasConnection() {
+        return state == ListenerState::Busy;
+    }
 
 public:
     TaskEval task() override;
