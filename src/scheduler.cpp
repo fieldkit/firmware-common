@@ -90,15 +90,16 @@ bool ScheduledTask::matches(DateTime now) {
     return true;
 }
 
-void Scheduler::idle() {
-    if (state->isBusy()) {
-        return;
+TaskEval Scheduler::task() {
+    auto e = ActiveObject::task();
+
+    auto elapsed = millis() - lastCheckAt;
+    if (elapsed < CheckInterval) {
+        return e;
     }
+    lastCheckAt = millis();
+
     if (clock->isValid()) {
-        if (millis() - lastCheckAt < CheckInterval) {
-            return;
-        }
-        lastCheckAt = millis();
         auto now = clock->now();
         for (size_t i = 0; i < numberOfTasks; ++i) {
             if (tasks[i].valid() && tasks[i].shouldRun(now)) {
@@ -106,17 +107,24 @@ void Scheduler::idle() {
                 DateTime runsAgain{tasks[i]. getNextRunTime(now) };
                 FormattedTime nowFormatted{ now };
                 FormattedTime runsAgainFormatted{ runsAgain };
-                log("%s: run task (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
-                push(task);
+                log("%s: run task (again = %s) (busy=%d)", nowFormatted.toString(), runsAgainFormatted.toString(), state->isBusy());
+                if (!state->isBusy()) {
+                    push(task);
+                }
             }
         }
     }
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
         if (periodic[i].shouldRun()) {
             auto &task = periodic[i].getTask();
-            push(task);
+            log("run task (busy=%d)", state->isBusy());
+            if (!state->isBusy()) {
+                push(task);
+            }
         }
     }
+
+    return e;
 }
 
 ScheduledTask &Scheduler::getTaskSchedule(ScheduleKind kind) {

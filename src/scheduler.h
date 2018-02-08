@@ -100,7 +100,7 @@ public:
     }
 
 public:
-    void idle() override;
+    TaskEval task() override;
 
 public:
     ScheduledTask &getTaskSchedule(ScheduleKind kind);

@@ -71,18 +71,18 @@ void CoreModule::run() {
     scheduler.push(ntp);
 
     while (true) {
-        status.tick();
-        leds.tick();
-        power.tick();
-        watchdog.tick();
-        attachedDevices.tick();
+        status.task();
+        leds.task();
+        power.task();
+        watchdog.task();
+        attachedDevices.task();
         if (attachedDevices.isIdle()) {
-            liveData.tick();
+            liveData.task();
             if (liveData.isIdle()) {
-                scheduler.tick();
+                scheduler.task();
             }
-            wifi.tick();
-            discovery.tick();
+            wifi.task();
+            discovery.task();
         }
     }
 }
