@@ -19,7 +19,8 @@ public:
         if (millis() - lastTick > 5000) {
             DeviceId deviceId{ *bus };
             IpAddress4 ip{ state->getStatus().ip };
-            debugfpln("Status", "Status (%.2f%% / %.2fmv) (%lu free) (%s) (%s)",
+            auto now = clock.now();
+            debugfpln("Status", "Status %lu (%.2f%% / %.2fmv) (%lu free) (%s) (%s)", now.unixtime(),
                       state->getStatus().batteryPercentage, state->getStatus().batteryVoltage,
                       fk_free_memory(), ip.toString(), deviceId.toString());
             lastTick = millis();
