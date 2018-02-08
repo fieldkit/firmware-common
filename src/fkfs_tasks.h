@@ -37,78 +37,16 @@ public:
     }
 
 public:
-    FkfsIterator(fkfs_t &fs, uint8_t file) : fs(&fs), file(file) {
-    }
-
-    FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t *resumeToken) : fs(&fs), file(file) {
-        if (resumeToken != nullptr) {
-            memcpy(&token, resumeToken, sizeof(fkfs_iterator_token_t));
-        }
-    }
+    FkfsIterator(fkfs_t &fs, uint8_t file);
+    FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t *resumeToken);
 
 public:
-    void resume(fkfs_iterator_token_t &resumeToken) {
-        token = resumeToken;
-    }
-
-    void status() {
-        debugfpln("FkfsIterator", "%d/%d bytes, %lums, %.2f", iteratedBytes, totalBytes,
-                  millis() - startedAt, ((float)iteratedBytes / totalBytes) * 100.0f);
-    }
-
-    DataBlock move() {
-        if (!finished) {
-            if (startedAt == 0) {
-                fkfs_file_info_t info = { 0 };
-                if (!fkfs_get_file(fs, file, &info)) {
-                    debugfpln("FkfsIterator", "Error: Unable to get file information!");
-                    return DataBlock{ nullptr, 0 };
-                }
-
-                startedAt = millis();
-                statusAt = startedAt;
-                totalBytes = info.size;
-                iteratedBytes = 0;
-                status();
-            }
-
-            if (millis() - statusAt > 1000) {
-                status();
-                statusAt = millis();
-            }
-
-            if (fkfs_file_iterate(fs, file, &config, &iter, &token)) {
-                iteratedBytes += iter.size;
-                return DataBlock{ iter.data, iter.size };
-            }
-            else {
-                finished = true;
-                status();
-            }
-        }
-        return DataBlock{ nullptr, 0 };
-    }
-
-    bool handle(void *data, size_t size) {
-        return true;
-    }
-
+    void resume(fkfs_iterator_token_t &resumeToken);
+    void status();
+    DataBlock move();
     bool isFinished() {
         return finished;
     }
-
-};
-
-class DataIteratorTask : public Task {
-private:
-    fkfs_t *fs;
-    FkfsIterator iterator;
-
-public:
-    DataIteratorTask(fkfs_t &fs);
-
-public:
-    TaskEval task();
 
 };
 
