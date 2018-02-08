@@ -32,8 +32,8 @@ private:
     size_t iteratedBytes{ 0 };
 
 public:
-    fkfs_iterator_token_t *resumeToken() {
-        return &token;
+    fkfs_iterator_token_t &resumeToken() {
+        return token;
     }
 
 public:
@@ -41,7 +41,8 @@ public:
     FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t *resumeToken);
 
 public:
-    void resume(fkfs_iterator_token_t &resumeToken);
+    void reopen(fkfs_iterator_token_t &token);
+    void resume(fkfs_iterator_token_t &token);
     void status();
     void beginning();
     DataBlock move();

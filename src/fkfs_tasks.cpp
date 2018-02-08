@@ -20,8 +20,15 @@ void FkfsIterator::beginning() {
     iter = { 0 };
 }
 
-void FkfsIterator::resume(fkfs_iterator_token_t &resumeToken) {
-    token = resumeToken;
+void FkfsIterator::reopen(fkfs_iterator_token_t &position) {
+    beginning();
+    token = position;
+    fkfs_file_iterator_reopen(fs, &token);
+}
+
+void FkfsIterator::resume(fkfs_iterator_token_t &position) {
+    beginning();
+    token = position;
 }
 
 void FkfsIterator::status() {

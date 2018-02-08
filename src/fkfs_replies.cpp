@@ -227,7 +227,7 @@ TaskEval DownloadFileTask::task() {
 
         pb_data_t tokenData = {
             .length = sizeof(fkfs_iterator_token_t),
-            .buffer = iterator.resumeToken(),
+            .buffer = &iterator.resumeToken(),
         };
 
         reply->clear();
