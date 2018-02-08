@@ -22,6 +22,9 @@ void AttachedDevices::resume() {
 }
 
 void AttachedDevices::idle() {
+    if (state->isBusy()) {
+        return;
+    }
     uint32_t rescanInterval = (state->numberOfModules() == 0 ? 30 : 60 * 5) * 1000;
     if (lastScanAt == 0 || millis() - lastScanAt > rescanInterval) {
         log("Starting scan...");
