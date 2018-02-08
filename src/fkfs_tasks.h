@@ -43,6 +43,7 @@ public:
 public:
     void resume(fkfs_iterator_token_t &resumeToken);
     void status();
+    void beginning();
     DataBlock move();
     bool isFinished() {
         return finished;

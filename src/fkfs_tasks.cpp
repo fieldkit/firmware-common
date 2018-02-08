@@ -11,6 +11,15 @@ FkfsIterator::FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t *resu
     }
 }
 
+void FkfsIterator::beginning() {
+    finished = false;
+    startedAt = 0;
+    iteratedBytes = 0;
+    statusAt = 0;
+    token = { 0 };
+    iter = { 0 };
+}
+
 void FkfsIterator::resume(fkfs_iterator_token_t &resumeToken) {
     token = resumeToken;
 }
