@@ -6,20 +6,49 @@
 #include <fkfs.h>
 
 #include "module_info.h"
+#include "pool.h"
 #include "i2c.h"
 
 namespace fk {
 
 class CoreState;
 
+class DataRecordMessage {
+private:
+    fk_data_DataRecord message = fk_data_DataRecord_init_default;
+    Pool *pool;
+
+public:
+    DataRecordMessage(Pool &pool) : pool(&pool) {
+    }
+
+    void clear() {
+        message = fk_data_DataRecord_init_default;
+    }
+
+    fk_data_DataRecord *forDecode() {
+        return &message;
+    }
+
+    fk_data_DataRecord *forEncode() {
+        return &message;
+    }
+
+    fk_data_DataRecord &m() {
+        return message;
+    }
+
+};
+
 class FkfsData {
 private:
     fkfs_t *fs;
     TwoWireBus *bus;
     uint8_t file;
+    Pool *pool;
 
 public:
-    FkfsData(fkfs_t &fs, TwoWireBus &bus, uint8_t file);
+    FkfsData(fkfs_t &fs, TwoWireBus &bus, uint8_t file, Pool &pool);
 
 public:
     bool appendMetadata(CoreState &state);

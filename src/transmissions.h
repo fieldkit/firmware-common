@@ -2,7 +2,9 @@
 #define FK_TRANSMISSIONS_H_INCLUDED
 
 #include "active_object.h"
+#include "pool.h"
 #include "core_state.h"
+#include "fkfs_tasks.h"
 
 namespace fk {
 
@@ -30,6 +32,21 @@ public:
     }
     void write(Print &stream);
     const char *getContentType();
+
+};
+
+class TransmitAllQueuedReadings : public ActiveObject {
+private:
+    FkfsIterator iterator;
+    CoreState *state;
+    Pool *pool;
+
+public:
+    TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Pool &pool);
+
+public:
+    void enqueued();
+    TaskEval task() override;
 
 };
 

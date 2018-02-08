@@ -19,6 +19,7 @@ private:
     DeviceIdentity deviceIdentity;
     FkfsData *data;
     bool busy{ false };
+    fkfs_iterator_token_t transmissionCursor{ 0 };
 
 public:
     CoreState(FkfsData &data);
@@ -75,6 +76,14 @@ public:
 
     void setBusy(bool value) {
         busy = value;
+    }
+
+    fkfs_iterator_token_t &getTransmissionCursor() {
+        return transmissionCursor;
+    }
+
+    void setTransmissionCursor(fkfs_iterator_token_t &cursor) {
+        transmissionCursor = cursor;
     }
 
 private:

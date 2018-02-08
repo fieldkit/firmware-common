@@ -15,7 +15,7 @@ namespace fk {
 
 constexpr const char Log[] = "Data";
 
-FkfsData::FkfsData(fkfs_t &fs, TwoWireBus &bus, uint8_t file) : fs(&fs), bus(&bus), file(file) {
+FkfsData::FkfsData(fkfs_t &fs, TwoWireBus &bus, uint8_t file, Pool &pool) : fs(&fs), bus(&bus), file(file), pool(&pool) {
 }
 
 bool FkfsData::appendMetadata(CoreState &state) {

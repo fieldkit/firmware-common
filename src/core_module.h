@@ -35,13 +35,15 @@ namespace fk {
 
 class CoreModule {
 private:
+    Pool appPool{"AppPool", 256 + 128};
+    Pool modulesPool{"ModulesPool", 256 + 128};
+    Pool dataPool{"DataPool", 128};
+
     TwoWireBus bus{ Wire };
-    FileSystem fileSystem{ bus };
+    FileSystem fileSystem{ bus, dataPool };
     Watchdog watchdog{ leds };
     Power power{ state };
     CoreState state{fileSystem.getData()};
-    Pool modulesPool{"ModulesPool", 256 + 128};
-    Pool appPool{"AppPool", 256 + 128};
     Leds leds;
 
     HttpTransmissionConfig transmissionConfig = {
@@ -52,6 +54,7 @@ private:
     JsonMessageBuilder builder{state, clock};
     SendTransmission sendTransmission{bus, builder, transmission, modulesPool};
     SendStatus sendStatus{bus, builder, transmission, modulesPool};
+    TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, dataPool};
     ReadGPS readGps{bus, state};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
@@ -61,7 +64,7 @@ private:
     };
     ScheduledTask scheduled[4] {
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendTransmission },
+        fk::ScheduledTask{ {  0, -1 }, {  0, -1 }, { -1, -1 }, { -1, -1 }, transmitAllQueuedReadings },
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, readGps },
     };

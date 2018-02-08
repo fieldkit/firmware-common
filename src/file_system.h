@@ -24,7 +24,7 @@ private:
     FkfsReplies replies{ fs, FKFS_FILE_DATA };
 
 public:
-    FileSystem(TwoWireBus &bus);
+    FileSystem(TwoWireBus &bus, Pool &pool);
 
 public:
     bool setup();
