@@ -74,16 +74,70 @@ void SendStatus::done(Task &task) {
 }
 
 void ReadGPS::enqueued() {
-    started = millis();
+    started = 0;
     // Ensure we have a fresh start and aren't going to re-use an old fix.
     gps = TinyGPS();
     Serial1.begin(9600);
 }
 
+struct GpsReading {
+    uint8_t satellites;
+
+    float flon;
+    float flat;
+    float altitude;
+    uint32_t positionFixAge;
+    float course;
+    float speed;
+    uint32_t hdop;
+
+    uint32_t year;
+    uint8_t month;
+    uint8_t day;
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+    uint8_t hundredths;
+    uint32_t timeFixAge;
+    uint32_t date;
+    uint32_t time;
+
+    GpsReading(TinyGPS &gps) {
+        satellites = gps.satellites();
+        gps.f_get_position(&flat, &flon, &positionFixAge);
+        hdop = gps.hdop();
+        altitude = gps.f_altitude();
+        course = gps.f_course();
+        speed = gps.f_speed_kmph();
+        gps.crack_datetime((int *)&year, &month, &day, &hour, &minute, &second, &hundredths, &timeFixAge);
+        gps.get_datetime(&date, &time, &timeFixAge);
+    }
+
+    bool isValid() {
+        if (satellites == TinyGPS::GPS_INVALID_SATELLITES) return false;
+        if (flon == TinyGPS::GPS_INVALID_ANGLE) return false;
+        if (flat == TinyGPS::GPS_INVALID_ANGLE) return false;
+        if (altitude == TinyGPS::GPS_INVALID_ALTITUDE) return false;
+        if (positionFixAge == TinyGPS::GPS_INVALID_AGE) return false;
+        if (course == TinyGPS::GPS_INVALID_ANGLE) return false;
+        if (speed == TinyGPS::GPS_INVALID_SPEED) return false;
+        if (hdop == TinyGPS::GPS_INVALID_HDOP) return false;
+        if (hdop == TinyGPS::GPS_INVALID_HDOP) return false;
+        if (timeFixAge == TinyGPS::GPS_INVALID_AGE) return false;
+        if (date == TinyGPS::GPS_INVALID_DATE) return false;
+        if (time == TinyGPS::GPS_INVALID_TIME) return false;
+
+        return true;
+    }
+
+    DateTime toDateTime() {
+        return DateTime(year, month, day, hour, minute, second);
+    }
+};
+
 TaskEval ReadGPS::task() {
-    if (millis() - started > GpsFixAttemptInterval) {
-        state->updateLocationFixFailed();
-        return TaskEval::error();
+    if (started == 0) {
+        started = millis();
     }
 
     while (Serial1.available()) {
@@ -96,25 +150,22 @@ TaskEval ReadGPS::task() {
         return TaskEval::idle();
     }
 
-    auto satellites = gps.satellites();
-    if (satellites != TinyGPS::GPS_INVALID_SATELLITES) {
-        float flat, flon;
-        uint32_t positionAage;
-        gps.f_get_position(&flat, &flon, &positionAage);
+    auto fix = GpsReading{ gps };
+    if (fix.isValid()) {
+        auto dateTime = fix.toDateTime();
+        auto unix = dateTime.unixtime();
 
-        auto hdop = gps.hdop();
-        auto altitude = gps.f_altitude();
+        log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);
 
-        auto year = 0;
-        uint8_t month, day, hour, minute, second, hundredths;
-        uint32_t age;
-        gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
-        DateTime dateTime(year, month, day, hour, minute, second);
-
-        log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", dateTime.unixtime(), satellites, hdop, flon, flat, altitude);
-        state->updateLocation(dateTime.unixtime(), flon, flat, altitude);
+        state->updateLocation(unix, fix.flon, fix.flat, fix.altitude);
         clock.setTime(dateTime);
+
         return TaskEval::done();
+    }
+
+    if (millis() - started > GpsFixAttemptInterval) {
+        state->updateLocationFixFailed();
+        return TaskEval::error();
     }
 
     return TaskEval::idle();
