@@ -15,7 +15,24 @@ ActiveObject::ActiveObject(const char *name) : Task(name) {
 ActiveObject::ActiveObject(const char *name, Task &idleTask) : Task(name), idleTask(&idleTask) {
 }
 
+bool ActiveObject::inQueue(Task &task) {
+    // This should also return true if the Task is in another chain. Probably
+    // should be a flag on the Task itself.
+    for (auto iter = tasks; iter != nullptr; iter = iter->nextTask) {
+        if (iter == &task) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void ActiveObject::push(Task &task) {
+    if (inQueue(task)) {
+        log("%s enqueue skipped (already queued)", task.toString());
+        return;
+    }
+
     log("%s enqueue (%s)", task.toString(), tasks == nullptr ? "HEAD" : tail()->toString());
     *end() = &task;
     task.enqueued();

@@ -116,6 +116,7 @@ public:
     TaskEval task() override;
 
 public:
+    bool inQueue(Task &task);
     void push(Task &task);
     void tick();
     bool isIdle();
