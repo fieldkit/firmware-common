@@ -13,7 +13,7 @@ struct Call {
 template<typename T>
 class History {
 private:
-    static constexpr size_t Size = 16;
+    static constexpr size_t Size = 32;
     T history[Size];
     size_t head;
 
