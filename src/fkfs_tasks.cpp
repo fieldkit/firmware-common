@@ -23,8 +23,7 @@ void FkfsIterator::beginning() {
 void FkfsIterator::reopen(fkfs_iterator_token_t &position) {
     auto oldSize = token.size;
     beginning();
-    memcpy(&token, &position, sizeof(fkfs_iterator_token_t));
-    // token = position;
+    token = position;
     fkfs_file_iterator_reopen(fs, file, &token);
     totalBytes = token.size - oldSize;
     // debugfpln("FkfsIterator", "Reopen oldSize=%lu newSize=%lu block=%lu offset=%d lastBlock=%lu lastOffset=%d", oldSize, token.size, token.block, token.offset, token.lastBlock, token.lastOffset);
@@ -32,8 +31,7 @@ void FkfsIterator::reopen(fkfs_iterator_token_t &position) {
 
 void FkfsIterator::resume(fkfs_iterator_token_t &position) {
     beginning();
-    // token = position;
-    memcpy(&token, &position, sizeof(fkfs_iterator_token_t));
+    token = position;
 }
 
 void FkfsIterator::status() {
