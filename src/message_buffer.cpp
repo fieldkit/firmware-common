@@ -27,6 +27,10 @@ bool MessageBuffer::write(AppReplyMessage &message) {
     return write(fk_app_WireMessageReply_fields, message.forEncode());
 }
 
+bool MessageBuffer::write(DataRecordMessage &message) {
+    return write(fk_data_DataRecord_fields, message.forEncode());
+}
+
 bool MessageBuffer::write(const pb_field_t *fields, void *src) {
     size_t size;
 

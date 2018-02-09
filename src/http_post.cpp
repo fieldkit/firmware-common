@@ -47,19 +47,10 @@ TaskEval HttpPost::task() {
 
         parser.begin();
 
-        // TODO: Verify we got good values? Though this should
-        // probably have been checked before.
         if (parsed.server != nullptr && parsed.path != nullptr) {
             log("Connecting: '%s' / '%s'", parsed.server, parsed.path);
 
-            if ((uint32_t)config->cachedAddress == (uint32_t)0) {
-                if (!WiFi.hostByName(parsed.server, config->cachedAddress)) {
-                    log("DNS failure on '%s'", parsed.server);
-                }
-            }
-
-            // TODO: Fix blocking.
-            if (config->cachedAddress != (uint32_t)0 && wcl.connect(config->cachedAddress, 80)) {
+            if (config->cachedDns.cached(parsed.server) && wcl.connect(config->cachedDns.ip(), parsed.port)) {
                 PrintSizeCalculator sizeCalc;
                 write(sizeCalc);
                 log("Size: %d", sizeCalc.getSize());

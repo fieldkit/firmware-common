@@ -1,6 +1,8 @@
 #ifndef FK_UTILS_H_INCLUDED
 #define FK_UTILS_H_INCLUDED
 
+#include <WiFi101.h>
+
 #include <cstdint>
 #include <cstdio>
 
@@ -27,6 +29,26 @@ public:
         snprintf(str, sizeof(str), "%d.%d.%d.%d", a.bytes[0], a.bytes[1], a.bytes[2], a.bytes[3]);
         return str;
     }
+};
+
+class CachedDnsResolution {
+private:
+    ::IPAddress cachedAddress;
+
+public:
+    bool cached(const char *hostname) {
+        if ((uint32_t)cachedAddress == (uint32_t)0) {
+            if (!WiFi.hostByName(hostname, cachedAddress)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    uint32_t ip() {
+        return cachedAddress;
+    }
+
 };
 
 struct Url {
@@ -116,6 +138,18 @@ public:
     uint16_t getStatusCode() {
         return statusCode;
     }
+
+};
+
+class HttpResponseWriter {
+private:
+    WiFiClient &wcl;
+
+public:
+    explicit HttpResponseWriter(WiFiClient &wcl);
+
+public:
+    void writeHeaders(Url &url, const char *contentType, uint32_t contentLength);
 
 };
 

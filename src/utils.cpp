@@ -49,6 +49,23 @@ void HttpResponseParser::write(uint8_t c) {
     }
 }
 
+HttpResponseWriter::HttpResponseWriter(WiFiClient &wcl) : wcl(wcl) {
+}
+
+void HttpResponseWriter::writeHeaders(Url &url, const char *contentType, uint32_t contentLength) {
+    wcl.print("POST /");
+    wcl.print(url.path);
+    wcl.println(" HTTP/1.1");
+    wcl.print("Host: ");
+    wcl.println(url.server);
+    wcl.print("Content-Type: ");
+    wcl.println(contentType);
+    wcl.print("Content-Length: ");
+    wcl.println(contentLength);
+    wcl.println("Connection: close");
+    wcl.println();
+}
+
 SerialNumber::SerialNumber() {
     volatile uint32_t *ptr1 = (volatile uint32_t *)0x0080A00C;
     values[0] = *ptr1;

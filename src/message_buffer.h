@@ -7,8 +7,21 @@
 #include "i2c.h"
 #include "app_messages.h"
 #include "module_messages.h"
+#include "data_messages.h"
 
 namespace fk {
+
+class MessageBufferWriter {
+protected:
+    uint8_t *buffer;
+    size_t size;
+    size_t pos{ 0 };
+
+public:
+    template<size_t Size>
+    MessageBufferWriter(uint8_t (&buffer)[Size]) : buffer(buffer), size(Size) {
+    }
+};
 
 class MessageBuffer {
 protected:
@@ -55,6 +68,8 @@ public:
     bool read(AppQueryMessage &message);
 
     bool write(AppReplyMessage &message);
+
+    bool write(DataRecordMessage &message);
 
 private:
     bool write(const pb_field_t *fields, void *src);

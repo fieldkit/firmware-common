@@ -66,48 +66,30 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
 
     parser.begin();
 
-    // TODO: Verify we got good values? Though this should
-    // probably have been checked before.
     if (parsed.server != nullptr && parsed.path != nullptr) {
         log("Connecting: '%s:%d' / '%s'", parsed.server, parsed.port, parsed.path);
 
-        if ((uint32_t)config->cachedAddress == (uint32_t)0) {
-            if (!WiFi.hostByName(parsed.server, config->cachedAddress)) {
-                log("DNS failure on '%s'", parsed.server);
-            }
-        }
-
-        // TODO: Fix blocking.
-        if (config->cachedAddress != (uint32_t)0 && wcl.connect(config->cachedAddress, parsed.port)) {
+        if (config->cachedDns.cached(parsed.server) && wcl.connect(config->cachedDns.ip(), parsed.port)) {
             iterator.reopen(state->getTransmissionCursor());
 
-            auto drm = DataRecordMetadataMessage{ *bus, *state, *pool };
-            auto metadataSize = drm.calculateSize();
-            log("Need %d more", metadataSize);
-
-            uint8_t buffer[metadataSize + ProtoBufEncodeOverhead];
+            DataRecordMetadataMessage drm{ *bus, *state, *pool };
+            uint8_t buffer[drm.calculateSize()];
             auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
             if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
-                log("Error encoding data file record (%d/%d bytes)", metadataSize, sizeof(buffer));
+                log("Error encoding data file record (%d bytes)", sizeof(buffer));
                 state->setBusy(false);
                 return TaskEval::error();
             }
 
-            log("Connected, transmitting %d", iterator.size());
-            connected = true;
+            auto bufferSize = stream.bytes_written;
+            auto transmitting = iterator.size() + bufferSize;
 
-            wcl.print("POST /");
-            wcl.print(parsed.path);
-            wcl.println(" HTTP/1.1");
-            wcl.print("Host: ");
-            wcl.println(parsed.server);
-            wcl.print("Content-Type: ");
-            wcl.println("application/vnd.fk.data+binary");
-            wcl.print("Content-Length: ");
-            wcl.println(iterator.size() + stream.bytes_written);
-            wcl.println("Connection: close");
-            wcl.println();
-            wcl.write(buffer, stream.bytes_written);
+            HttpResponseWriter httpWriter(wcl);
+            httpWriter.writeHeaders(parsed, "application/vnd.fk.data+binary", transmitting);
+
+            log("Connected, transmitting %d...", transmitting);
+            connected = true;
+            wcl.write(buffer, bufferSize);
         } else {
             log("Not connected!");
             state->setBusy(false);

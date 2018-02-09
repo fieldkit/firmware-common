@@ -12,7 +12,10 @@ constexpr uint32_t WifiHttpPostTimeout = 5000;
 struct HttpTransmissionConfig {
     const char *url;
     const char *streamUrl;
-    ::IPAddress cachedAddress;
+
+    // This assume they're both the same! Maybe define this as hostname and then
+    // two paths?
+    CachedDnsResolution cachedDns;
 };
 
 class HttpPost : public TransmissionTask {
