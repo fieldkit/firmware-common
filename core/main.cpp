@@ -7,6 +7,7 @@
 #include "device_id.h"
 #include "i2c.h"
 #include "fkfs_data.h"
+#include "restart_wizard.h"
 
 extern "C" {
 
@@ -50,6 +51,8 @@ void setup() {
 #endif
 
     debugfpln("Core", "Starting");
+
+    fk::restartWizard.startup();
 
     firmware_version_set(FIRMWARE_GIT_HASH);
 

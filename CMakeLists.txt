@@ -50,6 +50,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/transmissions.cpp
   ${COMMON_SRCS_DIR}/transmit_readings.cpp
   ${COMMON_SRCS_DIR}/file_system.cpp
+  ${COMMON_SRCS_DIR}/restart_wizard.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})
