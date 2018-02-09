@@ -15,6 +15,55 @@ namespace fk {
 
 constexpr const char Log[] = "Data";
 
+DataRecordMetadataMessage::DataRecordMetadataMessage(TwoWireBus &bus, CoreState &state, Pool &pool) : DataRecordMessage(pool), deviceId(bus) {
+    auto *attached = state.attachedModules();
+    auto numberOfSensors = state.numberOfSensors();
+    auto sensorIndex = 0;
+    for (size_t moduleIndex = 0; attached[moduleIndex].address > 0; ++moduleIndex) {
+        for (size_t i = 0; i < attached[moduleIndex].numberOfSensors; ++i) {
+            sensors[sensorIndex].sensor = i;
+            sensors[sensorIndex].name.funcs.encode = pb_encode_string;
+            sensors[sensorIndex].name.arg = (void *)attached[moduleIndex].sensors[i].name;
+            sensors[sensorIndex].unitOfMeasure.funcs.encode = pb_encode_string;
+            sensors[sensorIndex].unitOfMeasure.arg = (void *)attached[moduleIndex].sensors[i].unitOfMeasure;
+
+            sensorIndex++;
+        }
+    }
+
+    sensorsArray = {
+        .length = numberOfSensors,
+        .itemSize = sizeof(fk_data_SensorInfo),
+        .buffer = sensors,
+        .fields = fk_data_SensorInfo_fields,
+    };
+
+
+    deviceIdData = {
+        .length = deviceId.length(),
+        .buffer = deviceId.toBuffer(),
+    };
+
+    m().metadata.time = clock.getTime();
+    m().metadata.resetCause = system_get_reset_cause();
+    m().metadata.deviceId.funcs.encode = pb_encode_data;
+    m().metadata.deviceId.arg = (void *)&deviceIdData;
+    m().metadata.git.funcs.encode = pb_encode_string;
+    m().metadata.git.arg = (void *)firmware_version_get();
+    m().metadata.sensors.funcs.encode = pb_encode_array;
+    m().metadata.sensors.arg = (void *)&sensorsArray;
+}
+
+size_t DataRecordMetadataMessage::calculateSize() {
+    size_t size;
+
+    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &m())) {
+        return 0;
+    }
+
+    return size;
+}
+
 FkfsData::FkfsData(fkfs_t &fs, TwoWireBus &bus, uint8_t file, Pool &pool) : fs(&fs), bus(&bus), file(file), pool(&pool) {
 }
 

@@ -1,9 +1,10 @@
 #include "transmit_readings.h"
+#include "restart_wizard.h"
 
 namespace fk {
 
-TransmitAllQueuedReadings::TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, Pool &pool) :
-    ActiveObject("TransmitAllQueued"), iterator(fs, file), state(&state), wifi(&wifi), config(&config), pool(&pool) {
+TransmitAllQueuedReadings::TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, TwoWireBus &bus, Pool &pool) :
+    ActiveObject("TransmitAllQueued"), iterator(fs, file), state(&state), wifi(&wifi), config(&config), bus(&bus), pool(&pool) {
 }
 
 void TransmitAllQueuedReadings::enqueued() {
@@ -43,10 +44,12 @@ TaskEval TransmitAllQueuedReadings::task() {
     }
 
     if (iterator.isFinished()) {
-        log("Done, disconnecting (statusCode=%d)", parser.getStatusCode());
+        log("Finishing...");
         state->setTransmissionCursor(iterator.resumeToken());
+        log("Stop connection");
         wcl.stop();
         state->setBusy(false);
+        log("Done, disconnecting (statusCode=%d)", parser.getStatusCode());
         return TaskEval::done();
     }
 
@@ -78,6 +81,18 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
         if (config->cachedAddress != (uint32_t)0 && wcl.connect(config->cachedAddress, parsed.port)) {
             iterator.reopen(state->getTransmissionCursor());
 
+            auto drm = DataRecordMetadataMessage{ *bus, *state, *pool };
+            auto metadataSize = drm.calculateSize();
+            log("Need %d more", metadataSize);
+
+            uint8_t buffer[metadataSize + ProtoBufEncodeOverhead];
+            auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+            if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
+                log("Error encoding data file record (%d/%d bytes)", metadataSize, sizeof(buffer));
+                state->setBusy(false);
+                return TaskEval::error();
+            }
+
             log("Connected, transmitting %d", iterator.size());
             connected = true;
 
@@ -89,9 +104,10 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
             wcl.print("Content-Type: ");
             wcl.println("application/vnd.fk.data+binary");
             wcl.print("Content-Length: ");
-            wcl.println(iterator.size());
+            wcl.println(iterator.size() + stream.bytes_written);
             wcl.println("Connection: close");
             wcl.println();
+            wcl.write(buffer, stream.bytes_written);
         } else {
             log("Not connected!");
             state->setBusy(false);

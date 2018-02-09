@@ -9,6 +9,9 @@
 #include "pool.h"
 #include "i2c.h"
 
+#include "device_id.h"
+#include "protobuf.h"
+
 namespace fk {
 
 class CoreState;
@@ -37,6 +40,21 @@ public:
     fk_data_DataRecord &m() {
         return message;
     }
+
+};
+
+class DataRecordMetadataMessage : public DataRecordMessage {
+private:
+    DeviceId deviceId;
+    fk_data_SensorInfo sensors[MaximumNumberOfSensors];
+    pb_data_t deviceIdData;
+    pb_array_t sensorsArray;
+
+public:
+    DataRecordMetadataMessage(TwoWireBus &bus, CoreState &state, Pool &pool);
+
+public:
+    size_t calculateSize();
 
 };
 

@@ -16,13 +16,14 @@ private:
     CoreState *state;
     Wifi *wifi;
     HttpTransmissionConfig *config;
+    TwoWireBus *bus;
     Pool *pool;
     bool connected{ false };
     WiFiClient wcl;
     HttpResponseParser parser;
 
 public:
-    TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, Pool &pool);
+    TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, TwoWireBus &bus, Pool &pool);
 
 public:
     void enqueued();
