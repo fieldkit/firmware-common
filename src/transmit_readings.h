@@ -28,6 +28,10 @@ public:
     void enqueued();
     TaskEval task() override;
 
+private:
+    TaskEval openConnection();
+    void parseRecord(DataBlock &data);
+
 };
 
 }
