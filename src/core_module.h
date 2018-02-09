@@ -30,6 +30,7 @@
 #include "leds.h"
 #include "file_system.h"
 #include "fkfs_tasks.h"
+#include "transmit_readings.h"
 
 namespace fk {
 
@@ -47,14 +48,15 @@ private:
     Leds leds;
 
     HttpTransmissionConfig transmissionConfig = {
-        .url = "https://api.fkdev.org/messages/ingestion?token=TOKEN",
+        .url = "https://192.168.0.141/messages/ingestion?token=TOKEN",
+        .streamUrl = "https://192.168.0.141/messages/ingestion/stream",
     };
     HttpPost transmission{wifi, transmissionConfig};
     GatherReadings gatherReadings{bus, state, leds, modulesPool};
     JsonMessageBuilder builder{state, clock};
     SendTransmission sendTransmission{bus, builder, transmission, modulesPool};
     SendStatus sendStatus{bus, builder, transmission, modulesPool};
-    TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, dataPool};
+    TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, wifi, transmissionConfig, dataPool};
     ReadGPS readGps{bus, state};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
@@ -64,7 +66,7 @@ private:
     };
     ScheduledTask scheduled[4] {
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
-        fk::ScheduledTask{ {  0, -1 }, {  0, -1 }, { -1, -1 }, { -1, -1 }, transmitAllQueuedReadings },
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllQueuedReadings },
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, readGps },
     };

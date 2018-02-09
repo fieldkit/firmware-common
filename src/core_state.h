@@ -83,7 +83,8 @@ public:
     }
 
     void setTransmissionCursor(fkfs_iterator_token_t &cursor) {
-        transmissionCursor = cursor;
+        // transmissionCursor = cursor;
+        memcpy(&transmissionCursor, &cursor, sizeof(fkfs_iterator_token_t));
     }
 
 private:

@@ -11,6 +11,7 @@ constexpr uint32_t WifiHttpPostTimeout = 5000;
 
 struct HttpTransmissionConfig {
     const char *url;
+    const char *streamUrl;
     ::IPAddress cachedAddress;
 };
 

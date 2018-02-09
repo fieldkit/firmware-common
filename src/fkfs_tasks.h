@@ -33,7 +33,10 @@ private:
 
 public:
     fkfs_iterator_token_t &resumeToken() {
-        return token;
+        return iter.token;
+    }
+    size_t size() {
+        return totalBytes;
     }
 
 public:

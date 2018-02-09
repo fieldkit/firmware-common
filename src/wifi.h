@@ -6,9 +6,9 @@
 #include <WiFiUdp.h>
 
 #include "active_object.h"
+#include "app_servicer.h"
 #include "wifi_connections.h"
 #include "core_state.h"
-#include "app_servicer.h"
 
 namespace fk {
 

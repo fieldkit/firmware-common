@@ -2,6 +2,7 @@
 #define FK_JSON_MESSAGE_BUILDER_H_INCLUDED
 
 #include "transmissions.h"
+#include "core_state.h"
 #include "rtc.h"
 
 namespace fk {

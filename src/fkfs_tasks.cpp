@@ -21,18 +21,25 @@ void FkfsIterator::beginning() {
 }
 
 void FkfsIterator::reopen(fkfs_iterator_token_t &position) {
+    auto oldSize = token.size;
     beginning();
-    token = position;
-    fkfs_file_iterator_reopen(fs, &token);
+    memcpy(&token, &position, sizeof(fkfs_iterator_token_t));
+    // token = position;
+    fkfs_file_iterator_reopen(fs, file, &token);
+    totalBytes = token.size - oldSize;
+    // debugfpln("FkfsIterator", "Reopen oldSize=%lu newSize=%lu block=%lu offset=%d lastBlock=%lu lastOffset=%d", oldSize, token.size, token.block, token.offset, token.lastBlock, token.lastOffset);
 }
 
 void FkfsIterator::resume(fkfs_iterator_token_t &position) {
     beginning();
-    token = position;
+    // token = position;
+    memcpy(&token, &position, sizeof(fkfs_iterator_token_t));
 }
 
 void FkfsIterator::status() {
     debugfpln("FkfsIterator", "%d/%d bytes, %lums, %.2f", iteratedBytes, totalBytes, millis() - startedAt, ((float)iteratedBytes / totalBytes) * 100.0f);
+    // debugfpln("FkfsIterator", "block=%lu offset=%d lastBlock=%lu lastOffset=%d (resume)", token.block, token.offset, token.lastBlock, token.lastOffset);
+    // debugfpln("FkfsIterator", "block=%lu offset=%d lastBlock=%lu lastOffset=%d (iter)", iter.token.block, iter.token.offset, iter.token.lastBlock, token.lastOffset);
 }
 
 DataBlock FkfsIterator::move() {
@@ -46,7 +53,9 @@ DataBlock FkfsIterator::move() {
 
             startedAt = millis();
             statusAt = startedAt;
-            totalBytes = info.size;
+            if (totalBytes == 0) {
+                totalBytes = info.size;
+            }
             iteratedBytes = 0;
             status();
         }
