@@ -66,7 +66,7 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
     // TODO: Verify we got good values? Though this should
     // probably have been checked before.
     if (parsed.server != nullptr && parsed.path != nullptr) {
-        log("Connecting: '%s' / '%s'", parsed.server, parsed.path);
+        log("Connecting: '%s:%d' / '%s'", parsed.server, parsed.port, parsed.path);
 
         if ((uint32_t)config->cachedAddress == (uint32_t)0) {
             if (!WiFi.hostByName(parsed.server, config->cachedAddress)) {
@@ -75,7 +75,7 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
         }
 
         // TODO: Fix blocking.
-        if (config->cachedAddress != (uint32_t)0 && wcl.connect(config->cachedAddress, 8080)) {
+        if (config->cachedAddress != (uint32_t)0 && wcl.connect(config->cachedAddress, parsed.port)) {
             iterator.reopen(state->getTransmissionCursor());
 
             log("Connected, transmitting %d", iterator.size());

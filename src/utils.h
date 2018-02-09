@@ -33,6 +33,7 @@ struct Url {
 public:
     char *server{ nullptr };
     char *path{ nullptr };
+    uint16_t port{ 80 };
 
 public:
     Url(char *url) {
@@ -40,6 +41,18 @@ public:
             if (server == nullptr && p[0] == '/' && p[1] == '/') {
                 p += 2;
                 server = p;
+            } else if (server != nullptr && p[0] == ':') {
+                p[0] = 0;
+                auto portBegin = ++p;
+                for ( ; p[0] != 0; ++p) {
+                    if (p[0] == '/') {
+                        p[0] = 0;
+                        port = atoi(portBegin);
+                        path = p + 1;
+                        break;
+                    }
+                }
+                break;
             } else if (server != nullptr && p[0] == '/') {
                 p[0] = 0;
                 path = p + 1;

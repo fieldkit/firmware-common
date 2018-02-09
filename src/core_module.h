@@ -48,8 +48,8 @@ private:
     Leds leds;
 
     HttpTransmissionConfig transmissionConfig = {
-        .url = "https://192.168.0.141/messages/ingestion?token=TOKEN",
-        .streamUrl = "https://192.168.0.141/messages/ingestion/stream",
+        .url = "http://192.168.0.141:8080/messages/ingestion?token=TOKEN",
+        .streamUrl = "http://192.168.0.141:8080/messages/ingestion/stream",
     };
     HttpPost transmission{wifi, transmissionConfig};
     GatherReadings gatherReadings{bus, state, leds, modulesPool};
