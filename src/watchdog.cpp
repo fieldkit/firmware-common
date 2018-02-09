@@ -1,13 +1,6 @@
-#include <../Adafruit_ASFcore/reset.h>
-#undef min
-#undef max
-#undef HIGH
-#undef LOW
-
-#include <AtSamd.h>
-
 #include "watchdog.h"
 #include "debug.h"
+#include "asf.h"
 
 // Not sure how I feel about this dependency just to report our IP periodically.
 #include "wifi.h"

@@ -11,8 +11,8 @@
 extern "C" {
 
 // #define DEBUG_MTB_ENABLE
-#define DEBUG_UART_FALLBACK
 // #define DEBUG_DUMP_OBJECT_SIZES
+#define DEBUG_UART_FALLBACK
 
 #ifdef DEBUG_MTB_ENABLE
 #define DEBUG_MTB_SIZE 256
@@ -76,13 +76,13 @@ void setup() {
     FK_DUMP_SIZE(fk::GatherReadings);
     FK_DUMP_SIZE(fk::SendTransmission);
     FK_DUMP_SIZE(fk::SendStatus);
-    FK_DUMP_SIZE(fk::DetermineLocation);
     FK_DUMP_SIZE(fk::Scheduler);
     FK_DUMP_SIZE(fk::LiveData);
     FK_DUMP_SIZE(fk::AppServicer);
     FK_DUMP_SIZE(fk::Wifi);
     FK_DUMP_SIZE(fk::SimpleNTP);
     FK_DUMP_SIZE(WiFiUDP);
+    FK_DUMP_SIZE(WiFiClient);
     FK_DUMP_SIZE(fkfs_t);
     FK_DUMP_SIZE(fkfs_header_t);
     FK_DUMP_SIZE(fkfs_log_t);
