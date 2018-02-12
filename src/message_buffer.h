@@ -11,51 +11,14 @@
 
 namespace fk {
 
-class MessageBufferWriter {
-protected:
-    uint8_t *buffer;
-    size_t size;
-    size_t pos{ 0 };
-
-public:
-    template<size_t Size>
-    MessageBufferWriter(uint8_t (&buffer)[Size]) : buffer(buffer), size(Size) {
-    }
-};
-
 class MessageBuffer {
 protected:
-    uint8_t buffer[4096 + 64];
     size_t pos{ 0 };
 
 public:
-    uint8_t *ptr() {
-        return buffer;
-    }
+    virtual uint8_t *ptr() = 0;
 
-    size_t size() {
-        return sizeof(buffer);
-    }
-
-    size_t position() {
-        return pos;
-    }
-
-    void clear() {
-        pos = 0;
-    }
-
-    bool empty() {
-        return pos == 0;
-    }
-
-    void append(uint8_t c) {
-        buffer[pos++] = c;
-    }
-
-    void move(size_t p) {
-        pos = p;
-    }
+    virtual size_t size() = 0;
 
     bool write(ModuleQueryMessage &message);
 
@@ -71,9 +34,21 @@ public:
 
     bool write(DataRecordMessage &message);
 
-private:
-    bool write(const pb_field_t *fields, void *src);
-    bool read(const pb_field_t *fields, void *src);
+    size_t position() {
+        return pos;
+    }
+
+    void clear() {
+        pos = 0;
+    }
+
+    bool empty() {
+        return pos == 0;
+    }
+
+    void move(size_t p) {
+        pos = p;
+    }
 
 public:
     virtual size_t read() {
@@ -84,9 +59,29 @@ public:
         return 0;
     }
 
+private:
+    bool write(const pb_field_t *fields, void *src);
+    bool read(const pb_field_t *fields, void *src);
+
 };
 
-class TwoWireMessageBuffer : public MessageBuffer {
+template<size_t Size>
+class ArrayMessageBuffer : public MessageBuffer {
+protected:
+    uint8_t buffer[Size];
+
+public:
+    uint8_t *ptr() override {
+        return buffer;
+    }
+
+    size_t size() override {
+        return sizeof(buffer);
+    }
+
+};
+
+class TwoWireMessageBuffer : public ArrayMessageBuffer<256> {
 private:
     TwoWireBus *bus;
 

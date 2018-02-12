@@ -5,7 +5,10 @@
 
 namespace fk {
 
-class WifiMessageBuffer : public MessageBuffer {
+// This is copied from WiFiSocket.cpp. I wish they were in a header.
+constexpr size_t SOCKET_BUFFER_SIZE = 1472;
+
+class WifiMessageBuffer : public ArrayMessageBuffer<SOCKET_BUFFER_SIZE> {
 private:
     WiFiClient *wcl;
 
