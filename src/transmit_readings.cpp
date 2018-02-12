@@ -46,7 +46,7 @@ TaskEval TransmitAllQueuedReadings::task() {
     if (iterator.isFinished()) {
         log("Finishing...");
         state->setTransmissionCursor(iterator.resumeToken());
-        log("Stop connection");
+        log("Stop connection (free = %lu)", fk_free_memory());
         wcl.stop();
         state->setBusy(false);
         log("Done, disconnecting (statusCode=%d)", parser.getStatusCode());

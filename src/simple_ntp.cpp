@@ -77,6 +77,8 @@ TaskEval SimpleNTP::task() {
 
             log("UTC: %lu (old = %lu)", epoch, oldEpoch);
 
+            stop();
+
             return TaskEval::done();
         }
     }
