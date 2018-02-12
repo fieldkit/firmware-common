@@ -63,10 +63,7 @@ TaskEval AppServicer::handle() {
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_DATA_SET: {
         log("Download ds %lu page=%lu", query.m().downloadDataSet.id, query.m().downloadDataSet.page);
-
-        fileReplies->downloadDataSetReply(query, reply, *buffer);
-
-        break;
+        return fileReplies->downloadDataSetReply(query, reply, *buffer);
     }
     case fk_app_QueryType_QUERY_ERASE_DATA_SET: {
         log("Erase ds");

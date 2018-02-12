@@ -44,82 +44,6 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     }
 }
 
-void FkfsReplies::sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer) {
-    fkfs_iterator_token_t token = { 0 };
-    fkfs_file_iter_t iter = { 0 };
-    uint8_t data[1024];
-    size_t total = 0;
-    auto started = millis();
-    auto buffersSent = 0;
-    auto pageSize = DefaultPageSize;
-    if (customPageSize > 0) {
-        pageSize = customPageSize;
-    }
-
-    if (resumeToken != nullptr && resumeToken->length > 0) {
-        fk_assert(resumeToken->length == sizeof(fkfs_iterator_token_t));
-        memcpy((void *)&token, (void *)resumeToken->buffer, sizeof(fkfs_iterator_token_t));
-        log("Using previous token (pageSize = %lu) (%lu, %d -> %lu)", pageSize, token.block, token.offset, token.lastBlock);
-    } else {
-        log("Starting download (pageSize = %lu)", pageSize);
-    }
-
-    pb_data_t dataData = {
-        .length = 0,
-        .buffer = data,
-    };
-
-    pb_data_t tokenData = {
-        .length = sizeof(fkfs_iterator_token_t),
-        .buffer = &token,
-    };
-
-    fkfs_iterator_config_t config = {
-        .maxBlocks = 0,
-        .maxTime = 4000
-    };
-
-    reply.m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
-    reply.m().fileData.data.funcs.encode = pb_encode_data;
-    reply.m().fileData.data.arg = (void *)&dataData;
-    reply.m().fileData.token.funcs.encode = pb_encode_data;
-    reply.m().fileData.token.arg = (void *)&tokenData;
-
-    while (fkfs_file_iterate(fs, id, &config, &iter, &token)) {
-        if (dataData.length + iter.size >= sizeof(data)) {
-            reply.m().fileData.hash = crc32_checksum(data, dataData.length);
-
-            if (!buffer.write(reply)) {
-                log("Error writing reply");
-            }
-            buffer.write();
-
-            buffersSent++;
-            dataData.length = 0;
-        }
-
-        memcpy(data + dataData.length, iter.data, iter.size);
-
-        dataData.length += iter.size;
-        total += iter.size;
-
-        if (total >= pageSize) {
-            break;
-        }
-    }
-
-    if (buffer.position() > 0 || buffersSent == 0) {
-        reply.m().fileData.hash = crc32_checksum(data, dataData.length);
-
-        if (!buffer.write(reply)) {
-            log("Error writing reply");
-        }
-        buffer.write();
-    }
-
-    log("Done (%d bytes), sending token (%lu, %d -> %lu) (took %lu)", total, token.block, token.offset, token.lastBlock, millis() - started);
-}
-
 TaskEval FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     taskPool.clear();
 
@@ -195,8 +119,22 @@ void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, 
     }
 }
 
-void FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    sendPageOfFile(dataFileId, query.m().downloadDataSet.pageSize, query.getDownloadToken(), reply, buffer);
+TaskEval FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    taskPool.clear();
+
+    auto ptr = taskPool.malloc(sizeof(DownloadFileTask));
+    fkfs_iterator_token_t *resumeToken = nullptr;
+    auto rawToken = query.getDownloadToken();
+    if (rawToken != nullptr && rawToken->length > 0) {
+        fk_assert(rawToken->length == sizeof(fkfs_iterator_token_t));
+        resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
+    }
+
+    downloadFileTask = new (ptr) DownloadFileTask(fs, dataFileId, resumeToken, reply, buffer);
+
+    log("Created DownloadFileTask = %p (%lu free)", downloadFileTask, fk_free_memory());
+
+    return TaskEval::pass(*downloadFileTask);
 }
 
 void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {

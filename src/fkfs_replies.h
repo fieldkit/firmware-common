@@ -43,11 +43,10 @@ public:
 
 public:
     void dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
-    void downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
+    TaskEval downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
     void eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
 
 private:
-    void sendPageOfFile(uint8_t id, size_t customPageSize, pb_data_t *incomingToken, AppReplyMessage &reply, MessageBuffer &buffer);
     void log(const char *f, ...) const;
 
 };
