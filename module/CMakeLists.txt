@@ -6,8 +6,7 @@ set(LIBRARIES
   ../module-protocol
 )
 
-set(EXTRA_CXX_FLAGS_PROJECT "-Wall -Werror")
-
 arduino(fk-module "${SOURCE_FILES}" "${LIBRARIES}")
 
+target_compile_options(arduino_zero_Wire PUBLIC -finstrument-functions)
 target_compile_options(fk-module PUBLIC -Wall -Werror)
