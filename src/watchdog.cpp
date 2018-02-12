@@ -5,6 +5,7 @@
 // Not sure how I feel about this dependency just to report our IP periodically.
 #include "wifi.h"
 #include "utils.h"
+#include "restart_wizard.h"
 
 namespace fk {
 
@@ -12,7 +13,7 @@ constexpr uint32_t Interval = 5000;
 constexpr const char Log[] = "Watchdog";
 
 void Watchdog::setup() {
-    wdt_enable(WDT_PERIOD_4X, false);
+    wdt_enable(WDT_PERIOD_2X, false);
 }
 
 void Watchdog::started() {
@@ -31,6 +32,8 @@ void Watchdog::started() {
 }
 
 void Watchdog::idle() {
+    fk::restartWizard.looped();
+
     if (wdt_read_early_warning()) {
         wdt_clear_early_warning();
         wdt_checkin();
