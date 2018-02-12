@@ -27,7 +27,7 @@ public:
 public:
     bool appendMetadata(CoreState &state);
     bool appendLocation(DeviceLocation &location);
-    bool appendReading(DeviceLocation &location, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading);
+    bool appendReading(DeviceLocation &location, uint32_t readingNumber, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading);
 
 private:
     size_t append(DataRecordMessage &message);

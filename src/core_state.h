@@ -20,6 +20,7 @@ private:
     FkfsData *data;
     bool busy{ false };
     fkfs_iterator_token_t transmissionCursor{ 0 };
+    uint32_t readingNumber{ 0 };
 
 public:
     CoreState(FkfsData &data);
@@ -55,6 +56,9 @@ public:
 
 public:
     void started();
+    void takingReading() {
+        readingNumber++;
+    }
     void doneScanning();
     void scanFailure();
 

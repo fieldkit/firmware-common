@@ -16,6 +16,7 @@ void GatherReadings::enqueued() {
         return;
     }
 
+    state->takingReading();
     leds->beginReading();
     push(beginTakeReading);
 }

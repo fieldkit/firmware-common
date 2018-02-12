@@ -55,7 +55,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
                 reading.time = clock.getTime();
             }
 
-            data->appendReading(location, sensorId, sensor, reading);
+            data->appendReading(location, readingNumber, sensorId, sensor, reading);
         }
         break;
     }
