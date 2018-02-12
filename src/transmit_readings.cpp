@@ -71,7 +71,7 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
         if (config->cachedDns.cached(parsed.server) && wcl.connect(config->cachedDns.ip(), parsed.port)) {
             iterator.reopen(state->getTransmissionCursor());
 
-            DataRecordMetadataMessage drm{ *bus, *state, *pool };
+            DataRecordMetadataMessage drm{ *state, *pool };
             uint8_t buffer[drm.calculateSize()];
             auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
             if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {

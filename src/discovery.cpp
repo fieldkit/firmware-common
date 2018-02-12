@@ -25,7 +25,6 @@ void Discovery::ping() {
     // Why is this API like this? So weird.
     WiFiUDP udp;
     if (udp.begin(FK_CORE_PORT_UDP)) {
-        DeviceId deviceId{ *bus };
         udp.beginPacket(destination, FK_CORE_PORT_UDP);
         udp.write(deviceId.toBuffer(), deviceId.length());
         udp.endPacket();

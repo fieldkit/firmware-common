@@ -27,6 +27,8 @@ void HardFault_Handler(void) {
 }
 #endif
 
+void dumpObjectSizes();
+
 void setup() {
 #ifdef DEBUG_MTB_ENABLE
     REG_MTB_POSITION = ((uint32_t) (mtb - REG_MTB_BASE)) & 0xFFFFFFF8;
@@ -44,33 +46,41 @@ void setup() {
     if (!Serial) {
         // The call to end here seems to free up some memory.
         Serial.end();
-        // USBDevice.detach(); Leave this so we can program w/o the programmer.
         Serial5.begin(115200);
         debug_uart_set(Serial5);
     }
 #endif
 
+    randomSeed(RANDOM_SEED);
+    firmware_version_set(FIRMWARE_GIT_HASH);
+
     debugfpln("Core", "Starting");
 
     fk::restartWizard.startup();
 
-    firmware_version_set(FIRMWARE_GIT_HASH);
-
-    fk::TwoWireBus bus{ Wire };
-    bus.begin();
-
-    randomSeed(RANDOM_SEED);
-
-    {
-        fk::SerialNumber serialNumber;
-        fk::DeviceId deviceId{ bus };
-        debugfpln("Core", "Serial(%s)", serialNumber.toString());
-        debugfpln("Core", "DeviceId(%s)", deviceId.toString());
-        debugfpln("Core", "Hash(%s)", FIRMWARE_GIT_HASH);
-    }
+    fk::NetworkInfo networks[] = {
+        {
+            FK_CONFIG_WIFI_1_SSID,
+            FK_CONFIG_WIFI_1_PASSWORD,
+        },
+        {
+            FK_CONFIG_WIFI_2_SSID,
+            FK_CONFIG_WIFI_2_PASSWORD,
+        }
+    };
 
 #ifdef DEBUG_DUMP_OBJECT_SIZES
-#define FK_DUMP_SIZE(K)  debugfpln("Core", "%s: %d", #K, sizeof(K))
+    dumpObjectSizes();
+#endif
+
+    fk::CoreModule coreModule;
+    coreModule.begin();
+    coreModule.getState().configure(fk::NetworkSettings{ false, networks });
+    coreModule.run();
+}
+
+void dumpObjectSizes() {
+#define FK_DUMP_SIZE(K) debugfpln("Core", "%s: %d", #K, sizeof(K))
     FK_DUMP_SIZE(fk::Watchdog);
     FK_DUMP_SIZE(fk::CoreState);
     FK_DUMP_SIZE(fk::Clock);
@@ -109,23 +119,6 @@ void setup() {
     FK_DUMP_SIZE(fkfs_t);
     FK_DUMP_SIZE(fkfs_header_t);
     FK_DUMP_SIZE(fkfs_log_t);
-#endif
-
-    fk::NetworkInfo networks[] = {
-        {
-            FK_CONFIG_WIFI_1_SSID,
-            FK_CONFIG_WIFI_1_PASSWORD,
-        },
-        {
-            FK_CONFIG_WIFI_2_SSID,
-            FK_CONFIG_WIFI_2_PASSWORD,
-        }
-    };
-
-    fk::CoreModule coreModule;
-    coreModule.begin();
-    coreModule.getState().configure(fk::NetworkSettings{ false, networks });
-    coreModule.run();
 }
 
 void loop() {

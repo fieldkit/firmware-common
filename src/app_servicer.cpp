@@ -256,7 +256,6 @@ void AppServicer::capabilitiesReply() {
         .fields = fk_app_SensorCapabilities_fields,
     };
 
-    DeviceId deviceId{ *bus };
     pb_data_t deviceIdData = {
         .length = deviceId.length(),
         .buffer = deviceId.toBuffer(),
@@ -356,7 +355,6 @@ void AppServicer::configureIdentity() {
 void AppServicer::identityReply() {
     log("Identity");
 
-    DeviceId deviceId{ *bus };
     pb_data_t deviceIdData = {
         .length = deviceId.length(),
         .buffer = deviceId.toBuffer(),

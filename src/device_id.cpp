@@ -29,7 +29,7 @@ public:
     }
 };
 
-DeviceId::DeviceId(TwoWireBus &bus) {
+bool DeviceId::initialize(TwoWireBus &bus) {
     MacAddressEeprom macAddressChip{ bus };
     memset(data, 0, sizeof(data));
     if (!macAddressChip.read128bMac(data)) {
@@ -39,6 +39,7 @@ DeviceId::DeviceId(TwoWireBus &bus) {
     } else {
         len = 8;
     }
+    return true;
 }
 
 const char *DeviceId::toString() {
@@ -47,5 +48,7 @@ const char *DeviceId::toString() {
     }
     return buffer;
 }
+
+DeviceId deviceId;
 
 }

@@ -18,7 +18,7 @@ FkfsData::FkfsData(fkfs_t &fs, TwoWireBus &bus, uint8_t file, Pool &pool) : fs(&
 }
 
 bool FkfsData::appendMetadata(CoreState &state) {
-    DataRecordMetadataMessage message{ *bus, state, *pool };
+    DataRecordMetadataMessage message{ state, *pool };
 
     auto size = append(message);
 

@@ -5,7 +5,7 @@
 
 namespace fk {
 
-DataRecordMetadataMessage::DataRecordMetadataMessage(TwoWireBus &bus, CoreState &state, Pool &pool) : DataRecordMessage(pool), deviceId(bus) {
+DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &pool) : DataRecordMessage(pool) {
     auto *attached = state.attachedModules();
     auto numberOfSensors = state.numberOfSensors();
     auto sensorIndex = 0;

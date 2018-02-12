@@ -42,13 +42,12 @@ public:
 
 class DataRecordMetadataMessage : public DataRecordMessage {
 private:
-    DeviceId deviceId;
     fk_data_SensorInfo sensors[MaximumNumberOfSensors];
     pb_data_t deviceIdData;
     pb_array_t sensorsArray;
 
 public:
-    DataRecordMetadataMessage(TwoWireBus &bus, CoreState &state, Pool &pool);
+    DataRecordMetadataMessage(CoreState &state, Pool &pool);
 
 public:
     size_t calculateSize();

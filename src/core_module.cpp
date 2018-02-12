@@ -17,7 +17,6 @@ public:
 public:
     void idle() override {
         if (millis() - lastTick > 5000) {
-            DeviceId deviceId{ *bus };
             IpAddress4 ip{ state->getStatus().ip };
             auto now = clock.now();
             debugfpln("Status", "Status %lu (%.2f%% / %.2fmv) (%lu free) (%s) (%s)", now.unixtime(),
@@ -47,6 +46,15 @@ void CoreModule::begin() {
     watchdog.setup();
     power.setup();
 
+    bus.begin();
+
+    deviceId.initialize(bus);
+
+    SerialNumber serialNumber;
+    debugfpln("Core", "Serial(%s)", serialNumber.toString());
+    debugfpln("Core", "DeviceId(%s)", deviceId.toString());
+    debugfpln("Core", "Hash(%s)", firmware_version_get());
+
     delay(10);
 
     fk_assert(fileSystem.setup());
@@ -55,7 +63,6 @@ void CoreModule::begin() {
 
     bus.begin();
 
-    DeviceId deviceId{ bus };
     state.setDeviceId(deviceId.toString());
 
     clock.begin();

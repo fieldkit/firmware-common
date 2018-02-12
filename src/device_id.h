@@ -14,7 +14,7 @@ private:
     char buffer[37];
 
 public:
-    DeviceId(TwoWireBus &bus);
+    bool initialize(TwoWireBus &bus);
 
 public:
     const char *toString();
@@ -26,6 +26,8 @@ public:
     }
 
 };
+
+extern DeviceId deviceId;
 
 }
 
