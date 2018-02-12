@@ -98,6 +98,10 @@ void setup() {
     FK_DUMP_SIZE(fk::ModuleQueryMessage);
     FK_DUMP_SIZE(fk::AppServicer);
     FK_DUMP_SIZE(fk::ReadAppQuery );
+    FK_DUMP_SIZE(fk_module_WireMessageQuery);
+    FK_DUMP_SIZE(fk_module_WireMessageReply);
+    FK_DUMP_SIZE(fk_app_WireMessageQuery);
+    FK_DUMP_SIZE(fk_app_WireMessageReply);
     FK_DUMP_SIZE(WiFi);
     FK_DUMP_SIZE(WiFiUDP);
     FK_DUMP_SIZE(WiFiClient);
