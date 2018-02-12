@@ -5,7 +5,6 @@
 
 #include "active_object.h"
 #include "core_state.h"
-
 #include "pool.h"
 #include "two_wire_task.h"
 #include "transmissions.h"
@@ -56,23 +55,6 @@ public:
 public:
     void enqueued() override;
     void done(Task &task) override;
-
-};
-
-class ReadGPS : public Task {
-private:
-    CoreState *state;
-    TinyGPS gps;
-    uint32_t lastStatus{ 0 };
-    uint32_t started{ 0 };
-
-public:
-    ReadGPS(TwoWireBus &bus, CoreState &state) : Task("GPS"), state(&state) {
-    }
-
-public:
-    void enqueued() override;
-    TaskEval task() override;
 
 };
 

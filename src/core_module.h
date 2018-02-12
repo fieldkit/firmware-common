@@ -31,6 +31,7 @@
 #include "file_system.h"
 #include "fkfs_tasks.h"
 #include "transmit_readings.h"
+#include "gps.h"
 
 namespace fk {
 
@@ -57,7 +58,7 @@ private:
     SendTransmission sendTransmission{bus, builder, transmission, modulesPool};
     SendStatus sendStatus{bus, builder, transmission, modulesPool};
     TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, wifi, transmissionConfig, bus, dataPool};
-    ReadGPS readGps{bus, state};
+    ReadGPS readGps{state};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
     PeriodicTask periodics[2] {
