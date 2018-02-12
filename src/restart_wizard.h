@@ -8,12 +8,13 @@ namespace fk {
 struct Call {
     void *function;
     void *site;
+    bool returned : 1;
 };
 
 template<typename T>
 class History {
 private:
-    static constexpr size_t Size = 32;
+    static constexpr size_t Size = 48;
     T history[Size];
     size_t head;
 
@@ -26,12 +27,6 @@ public:
     }
 
     void checkin(T entry) {
-        /*
-        auto previous = head == 0 ? history[Size - 1] : history[head - 1];
-        if (previous == entry) {
-            return;
-        }
-        */
         history[head] = entry;
         head++;
         if (head == Size) {
@@ -53,18 +48,28 @@ public:
         while (true);
     }
 
+    T &last() {
+        return head == 0 ? history[Size - 1] : history[head - 1];
+    }
+
 };
 
 class RestartWizard {
 private:
-    History<const char*> history;
     History<Call> calls;
+    uint32_t lastLoop;
 
 public:
     void startup();
     void checkin(const char *where);
     void checkin(Call call);
+    void looped() {
+        lastLoop = millis();
+    }
     void dump();
+    Call &lastCall() {
+        return calls.last();
+    }
 
 };
 
