@@ -26,16 +26,16 @@ TaskEval TransmitAllQueuedReadings::task() {
         return openConnection();
     }
 
+    if (!wcl.connected()) {
+        log("Disconnected (statusCode=%d)", parser.getStatusCode());
+        wcl.stop();
+        state->setBusy(false);
+        return TaskEval::done();
+    }
+
     while (wcl.available()) {
         auto c = wcl.read();
         parser.write(c);
-    }
-
-    if (!wcl.connected()) {
-        wcl.stop();
-        log("Disconnected (statusCode=%d)", parser.getStatusCode());
-        state->setBusy(false);
-        return TaskEval::done();
     }
 
     auto data = iterator.move();
@@ -44,9 +44,8 @@ TaskEval TransmitAllQueuedReadings::task() {
     }
 
     if (iterator.isFinished()) {
-        log("Finishing...");
+        log("Finished (free = %lu)", fk_free_memory());
         state->setTransmissionCursor(iterator.resumeToken());
-        log("Stop connection (free = %lu)", fk_free_memory());
         wcl.stop();
         state->setBusy(false);
         log("Done, disconnecting (statusCode=%d)", parser.getStatusCode());
