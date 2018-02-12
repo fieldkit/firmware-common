@@ -7,7 +7,7 @@ FkfsIterator::FkfsIterator(fkfs_t &fs, uint8_t file) : fs(&fs), file(file) {
 
 FkfsIterator::FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t *resumeToken) : fs(&fs), file(file) {
     if (resumeToken != nullptr) {
-        memcpy(&token, resumeToken, sizeof(fkfs_iterator_token_t));
+        fkfs_file_iterator_resume(&fs, file, &iter, resumeToken);
     }
 }
 
@@ -16,22 +16,20 @@ void FkfsIterator::beginning() {
     startedAt = 0;
     iteratedBytes = 0;
     statusAt = 0;
-    token = { 0 };
     iter = { 0 };
 }
 
 void FkfsIterator::reopen(fkfs_iterator_token_t &position) {
-    auto oldSize = token.size;
+    auto oldSize = iter.token.size;
     beginning();
-    token = position;
-    fkfs_file_iterator_reopen(fs, file, &token);
-    totalBytes = token.size - oldSize;
-    debugfpln("FkfsIterator", "Reopen oldSize=%lu newSize=%lu block=%lu offset=%d lastBlock=%lu lastOffset=%d", oldSize, token.size, token.block, token.offset, token.lastBlock, token.lastOffset);
+    fkfs_file_iterator_reopen(fs, file, &iter, &position);
+    totalBytes = iter.token.size - oldSize;
+    debugfpln("FkfsIterator", "Reopen oldSize=%lu newSize=%lu block=%lu offset=%d lastBlock=%lu lastOffset=%d", oldSize, iter.token.size, iter.token.block, iter.token.offset, iter.token.lastBlock, iter.token.lastOffset);
 }
 
 void FkfsIterator::resume(fkfs_iterator_token_t &position) {
     beginning();
-    token = position;
+    fkfs_file_iterator_resume(fs, file, &iter, &position);
 }
 
 void FkfsIterator::status() {
@@ -61,12 +59,12 @@ DataBlock FkfsIterator::move() {
             statusAt = millis();
         }
 
-        if (fkfs_file_iterate(fs, file, &config, &iter, &token)) {
+        if (fkfs_file_iterate(fs, file, &config, &iter)) {
             iteratedBytes += iter.size;
             return DataBlock{ iter.data, iter.size };
         }
         else {
-            if (fkfs_file_iterator_done(fs, &token)) {
+            if (fkfs_file_iterator_done(fs, &iter)) {
                 finished = true;
                 status();
             }

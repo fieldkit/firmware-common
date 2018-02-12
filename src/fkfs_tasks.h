@@ -19,7 +19,6 @@ class FkfsIterator {
 private:
     fkfs_t *fs{ nullptr };
     uint8_t file{ 0 };
-    fkfs_iterator_token_t token = { 0 };
     fkfs_file_iter_t iter = { 0 };
     fkfs_iterator_config_t config = {
         .maxBlocks = 0,
