@@ -6,7 +6,7 @@
 
 namespace fk {
 
-constexpr uint8_t MaximumNumberOfModules = 8;
+constexpr uint8_t MaximumNumberOfModules = 4;
 constexpr uint8_t MaximumNumberOfSensors = 32;
 constexpr uint8_t MaximumModuleNameLength = 16;
 constexpr uint8_t MaximumSensorNameLength = 16;
