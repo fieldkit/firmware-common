@@ -177,9 +177,14 @@ TaskEval DownloadFileTask::task() {
 
         if (!buffer->write(*reply)) {
             log("Error writing reply");
+            return TaskEval::error();
         }
 
-        buffer->write();
+        auto size = buffer->position();
+        if (buffer->write() != size) {
+            log("Error sending buffer");
+            return TaskEval::error();
+        }
     }
 
     if (iterator.isFinished()) {

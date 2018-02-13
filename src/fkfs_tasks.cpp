@@ -32,7 +32,10 @@ void FkfsIterator::resume(fkfs_iterator_token_t &position) {
 }
 
 void FkfsIterator::status() {
-    debugfpln("FkfsIterator", "%d/%d bytes, %lums, %.2f", iteratedBytes, totalBytes, millis() - startedAt, ((float)iteratedBytes / totalBytes) * 100.0f);
+    auto elapsed = millis() - startedAt;
+    auto complete = ((float)iteratedBytes / totalBytes) * 100.0f;
+    auto speed = iteratedBytes > 0 ? iteratedBytes / ((float)elapsed / 1000.0f) : 0.0f;
+    debugfpln("FkfsIterator", "%d/%d %lums %.2f %.2fbps", iteratedBytes, totalBytes, elapsed, complete, speed);
 }
 
 DataBlock FkfsIterator::move() {

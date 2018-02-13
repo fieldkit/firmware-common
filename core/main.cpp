@@ -101,6 +101,7 @@ void dumpObjectSizes() {
     FK_DUMP_SIZE(fk::ConnectToWifiAp);
     FK_DUMP_SIZE(fk::Delay);
     FK_DUMP_SIZE(fk::SimpleNTP);
+    FK_DUMP_SIZE(fk::Discovery);
     FK_DUMP_SIZE(fk::DataRecordMessage);
     FK_DUMP_SIZE(fk::AppReplyMessage);
     FK_DUMP_SIZE(fk::AppQueryMessage);

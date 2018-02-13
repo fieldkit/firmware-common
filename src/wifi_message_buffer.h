@@ -19,7 +19,6 @@ public:
 
 public:
     size_t read() override {
-        debugfpln("Debug", "Read %p", wcl);
         auto pos = (size_t)wcl->read(ptr(), size());
         move(pos);
         return pos;
@@ -30,7 +29,7 @@ public:
             return 0;
         }
         auto bytesWritten = wcl->write(ptr(), position());
-        if (bytesWritten > 0) {
+        if (bytesWritten == position()) {
             clear();
         }
         return bytesWritten;

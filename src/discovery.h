@@ -8,9 +8,9 @@ namespace fk {
 
 class Discovery : public ActiveObject {
 private:
+    static constexpr uint16_t FK_CORE_PORT_UDP = 54321;
     TwoWireBus *bus;
     Wifi *wifi;
-    static constexpr uint16_t FK_CORE_PORT_UDP = 54321;
     uint32_t pingAt{ 0 };
 
 public:
