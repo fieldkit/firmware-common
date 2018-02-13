@@ -5,26 +5,9 @@
 
 #include "message_buffer.h"
 #include "app_messages.h"
-#include "fkfs_tasks.h"
+#include "download_file_task.h"
 
 namespace fk {
-
-class DownloadFileTask : public Task {
-private:
-    AppReplyMessage *reply;
-    MessageBuffer *buffer;
-    FkfsIterator iterator;
-
-public:
-    DownloadFileTask(fkfs_t *fs, uint8_t file, fkfs_iterator_token_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer);
-
-    virtual ~DownloadFileTask() {
-    }
-
-public:
-    TaskEval task() override;
-
-};
 
 class FkfsReplies {
 private:

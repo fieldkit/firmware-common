@@ -53,6 +53,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/restart_wizard.cpp
   ${COMMON_SRCS_DIR}/data_messages.cpp
   ${COMMON_SRCS_DIR}/gps.cpp
+  ${COMMON_SRCS_DIR}/download_file_task.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})
