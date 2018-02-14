@@ -64,6 +64,7 @@ bool FileSystem::setup() {
     fkfs_log_flush(&fkfs_log);
 
     debug_add_hook(debug_write_log, &fkfs_log);
+    debug_configure_hook(true);
 
     return true;
 }
