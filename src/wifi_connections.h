@@ -12,6 +12,10 @@
 
 namespace fk {
 
+constexpr uint32_t ConnectionTimeout = 5000;
+constexpr uint32_t ConnectionMemory = 128;
+constexpr uint32_t InactivityTimeout = 60 * 1000 * 1;
+
 class ReadAppQuery : public Task {
 private:
     uint32_t dieAt{ 0 };

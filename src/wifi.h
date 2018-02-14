@@ -75,6 +75,9 @@ public:
     bool isDisabled() {
         return disabled;
     }
+    bool possiblyOnline() {
+        return !isDisabled() && WiFi.status() == WL_CONNECTED;
+    }
     void begin();
     void done(Task &task) override;
     void error(Task &task) override;

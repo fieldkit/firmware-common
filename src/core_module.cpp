@@ -71,7 +71,7 @@ void CoreModule::begin() {
 }
 
 void CoreModule::run() {
-    fk::SimpleNTP ntp(clock);
+    SimpleNTP ntp(clock, wifi);
     Status status{ state, bus };
 
     wifi.begin();

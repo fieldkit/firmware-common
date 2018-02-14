@@ -9,16 +9,19 @@
 
 namespace fk {
 
+class Wifi;
+
 class SimpleNTP : public Task {
 private:
     Clock *clock;
+    Wifi *wifi;
     WiFiUDP udp;
     IPAddress address{129, 6, 15, 28};
     bool initialized{ false };
     uint32_t lastSent{ 0 };
 
 public:
-    SimpleNTP(Clock &clock);
+    SimpleNTP(Clock &clock, Wifi &wifi);
     ~SimpleNTP();
 
 public:

@@ -3,10 +3,6 @@
 
 namespace fk {
 
-constexpr uint32_t ConnectionTimeout = 5000;
-constexpr uint32_t ConnectionMemory = 128;
-constexpr uint32_t InactivityTimeout = 60 * 1000 * 5;
-
 ReadAppQuery::ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, WifiMessageBuffer &buffer) :
     Task("ReadAppQuery"), wcl(&wcl), servicer(&servicer), buffer(&buffer) {
 }
@@ -46,7 +42,11 @@ void HandleConnection::enqueued() {
 
 void HandleConnection::done() {
     if (!buffer.empty()) {
+        log("Flush buffer: %d", buffer.position());
         buffer.write();
+    }
+    else {
+        log("Empty buffer!");
     }
     if (wcl && wcl.connected()) {
         log("Stop connection");
@@ -67,8 +67,8 @@ void Listen::begin() {
     if (state == ListenerState::Idle) {
         lastActivity = millis();
         server.begin();
-        state = ListenerState::Disconnected;
         log("Server began (possibly failed, though)");
+        state = ListenerState::Disconnected;
     } else {
         state = ListenerState::Disconnected;
     }

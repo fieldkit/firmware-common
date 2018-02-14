@@ -1,5 +1,6 @@
 #include "simple_ntp.h"
 #include "debug.h"
+#include "wifi.h"
 
 namespace fk {
 
@@ -7,7 +8,7 @@ constexpr uint64_t SeventyYears = 2208988800UL;
 constexpr uint32_t SimpleNTPPacketSize = 48;
 constexpr uint32_t RetryAfter = 5000;
 
-SimpleNTP::SimpleNTP(Clock &clock) : Task("NTP"), clock(&clock) {
+SimpleNTP::SimpleNTP(Clock &clock, Wifi &wifi) : Task("NTP"), clock(&clock), wifi(&wifi) {
 }
 
 SimpleNTP::~SimpleNTP() {
@@ -53,7 +54,7 @@ bool SimpleNTP::send() {
 }
 
 TaskEval SimpleNTP::task() {
-    if (WiFi.status() == WL_AP_CONNECTED || WiFi.status() == WL_CONNECTED) {
+    if (wifi->possiblyOnline()) {
         if (lastSent == 0 || millis() - lastSent > RetryAfter) {
             log("Asking for time...");
             start();

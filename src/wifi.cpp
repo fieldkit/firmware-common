@@ -58,7 +58,7 @@ static const char *encryptionType(int32_t type) {
     case ENC_TYPE_NONE: return "None";
     case ENC_TYPE_AUTO: return "Auto";
     }
-    return "UNknown";
+    return "Unknown";
 }
 
 TaskEval ScanNetworks::task() {
@@ -115,7 +115,7 @@ void Wifi::done(Task &task) {
 
 void Wifi::error(Task &task) {
     if (areSame(task, connectToWifiAp)) {
-        push(scanNetworks);
+        push(createWifiAp);
     }
     else {
         push(delay);
@@ -151,9 +151,9 @@ void Wifi::idle() {
         if (millis() - lastActivityAt > WifiAwakenInterval) {
             log("Enabling...");
             begin();
-            log("Enabled");
+            lastActivityAt = millis();
             disabled = false;
-
+            version = 0;
         }
         return;
     }
@@ -162,6 +162,7 @@ void Wifi::idle() {
     if (newStatus != status) {
         log("Changed: %s", getWifiStatus());
         status = newStatus;
+        lastActivityAt = millis();
         state->updateIp(WiFi.localIP());
     }
 
@@ -174,14 +175,18 @@ void Wifi::idle() {
         if (readyToServe()) {
             service(listen);
         }
+        else {
+            listen.end();
+        }
+
         state->setBusy(listen.hasConnection());
         if (listen.inactive()) {
-            if (millis() - lastActivityAt > 5000) {
+            if (millis() - lastActivityAt > InactivityTimeout) {
                 if (isListening() || readyToServe())  {
+                    listen.end();
                     WiFi.end();
                     lastActivityAt = millis();
                     disabled = true;
-                    version = 0;
                     state->updateIp(0);
 
                     // Allow me to explain:
@@ -209,8 +214,8 @@ void Wifi::idle() {
 
     log("New configuration...");
     version = settings.version;
-    listen.end();
     ensureDisconnected();
+    listen.end();
     cancel();
 
     push(connectToWifiAp);

@@ -13,7 +13,7 @@ constexpr uint32_t Interval = 5000;
 constexpr const char Log[] = "Watchdog";
 
 void Watchdog::setup() {
-    wdt_enable(WDT_PERIOD_2X, false);
+    wdt_enable(WDT_PERIOD_4X, false);
 }
 
 void Watchdog::started() {
