@@ -4,7 +4,28 @@
 #include "utils.h"
 #include "hardware.h"
 
+#ifdef FK_CORE
+#include <Base64.h>
+#endif
+
 namespace fk {
+
+#ifdef FK_CORE
+void getAccessPointName(char *name, size_t size) {
+    auto length = base64_enc_len(deviceId.length());
+    char unique[length + 3];
+    unique[0] = 'F';
+    unique[1] = 'K';
+    unique[2] = '-';
+    base64_encode(unique + 3, (char *)deviceId.toBuffer(), deviceId.length());
+    unique[length + 3 - 1] = 0; // Trim '='
+    strncpy(name, unique, size);
+}
+#else
+void getAccessPointName(char *name, size_t size) {
+    strncpy(name, "FK-UNKONWN", size);
+}
+#endif
 
 constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
 constexpr uint32_t ScanDuration = 10 * 1000;
@@ -39,7 +60,8 @@ TaskEval ConnectToWifiAp::task() {
 }
 
 TaskEval CreateWifiAp::task() {
-    auto name = "FK-HELP";
+    char name[32];
+    getAccessPointName(name, sizeof(name));
 
     log("Creating AP '%s'... (%s)", name, getWifiStatus());
     auto status = WiFi.beginAP(name);

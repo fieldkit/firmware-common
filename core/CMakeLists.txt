@@ -9,6 +9,8 @@ set(LIBRARIES
 
 set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/flash_with_bootloader_and_noinit.ld")
 
+add_definitions(-DFK_CORE)
+
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")
 
 target_compile_options(arduino_zero_Wire PUBLIC -finstrument-functions)
