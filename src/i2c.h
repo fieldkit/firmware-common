@@ -31,6 +31,7 @@ public:
     size_t read(uint8_t *ptr, size_t size, size_t bytes);
 
     void flush();
+    void end();
 
 public:
     uint8_t requestFrom(uint8_t address, size_t quantity, bool stopBit);

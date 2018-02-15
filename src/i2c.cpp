@@ -13,6 +13,15 @@ bool TwoWireBus::begin(uint32_t speed) {
         Wire.setClock(speed);
     }
 
+    if (bus == &Wire11and13) {
+        pinPeripheral(11, PIO_SERCOM);
+        pinPeripheral(13, PIO_SERCOM);
+    }
+    else if (bus == &Wire4and3) {
+        pinPeripheral(4, PIO_SERCOM_ALT);
+        pinPeripheral(3, PIO_SERCOM_ALT);
+    }
+
     return true;
 }
 
@@ -31,6 +40,10 @@ bool TwoWireBus::begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRe
     }
 
     return true;
+}
+
+void TwoWireBus::end() {
+    bus->end();
 }
 
 bool TwoWireBus::send(uint8_t address, const char *ptr) {
