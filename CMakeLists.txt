@@ -34,7 +34,6 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/live_data.cpp
   ${COMMON_SRCS_DIR}/scheduler.cpp
   ${COMMON_SRCS_DIR}/simple_ntp.cpp
-  ${COMMON_SRCS_DIR}/core.cpp
   ${COMMON_SRCS_DIR}/http_post.cpp
   ${COMMON_SRCS_DIR}/fkfs_replies.cpp
   ${COMMON_SRCS_DIR}/fkfs_data.cpp
@@ -54,6 +53,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/data_messages.cpp
   ${COMMON_SRCS_DIR}/gps.cpp
   ${COMMON_SRCS_DIR}/download_file_task.cpp
+  ${COMMON_SRCS_DIR}/gather_readings.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})

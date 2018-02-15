@@ -1,4 +1,4 @@
-#include "core.h"
+#include "gather_readings.h"
 #include "leds.h"
 
 namespace fk {
@@ -47,28 +47,7 @@ void GatherReadings::done(Task &task) {
     }
 }
 
-SendTransmission::SendTransmission(TwoWireBus &bus, MessageBuilder &builder, TransmissionTask &method, Pool &pool) :
-    ActiveObject("SendTransmission"), builder(&builder), method(&method) {
-}
-
-void SendTransmission::enqueued() {
-    method->prepare(*builder);
-    push(*method);
-}
-
-void SendTransmission::done(Task &task) {
-}
-
-SendStatus::SendStatus(TwoWireBus &bus, MessageBuilder &builder, TransmissionTask &method, Pool &pool) :
-    ActiveObject("SendStatus"), builder(&builder), method(&method) {
-}
-
-void SendStatus::enqueued() {
-    method->prepare(*builder);
-    push(*method);
-}
-
-void SendStatus::done(Task &task) {
+void GatherReadings::error(Task &task) {
 }
 
 }

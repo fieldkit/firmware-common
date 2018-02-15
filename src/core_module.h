@@ -23,7 +23,6 @@
 #include "scheduler.h"
 #include "rtc.h"
 #include "simple_ntp.h"
-#include "core.h"
 #include "http_post.h"
 #include "json_message_builder.h"
 #include "discovery.h"

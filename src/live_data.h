@@ -3,7 +3,7 @@
 
 #include "active_object.h"
 #include "core_state.h"
-#include "core.h"
+#include "gather_readings.h"
 
 namespace fk {
 

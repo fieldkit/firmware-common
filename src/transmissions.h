@@ -2,6 +2,8 @@
 #define FK_TRANSMISSIONS_H_INCLUDED
 
 #include "active_object.h"
+#include "i2c.h"
+#include "pool.h"
 
 namespace fk {
 
@@ -29,6 +31,34 @@ public:
     }
     void write(Print &stream);
     const char *getContentType();
+
+};
+
+class SendTransmission : public ActiveObject {
+private:
+    MessageBuilder *builder;
+    TransmissionTask *method;
+
+public:
+    SendTransmission(TwoWireBus &bus, MessageBuilder &builder, TransmissionTask &method, Pool &pool);
+
+public:
+    void enqueued() override;
+    void done(Task &task) override;
+
+};
+
+class SendStatus : public ActiveObject {
+private:
+    MessageBuilder *builder;
+    TransmissionTask *method;
+
+public:
+    SendStatus(TwoWireBus &bus, MessageBuilder &builder, TransmissionTask &method, Pool &pool);
+
+public:
+    void enqueued() override;
+    void done(Task &task) override;
 
 };
 
