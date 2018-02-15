@@ -54,6 +54,9 @@ bool SimpleNTP::send() {
 }
 
 TaskEval SimpleNTP::task() {
+    if (clock->isValid()) {
+        return TaskEval::done();
+    }
     if (wifi->possiblyOnline()) {
         if (lastSent == 0 || millis() - lastSent > RetryAfter) {
             log("Asking for time...");
