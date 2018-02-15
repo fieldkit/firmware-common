@@ -45,9 +45,30 @@ void GatherReadings::done(Task &task) {
             leds->doneReading();
         }
     }
+
+    retries = 0;
 }
 
 void GatherReadings::error(Task &task) {
+    if (areSame(task, beginTakeReading)) {
+        if (retries < NumberOfTwoWireRetries) {
+            log("Retry %d/%d", retries, NumberOfTwoWireRetries);
+            push(beginTakeReading);
+            retries++;
+        }
+        else {
+            retries = 0;
+        }
+    } else if (areSame(task, queryReadingStatus)) {
+        if (retries < NumberOfTwoWireRetries) {
+            log("Retry %d/%d", retries, NumberOfTwoWireRetries);
+            push(queryReadingStatus);
+            retries++;
+        }
+        else {
+            retries = 0;
+        }
+    }
 }
 
 }
