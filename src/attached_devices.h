@@ -20,6 +20,7 @@ private:
     Pool *pool;
     QueryCapabilities queryCapabilities;
     QuerySensorCapabilities querySensorCapabilities;
+    uint8_t retries{ 0 };
 
 public:
     AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, Pool &pool);

@@ -64,6 +64,15 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
     }
 }
 
+bool CoreState::hasModuleWithAddress(uint8_t address) {
+    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
+        if (modules[i].address == address) {
+            return true;
+        }
+    }
+    return false;
+}
+
 size_t CoreState::getModuleIndex(uint8_t address) {
     for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
         if (modules[i].address == 0 || modules[i].address == address) {

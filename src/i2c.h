@@ -7,6 +7,8 @@
 
 namespace fk {
 
+constexpr uint8_t NumberOfTwoWireRetries = 3;
+
 using WireOnReceiveHandler = void (*)(int);
 
 using WireOnRequestHandler = void (*)(void);

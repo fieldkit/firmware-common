@@ -3,6 +3,9 @@
 
 namespace fk {
 
+constexpr uint32_t RescanIntervalOrphaned = 30 * 1000;
+constexpr uint32_t RescanExistingModulesInterval = 5 * 60 * 1000;
+
 AttachedDevices::AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, Pool &pool)
     : ActiveObject("AttachedDevices"), bus(&bus), addresses(addresses), addressIndex{ 0 }, state(&state), leds(&leds), pool(&pool),
       queryCapabilities(bus, pool, 0), querySensorCapabilities(bus, pool, 0, 0) {
@@ -14,10 +17,19 @@ void AttachedDevices::scan() {
 }
 
 void AttachedDevices::resume() {
-    if (addresses[addressIndex] > 0) {
-        query(addresses[addressIndex]);
-    } else {
-        state->doneScanning();
+    while (true) {
+        auto address = addresses[addressIndex];
+        if (address > 0) {
+            if (!state->hasModules() || state->hasModuleWithAddress(address)) {
+                query(address);
+                break;
+            }
+        } else {
+            state->doneScanning();
+            break;
+        }
+
+        addressIndex++;
     }
 }
 
@@ -25,7 +37,8 @@ void AttachedDevices::idle() {
     if (state->isBusy()) {
         return;
     }
-    uint32_t rescanInterval = (state->numberOfModules() == 0 ? 30 : 60 * 5) * 1000;
+
+    auto rescanInterval = (state->numberOfModules() == 0 ? RescanExistingModulesInterval : RescanExistingModulesInterval);
     if (lastScanAt == 0 || millis() - lastScanAt > rescanInterval) {
         log("Starting scan...");
         lastScanAt = millis();
@@ -49,7 +62,7 @@ void AttachedDevices::done(Task &task) {
         push(querySensorCapabilities);
     } else if (areSame(task, querySensorCapabilities)) {
         state->merge(address, querySensorCapabilities.replyMessage());
-        uint8_t sensor = querySensorCapabilities.sensor() + 1;
+        auto sensor = (size_t)(querySensorCapabilities.sensor() + 1);
         if (sensor < queryCapabilities.numberOfSensors()) {
             querySensorCapabilities = QuerySensorCapabilities(*bus, *pool, address, sensor);
             push(querySensorCapabilities);
@@ -57,6 +70,8 @@ void AttachedDevices::done(Task &task) {
             addressIndex++;
             resume();
         }
+
+        retries = 0;
     } else {
         if (state->numberOfModules() == 0) {
             leds->noAttachedModules();
@@ -68,7 +83,14 @@ void AttachedDevices::done(Task &task) {
 
 void AttachedDevices::error(Task &task) {
     if (areSame(task, querySensorCapabilities)) {
-        state->scanFailure();
+        if (retries < NumberOfTwoWireRetries) {
+            log("Retry %d/%d", retries, NumberOfTwoWireRetries);
+            push(querySensorCapabilities);
+            retries++;
+        } else {
+            state->scanFailure();
+            retries = 0;
+        }
     } else {
         addressIndex++;
         resume();

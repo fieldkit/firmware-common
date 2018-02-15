@@ -54,6 +54,12 @@ public:
 
     AvailableSensorReading getReading(size_t index);
 
+    bool hasModuleWithAddress(uint8_t address);
+
+    bool hasModules() {
+        return numberOfModules() > 0;
+    }
+
 public:
     void started();
     void takingReading() {
@@ -87,8 +93,7 @@ public:
     }
 
     void setTransmissionCursor(fkfs_iterator_token_t &cursor) {
-        // transmissionCursor = cursor;
-        memcpy(&transmissionCursor, &cursor, sizeof(fkfs_iterator_token_t));
+        transmissionCursor = cursor;
     }
 
 private:
