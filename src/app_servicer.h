@@ -8,19 +8,32 @@
 #include "scheduler.h"
 #include "fkfs_replies.h"
 
+#include "task_container.h"
+
 namespace fk {
 
 class AppModuleQueryTask : public ActiveObject {
 private:
     AppReplyMessage *reply;
+    AppQueryMessage *query;
     MessageBuffer *buffer;
     CustomModuleQueryTask customModuleQueryTask;
 
 public:
-    AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, MessageBuffer &buffer, uint8_t address, Pool &pool);
+    struct Context {
+        TwoWireBus &bus;
+        AppReplyMessage &reply;
+        AppQueryMessage &query;
+        MessageBuffer &buffer;
+        uint8_t address;
+        Pool &pool;
+    };
 
 public:
-    AppModuleQueryTask &ready(AppQueryMessage &query);
+    AppModuleQueryTask(Context c);
+
+public:
+    void enqueued() override;
     void done(Task &task) override;
     void error(Task &task) override;
 
@@ -36,8 +49,7 @@ private:
     CoreState *state;
     Scheduler *scheduler;
     FkfsReplies *fileReplies;
-    Pool taskPool{ "Tasks", sizeof(AppModuleQueryTask) };
-    AppModuleQueryTask *appModuleQueryTask;
+    TaskContainer<AppModuleQueryTask> appModuleQueryTask;
     Pool *pool;
 
 public:

@@ -42,12 +42,9 @@ void HandleConnection::enqueued() {
 
 void HandleConnection::done() {
     if (!buffer.empty()) {
-        log("Flush buffer: %d", buffer.position());
         buffer.write();
     }
-    else {
-        log("Empty buffer!");
-    }
+
     if (wcl && wcl.connected()) {
         log("Stop connection");
         wcl.flush();

@@ -6,6 +6,7 @@
 #include "message_buffer.h"
 #include "app_messages.h"
 #include "download_file_task.h"
+#include "task_container.h"
 
 namespace fk {
 
@@ -13,8 +14,7 @@ class FkfsReplies {
 private:
     fkfs_t *fs;
     uint8_t dataFileId{ 0 };
-    Pool taskPool{ "Tasks", sizeof(DownloadFileTask) };
-    DownloadFileTask *downloadFileTask;
+    TaskContainer<DownloadFileTask> downloadFileTask;
 
 public:
     FkfsReplies(fkfs_t &fs, uint8_t dataFileId);

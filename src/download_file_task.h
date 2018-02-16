@@ -18,10 +18,16 @@ private:
     FkfsIterator iterator;
 
 public:
-    DownloadFileTask(fkfs_t *fs, uint8_t file, fkfs_iterator_token_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer);
+    struct Context {
+        fkfs_t *fs;
+        uint8_t file;
+        fkfs_iterator_token_t *resumeToken;
+        AppReplyMessage &reply;
+        MessageBuffer &buffer;
+    };
 
-    virtual ~DownloadFileTask() {
-    }
+public:
+    DownloadFileTask(Context c);
 
 public:
     TaskEval task() override;

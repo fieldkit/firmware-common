@@ -8,7 +8,7 @@ namespace fk {
 
 constexpr uint32_t DefaultPageSize = (size_t)(8 * 4096);
 
-FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId), downloadFileTask(nullptr) {
+FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId) {
 }
 
 void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -52,13 +52,11 @@ TaskEval FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage 
         resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
     }
 
-    taskPool.clear();
-    auto ptr = taskPool.malloc(sizeof(DownloadFileTask));
-    downloadFileTask = new (ptr) DownloadFileTask(fs, query.m().downloadFile.id, resumeToken, reply, buffer);
+    downloadFileTask.ready({ fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer });
 
-    log("Created DownloadFileTask = %p (%lu free)", downloadFileTask, fk_free_memory());
+    log("Created DownloadFileTask = %p (%lu free)", &downloadFileTask, fk_free_memory());
 
-    return TaskEval::pass(*downloadFileTask);
+    return TaskEval::pass(downloadFileTask);
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -126,13 +124,11 @@ TaskEval FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessa
         resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
     }
 
-    taskPool.clear();
-    auto ptr = taskPool.malloc(sizeof(DownloadFileTask));
-    downloadFileTask = new (ptr) DownloadFileTask(fs, dataFileId, resumeToken, reply, buffer);
+    downloadFileTask.ready({ fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer });
 
-    log("Created DownloadFileTask = %p (%lu free)", downloadFileTask, fk_free_memory());
+    log("Created DownloadFileTask = %p (%lu free)", &downloadFileTask, fk_free_memory());
 
-    return TaskEval::pass(*downloadFileTask);
+    return TaskEval::pass(downloadFileTask);
 }
 
 void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {

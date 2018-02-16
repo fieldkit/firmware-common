@@ -217,10 +217,7 @@ TaskEval AppServicer::handle() {
     }
     case fk_app_QueryType_QUERY_MODULE: {
         if (peripherals.twoWire1().tryAcquire()) {
-            taskPool.clear();
-            auto ptr = taskPool.malloc(sizeof(AppModuleQueryTask));
-            appModuleQueryTask = new (ptr) AppModuleQueryTask(*bus, reply, *buffer, (uint8_t)query.m().module.address, *pool);
-            return TaskEval::pass(appModuleQueryTask->ready(query));
+            return TaskEval::pass(appModuleQueryTask.ready({ *bus, reply, query, *buffer, (uint8_t)query.m().module.address, *pool }));
         }
 
         reply.busy("Busy");
@@ -387,14 +384,13 @@ void AppServicer::identityReply() {
 }
 
 
-AppModuleQueryTask::AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, MessageBuffer &buffer, uint8_t address, Pool &pool) :
-    ActiveObject("AppModuleQuery"), reply(&reply), buffer(&buffer), customModuleQueryTask(bus, pool, address) {
+AppModuleQueryTask::AppModuleQueryTask(Context c) :
+    ActiveObject("AppModuleQuery"), reply(&c.reply), query(&c.query), buffer(&c.buffer), customModuleQueryTask(c.bus, c.pool, c.address) {
 }
 
-AppModuleQueryTask &AppModuleQueryTask::ready(AppQueryMessage &query) {
-    customModuleQueryTask.ready(query);
+void AppModuleQueryTask::enqueued() {
+    customModuleQueryTask.ready(*query);
     push(customModuleQueryTask);
-    return *this;
 }
 
 void AppModuleQueryTask::done(Task &task) {
