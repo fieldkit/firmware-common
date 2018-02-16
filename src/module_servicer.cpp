@@ -26,14 +26,10 @@ TaskEval ModuleServicer::task() {
         outgoing->clear();
     }
 
-    if (!handle(query)) {
-        return TaskEval::error();
-    }
-
-    return TaskEval::done();
+    return handle(query);
 }
 
-bool ModuleServicer::handle(ModuleQueryMessage &query) {
+TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
     switch (query.m().type) {
     case fk_module_QueryType_QUERY_CAPABILITIES: {
         log("Module info (%lu)", query.m().beginTakeReadings.callerTime);
@@ -143,11 +139,11 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
         if (!outgoing->write(reply)) {
             log("Error writing reply");
         }
-        return false;
+        break;
     }
     }
 
-    return true;
+    return TaskEval::done();
 }
 
 }

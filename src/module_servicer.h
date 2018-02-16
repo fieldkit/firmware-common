@@ -45,7 +45,8 @@ public:
     TaskEval task() override;
 
     void read(size_t bytes);
-    bool handle(ModuleQueryMessage &query);
+
+    TaskEval handle(ModuleQueryMessage &query);
 
 };
 
