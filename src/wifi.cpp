@@ -64,7 +64,8 @@ TaskEval CreateWifiAp::task() {
     getAccessPointName(name, sizeof(name));
 
     log("Creating AP '%s'... (%s)", name, getWifiStatus());
-    auto status = WiFi.beginAP(name);
+    IPAddress ip{ 192, 168, 2, 100 };
+    auto status = WiFi.beginAP(name, 1, ip);
     if (status != WL_AP_LISTENING) {
         return TaskEval::error();
     }
