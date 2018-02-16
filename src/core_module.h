@@ -62,7 +62,7 @@ private:
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },
-        fk::PeriodicTask{ 20 * 1000, gatherReadings },
+        fk::PeriodicTask{ 60 * 1000, gatherReadings },
     };
     ScheduledTask scheduled[4] {
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
