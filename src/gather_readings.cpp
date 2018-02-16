@@ -8,13 +8,13 @@ GatherReadings::GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, Po
 }
 
 void GatherReadings::enqueued() {
-    if (state->numberOfModules() == 0) {
-        log("No attached modules.");
+    if (!peripherals.twoWire1().tryAcquire()) {
+        log("TwoWire unavailable.");
         return;
     }
 
-    if (!peripherals.twoWire1().tryAcquire()) {
-        log("TwoWire unavailable.");
+    if (state->numberOfModules() == 0) {
+        log("No attached modules.");
         return;
     }
 
