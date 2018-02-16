@@ -36,7 +36,7 @@ private:
     CoreState *state;
     Scheduler *scheduler;
     FkfsReplies *fileReplies;
-    Pool taskPool{ "Tasks", sizeof(AppModuleQueryTask) + 4 };
+    Pool taskPool{ "Tasks", sizeof(AppModuleQueryTask) };
     AppModuleQueryTask *appModuleQueryTask;
     Pool *pool;
 

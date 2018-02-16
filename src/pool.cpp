@@ -7,22 +7,28 @@
 
 namespace fk {
 
+inline size_t alignedSize(size_t size) {
+    return size + (4 - (size % 4));
+}
+
 Pool::Pool(const char *name, size_t size, Pool *parent) {
     void *block;
 
+    auto aligned = alignedSize(size);
+
     if (parent != nullptr) {
-        block = parent->malloc(size);
+        block = parent->malloc(aligned);
     } else {
-        block = ::malloc(size);
+        block = ::malloc(aligned);
     }
 
     this->name = name;
     this->block = block;
     this->ptr = block;
-    this->size = size;
-    this->remaining = size;
+    this->size = aligned;
+    this->remaining = aligned;
 
-    debugfpln("Pool", "Create: 0x%x %s size=%d ptr=0x%x (free=%lu)", (unsigned)this, name, size, (unsigned)ptr, fk_free_memory());
+    debugfpln("Pool", "Create: 0x%x %s size=%d/%d ptr=0x%x (free=%lu)", (unsigned)this, name, size, aligned, (unsigned)ptr, fk_free_memory());
 }
 
 void Pool::clear() {
@@ -33,7 +39,7 @@ void Pool::clear() {
 }
 
 void *Pool::malloc(size_t size) {
-    auto aligned = size + (4 - (size % 4));
+    auto aligned = alignedSize(size);
 
     debugfpln("Pool", "Malloc 0x%x %s size=%d aligned=%d (free=%d)", (unsigned)this, name, size, aligned, remaining - aligned);
 
