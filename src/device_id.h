@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include "i2c.h"
+#include "two_wire.h"
 
 namespace fk {
 

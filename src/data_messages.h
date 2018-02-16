@@ -5,7 +5,7 @@
 
 #include "module_info.h"
 #include "pool.h"
-#include "i2c.h"
+#include "two_wire.h"
 #include "device_id.h"
 #include "protobuf.h"
 

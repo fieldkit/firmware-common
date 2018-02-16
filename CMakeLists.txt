@@ -13,7 +13,7 @@ include(ArduinoMinimal)
 set(COMMON_SRCS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/debug.cpp
-  ${COMMON_SRCS_DIR}/i2c.cpp
+  ${COMMON_SRCS_DIR}/two_wire.cpp
   ${COMMON_SRCS_DIR}/active_object.cpp
   ${COMMON_SRCS_DIR}/utils.cpp
   ${COMMON_SRCS_DIR}/protobuf.cpp

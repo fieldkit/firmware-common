@@ -2,7 +2,7 @@
 #define FK_TRANSMISSIONS_H_INCLUDED
 
 #include "active_object.h"
-#include "i2c.h"
+#include "two_wire.h"
 #include "pool.h"
 
 namespace fk {

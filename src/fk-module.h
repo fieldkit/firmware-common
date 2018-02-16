@@ -3,7 +3,7 @@
 
 #include "active_object.h"
 #include "debug.h"
-#include "i2c.h"
+#include "two_wire.h"
 #include "module.h"
 #include "module_messages.h"
 #include "protobuf.h"

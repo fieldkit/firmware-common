@@ -4,7 +4,7 @@
 #include <fk-app-protocol.h>
 #include <fk-module-protocol.h>
 
-#include "i2c.h"
+#include "two_wire.h"
 #include "app_messages.h"
 #include "module_messages.h"
 #include "data_messages.h"

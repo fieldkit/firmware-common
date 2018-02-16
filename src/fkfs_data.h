@@ -7,7 +7,7 @@
 
 #include "module_info.h"
 #include "pool.h"
-#include "i2c.h"
+#include "two_wire.h"
 #include "data_messages.h"
 
 namespace fk {

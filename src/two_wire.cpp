@@ -2,7 +2,7 @@
 #include "wiring_private.h"
 
 #include "debug.h"
-#include "i2c.h"
+#include "two_wire.h"
 
 namespace fk {
 

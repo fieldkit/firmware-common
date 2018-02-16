@@ -5,7 +5,7 @@
 #include "config.h"
 #include "seed.h"
 #include "device_id.h"
-#include "i2c.h"
+#include "two_wire.h"
 #include "fkfs_data.h"
 #include "restart_wizard.h"
 

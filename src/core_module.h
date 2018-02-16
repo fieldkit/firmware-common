@@ -13,7 +13,7 @@
 #include "attached_devices.h"
 #include "core_state.h"
 #include "debug.h"
-#include "i2c.h"
+#include "two_wire.h"
 #include "module_controller.h"
 #include "pool.h"
 #include "wifi.h"

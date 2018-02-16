@@ -3,7 +3,7 @@
 
 #include "active_object.h"
 #include "two_wire_task.h"
-#include "i2c.h"
+#include "two_wire.h"
 
 namespace fk {
 

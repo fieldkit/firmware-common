@@ -6,7 +6,7 @@
 #include "module_servicer.h"
 #include "watchdog.h"
 #include "leds.h"
-#include "i2c.h"
+#include "two_wire.h"
 
 namespace fk {
 
