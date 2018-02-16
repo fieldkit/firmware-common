@@ -1,5 +1,4 @@
 #include "active_object.h"
-#include "restart_wizard.h"
 
 namespace fk {
 
@@ -90,15 +89,12 @@ void ActiveObject::tick() {
     auto ran = "Idle";
     if (!isIdle()) {
         ran = tasks->toString();
-        restartWizard.checkin(ran);
         service(*tasks);
     } else if (idleTask != nullptr) {
         ran = idleTask->toString();
-        restartWizard.checkin(ran);
         service(*idleTask);
         idle();
     } else {
-        restartWizard.checkin(ran);
         idle();
     }
     auto ended = millis();

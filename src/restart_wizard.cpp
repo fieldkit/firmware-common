@@ -22,9 +22,6 @@ void RestartWizard::checkin(Call where) {
     calls.checkin(where);
 }
 
-void RestartWizard::checkin(const char *where) {
-}
-
 void RestartWizard::dump() {
     debugfpln("RW", "LastLoop: %lu", lastLoop);
     debugfpln("RW", "Calls:");

@@ -61,7 +61,6 @@ private:
 
 public:
     void startup();
-    void checkin(const char *where);
     void checkin(Call call);
     void looped() {
         lastLoop = millis();
