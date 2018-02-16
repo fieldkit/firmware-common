@@ -54,6 +54,7 @@ set(COMMON_SOURCE_FILES
   ${COMMON_SRCS_DIR}/gps.cpp
   ${COMMON_SRCS_DIR}/download_file_task.cpp
   ${COMMON_SRCS_DIR}/gather_readings.cpp
+  ${COMMON_SRCS_DIR}/flash_storage.cpp
 )
 
 include_directories(${COMMON_SRCS_DIR})

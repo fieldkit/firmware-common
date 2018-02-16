@@ -1,5 +1,5 @@
-#ifndef I2C_H_INCLUDED
-#define I2C_H_INCLUDED
+#ifndef FK_TWO_WIRE_H_INCLUDED
+#define FK_TWO_WIRE_H_INCLUDED
 
 #include <Wire.h>
 
