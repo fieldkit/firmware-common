@@ -216,10 +216,17 @@ TaskEval AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_MODULE: {
-        taskPool.clear();
-        auto ptr = taskPool.malloc(sizeof(AppModuleQueryTask));
-        appModuleQueryTask = new (ptr) AppModuleQueryTask(*bus, reply, *buffer, (uint8_t)query.m().module.address, *pool);
-        return TaskEval::pass(appModuleQueryTask->ready(query));
+        if (peripherals.twoWire1().tryAcquire()) {
+            taskPool.clear();
+            auto ptr = taskPool.malloc(sizeof(AppModuleQueryTask));
+            appModuleQueryTask = new (ptr) AppModuleQueryTask(*bus, reply, *buffer, (uint8_t)query.m().module.address, *pool);
+            return TaskEval::pass(appModuleQueryTask->ready(query));
+        }
+
+        reply.busy("Busy");
+        buffer->write(reply);
+
+        break;
     }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
     default: {
@@ -407,6 +414,8 @@ void AppModuleQueryTask::done(Task &task) {
             log("Error writing reply");
         }
     }
+
+    peripherals.twoWire1().release();
 }
 
 void AppModuleQueryTask::error(Task &task) {
@@ -414,6 +423,8 @@ void AppModuleQueryTask::error(Task &task) {
     if (!buffer->write(*reply)) {
         log("Error writing reply");
     }
+
+    peripherals.twoWire1().release();
 }
 
 }

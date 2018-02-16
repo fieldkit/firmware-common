@@ -12,8 +12,10 @@ AttachedDevices::AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState 
 }
 
 void AttachedDevices::scan() {
-    addressIndex = 0;
-    resume();
+    if (peripherals.twoWire1().tryAcquire()) {
+        addressIndex = 0;
+        resume();
+    }
 }
 
 void AttachedDevices::resume() {
@@ -26,6 +28,7 @@ void AttachedDevices::resume() {
             }
         } else {
             state->doneScanning();
+            peripherals.twoWire1().release();
             break;
         }
 

@@ -1,7 +1,6 @@
 #include <Wire.h>
 #include "wiring_private.h"
 
-#include "debug.h"
 #include "two_wire.h"
 
 namespace fk {
@@ -129,6 +128,7 @@ void TwoWireBus::flush() {
     }
 }
 
+Peripherals peripherals;
 
 TwoWire Wire11and13{ &sercom1, 11, 13 };
 

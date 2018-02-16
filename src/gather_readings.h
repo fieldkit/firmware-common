@@ -25,6 +25,8 @@ public:
     void enqueued() override;
     void done(Task &task) override;
     void error(Task &task) override;
+    void error() override;
+    void done() override;
 
 };
 

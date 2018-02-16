@@ -116,7 +116,8 @@ public:
     }
 
 public:
-    void error(const char *error);
+    void busy(const char *text);
+    void error(const char *text);
 
 };
 
