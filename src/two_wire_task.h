@@ -137,6 +137,25 @@ public:
 
 };
 
+class CustomModuleQueryTask : public TwoWireTask {
+    static constexpr char Name[] = "CustomModuleQuery";
+
+private:
+    Pool *pool;
+    pb_data_t messageData;
+    AppQueryMessage *appQuery;
+
+public:
+    CustomModuleQueryTask(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask(Name, bus, pool, address), pool(&pool) {
+        query.m().type = fk_module_QueryType_QUERY_CUSTOM;
+    }
+
+public:
+    CustomModuleQueryTask &ready(AppQueryMessage &query);
+
+
+};
+
 }
 
 #endif

@@ -108,7 +108,8 @@ void dumpObjectSizes() {
     FK_DUMP_SIZE(fk::ModuleReplyMessage);
     FK_DUMP_SIZE(fk::ModuleQueryMessage);
     FK_DUMP_SIZE(fk::AppServicer);
-    FK_DUMP_SIZE(fk::ReadAppQuery );
+    FK_DUMP_SIZE(fk::ReadAppQuery);
+    FK_DUMP_SIZE(fk::AppModuleQueryTask);
     FK_DUMP_SIZE(fk_module_WireMessageQuery);
     FK_DUMP_SIZE(fk_module_WireMessageReply);
     FK_DUMP_SIZE(fk_app_WireMessageQuery);

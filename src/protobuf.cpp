@@ -19,7 +19,7 @@ bool pb_encode_string(pb_ostream_t *stream, const pb_field_t *field, void *const
     }
 
 #ifdef FK_PROTOBUF_VERBOSE
-    debugfpln(LOG, "Encode: 0x%x '%s'", str, str != nullptr ? str : "");
+    debugfpln(LOG, "Encode: 0x%p '%s'", str, str != nullptr ? str : "");
 #endif
 
     return pb_encode_string(stream, (uint8_t *)str, strlen(str));
@@ -125,6 +125,10 @@ bool pb_decode_array(pb_istream_t *stream, const pb_field_t *field, void **arg) 
 
 bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void *const *arg) {
     auto data = (pb_data_t *)*arg;
+
+    if (data == nullptr) {
+        return true;
+    }
 
     if (!pb_encode_tag_for_field(stream, field)) {
         return false;

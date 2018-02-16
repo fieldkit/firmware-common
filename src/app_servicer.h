@@ -10,6 +10,22 @@
 
 namespace fk {
 
+class AppModuleQueryTask : public ActiveObject {
+private:
+    AppReplyMessage *reply;
+    MessageBuffer *buffer;
+    CustomModuleQueryTask customModuleQueryTask;
+
+public:
+    AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, MessageBuffer &buffer, uint8_t address, Pool &pool);
+
+public:
+    AppModuleQueryTask &ready(AppQueryMessage &query);
+    void done(Task &task) override;
+    void error(Task &task) override;
+
+};
+
 class AppServicer : public Task {
 private:
     TwoWireBus *bus;
@@ -20,6 +36,8 @@ private:
     CoreState *state;
     Scheduler *scheduler;
     FkfsReplies *fileReplies;
+    Pool taskPool{ "Tasks", sizeof(AppModuleQueryTask) + 4 };
+    AppModuleQueryTask *appModuleQueryTask;
     Pool *pool;
 
 public:

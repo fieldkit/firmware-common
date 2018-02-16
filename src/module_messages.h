@@ -17,11 +17,18 @@ public:
     ModuleQueryMessage(Pool &pool) : pool(&pool) {
     }
 
+    void clear() {
+        message = fk_module_WireMessageQuery_init_default;
+    }
+
     fk_module_WireMessageQuery *forDecode() {
+        message.custom.message.funcs.decode = pb_decode_data;
+        message.custom.message.arg = pool;
         return &message;
     }
 
     fk_module_WireMessageQuery *forEncode() {
+        message.custom.message.funcs.encode = pb_encode_data;
         return &message;
     }
 
@@ -40,6 +47,10 @@ public:
     ModuleReplyMessage(Pool &pool) : pool(&pool) {
     }
 
+    void clear() {
+        message = fk_module_WireMessageReply_init_default;
+    }
+
     fk_module_WireMessageReply *forDecode() {
         message.error.message.funcs.decode = pb_decode_string;
         message.error.message.arg = pool;
@@ -49,6 +60,8 @@ public:
         message.sensorCapabilities.name.arg = pool;
         message.sensorCapabilities.unitOfMeasure.funcs.decode = pb_decode_string;
         message.sensorCapabilities.unitOfMeasure.arg = pool;
+        message.custom.message.funcs.decode = pb_decode_data;
+        message.custom.message.arg = pool;
         return &message;
     }
 
@@ -57,11 +70,16 @@ public:
         message.capabilities.name.funcs.encode = pb_encode_string;
         message.sensorCapabilities.name.funcs.encode = pb_encode_string;
         message.sensorCapabilities.unitOfMeasure.funcs.encode = pb_encode_string;
+        message.custom.message.funcs.encode = pb_encode_data;
         return &message;
     }
 
     fk_module_WireMessageReply &m() {
         return message;
+    }
+
+    bool isError() {
+        return message.type == fk_module_ReplyType_REPLY_ERROR;
     }
 
 };

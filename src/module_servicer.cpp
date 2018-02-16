@@ -127,8 +127,22 @@ bool ModuleServicer::handle(ModuleQueryMessage &query) {
 
         break;
     }
+    case fk_module_QueryType_QUERY_CUSTOM: {
+        ModuleReplyMessage reply(*pool);
+        reply.m().type = fk_module_ReplyType_REPLY_ERROR;
+        callbacks->message(query, reply);
+
+        outgoing->write(reply);
+
+        break;
+    }
     default: {
         log("Unknown query: %d", query.m().type);
+        ModuleReplyMessage reply(*pool);
+        reply.m().type = fk_module_ReplyType_REPLY_ERROR;
+        if (!outgoing->write(reply)) {
+            log("Error writing reply");
+        }
         return false;
     }
     }

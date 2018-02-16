@@ -18,11 +18,13 @@ struct ModuleReadingStatus {
     }
 };
 
-// TODO: Rename this
 class ModuleCallbacks {
 public:
     virtual ModuleReadingStatus beginReading(PendingSensorReading &pending) = 0;
     virtual ModuleReadingStatus readingStatus(PendingSensorReading &pending) = 0;
+    virtual TaskEval message(ModuleQueryMessage &query, ModuleReplyMessage &reply) {
+        return TaskEval::done();
+    }
 
 };
 

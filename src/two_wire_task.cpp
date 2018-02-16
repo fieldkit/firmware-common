@@ -6,6 +6,7 @@ constexpr char QueryCapabilities::Name[];
 constexpr char QuerySensorCapabilities::Name[];
 constexpr char BeginTakeReading::Name[];
 constexpr char QueryReadingStatus::Name[];
+constexpr char CustomModuleQueryTask::Name[];
 
 TaskEval TwoWireTask::task() {
     if (checkAt > 0 && millis() < checkAt) {
@@ -45,6 +46,12 @@ TaskEval TwoWireTask::task() {
     }
 
     return TaskEval::done();
+}
+
+CustomModuleQueryTask &CustomModuleQueryTask::ready(AppQueryMessage &newAppQuery) {
+    appQuery = &newAppQuery;
+    query.m().custom.message.arg = appQuery->m().module.message.arg;
+    return *this;
 }
 
 }

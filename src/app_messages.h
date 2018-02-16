@@ -3,6 +3,7 @@
 
 #include <fk-app-protocol.h>
 
+#include "debug.h"
 #include "pool.h"
 #include "protobuf.h"
 
@@ -55,6 +56,9 @@ public:
         message.identity.stream.funcs.decode = pb_decode_string;
         message.identity.stream.arg = (void *)pool;
 
+        message.module.message.funcs.decode = pb_decode_data;
+        message.module.message.arg = (void *)pool;
+
         return &message;
     }
 
@@ -100,6 +104,9 @@ public:
         }
         if (message.identity.stream.arg != nullptr) {
             message.identity.stream.funcs.encode = pb_encode_string;
+        }
+        if (message.module.message.arg != nullptr) {
+            message.module.message.funcs.encode = pb_encode_data;
         }
         return &message;
     }
