@@ -13,7 +13,7 @@ extern "C" {
 
 // #define DEBUG_MTB_ENABLE
 // #define DEBUG_DUMP_OBJECT_SIZES
-#define DEBUG_UART_FALLBACK
+// #define DEBUG_UART_FALLBACK
 
 #ifdef DEBUG_MTB_ENABLE
 #define DEBUG_MTB_SIZE 256
