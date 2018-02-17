@@ -9,35 +9,9 @@
 #include "fkfs_replies.h"
 
 #include "task_container.h"
+#include "app_module_query_task.h"
 
 namespace fk {
-
-class AppModuleQueryTask : public ActiveObject {
-private:
-    AppReplyMessage *reply;
-    AppQueryMessage *query;
-    MessageBuffer *buffer;
-    CustomModuleQueryTask customModuleQueryTask;
-
-public:
-    struct Context {
-        TwoWireBus &bus;
-        AppReplyMessage &reply;
-        AppQueryMessage &query;
-        MessageBuffer &buffer;
-        uint8_t address;
-        Pool &pool;
-    };
-
-public:
-    AppModuleQueryTask(Context c);
-
-public:
-    void enqueued() override;
-    void done(Task &task) override;
-    void error(Task &task) override;
-
-};
 
 class AppServicer : public Task {
 private:
