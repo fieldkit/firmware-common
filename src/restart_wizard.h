@@ -58,6 +58,7 @@ class RestartWizard {
 private:
     History<Call> calls;
     uint32_t lastLoop;
+    uint32_t deepestStack;
 
 public:
     void startup();
