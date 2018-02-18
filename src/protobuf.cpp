@@ -152,6 +152,13 @@ bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void *const *
     return true;
 }
 
+pb_data_t *pb_data_allocate(Pool *pool, size_t size) {
+    auto data = (pb_data_t *)pool->malloc(sizeof(pb_data_t) + size);
+    data->buffer = ((uint8_t *)data) + sizeof(pb_data_t);
+    data->length = size;
+    return data;
+}
+
 bool pb_decode_data(pb_istream_t *stream, const pb_field_t *field, void **arg) {
     auto pool = (Pool *)(*arg);
     auto length = stream->bytes_left;
@@ -160,9 +167,7 @@ bool pb_decode_data(pb_istream_t *stream, const pb_field_t *field, void **arg) {
     debugfpln(LOG, "Decode: (%d)", length);
 #endif
 
-    auto data = (pb_data_t *)pool->malloc(sizeof(pb_data_t) + length);
-    data->buffer = ((uint8_t *)data) + sizeof(pb_data_t);
-    data->length = length;
+    auto data = pb_data_allocate(pool, length);
 
     if (!pb_read(stream, (pb_byte_t *)data->buffer, length)) {
         return false;
