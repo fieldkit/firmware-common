@@ -11,13 +11,13 @@ set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/flash_with_bootloader_and_no
 
 add_definitions(-DFK_CORE)
 
-option(DEBUG_UART_FALLBACK "On SerialUSB failure use Serial5" OFF)
+option(DEBUG_UART_FALLBACK "On SerialUSB failure use Serial5" ON)
 if(DEBUG_UART_FALLBACK)
   add_definitions(-DDEBUG_UART_FALLBACK)
 endif(DEBUG_UART_FALLBACK)
 
 option(DEBUG_DUMP_OBJECT_SIZES "Dump object sizes at startup" OFF)
-if(DEBUG_UART_FALLBACK)
+if(DEBUG_DUMP_OBJECT_SIZES)
   add_definitions(-DDEBUG_DUMP_OBJECT_SIZES)
 endif(DEBUG_DUMP_OBJECT_SIZES)
 
