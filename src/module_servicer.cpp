@@ -126,6 +126,7 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
     case fk_module_QueryType_QUERY_CUSTOM: {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_ERROR;
+
         callbacks->message(query, reply);
 
         outgoing->write(reply);

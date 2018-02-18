@@ -29,13 +29,13 @@ public:
     Module(TwoWireBus &bus, ModuleInfo &info);
 
 public:
-    void begin();
+    virtual void begin();
+    void idle() override;
+
+public:
     void resume();
     void receive(size_t bytes);
     void reply();
-
-public:
-    void idle() override;
 
 public:
     ModuleReadingStatus beginReading(PendingSensorReading &pending) override;
