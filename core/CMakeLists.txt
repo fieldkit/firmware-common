@@ -26,6 +26,11 @@ if(DEBUG_MTB_ENABLE)
   add_definitions(-DDEBUG_MTB_ENABLE)
 endif(DEBUG_MTB_ENABLE)
 
+option(API_BASE "Use given API_BASE")
+if(API_BASE)
+  add_definitions(-DFK_API_BASE="${API_BASE}")
+endif(API_BASE)
+
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")
 
 target_compile_options(arduino_zero_Wire PUBLIC -finstrument-functions)

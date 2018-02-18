@@ -34,6 +34,13 @@
 
 namespace fk {
 
+#ifndef FK_API_BASE
+#define FK_API_BASE "http://api.fkdev.org"
+#endif
+
+constexpr const char API_INGESTION_JSON[] = FK_API_BASE "/messages/ingestion?token=TOKEN";
+constexpr const char API_INGESTION_STREAM[] = FK_API_BASE "/messages/ingestion/stream";
+
 class CoreModule {
 private:
     Pool appPool{"AppPool", 256 + 128};
@@ -48,8 +55,8 @@ private:
     Leds leds;
 
     HttpTransmissionConfig transmissionConfig = {
-        .url = "http://192.168.0.141:8080/messages/ingestion?token=TOKEN",
-        .streamUrl = "http://192.168.0.141:8080/messages/ingestion/stream",
+        .url = API_INGESTION_JSON,
+        .streamUrl = API_INGESTION_STREAM,
     };
     HttpPost transmission{wifi, transmissionConfig};
     GatherReadings gatherReadings{bus, state, leds, modulesPool};
