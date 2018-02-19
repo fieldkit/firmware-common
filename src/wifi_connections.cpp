@@ -56,7 +56,7 @@ void HandleConnection::done() {
 }
 
 Listen::Listen(uint16_t port, AppServicer &servicer)
-    : Task("Listen"), pool("WifiService", ConnectionMemory), server(port),
+    : Task("Listen"), server(port),
       servicer(&servicer), handleConnection(servicer) {
 }
 

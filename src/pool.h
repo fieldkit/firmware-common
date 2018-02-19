@@ -3,10 +3,17 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <type_traits>
 
 namespace fk {
 
-class Pool final {
+constexpr size_t AlignedOn = 4;
+
+constexpr size_t alignedSize(size_t size) {
+    return size + (AlignedOn - (size % AlignedOn));
+}
+
+class Pool {
 private:
     const char *name;
     void *block;
@@ -15,7 +22,10 @@ private:
     size_t size;
 
 public:
-    Pool(const char *name, size_t size, Pool *parent = nullptr);
+    Pool(const char *name, size_t size);
+    Pool(const char *name, size_t size, void *block);
+
+public:
     void clear();
     void *malloc(size_t size);
     void *copy(void *ptr, size_t size);
@@ -23,10 +33,21 @@ public:
 
 };
 
+template<size_t N>
+class StaticPool : public Pool {
+private:
+    typename std::aligned_storage<sizeof(uint8_t), alignof(uint8_t)>::type data[alignedSize(N)];
+
+public:
+    StaticPool(const char *name) : Pool(name, alignedSize(N), (void *)data) {
+    }
+
+};
 
 #define __POOL_LINE_STR(x) #x
 #define __POOL_LINE(x) __POOL_LINE_STR(x)
 #define PoolHere(var, size) var(__FILE__ ":" __POOL_LINE(__LINE__), size)
+
 }
 
 #endif

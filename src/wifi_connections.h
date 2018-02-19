@@ -64,7 +64,7 @@ class Listen : public Task {
 private:
     uint32_t lastActivity{ 0 };
     ListenerState state{ ListenerState::Idle };
-    Pool pool;
+    StaticPool<ConnectionMemory> pool{ "WifiService" };
     WiFiServer server;
     AppServicer *servicer;
     HandleConnection handleConnection;

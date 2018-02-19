@@ -13,7 +13,7 @@ namespace fk {
 class Module : public ActiveObject, public ModuleCallbacks {
 private:
     TwoWireBus *bus;
-    Pool replyPool;
+    StaticPool<128> replyPool{ "Reply" };
     TwoWireMessageBuffer outgoing;
     TwoWireMessageBuffer incoming;
     ModuleServicer moduleServicer;

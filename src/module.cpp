@@ -6,7 +6,6 @@
 namespace fk {
 
 constexpr uint32_t IdleRebootInterval = 1000 * 60 * 10;
-constexpr uint32_t ModuleServicingMemory = 128;
 
 static void module_request_callback() {
     fk_assert(fk::Module::active != nullptr);
@@ -21,7 +20,7 @@ static void module_receive_callback(int bytes) {
 }
 
 Module::Module(TwoWireBus &bus, ModuleInfo &info)
-    : ActiveObject(info.name), bus(&bus), replyPool("REPLY", ModuleServicingMemory),
+    : ActiveObject(info.name), bus(&bus),
       outgoing{ bus }, incoming{ bus }, moduleServicer{ bus, info, *this, outgoing, incoming, replyPool }, info(&info) {
 }
 

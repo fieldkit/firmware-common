@@ -43,9 +43,9 @@ constexpr const char API_INGESTION_STREAM[] = FK_API_BASE "/messages/ingestion/s
 
 class CoreModule {
 private:
-    Pool appPool{"AppPool", 256 + 128};
-    Pool modulesPool{"ModulesPool", 256 + 128};
-    Pool dataPool{"DataPool", 128};
+    StaticPool<384> appPool{"AppPool"};
+    StaticPool<384> modulesPool{"ModulesPool"};
+    StaticPool<128> dataPool{"DataPool"};
 
     TwoWireBus bus{ Wire };
     FileSystem fileSystem{ bus, dataPool };
