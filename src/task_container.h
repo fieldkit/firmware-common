@@ -10,20 +10,24 @@ namespace fk {
 template<class T>
 class TaskContainer : public ActiveObject {
 private:
-    typename std::aligned_storage<sizeof(T), alignof(T)>::type data[1];
-    T *target;
+    typename std::aligned_storage<sizeof(T), alignof(T)>::type data;
+    T *target{ nullptr };
 
 public:
     TaskContainer() : ActiveObject("TC") {
     }
 
     void enqueued() override {
-        push(*target);
+        if (target == nullptr) {
+            log("Enqueued before being initialized");
+        } else {
+            push(*target);
+        }
     }
 
     template<typename ...Args>
     TaskContainer &ready(Args &&...args) {
-        target = new (data) T(std::forward<Args>(args)...);
+        target = new (&data) T(std::forward<Args>(args)...);
         return *this;
     }
 };
