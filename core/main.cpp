@@ -55,6 +55,12 @@ void setup() {
     firmware_version_set(FIRMWARE_GIT_HASH);
 
     debugfpln("Core", "Starting");
+#ifdef DEBUG_UART_FALLBACK
+    debugfpln("Core", "Configured with UART fallback.");
+#endif
+#ifdef DEBUG_MTB_ENABLE
+    debugfpln("Core", "Configured with MTB.");
+#endif
 
     fk::restartWizard.startup();
 
