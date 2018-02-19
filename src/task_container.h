@@ -3,13 +3,13 @@
 
 #include <new>
 #include <type_traits>
+#include <utility>
 
 namespace fk {
 
 template<class T>
 class TaskContainer : public ActiveObject {
 private:
-    using TaskContext = typename T::Context;
     typename std::aligned_storage<sizeof(T), alignof(T)>::type data[1];
     T *target;
 
@@ -21,8 +21,9 @@ public:
         push(*target);
     }
 
-    TaskContainer &ready(TaskContext c) {
-        target = new (data) T(c);
+    template<typename ...Args>
+    TaskContainer &ready(Args &&...args) {
+        target = new (data) T(std::forward<Args>(args)...);
         return *this;
     }
 };

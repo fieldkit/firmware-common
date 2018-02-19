@@ -2,8 +2,8 @@
 
 namespace fk {
 
-DownloadFileTask::DownloadFileTask(Context c) :
-    Task("DownloadFile"), reply(&c.reply), buffer(&c.buffer), iterator(*c.fs, c.file, c.resumeToken) {
+DownloadFileTask::DownloadFileTask(fkfs_t *fs, uint8_t file, fkfs_iterator_token_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer) :
+    Task("DownloadFile"), reply(&reply), buffer(&buffer), iterator(*fs, file, resumeToken) {
 }
 
 TaskEval DownloadFileTask::task() {

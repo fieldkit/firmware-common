@@ -15,17 +15,7 @@ private:
     CustomModuleQueryTask customModuleQueryTask;
 
 public:
-    struct Context {
-        TwoWireBus &bus;
-        AppReplyMessage &reply;
-        AppQueryMessage &query;
-        MessageBuffer &buffer;
-        uint8_t address;
-        Pool &pool;
-    };
-
-public:
-    AppModuleQueryTask(Context c);
+    AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, Pool &pool);
 
 public:
     void enqueued() override;

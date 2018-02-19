@@ -52,7 +52,7 @@ TaskEval FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage 
         resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
     }
 
-    downloadFileTask.ready({ fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer });
+    downloadFileTask.ready(fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer);
 
     log("Created DownloadFileTask = %p (%lu free)", &downloadFileTask, fk_free_memory());
 
@@ -124,7 +124,7 @@ TaskEval FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessa
         resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
     }
 
-    downloadFileTask.ready({ fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer });
+    downloadFileTask.ready(fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer);
 
     log("Created DownloadFileTask = %p (%lu free)", &downloadFileTask, fk_free_memory());
 

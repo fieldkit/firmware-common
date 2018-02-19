@@ -2,8 +2,8 @@
 
 namespace fk {
 
-AppModuleQueryTask::AppModuleQueryTask(Context c) :
-    ActiveObject("AppModuleQuery"), reply(&c.reply), query(&c.query), buffer(&c.buffer), customModuleQueryTask(c.bus, c.pool, c.address) {
+AppModuleQueryTask::AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, Pool &pool) :
+    ActiveObject("AppModuleQuery"), reply(&reply), query(&query), buffer(&buffer), customModuleQueryTask(bus, pool, address) {
 }
 
 void AppModuleQueryTask::enqueued() {
