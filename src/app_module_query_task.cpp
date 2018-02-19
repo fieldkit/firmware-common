@@ -17,6 +17,7 @@ void AppModuleQueryTask::done(Task &task) {
 
         if (customModuleQueryTask.replyMessage().isError()) {
             reply->m().type = fk_app_ReplyType_REPLY_ERROR;
+            log("Error reply from module.");
         }
         else {
             reply->m().type = fk_app_ReplyType_REPLY_MODULE;

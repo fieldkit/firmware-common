@@ -46,6 +46,7 @@ TaskEval AppServicer::task() {
 }
 
 TaskEval AppServicer::handle() {
+    pool->clear();
     buffer->clear();
     reply.clear();
 
@@ -233,8 +234,6 @@ TaskEval AppServicer::handle() {
         break;
     }
     }
-
-    pool->clear();
 
     return TaskEval::done();
 }
