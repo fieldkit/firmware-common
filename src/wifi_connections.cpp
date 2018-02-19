@@ -66,7 +66,9 @@ void Listen::begin() {
         server.begin();
         log("Server began (possibly failed, though)");
         state = ListenerState::Disconnected;
-    } else {
+    }
+    else if (state != ListenerState::Disconnected) {
+        log("Disconnected");
         state = ListenerState::Disconnected;
     }
 }

@@ -67,11 +67,16 @@ private:
     Delay delay{ 5000 };
     Listen listen;
     bool disabled{ false };
+    bool busy{ false };
 
 public:
     Wifi(CoreState &state, AppServicer &servicer);
 
 public:
+    void setBusy(bool newBusy) {
+        busy = newBusy;
+        lastActivityAt = millis();
+    }
     bool isDisabled() {
         return disabled;
     }

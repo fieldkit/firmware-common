@@ -25,6 +25,7 @@ TaskEval TransmitAllQueuedReadings::task() {
         log("Disconnected (statusCode=%d)", parser.getStatusCode());
         wcl.stop();
         state->setBusy(false);
+        wifi->setBusy(false);
         return TaskEval::done();
     }
 
@@ -43,6 +44,7 @@ TaskEval TransmitAllQueuedReadings::task() {
         state->setTransmissionCursor(iterator.resumeToken());
         wcl.stop();
         state->setBusy(false);
+        wifi->setBusy(false);
         log("Done, disconnecting (statusCode=%d)", parser.getStatusCode());
         return TaskEval::done();
     }
@@ -57,6 +59,7 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
     Url parsed(urlCopy);
 
     state->setBusy(true);
+    wifi->setBusy(true);
 
     parser.begin();
 
@@ -72,6 +75,7 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
             if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
                 log("Error encoding data file record (%d bytes)", sizeof(buffer));
                 state->setBusy(false);
+                wifi->setBusy(false);
                 return TaskEval::error();
             }
 
@@ -87,10 +91,12 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
         } else {
             log("Not connected!");
             state->setBusy(false);
+            wifi->setBusy(false);
             return TaskEval::error();
         }
     } else {
         state->setBusy(false);
+        wifi->setBusy(false);
         return TaskEval::error();
     }
 

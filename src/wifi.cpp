@@ -203,7 +203,7 @@ void Wifi::idle() {
         }
 
         state->setBusy(listen.hasConnection());
-        if (listen.inactive()) {
+        if (!busy && listen.inactive()) {
             if (millis() - lastActivityAt > InactivityTimeout) {
                 if (isListening() || readyToServe())  {
                     listen.end();
