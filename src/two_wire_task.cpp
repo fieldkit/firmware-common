@@ -2,6 +2,8 @@
 
 namespace fk {
 
+constexpr uint32_t MaximumTwoWireReply = 3000;
+
 constexpr char QueryCapabilities::Name[];
 constexpr char QuerySensorCapabilities::Name[];
 constexpr char BeginTakeReading::Name[];
@@ -22,7 +24,7 @@ TaskEval TwoWireTask::task() {
             return TaskEval::error();
         }
 
-        dieAt = millis() + 1000;
+        dieAt = millis() + MaximumTwoWireReply;
         // They won't be ready yet, check back soon, though.
         checkAt = millis() + 100;
         return TaskEval::idle();

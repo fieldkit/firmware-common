@@ -35,6 +35,7 @@ void AppModuleQueryTask::done(Task &task) {
 
 void AppModuleQueryTask::error(Task &task) {
     reply->m().type = fk_app_ReplyType_REPLY_ERROR;
+
     if (!buffer->write(*reply)) {
         log("Error writing reply");
     }
