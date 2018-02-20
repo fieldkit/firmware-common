@@ -253,6 +253,7 @@ void AppServicer::capabilitiesReply() {
             sensors[sensorIndex].unitOfMeasure.funcs.encode = pb_encode_string;
             sensors[sensorIndex].unitOfMeasure.arg = (void *)attached[moduleIndex].sensors[i].unitOfMeasure;
             sensors[sensorIndex].frequency = 60;
+            sensors[sensorIndex].module = moduleIndex;
 
             // log("%d / %d: %s", sensorIndex, numberOfSensors, sensors[sensorIndex].name.arg);
 
