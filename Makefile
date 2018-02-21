@@ -10,7 +10,7 @@ core/config.h:
 	cp core/config.h.template core/config.h
 
 all: $(BUILD) gitdeps core/config.h seed
-	cd $(BUILD) && cmake ../
+	cd $(BUILD) && cmake ../ -DDEBUG_UART_FALLBACK=ON
 	cd $(BUILD) && make
 
 seed: GIT_HASH=$(shell git log -1 --pretty=format:"%H")
