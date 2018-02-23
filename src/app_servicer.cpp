@@ -242,9 +242,11 @@ void AppServicer::capabilitiesReply() {
     log("Query caps");
 
     auto *attached = state->attachedModules();
+    auto numberOfModules = state->numberOfModules();
     auto numberOfSensors = state->numberOfSensors();
     auto sensorIndex = 0;
     fk_app_SensorCapabilities sensors[numberOfSensors];
+    fk_app_ModuleCapabilities modules[numberOfModules];
     for (size_t moduleIndex = 0; attached[moduleIndex].address > 0; ++moduleIndex) {
         for (size_t i = 0; i < attached[moduleIndex].numberOfSensors; ++i) {
             sensors[sensorIndex].id = i;
@@ -254,14 +256,21 @@ void AppServicer::capabilitiesReply() {
             sensors[sensorIndex].unitOfMeasure.arg = (void *)attached[moduleIndex].sensors[i].unitOfMeasure;
             sensors[sensorIndex].frequency = 60;
             sensors[sensorIndex].module = moduleIndex;
-
-            // log("%d / %d: %s", sensorIndex, numberOfSensors, sensors[sensorIndex].name.arg);
-
             sensorIndex++;
         }
+        modules[moduleIndex].id = moduleIndex;
+        modules[moduleIndex].name.funcs.encode = pb_encode_string;
+        modules[moduleIndex].name.arg = (void *)attached[moduleIndex].name;
     }
 
-    pb_array_t sensors_array = {
+    pb_array_t modulesArray = {
+        .length = numberOfModules,
+        .itemSize = sizeof(fk_app_ModuleCapabilities),
+        .buffer = modules,
+        .fields = fk_app_ModuleCapabilities_fields,
+    };
+
+    pb_array_t sensorsArray = {
         .length = numberOfSensors,
         .itemSize = sizeof(fk_app_SensorCapabilities),
         .buffer = sensors,
@@ -278,7 +287,9 @@ void AppServicer::capabilitiesReply() {
     reply.m().capabilities.name.funcs.encode = pb_encode_string;
     reply.m().capabilities.name.arg = (void *)DefaultName;
     reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
-    reply.m().capabilities.sensors.arg = (void *)&sensors_array;
+    reply.m().capabilities.sensors.arg = (void *)&sensorsArray;
+    reply.m().capabilities.modules.funcs.encode = pb_encode_array;
+    reply.m().capabilities.modules.arg = (void *)&modulesArray;
     reply.m().capabilities.deviceId.funcs.encode = pb_encode_data;
     reply.m().capabilities.deviceId.arg = &deviceIdData;
 
