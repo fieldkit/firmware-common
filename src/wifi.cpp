@@ -1,14 +1,19 @@
 #include <SPI.h>
-
-#include "wifi.h"
-#include "utils.h"
-#include "hardware.h"
-
 #ifdef FK_CORE
 #include <Base64.h>
 #endif
 
+#include "wifi.h"
+#include "utils.h"
+#include "hardware.h"
+#include "static_wifi_allocator.h"
+
 namespace fk {
+
+StaticWiFiAllocator staticWiFiAllocator;
+
+constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
+constexpr uint32_t ScanDuration = 10 * 1000;
 
 #ifdef FK_CORE
 void getAccessPointName(char *name, size_t size) {
@@ -26,9 +31,6 @@ void getAccessPointName(char *name, size_t size) {
     strncpy(name, "FK-UNKONWN", size);
 }
 #endif
-
-constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
-constexpr uint32_t ScanDuration = 10 * 1000;
 
 TaskEval ConnectToWifiAp::task() {
     if (networkNumber >= MaximumRememberedNetworks) {
@@ -122,6 +124,8 @@ Wifi::Wifi(CoreState &state, AppServicer &servicer)
 
 void Wifi::begin() {
     WiFi.setPins(Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
+
+    WiFiSocketClass::allocator = &staticWiFiAllocator;
 
     if (WiFi.status() == WL_NO_SHIELD) {
         log("Error: no wifi");
