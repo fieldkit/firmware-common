@@ -3,6 +3,8 @@
 
 namespace fk {
 
+constexpr uint32_t MaximumUpload = 1024 * 1024;
+
 TransmitAllQueuedReadings::TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, TwoWireBus &bus, Pool &pool) :
     ActiveObject("TransmitAllQueued"), iterator(fs, file), state(&state), wifi(&wifi), config(&config), bus(&bus), pool(&pool) {
 }
@@ -18,11 +20,20 @@ TaskEval TransmitAllQueuedReadings::task() {
     }
 
     if (!connected) {
+        iterator.reopen(state->getTransmissionCursor());
+
+        if (iterator.size() > MaximumUpload) {
+            log("Skipping, upload too large at %d bytes.", iterator.size());
+            iterator.end();
+            state->setTransmissionCursor(iterator.resumeToken());
+            return TaskEval::done();
+        }
+
         return openConnection();
     }
 
     if (!wcl.connected()) {
-        log("Disconnected (statusCode=%d)", parser.getStatusCode());
+        log("No connection (statusCode=%d)", parser.getStatusCode());
         wcl.stop();
         state->setBusy(false);
         wifi->setBusy(false);
@@ -40,12 +51,11 @@ TaskEval TransmitAllQueuedReadings::task() {
     }
 
     if (iterator.isFinished()) {
-        log("Finished (free = %lu)", fk_free_memory());
         state->setTransmissionCursor(iterator.resumeToken());
         wcl.stop();
         state->setBusy(false);
         wifi->setBusy(false);
-        log("Done, disconnecting (statusCode=%d)", parser.getStatusCode());
+        log("Done (statusCode=%d) (free = %lu)", parser.getStatusCode(), fk_free_memory());
         return TaskEval::done();
     }
 
@@ -67,8 +77,6 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
         log("Connecting: '%s:%d' / '%s'", parsed.server, parsed.port, parsed.path);
 
         if (config->cachedDns.cached(parsed.server) && wcl.connect(config->cachedDns.ip(), parsed.port)) {
-            iterator.reopen(state->getTransmissionCursor());
-
             DataRecordMetadataMessage drm{ *state, *pool };
             uint8_t buffer[drm.calculateSize()];
             auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));

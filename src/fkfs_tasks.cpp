@@ -19,6 +19,10 @@ void FkfsIterator::beginning() {
     iter = { 0 };
 }
 
+void FkfsIterator::end() {
+    fkfs_file_iterator_move_end(fs, file, &iter);
+}
+
 void FkfsIterator::reopen(fkfs_iterator_token_t &position) {
     beginning();
     fkfs_file_iterator_reopen(fs, file, &iter, &position);
