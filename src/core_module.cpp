@@ -48,7 +48,7 @@ void CoreModule::begin() {
 
     bus.begin();
 
-    deviceId.initialize(bus);
+    fk_assert(deviceId.initialize(bus));
 
     SerialNumber serialNumber;
     debugfpln("Core", "Serial(%s)", serialNumber.toString());

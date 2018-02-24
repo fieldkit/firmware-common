@@ -31,15 +31,25 @@ public:
 
 bool DeviceId::initialize(TwoWireBus &bus) {
     MacAddressEeprom macAddressChip{ bus };
-    memset(data, 0, sizeof(data));
-    if (!macAddressChip.read128bMac(data)) {
-        SerialNumber serialNumber;
-        memcpy(data, (uint8_t *)serialNumber.toInts(), sizeof(uint32_t) * 4);
-        len = 16;
-    } else {
-        len = 8;
+    for (auto i = 0; i < 3; ++i) {
+        memset(data, 0, sizeof(data));
+        if (!macAddressChip.read128bMac(data)) {
+            SerialNumber serialNumber;
+            memcpy(data, (uint8_t *)serialNumber.toInts(), sizeof(uint32_t) * 4);
+            len = 16;
+        } else {
+            len = 8;
+        }
+
+        for (size_t j = 0; j < len; ++j) {
+            if (data[j] != 0xff || data[j] != 0x0) {
+                return true;
+            }
+        }
+
+        delay(10);
     }
-    return true;
+    return false;
 }
 
 const char *DeviceId::toString() {
