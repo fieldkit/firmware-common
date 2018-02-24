@@ -2,6 +2,8 @@
 
 namespace fk {
 
+constexpr uint32_t LivePollInactivity = 1000 * 10;
+
 LiveData::LiveData(TwoWireBus &bus, CoreState &state, Leds &leds, Pool &pool) :
     ActiveObject("LiveData"),
     interval{ 0 }, state(&state), pool(&pool), gatherReadings(bus, state, leds, pool) {
@@ -19,6 +21,8 @@ void LiveData::start(uint32_t newInterval) {
         interval = newInterval;
         push(gatherReadings);
     }
+
+    lastRead = millis();
 }
 
 void LiveData::stop() {
@@ -27,6 +31,11 @@ void LiveData::stop() {
 
 void LiveData::done(Task &task) {
     if (interval == 0)  {
+        return;
+    }
+
+    if (millis() - lastRead > LivePollInactivity) {
+        lastRead = 0;
         return;
     }
 
