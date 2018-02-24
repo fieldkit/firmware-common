@@ -6,6 +6,7 @@
 #include <fk-module-protocol.h>
 
 #include "debug.h"
+#include "peripherals.h"
 
 namespace fk {
 
@@ -43,58 +44,6 @@ public:
 
 extern TwoWire Wire11and13;
 extern TwoWire Wire4and3;
-
-class Peripheral {
-private:
-    uint32_t acquiredAt{ 0 };
-
-public:
-    bool available() {
-        return acquiredAt == 0;
-    }
-
-    bool tryAcquire() {
-        if (available()) {
-            acquire();
-            return true;
-        }
-        return false;
-    }
-
-    // TODO: Specify who?
-    void acquire() {
-        fk_assert(available());
-        acquiredAt = millis();
-    }
-
-    void release() {
-        fk_assert(!available());
-        acquiredAt = 0;
-    }
-};
-
-class Peripherals {
-private:
-    Peripheral _twoWire1;
-    Peripheral _twoWire2;
-    Peripheral _twoWire3;
-
-public:
-    Peripheral &twoWire1() {
-        return _twoWire1;
-    }
-
-    Peripheral &twoWire2() {
-        return _twoWire2;
-    }
-
-    Peripheral &twoWire3() {
-        return _twoWire3;
-    }
-
-};
-
-extern Peripherals peripherals;
 
 }
 
