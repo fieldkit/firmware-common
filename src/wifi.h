@@ -73,6 +73,7 @@ public:
     Wifi(CoreState &state, AppServicer &servicer);
 
 public:
+    void disable();
     void setBusy(bool newBusy) {
         busy = newBusy;
         lastActivityAt = millis();
