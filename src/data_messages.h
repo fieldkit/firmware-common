@@ -42,9 +42,11 @@ public:
 
 class DataRecordMetadataMessage : public DataRecordMessage {
 private:
-    fk_data_SensorInfo sensors[MaximumNumberOfSensors];
     pb_data_t deviceIdData;
+    fk_data_SensorInfo sensors[MaximumNumberOfSensors];
     pb_array_t sensorsArray;
+    fk_data_ModuleInfo modules[MaximumNumberOfModules];
+    pb_array_t modulesArray;
 
 public:
     DataRecordMetadataMessage(CoreState &state, Pool &pool);
