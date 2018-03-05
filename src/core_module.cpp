@@ -44,9 +44,8 @@ void CoreModule::begin() {
 
     leds.setup();
     watchdog.setup();
-    power.setup();
-
     bus.begin();
+    power.setup();
 
     fk_assert(deviceId.initialize(bus));
 

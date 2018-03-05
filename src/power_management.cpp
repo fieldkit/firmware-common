@@ -7,8 +7,6 @@ constexpr uint32_t Interval = 5000;
 constexpr const char Log[] = "Power";
 
 void Power::setup() {
-    Wire.begin();
-
     gauge.powerOn();
 }
 
