@@ -33,7 +33,7 @@ TaskEval TransmitAllQueuedReadings::task() {
     }
 
     if (!wcl.connected()) {
-        log("No connection (statusCode=%d)", parser.getStatusCode());
+        log("No connection (status = %d)", parser.getStatusCode());
         wcl.stop();
         state->setBusy(false);
         wifi->setBusy(false);
@@ -51,11 +51,17 @@ TaskEval TransmitAllQueuedReadings::task() {
     }
 
     if (iterator.isFinished()) {
-        state->setTransmissionCursor(iterator.resumeToken());
         wcl.stop();
         state->setBusy(false);
         wifi->setBusy(false);
-        log("Done (statusCode=%d) (free = %lu)", parser.getStatusCode(), fk_free_memory());
+        auto status = parser.getStatusCode();
+        if (status == 200) {
+            state->setTransmissionCursor(iterator.resumeToken());
+            log("Success (status = %d) (free = %lu)", status, fk_free_memory());
+        }
+        else {
+            log("Failed (status = %d) (free = %lu)", status, fk_free_memory());
+        }
         return TaskEval::done();
     }
 
