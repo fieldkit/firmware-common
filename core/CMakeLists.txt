@@ -31,6 +31,11 @@ if(API_BASE)
   add_definitions(-DFK_API_BASE="${API_BASE}")
 endif(API_BASE)
 
+option(NO_NETWORK_CONFIG "Disable preconfiguring network.")
+if(NO_NETWORK_CONFIG)
+  add_definitions(-DFK_NO_NETWORKS)
+endif(NO_NETWORK_CONFIG)
+
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")
 
 target_compile_options(arduino_zero_Wire PUBLIC -finstrument-functions)
