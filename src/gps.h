@@ -11,12 +11,13 @@ namespace fk {
 class ReadGPS : public Task {
 private:
     CoreState *state;
+    Uart *uart;
     TinyGPS gps;
     uint32_t lastStatus{ 0 };
     uint32_t started{ 0 };
 
 public:
-    ReadGPS(CoreState &state) : Task("GPS"), state(&state) {
+    ReadGPS(CoreState &state, Uart &uart) : Task("GPS"), state(&state), uart(&uart) {
     }
 
 public:

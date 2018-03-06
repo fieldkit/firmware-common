@@ -9,6 +9,7 @@
 #include <fkfs.h>
 #include <fkfs_log.h>
 
+#include "hardware.h"
 #include "app_servicer.h"
 #include "attached_devices.h"
 #include "core_state.h"
@@ -64,7 +65,7 @@ private:
     SendTransmission sendTransmission{bus, builder, transmission, modulesPool};
     SendStatus sendStatus{bus, builder, transmission, modulesPool};
     TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, wifi, transmissionConfig, bus, dataPool};
-    ReadGPS readGps{state};
+    ReadGPS readGps{state, Hardware::gpsUart};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
     PeriodicTask periodics[2] {

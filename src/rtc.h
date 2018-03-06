@@ -37,7 +37,11 @@ public:
 class Clock {
 private:
     bool valid{ false };
+    #ifdef FK_NATURALIST
+    RTC_PCF8523 rtc;
+    #else
     RTCZero rtc;
+    #endif
 
 public:
     void begin();

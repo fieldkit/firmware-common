@@ -82,8 +82,13 @@ void CoreModule::run() {
         leds.task();
         power.task();
         watchdog.task();
+        #ifdef FK_NATURALIST
+        auto idle = true;
+        #else
         attachedDevices.task();
-        if (attachedDevices.isIdle()) {
+        auto idle = attachedDevices.isIdle();
+        #endif
+        if (idle) {
             liveData.task();
             if (liveData.isIdle()) {
                 scheduler.task();

@@ -1,4 +1,6 @@
+#include "hardware.h"
 #include "gps.h"
+#include <wiring_private.h>
 
 namespace fk {
 
@@ -64,7 +66,12 @@ void ReadGPS::enqueued() {
     started = 0;
     // Ensure we have a fresh start and aren't going to re-use an old fix.
     gps = TinyGPS();
-    Serial1.begin(9600);
+
+    uart->begin(9600);
+    #ifdef FK_NATURALIST
+    pinPeripheral(10, PIO_SERCOM);
+    pinPeripheral(11, PIO_SERCOM);
+    #endif
 }
 
 TaskEval ReadGPS::task() {
@@ -72,8 +79,8 @@ TaskEval ReadGPS::task() {
         started = millis();
     }
 
-    while (Serial1.available()) {
-        auto c = (char)Serial1.read();
+    while (uart->available()) {
+        auto c = (char)uart->read();
         gps.encode(c);
     }
 

@@ -42,7 +42,9 @@ public:
 
 };
 
+#ifndef FK_NATURALIST
 extern TwoWire Wire11and13;
+#endif
 extern TwoWire Wire4and3;
 
 }

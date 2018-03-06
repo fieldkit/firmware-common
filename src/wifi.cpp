@@ -128,7 +128,7 @@ void Wifi::begin() {
     WiFiSocketClass::allocator = &staticWiFiAllocator;
 
     if (WiFi.status() == WL_NO_SHIELD) {
-        log("Error: no wifi");
+        log("Error: no wifi (%d, %d, %d, %d)", Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
         return;
     }
 }
