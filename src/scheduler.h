@@ -99,6 +99,11 @@ public:
         fk_assert(N >= (size_t)ScheduleKind::NumberOfMandatorySchedules);
     }
 
+    template<size_t M>
+    Scheduler(CoreState &state, Clock &clock, PeriodicTask (&periodic)[M]) :
+        ActiveObject("Scheduler"), state(&state), clock(&clock), tasks(nullptr), periodic(periodic), numberOfTasks(0), numberOfPeriodics(M) {
+    }
+
 public:
     TaskEval task() override;
 
