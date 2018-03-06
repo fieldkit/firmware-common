@@ -7,7 +7,11 @@ Clock clock;
 
 void Clock::begin() {
     rtc.begin();
+    #ifdef FK_NATURALIST
+    valid = true;
+    #else
     valid = false;
+    #endif
 }
 
 void Clock::setTime(DateTime dt) {
