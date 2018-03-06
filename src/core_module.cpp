@@ -1,35 +1,9 @@
 #include "core_module.h"
 #include "hardware.h"
 #include "device_id.h"
+#include "status.h"
 
 namespace fk {
-
-class Status : public ActiveObject {
-private:
-    uint32_t lastTick{ 0 };
-    CoreState *state;
-    TwoWireBus *bus;
-
-public:
-    Status(CoreState &state, TwoWireBus &bus) : ActiveObject("Status"), state(&state), bus(&bus) {
-    }
-
-public:
-    void idle() override {
-        if (millis() - lastTick > 5000) {
-            IpAddress4 ip{ state->getStatus().ip };
-            auto now = clock.now();
-            debugfpln("Status", "Status %lu (%.2f%% / %.2fmv) (%lu free) (%s) (%s)", now.unixtime(),
-                      state->getStatus().batteryPercentage, state->getStatus().batteryVoltage,
-                      fk_free_memory(), ip.toString(), deviceId.toString());
-            lastTick = millis();
-        }
-    }
-
-};
-
-CoreModule::CoreModule() {
-}
 
 void CoreModule::begin() {
     pinMode(Hardware::SD_PIN_CS, OUTPUT);
@@ -82,13 +56,8 @@ void CoreModule::run() {
         leds.task();
         power.task();
         watchdog.task();
-        #ifdef FK_NATURALIST
-        auto idle = true;
-        #else
         attachedDevices.task();
-        auto idle = attachedDevices.isIdle();
-        #endif
-        if (idle) {
+        if (attachedDevices.isIdle()) {
             liveData.task();
             if (liveData.isIdle()) {
                 scheduler.task();

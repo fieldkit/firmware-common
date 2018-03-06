@@ -32,6 +32,7 @@
 #include "fkfs_tasks.h"
 #include "transmit_readings.h"
 #include "gps.h"
+#include "status.h"
 
 namespace fk {
 
@@ -60,14 +61,15 @@ private:
         .streamUrl = API_INGESTION_STREAM,
     };
     HttpPost transmission{wifi, transmissionConfig};
-    GatherReadings gatherReadings{bus, state, leds, modulesPool};
     JsonMessageBuilder builder{state, clock};
     SendTransmission sendTransmission{bus, builder, transmission, modulesPool};
     SendStatus sendStatus{bus, builder, transmission, modulesPool};
     TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, wifi, transmissionConfig, bus, dataPool};
-    ReadGPS readGps{state, Hardware::gpsUart};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
+
+    ReadGPS readGps{state, Hardware::gpsUart};
+    GatherReadings gatherReadings{bus, state, leds, modulesPool};
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
@@ -84,9 +86,6 @@ private:
     AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), appPool};
     Wifi wifi{state, appServicer};
     Discovery discovery{ bus, wifi };
-
-public:
-    CoreModule();
 
 public:
     void begin();
