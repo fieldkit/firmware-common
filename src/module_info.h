@@ -23,6 +23,12 @@ enum class SensorReadingStatus {
     Done,
 };
 
+struct IncomingSensorReading {
+    uint8_t sensor;
+    uint32_t time;
+    float value;
+};
+
 struct SensorReading {
     uint32_t time;
     float value;

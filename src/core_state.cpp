@@ -43,25 +43,34 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
     }
     case fk_module_ReplyType_REPLY_READING_STATUS: {
         if (reply.m().readingStatus.state == fk_module_ReadingState_DONE) {
-            auto sensorId = reply.m().sensorReading.sensor;
-            auto& reading = module.readings[sensorId];
-            auto& sensor = module.sensors[sensorId];
-            reading.time = reply.m().sensorReading.time;
-            reading.value = reply.m().sensorReading.value;
-            reading.status = SensorReadingStatus::Done;
-
-            // Try and help modules that don't have accurate clocks.
-            if (reading.time == 0) {
-                reading.time = clock.getTime();
-            }
-
-            data->appendReading(location, readingNumber, sensorId, sensor, reading);
+            IncomingSensorReading reading{
+                (uint8_t)reply.m().sensorReading.sensor,
+                reply.m().sensorReading.time,
+                reply.m().sensorReading.value,
+            };
+            merge(index, reading);
         }
         break;
     }
     default:
         break;
     }
+}
+
+void CoreState::merge(uint8_t moduleIndex, IncomingSensorReading &incoming) {
+    auto& module = modules[moduleIndex];
+    auto& reading = module.readings[incoming.sensor];
+    auto& sensor = module.sensors[incoming.sensor];
+    reading.time = incoming.time;
+    reading.value = incoming.value;
+    reading.status = SensorReadingStatus::Done;
+
+    // Try and help modules that don't have accurate clocks.
+    if (reading.time == 0) {
+        reading.time = clock.getTime();
+    }
+
+    data->appendReading(location, readingNumber, incoming.sensor, sensor, reading);
 }
 
 bool CoreState::hasModuleWithAddress(uint8_t address) {

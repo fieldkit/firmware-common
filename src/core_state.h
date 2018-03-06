@@ -80,6 +80,8 @@ public:
     void updateLocationFixFailed();
     void updateLocation(uint32_t time, float longitude, float latitude, float altitude);
 
+    void merge(uint8_t moduleIndex, IncomingSensorReading &reading);
+
     bool isBusy() {
         return busy;
     }
