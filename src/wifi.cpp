@@ -142,7 +142,11 @@ void Wifi::done(Task &task) {
 
 void Wifi::error(Task &task) {
     if (areSame(task, connectToWifiAp)) {
+        #ifdef FK_NATURALIST
+        disable();
+        #else
         push(createWifiAp);
+        #endif
     }
     else if (areSame(task, createWifiAp)) {
         disable();
