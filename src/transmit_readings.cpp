@@ -32,37 +32,36 @@ TaskEval TransmitAllQueuedReadings::task() {
         return openConnection();
     }
 
-    if (!wcl.connected()) {
-        log("No connection (status = %d)", parser.getStatusCode());
-        wcl.stop();
-        state->setBusy(false);
-        wifi->setBusy(false);
-        return TaskEval::done();
-    }
-
     while (wcl.available()) {
         auto c = wcl.read();
         parser.write(c);
     }
 
-    auto data = iterator.move();
-    if (data && data.size > 0) {
-        wcl.write((uint8_t *)data.ptr, data.size);
-    }
-
-    if (iterator.isFinished()) {
+    auto status = parser.getStatusCode();
+    if (!wcl.connected() || status > 0) {
         wcl.stop();
         state->setBusy(false);
         wifi->setBusy(false);
-        auto status = parser.getStatusCode();
         if (status == 200) {
             state->setTransmissionCursor(iterator.resumeToken());
-            log("Success (status = %d) (free = %lu)", status, fk_free_memory());
+            if (!iterator.isFinished()) {
+                log("Unfinished success (status = %d)", status);
+            }
+            else {
+                log("Success (status = %d)", status);
+            }
         }
         else {
-            log("Failed (status = %d) (free = %lu)", status, fk_free_memory());
+            log("Failed (status = %d)", status);
         }
         return TaskEval::done();
+    }
+
+    if (!iterator.isFinished()) {
+        auto data = iterator.move();
+        if (data && data.size > 0) {
+            wcl.write((uint8_t *)data.ptr, data.size);
+        }
     }
 
     return TaskEval::idle();
@@ -88,6 +87,7 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
             auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
             if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
                 log("Error encoding data file record (%d bytes)", sizeof(buffer));
+                wcl.stop();
                 state->setBusy(false);
                 wifi->setBusy(false);
                 return TaskEval::error();
@@ -99,7 +99,7 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
             HttpResponseWriter httpWriter(wcl);
             httpWriter.writeHeaders(parsed, "application/vnd.fk.data+binary", transmitting);
 
-            log("Connected, transmitting %d...", transmitting);
+            log("Sending %d bytes...", transmitting);
             connected = true;
             wcl.write(buffer, bufferSize);
         } else {
