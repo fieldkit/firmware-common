@@ -4,6 +4,8 @@
 #include <RTCZero.h>
 #include <RTClib.h>
 
+#include "hardware.h"
+
 namespace fk {
 
 template<size_t N>
@@ -37,7 +39,7 @@ public:
 class Clock {
 private:
     bool valid{ false };
-    #ifdef FK_NATURALIST
+    #ifdef FK_RTC_PCF8523
     RTC_PCF8523 rtc;
     #else
     RTCZero rtc;

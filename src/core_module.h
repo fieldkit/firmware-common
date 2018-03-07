@@ -68,7 +68,8 @@ private:
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
 
-    ReadGPS readGps{state, Hardware::gpsUart};
+    SerialPort gpsPort{ Serial1 };
+    ReadGps readGps{state, gpsPort};
     GatherReadings gatherReadings{bus, state, leds, modulesPool};
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },

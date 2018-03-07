@@ -7,6 +7,7 @@
 
 #include "debug.h"
 #include "peripherals.h"
+#include "hardware.h"
 
 namespace fk {
 
@@ -42,7 +43,7 @@ public:
 
 };
 
-#ifndef FK_NATURALIST
+#ifdef FK_HARDWARE_WIRE11AND13_ENABLE
 extern TwoWire Wire11and13;
 #endif
 extern TwoWire Wire4and3;

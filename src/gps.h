@@ -5,19 +5,20 @@
 
 #include "active_object.h"
 #include "core_state.h"
+#include "hardware.h"
 
 namespace fk {
 
-class ReadGPS : public Task {
+class ReadGps : public Task {
 private:
     CoreState *state;
-    Uart *uart;
+    SerialPort *serial;
     TinyGPS gps;
     uint32_t lastStatus{ 0 };
     uint32_t started{ 0 };
 
 public:
-    ReadGPS(CoreState &state, Uart &uart) : Task("GPS"), state(&state), uart(&uart) {
+    ReadGps(CoreState &state, SerialPort &serial) : Task("GPS"), state(&state), serial(&serial) {
     }
 
 public:

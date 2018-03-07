@@ -1,6 +1,8 @@
 #ifndef FK_PERIPHERALS_H_INCLUDED
 #define FK_PERIPHERALS_H_INCLUDED
 
+#include "hardware.h"
+
 namespace fk {
 
 class Peripheral {

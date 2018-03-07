@@ -12,7 +12,7 @@ bool TwoWireBus::begin(uint32_t speed) {
         Wire.setClock(speed);
     }
 
-    #ifndef FK_NATURALIST
+    #ifdef FK_HARDWARE_WIRE11AND13_ENABLE
     if (bus == &Wire11and13) {
         pinPeripheral(11, PIO_SERCOM);
         pinPeripheral(13, PIO_SERCOM);
@@ -31,7 +31,7 @@ bool TwoWireBus::begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRe
     bus->onReceive(onReceive);
     bus->onRequest(onRequest);
 
-    #ifndef FK_NATURALIST
+    #ifdef FK_HARDWARE_WIRE11AND13_ENABLE
     if (bus == &Wire11and13) {
         pinPeripheral(11, PIO_SERCOM);
         pinPeripheral(13, PIO_SERCOM);
@@ -134,7 +134,7 @@ void TwoWireBus::flush() {
 
 Peripherals peripherals;
 
-#ifndef FK_NATURALIST
+#ifdef FK_HARDWARE_WIRE11AND13_ENABLE
 TwoWire Wire11and13{ &sercom1, 11, 13 };
 #endif
 
@@ -142,7 +142,7 @@ TwoWire Wire4and3{ &sercom2, 4, 3 };
 
 extern "C" {
 
-#ifndef FK_NATURALIST
+#ifdef FK_HARDWARE_WIRE11AND13_ENABLE
 void SERCOM1_Handler(void) {
     fk::Wire11and13.onService();
 }

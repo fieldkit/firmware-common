@@ -7,7 +7,7 @@ Clock clock;
 
 void Clock::begin() {
     rtc.begin();
-    #ifdef FK_NATURALIST
+    #ifdef FK_RTC_PCF8523
     valid = true;
     #else
     valid = false;
@@ -15,7 +15,7 @@ void Clock::begin() {
 }
 
 void Clock::setTime(DateTime dt) {
-    #ifdef FK_NATURALIST
+    #ifdef FK_RTC_PCF8523
     rtc.adjust(dt);
     #else
     rtc.setYear(dt.year() - 2000);
@@ -41,7 +41,7 @@ void Clock::setTime(uint32_t unix) {
 }
 
 DateTime Clock::now() {
-    #ifdef FK_NATURALIST
+    #ifdef FK_RTC_PCF8523
     return rtc.now();
     #else
     return DateTime(rtc.getYear(),

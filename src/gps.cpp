@@ -1,6 +1,5 @@
 #include "hardware.h"
 #include "gps.h"
-#include <wiring_private.h>
 
 namespace fk {
 
@@ -62,25 +61,21 @@ struct GpsReading {
     }
 };
 
-void ReadGPS::enqueued() {
+void ReadGps::enqueued() {
     started = 0;
     // Ensure we have a fresh start and aren't going to re-use an old fix.
     gps = TinyGPS();
 
-    uart->begin(9600);
-    #ifdef FK_NATURALIST
-    pinPeripheral(10, PIO_SERCOM);
-    pinPeripheral(11, PIO_SERCOM);
-    #endif
+    serial->begin(9600);
 }
 
-TaskEval ReadGPS::task() {
+TaskEval ReadGps::task() {
     if (started == 0) {
         started = millis();
     }
 
-    while (uart->available()) {
-        auto c = (char)uart->read();
+    while (serial->available()) {
+        auto c = (char)serial->read();
         gps.encode(c);
     }
 
