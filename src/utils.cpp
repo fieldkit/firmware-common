@@ -30,6 +30,7 @@ const char *getWifiStatus() {
 
 void HttpResponseParser::begin() {
     buffer[0] = pos = spacesSeen = 0;
+    statusCode = 0;
 }
 
 void HttpResponseParser::write(uint8_t c) {
