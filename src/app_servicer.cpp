@@ -179,8 +179,16 @@ TaskEval AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
-        log("Download file (%lu / %lu)", query.m().downloadFile.id, query.m().downloadFile.page);
-        return fileReplies->downloadFileReply(query, reply, *buffer);
+        if (!state->isReadingInProgress()) {
+            log("Download file (%lu / %lu)", query.m().downloadFile.id, query.m().downloadFile.page);
+            return fileReplies->downloadFileReply(query, reply, *buffer);
+        }
+
+        reply.busy("Busy");
+        buffer->write(reply);
+
+        break;
+
     }
     case fk_app_QueryType_QUERY_ERASE_FILE: {
         log("Erase file (%lu)", query.m().eraseFile.id);

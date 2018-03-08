@@ -78,10 +78,12 @@ void GatherReadings::error(Task &task) {
 
 void GatherReadings::error() {
     peripherals.twoWire1().release();
+    state->doneTakingReading();
 }
 
 void GatherReadings::done() {
     peripherals.twoWire1().release();
+    state->doneTakingReading();
 }
 
 }
