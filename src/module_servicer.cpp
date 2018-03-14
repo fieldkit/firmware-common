@@ -103,12 +103,12 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
 
         for (size_t i = 0; i < info->numberOfSensors; ++i) {
             if (info->readings[i].status == SensorReadingStatus::Busy) {
-                if (reply.m().readingStatus.state != fk_module_ReadingState_DONE) {
+                if (reply.m().readingStatus.state == fk_module_ReadingState_BUSY) {
                     reply.m().readingStatus.state = fk_module_ReadingState_BUSY;
                 }
             }
             if (info->readings[i].status == SensorReadingStatus::Done) {
-                log("Sending reading");
+                log("Sending reading %d", i);
                 reply.m().readingStatus.state = fk_module_ReadingState_DONE;
                 reply.m().readingStatus.elapsed = pending.elapsed;
                 reply.m().sensorReading.sensor = i;
