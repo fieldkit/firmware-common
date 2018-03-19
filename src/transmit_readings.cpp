@@ -14,17 +14,17 @@ void TransmitAllQueuedReadings::enqueued() {
 }
 
 TaskEval TransmitAllQueuedReadings::task() {
-    if (state->isBusy() || state->isReadingInProgress()) {
-        log("We're busy, skipping.");
-        return TaskEval::done();
-    }
-
     if (!wifi->possiblyOnline()) {
         log("Wifi disabled or using local AP");
         return TaskEval::done();
     }
 
     if (!connected) {
+        if (state->isBusy() || state->isReadingInProgress()) {
+            log("We're busy, skipping.");
+            return TaskEval::done();
+        }
+
         iterator.reopen(state->getTransmissionCursor());
 
         if (iterator.size() > MaximumUpload) {
