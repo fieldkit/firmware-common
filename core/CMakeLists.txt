@@ -36,6 +36,8 @@ if(NO_NETWORK_CONFIG)
   add_definitions(-DFK_NO_NETWORKS)
 endif(NO_NETWORK_CONFIG)
 
+include(ArduinoMinimal)
+
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")
 
 target_compile_options(arduino_zero_Wire PUBLIC -finstrument-functions)

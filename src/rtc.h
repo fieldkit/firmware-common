@@ -53,7 +53,7 @@ public:
 
 public:
     void setTime(DateTime dt);
-    void setTime(uint32_t unix);
+    void setTime(uint32_t newTime);
     DateTime now();
     uint32_t getTime();
 

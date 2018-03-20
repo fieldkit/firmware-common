@@ -2,6 +2,7 @@
 #define FK_UTILS_H_INCLUDED
 
 #include <WiFi101.h>
+#include <IPAddress.h>
 
 #include <cstdint>
 #include <cstdio>

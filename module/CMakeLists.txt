@@ -6,6 +6,8 @@ set(LIBRARIES
   ../module-protocol
 )
 
+include(ArduinoMinimal)
+
 arduino(fk-module "${SOURCE_FILES}" "${LIBRARIES}")
 
 target_compile_options(arduino_zero_Wire PUBLIC -finstrument-functions)

@@ -13,6 +13,9 @@ all: $(BUILD) gitdeps core/config.h seed
 	cd $(BUILD) && cmake ../ -DDEBUG_UART_FALLBACK=ON
 	cd $(BUILD) && make
 
+test: all
+	cd $(BUILD) && env GTEST_COLOR=1 make test ARGS=-VV
+
 seed: GIT_HASH=$(shell git log -1 --pretty=format:"%H")
 seed:
 	echo "// Generated before compile time to seed the RNG." > core/seed.h
@@ -24,6 +27,8 @@ seed:
 gitdeps:
 	simple-deps --config core/arduino-libraries
 	simple-deps --config module/arduino-libraries
+	simple-deps --config test/mcu/arduino-libraries
+	simple-deps --config test/linux/testcommon/arduino-libraries
 
 clean:
 	rm -rf $(BUILD)

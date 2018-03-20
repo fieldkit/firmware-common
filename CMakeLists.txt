@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../ardui
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-include(ArduinoMinimal)
+enable_testing()
 
 # TODO: Make creating internal libraries easier?
 set(COMMON_SRCS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -63,3 +63,4 @@ include_directories(${COMMON_SRCS_DIR})
 
 add_subdirectory(module)
 add_subdirectory(core)
+add_subdirectory(test)

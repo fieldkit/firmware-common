@@ -72,7 +72,7 @@ public:
     }
 
     void done() override {
-        log("Sensor #%lu: '%s'", reply.m().sensorCapabilities.id, (const char *)reply.m().sensorCapabilities.name.arg);
+        log("Sensor #%" PRIu32 ": '%s'", reply.m().sensorCapabilities.id, (const char *)reply.m().sensorCapabilities.name.arg);
     }
 
 };

@@ -28,16 +28,16 @@ void Clock::setTime(DateTime dt) {
     valid = true;
 }
 
-void Clock::setTime(uint32_t unix) {
-    if (unix == 0) {
+void Clock::setTime(uint32_t newTime) {
+    if (newTime == 0) {
         debugfpln("Clock", "Ignoring invalid time");
         return;
     }
 
-    setTime(DateTime(unix));
+    setTime(DateTime(newTime));
 
     FormattedTime nowFormatted{ clock.now() };
-    debugfpln("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), unix);
+    debugfpln("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
 }
 
 DateTime Clock::now() {
