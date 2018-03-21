@@ -43,6 +43,7 @@ public:
     FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t *resumeToken);
 
 public:
+    void truncateFile();
     void reopen(fkfs_iterator_token_t &token);
     void resume(fkfs_iterator_token_t &token);
     void status();

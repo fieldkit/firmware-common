@@ -48,13 +48,18 @@ TaskEval TransmitAllQueuedReadings::task() {
         state->setBusy(false);
         wifi->setBusy(false);
         if (status == 200) {
-            state->setTransmissionCursor(iterator.resumeToken());
             if (!iterator.isFinished()) {
                 log("Unfinished success (status = %d)", status);
             }
             else {
                 log("Success (status = %d)", status);
+
+                if (state->shouldWipeAfterUpload()) {
+                    log("Truncating data!");
+                    iterator.truncateFile();
+                }
             }
+            state->setTransmissionCursor(iterator.resumeToken());
         }
         else {
             log("Failed (status = %d)", status);

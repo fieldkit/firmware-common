@@ -79,4 +79,9 @@ DataBlock FkfsIterator::move() {
     return DataBlock{ nullptr, 0 };
 }
 
+void FkfsIterator::truncateFile() {
+    fkfs_file_truncate(fs, file);
+    beginning();
+}
+
 }

@@ -22,6 +22,7 @@ private:
     fkfs_iterator_token_t transmissionCursor{ 0 };
     uint32_t readingNumber{ 0 };
     bool readingInProgress{ false };
+    bool wipeAfterUpload{ true };
 
 public:
     CoreState(FkfsData &data);
@@ -59,6 +60,10 @@ public:
 
     bool hasModules() {
         return numberOfModules() > 0;
+    }
+
+    bool shouldWipeAfterUpload() {
+        return wipeAfterUpload;
     }
 
 public:
