@@ -61,6 +61,26 @@ public:
 
 extern Clock clock;
 
+inline bool isTimeOff(uint32_t time) {
+    if (!clock.isValid()) {
+        return false;
+    }
+
+    // Decided to only do this check if we have a valid time, because if we
+    // didn't then what would we do?
+    if (time == 0) {
+        return true;
+    }
+
+    auto now = clock.getTime();
+    auto difference = abs(now - time);
+    if (difference > 5 * 60) {
+        return true;
+    }
+
+    return false;
+}
+
 }
 
 #endif

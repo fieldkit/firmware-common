@@ -66,7 +66,6 @@ size_t FlashStorage::write(uint32_t address, void *ptr, size_t size) {
     memcpy(buffer, &newHash, sizeof(uint16_t));
     memcpy(buffer + sizeof(uint16_t), ptr, size);
 
-    debugfpln("Flash", "Writing %lu (%d)...", address, newHash);
     serialFlash->eraseBlock(address);
     serialFlash->write(address, buffer, sizeof(buffer));
 

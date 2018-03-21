@@ -65,9 +65,11 @@ void CoreState::merge(uint8_t moduleIndex, IncomingSensorReading &incoming) {
     reading.value = incoming.value;
     reading.status = SensorReadingStatus::Done;
 
-    // Try and help modules that don't have accurate clocks.
-    if (reading.time == 0) {
-        reading.time = clock.getTime();
+    if (isTimeOff(reading.time)) {
+        auto now = clock.getTime();
+        auto difference = abs(now - reading.time);
+        debugfpln("CoreState", "Fixing reading with drifted time: %lu - %lu = %d", now, reading.time, difference);
+        reading.time = now;
     }
 
     data->appendReading(location, readingNumber, incoming.sensor, sensor, reading);
