@@ -36,6 +36,11 @@ if(NO_NETWORK_CONFIG)
   add_definitions(-DFK_NO_NETWORKS)
 endif(NO_NETWORK_CONFIG)
 
+option(DISABLE_FLASH "Disable preconfiguring network.")
+if(DISABLE_FLASH)
+  add_definitions(-DFK_DISABLE_FLASH)
+endif(DISABLE_FLASH)
+
 include(ArduinoMinimal)
 
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")

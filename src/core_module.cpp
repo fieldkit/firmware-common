@@ -30,6 +30,13 @@ void CoreModule::begin() {
 
     delay(10);
 
+    #ifndef FK_DISABLE_FLASH
+    fk_assert(serialFlash.begin(Hardware::FLASH_PIN_CS));
+    fk_assert(storage.setup());
+
+    delay(100);
+    #endif
+
     fk_assert(fileSystem.setup());
 
     watchdog.started();
@@ -40,7 +47,8 @@ void CoreModule::begin() {
 
     clock.begin();
 
-    fk_assert(serialFlash.begin(Hardware::FLASH_PIN_CS));
+    FormattedTime nowFormatted{ clock.now() };
+    debugfpln("Core", "Now: %s", nowFormatted.toString());
 
     state.started();
 }

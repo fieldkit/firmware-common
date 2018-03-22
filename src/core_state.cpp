@@ -6,11 +6,19 @@
 namespace fk {
 
 bool PersistedState::load(FlashStorage &storage) {
+    #ifndef FK_DISABLE_FLASH
     return storage.read(this, sizeof(PersistedState)) == sizeof(PersistedState);
+    #else
+    return false;
+    #endif
 }
 
 bool PersistedState::save(FlashStorage &storage) {
+    #ifndef FK_DISABLE_FLASH
     return storage.write(this, sizeof(PersistedState)) == sizeof(PersistedState);
+    #else
+    return false;
+    #endif
 }
 
 CoreState::CoreState(FlashStorage &storage, FkfsData &data) : storage(&storage), data(&data) {
