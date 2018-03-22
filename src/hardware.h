@@ -39,7 +39,11 @@ public:
     static constexpr uint8_t RFM95_PIN_INT = 3;
 
     static constexpr uint8_t SD_PIN_CS = 12;
+    #ifdef FK_NATURALIST
+    static constexpr uint8_t FLASH_PIN_CS = PIN_LED_TXL;
+    #else
     static constexpr uint8_t FLASH_PIN_CS = 4;
+    #endif
 
     static Uart &gpsUart;
 };
