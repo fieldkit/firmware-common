@@ -7,6 +7,18 @@
 #define FK_RTC_PCF8523
 #define FK_WIFI_AP_DISABLE
 #define FK_HARDWARE_SERIAL2_ENABLE
+
+/**
+ * The FkNat board uses the pin usually mapepd to PIN_LED_TXL for the CS on
+ * Serial Flash. Unfortunately, the USB driver code uses this pin to blinky
+ * blink while sending and receiving. So as long as that's defined we can't
+ * use the serial flash.
+ */
+#ifdef PIN_LED_TXL
+#pragma message "Disabling serial flash due to collision with PIN_LED_TXL. Please remove this from variant.h."
+#define FK_DISABLE_FLASH
+#endif
+
 #else
 #define FK_HARDWARE_WIRE11AND13_ENABLE
 #endif
@@ -40,7 +52,7 @@ public:
 
     static constexpr uint8_t SD_PIN_CS = 12;
     #ifdef FK_NATURALIST
-    static constexpr uint8_t FLASH_PIN_CS = PIN_LED_TXL;
+    static constexpr uint8_t FLASH_PIN_CS = (26u); // PIN_LED_TXL;
     #else
     static constexpr uint8_t FLASH_PIN_CS = 4;
     #endif
