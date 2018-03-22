@@ -208,12 +208,14 @@ void Wifi::disable() {
 
 void Wifi::idle() {
     if (disabled) {
-        if (millis() - lastActivityAt > WifiAwakenInterval) {
-            log("Enabling...");
-            begin();
-            lastActivityAt = millis();
-            disabled = false;
-            version = 0;
+        if (!state->isBusy() && state->isReadingInProgress()) {
+            if (millis() - lastActivityAt > WifiAwakenInterval) {
+                log("Enabling...");
+                begin();
+                lastActivityAt = millis();
+                disabled = false;
+                version = 0;
+            }
         }
         return;
     }
