@@ -7,77 +7,64 @@
 #include "two_wire_task.h"
 #include "fkfs_data.h"
 #include "network_settings.h"
+#include "flash_storage.h"
 
 namespace fk {
 
+struct PersistedState {
+    uint32_t time;
+    DeviceIdentity deviceIdentity;
+    NetworkSettings networkSettings;
+    DeviceLocation location;
+    uint32_t readingNumber{ 0 };
+    fkfs_iterator_token_t transmissionCursor{ 0 };
+
+    bool load(FlashStorage &storage);
+    bool save(FlashStorage &storage);
+};
+
 class CoreState {
 private:
-    NetworkSettings networkSettings;
     ModuleInfo modules[MaximumNumberOfModules];
-    DeviceStatus deviceStatus;
-    DeviceLocation location;
     DeviceIdentity deviceIdentity;
-    FkfsData *data;
-    bool busy{ false };
-    fkfs_iterator_token_t transmissionCursor{ 0 };
+    NetworkSettings networkSettings;
+    DeviceLocation location;
     uint32_t readingNumber{ 0 };
+    fkfs_iterator_token_t transmissionCursor{ 0 };
+
+private:
+    DeviceStatus deviceStatus;
+    bool busy{ false };
     bool readingInProgress{ false };
     bool wipeAfterUpload{ true };
+    FlashStorage *storage;
+    FkfsData *data;
 
 public:
-    CoreState(FkfsData &data);
+    CoreState(FlashStorage &storage, FkfsData &data);
 
 public:
+    ModuleInfo* attachedModules();
     size_t numberOfModules() const;
-
     size_t numberOfSensors() const;
-
     size_t numberOfReadings() const;
-
-    ModuleInfo* attachedModules() {
-        return modules;
-    }
-
-    DeviceLocation &getLocation() {
-        return location;
-    }
-
-    DeviceIdentity &getIdentity() {
-        return deviceIdentity;
-    }
-
-    DeviceStatus &getStatus() {
-        return deviceStatus;
-    }
-
-    NetworkSettings &getNetworkSettings() {
-        return networkSettings;
-    }
-
-    AvailableSensorReading getReading(size_t index);
-
+    bool hasModules();
     bool hasModuleWithAddress(uint8_t address);
 
-    bool hasModules() {
-        return numberOfModules() > 0;
-    }
-
-    bool shouldWipeAfterUpload() {
-        return wipeAfterUpload;
-    }
+    DeviceLocation& getLocation();
+    DeviceIdentity& getIdentity();
+    DeviceStatus& getStatus();
+    NetworkSettings& getNetworkSettings();
 
 public:
     void started();
-    void takingReading() {
-        readingNumber++;
-        readingInProgress = true;
-    }
-    void doneTakingReading() {
-        readingInProgress = false;
-    }
-    bool isReadingInProgress() {
-        return readingInProgress;
-    }
+
+    void takingReading();
+    bool isReadingInProgress();
+    void doneTakingReading();
+    AvailableSensorReading getReading(size_t index);
+    void clearReadings();
+
     void doneScanning();
     void scanFailure();
 
@@ -85,35 +72,27 @@ public:
     void configure(DeviceIdentity newIdentity);
     void configure(NetworkSettings newSettings);
 
-    void clearReadings();
-
     void merge(uint8_t address, ModuleReplyMessage &reply);
-    void updateBattery(float percentage, float voltage);
-    void updateIp(uint32_t ip);
-    void updateLocationFixFailed();
-    void updateLocation(uint32_t time, float longitude, float latitude, float altitude);
-
     void merge(uint8_t moduleIndex, IncomingSensorReading &reading);
 
-    bool isBusy() {
-        return busy;
-    }
+    void updateBattery(float percentage, float voltage);
+    void updateIp(uint32_t ip);
+    void updateLocation(DeviceLocation&& fix);
 
-    void setBusy(bool value) {
-        busy = value;
-    }
-
-    fkfs_iterator_token_t &getTransmissionCursor() {
-        return transmissionCursor;
-    }
-
-    void setTransmissionCursor(fkfs_iterator_token_t &cursor) {
-        transmissionCursor = cursor;
-    }
+    bool isBusy();
+    void setBusy(bool value);
+    fkfs_iterator_token_t &getTransmissionCursor();
+    void setTransmissionCursor(fkfs_iterator_token_t &cursor);
+    bool shouldWipeAfterUpload();
 
 private:
     size_t getModuleIndex(uint8_t address);
     bool appendReading(SensorReading &reading);
+
+private:
+    void copyFrom(PersistedState &state);
+    void copyTo(PersistedState &state);
+    void save();
 
 };
 

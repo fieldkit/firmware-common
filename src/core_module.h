@@ -33,6 +33,7 @@
 #include "transmit_readings.h"
 #include "gps.h"
 #include "status.h"
+#include "flash_storage.h"
 
 namespace fk {
 
@@ -53,7 +54,9 @@ private:
     FileSystem fileSystem{ bus, dataPool };
     Watchdog watchdog{ leds };
     Power power{ state };
-    CoreState state{fileSystem.getData()};
+    SerialFlashChip serialFlash;
+    FlashStorage storage{ serialFlash };
+    CoreState state{storage, fileSystem.getData()};
     Leds leds;
 
     HttpTransmissionConfig transmissionConfig = {

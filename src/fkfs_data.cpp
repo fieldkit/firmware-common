@@ -31,7 +31,7 @@ bool FkfsData::appendLocation(DeviceLocation &location) {
     DataRecordMessage message{ *pool };
 
     message.m().loggedReading.version = 1;
-    message.m().loggedReading.location.fix = location.fix;
+    message.m().loggedReading.location.fix = location.valid;
     message.m().loggedReading.location.time = location.time;
     message.m().loggedReading.location.longitude = location.coordinates[0];
     message.m().loggedReading.location.latitude = location.coordinates[1];
@@ -48,7 +48,7 @@ bool FkfsData::appendReading(DeviceLocation &location, uint32_t readingNumber, u
     DataRecordMessage message{ *pool };
 
     message.m().loggedReading.version = 1;
-    message.m().loggedReading.location.fix = location.fix;
+    message.m().loggedReading.location.fix = location.valid;
     message.m().loggedReading.location.time = location.time;
     message.m().loggedReading.location.longitude = location.coordinates[0];
     message.m().loggedReading.location.latitude = location.coordinates[1];

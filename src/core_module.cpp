@@ -40,6 +40,8 @@ void CoreModule::begin() {
 
     clock.begin();
 
+    fk_assert(serialFlash.begin(Hardware::FLASH_PIN_CS));
+
     state.started();
 }
 

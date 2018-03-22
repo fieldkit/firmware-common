@@ -5,13 +5,32 @@
 
 namespace fk {
 
-CoreState::CoreState(FkfsData &data) : data(&data) {
+bool PersistedState::load(FlashStorage &storage) {
+    return storage.read(this, sizeof(PersistedState)) == sizeof(PersistedState);
+}
+
+bool PersistedState::save(FlashStorage &storage) {
+    return storage.write(this, sizeof(PersistedState)) == sizeof(PersistedState);
+}
+
+CoreState::CoreState(FlashStorage &storage, FkfsData &data) : storage(&storage), data(&data) {
     for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
         modules[i].address = 0;
     }
 }
 
 void CoreState::started() {
+    PersistedState persisted;
+    if (persisted.load(*storage)) {
+        debugfpln("Core", "Loaded state.");
+        copyFrom(persisted);
+    }
+    else {
+        debugfpln("Core", "Clean slate!");
+        copyTo(persisted);
+        persisted.save(*storage);
+    }
+
     data->appendMetadata(*this);
 }
 
@@ -163,6 +182,7 @@ void CoreState::clearReadings() {
 
 void CoreState::configure(DeviceIdentity newIdentity) {
     deviceIdentity = newIdentity;
+    save();
 }
 
 void CoreState::setDeviceId(const char *deviceId) {
@@ -174,6 +194,7 @@ void CoreState::setDeviceId(const char *deviceId) {
 void CoreState::configure(NetworkSettings newSettings) {
     networkSettings = newSettings;
     networkSettings.version = millis();
+    save();
 }
 
 void CoreState::updateBattery(float percentage, float voltage) {
@@ -185,18 +206,92 @@ void CoreState::updateIp(uint32_t ip) {
     deviceStatus.ip = ip;
 }
 
-void CoreState::updateLocationFixFailed() {
-    location.fix = false;
+void CoreState::updateLocation(DeviceLocation&& fix) {
+    location = fix;
+    data->appendLocation(location);
+    save();
 }
 
-void CoreState::updateLocation(uint32_t time, float longitude, float latitude, float altitude) {
-    location.fix = true;
-    location.time = time;
-    location.coordinates[0] = longitude;
-    location.coordinates[1] = latitude;
-    location.coordinates[2] = altitude;
+void CoreState::save() {
+    PersistedState persisted;
+    copyTo(persisted);
+    persisted.time = clock.getTime();
+    persisted.save(*storage);
+    debugfpln("CoreState", "Saved");
+}
 
-    data->appendLocation(location);
+void CoreState::copyFrom(PersistedState &state) {
+    deviceIdentity = state.deviceIdentity;
+    networkSettings = state.networkSettings;
+    location = state.location;
+    readingNumber = state.readingNumber;
+    transmissionCursor = state.transmissionCursor;
+}
+
+void CoreState::copyTo(PersistedState &state) {
+    state.deviceIdentity = deviceIdentity;
+    state.networkSettings = networkSettings;
+    state.location = location;
+    state.readingNumber = readingNumber;
+    state.transmissionCursor = transmissionCursor;
+}
+
+void CoreState::takingReading() {
+    readingNumber++;
+    readingInProgress = true;
+}
+
+void CoreState::doneTakingReading() {
+    readingInProgress = false;
+}
+
+bool CoreState::isReadingInProgress() {
+    return readingInProgress;
+}
+
+bool CoreState::isBusy() {
+    return busy;
+}
+
+void CoreState::setBusy(bool value) {
+    busy = value;
+}
+
+fkfs_iterator_token_t &CoreState::getTransmissionCursor() {
+    return transmissionCursor;
+}
+
+void CoreState::setTransmissionCursor(fkfs_iterator_token_t &cursor) {
+    transmissionCursor = cursor;
+    save();
+}
+
+ModuleInfo* CoreState::attachedModules() {
+    return modules;
+}
+
+DeviceLocation &CoreState::getLocation() {
+    return location;
+}
+
+DeviceIdentity &CoreState::getIdentity() {
+    return deviceIdentity;
+}
+
+DeviceStatus &CoreState::getStatus() {
+    return deviceStatus;
+}
+
+NetworkSettings &CoreState::getNetworkSettings() {
+    return networkSettings;
+}
+
+bool CoreState::hasModules() {
+    return numberOfModules() > 0;
+}
+
+bool CoreState::shouldWipeAfterUpload() {
+    return wipeAfterUpload;
 }
 
 }

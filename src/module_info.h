@@ -77,11 +77,14 @@ struct DeviceStatus {
 };
 
 struct DeviceLocation {
-    uint32_t fix;
+    uint32_t valid;
     uint32_t time;
     float coordinates[MaximumCoordinates];
 
-    DeviceLocation() : time(0), coordinates{ 0.0, 0.0, 0.0 } {
+    DeviceLocation() : valid(false), time(0), coordinates{ 0.0, 0.0, 0.0 } {
+    }
+
+    DeviceLocation(uint32_t time, float longitude, float latitude, float altitude) : valid(true), time(time), coordinates{ longitude, latitude, altitude } {
     }
 };
 

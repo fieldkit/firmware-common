@@ -91,14 +91,14 @@ TaskEval ReadGps::task() {
 
         log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);
 
-        state->updateLocation(unix, fix.flon, fix.flat, fix.altitude);
+        state->updateLocation(DeviceLocation{ unix, fix.flon, fix.flat, fix.altitude });
         clock.setTime(dateTime);
 
         return TaskEval::done();
     }
 
     if (millis() - started > GpsFixAttemptInterval) {
-        state->updateLocationFixFailed();
+        state->updateLocation(DeviceLocation{});
         return TaskEval::error();
     }
 
