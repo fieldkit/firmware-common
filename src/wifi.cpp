@@ -226,6 +226,10 @@ void Wifi::idle() {
         status = newStatus;
         lastActivityAt = millis();
         state->updateIp(WiFi.localIP());
+        if (newStatus == WL_DISCONNECTED) {
+            disable();
+            return;
+        }
     }
 
     if (status == WL_NO_SHIELD) {
