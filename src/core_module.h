@@ -24,8 +24,6 @@
 #include "scheduler.h"
 #include "rtc.h"
 #include "simple_ntp.h"
-#include "http_post.h"
-#include "json_message_builder.h"
 #include "discovery.h"
 #include "leds.h"
 #include "file_system.h"
@@ -41,7 +39,6 @@ namespace fk {
 #define FK_API_BASE "http://api.fkdev.org"
 #endif
 
-constexpr const char API_INGESTION_JSON[] = FK_API_BASE "/messages/ingestion?token=TOKEN";
 constexpr const char API_INGESTION_STREAM[] = FK_API_BASE "/messages/ingestion/stream";
 
 class CoreModule {
@@ -60,13 +57,8 @@ private:
     Leds leds;
 
     HttpTransmissionConfig transmissionConfig = {
-        .url = API_INGESTION_JSON,
         .streamUrl = API_INGESTION_STREAM,
     };
-    HttpPost transmission{wifi, transmissionConfig};
-    JsonMessageBuilder builder{state, clock};
-    SendTransmission sendTransmission{bus, builder, transmission, modulesPool};
-    SendStatus sendStatus{bus, builder, transmission, modulesPool};
     TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, wifi, transmissionConfig, bus, dataPool};
     uint8_t addresses[4]{ 7, 8, 9, 0 };
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
@@ -78,11 +70,8 @@ private:
         fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
     };
-    ScheduledTask scheduled[4] {
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, gatherReadings },
+    ScheduledTask scheduled[1] {
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllQueuedReadings },
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendStatus },
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, readGps },
     };
     Scheduler scheduler{state, clock, scheduled, periodics};
 

@@ -4,9 +4,9 @@
 #include "active_object.h"
 #include "pool.h"
 #include "wifi.h"
-#include "http_post.h"
 #include "core_state.h"
 #include "fkfs_tasks.h"
+#include "utils.h"
 
 namespace fk {
 
@@ -21,6 +21,7 @@ private:
     bool connected{ false };
     WiFiClient wcl;
     HttpResponseParser parser;
+    CachedDnsResolution cachedDns;
 
 public:
     TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, TwoWireBus &bus, Pool &pool);

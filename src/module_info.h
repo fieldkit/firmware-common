@@ -94,6 +94,11 @@ struct AvailableSensorReading {
     SensorReading &reading;
 };
 
+struct HttpTransmissionConfig {
+    const char *streamUrl;
+};
+
+
 }
 
 #endif

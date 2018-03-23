@@ -91,7 +91,7 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
     if (parsed.server != nullptr && parsed.path != nullptr) {
         log("Connecting: '%s:%d' / '%s'", parsed.server, parsed.port, parsed.path);
 
-        if (config->cachedDns.cached(parsed.server) && wcl.connect(config->cachedDns.ip(), parsed.port)) {
+        if (cachedDns.cached(parsed.server) && wcl.connect(cachedDns.ip(), parsed.port)) {
             DataRecordMetadataMessage drm{ *state, *pool };
             uint8_t buffer[drm.calculateSize()];
             auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));

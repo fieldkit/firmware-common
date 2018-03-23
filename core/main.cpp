@@ -94,10 +94,7 @@ void dumpObjectSizes() {
     FK_DUMP_SIZE(fk::CoreState);
     FK_DUMP_SIZE(fk::Clock);
     FK_DUMP_SIZE(fk::Pool);
-    FK_DUMP_SIZE(fk::HttpPost);
     FK_DUMP_SIZE(fk::GatherReadings);
-    FK_DUMP_SIZE(fk::SendTransmission);
-    FK_DUMP_SIZE(fk::SendStatus);
     FK_DUMP_SIZE(fk::Scheduler);
     FK_DUMP_SIZE(fk::LiveData);
     FK_DUMP_SIZE(fk::AppServicer);
