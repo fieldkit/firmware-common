@@ -3,15 +3,18 @@ SHELL := /bin/bash
 
 default: all
 
-$(BUILD):
-	mkdir -p $(BUILD)
-
 core/config.h:
 	cp core/config.h.template core/config.h
 
-all: $(BUILD) gitdeps core/config.h seed
-	cd $(BUILD) && cmake ../ -DDEBUG_UART_FALLBACK=ON
+all: $(BUILD)/Makefile
 	cd $(BUILD) && make
+
+$(BUILD)/Makefile: gitdeps core/config.h seed
+	mkdir -p $(BUILD)
+	cd $(BUILD) && cmake ../ -DDEBUG_UART_FALLBACK=ON
+
+doc: $(BUILD)/Makefile
+	cd $(BUILD) && make doc
 
 test: all
 	cd $(BUILD) && env GTEST_COLOR=1 make test ARGS=-VV

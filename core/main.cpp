@@ -1,3 +1,6 @@
+/**
+ * @file
+ */
 #include <Arduino.h>
 
 #include <fk-core.h>
