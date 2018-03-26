@@ -70,12 +70,11 @@ public:
     Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue);
 
 public:
-    void begin();
     void end();
     bool inactive();
-    bool hasConnection() {
-        return state == ListenerState::Busy;
-    }
+
+private:
+    void begin();
 
 public:
     TaskEval task() override;

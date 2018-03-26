@@ -47,7 +47,7 @@ TaskEval HandleConnection::task() {
 void HandleConnection::done() {
     connection->flush();
 
-    if (connection->isOpen()) {
+    if (connection->isConnected()) {
         log("Stop connection");
         connection->close();
     }
@@ -89,7 +89,7 @@ bool Listen::inactive() {
 
 TaskEval Listen::task() {
     if (state == ListenerState::Busy) {
-        if (connection->isOpen()) {
+        if (connection->isConnected()) {
             return TaskEval::busy();
         }
 

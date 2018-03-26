@@ -51,7 +51,7 @@ public:
         buffer.setConnection(wcl);
     }
 
-    bool isOpen() {
+    bool isConnected() {
         return wcl && wcl.connected();
     }
 
