@@ -3,62 +3,61 @@
 
 namespace fk {
 
-ReadAppQuery::ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, TaskQueue &taskQueue, WifiMessageBuffer &buffer) :
-    Task("ReadAppQuery"), wcl(&wcl), servicer(&servicer), taskQueue(&taskQueue), buffer(&buffer) {
+ReadAppQuery::ReadAppQuery(WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue) :
+    Task("ReadAppQuery"), connection(&connection), servicer(&servicer), taskQueue(&taskQueue) {
 }
 
 TaskEval ReadAppQuery::task() {
     if (dieAt == 0) {
         dieAt = millis() + ConnectionTimeout;
-    } else if (millis() > dieAt) {
-        wcl->stop();
+    }
+    else if (millis() > dieAt) {
+        connection->close();
         log("Connection timed out.");
         return TaskEval::error();
     }
-    else if (wcl->available()) {
-        auto bytesRead = buffer->read();
-        if (bytesRead > 0) {
-            log("Read %d bytes", bytesRead);
-            if (!servicer->handle(*buffer)) {
-                wcl->stop();
-                log("Error parsing query");
-                return TaskEval::error();
-            } else {
-                taskQueue->push(*servicer);
-                return TaskEval::done();
-            }
+
+    auto bytesRead = connection->read();
+    if (bytesRead > 0) {
+        log("Read %d bytes", bytesRead);
+        if (!servicer->handle(connection->getBuffer())) {
+            connection->close();
+            log("Error parsing query");
+            return TaskEval::error();
+        } else {
+            return servicer->task();
         }
     }
 
     return TaskEval::idle();
 }
 
-HandleConnection::HandleConnection(AppServicer &servicer, TaskQueue &taskQueue)
-    : ActiveObject("HandleConnection"), servicer(&servicer), buffer(), readAppQuery(wcl, servicer, taskQueue, buffer) {
+HandleConnection::HandleConnection(AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue)
+    : Task("HandleConnection"), servicer(&servicer), connection(&connection), readAppQuery(connection, servicer, taskQueue) {
 }
 
 void HandleConnection::enqueued() {
-    push(readAppQuery);
+    readAppQuery.enqueued();
+}
+
+TaskEval HandleConnection::task() {
+    return readAppQuery.task();
 }
 
 void HandleConnection::done() {
-    if (!buffer.empty()) {
-        buffer.write();
-    }
+    connection->flush();
 
-    if (wcl && wcl.connected()) {
+    if (connection->isOpen()) {
         log("Stop connection");
-        wcl.flush();
-        wcl.stop();
+        connection->close();
     }
     else {
         log("No connection!");
     }
 }
 
-Listen::Listen(uint16_t port, AppServicer &servicer, TaskQueue &taskQueue)
-    : Task("Listen"), server(port),
-      servicer(&servicer), taskQueue(&taskQueue), handleConnection(servicer, taskQueue) {
+Listen::Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue)
+    : Task("Listen"), server(port), servicer(&servicer), connection(&connection), taskQueue(&taskQueue), handleConnection(servicer, connection, taskQueue) {
 }
 
 void Listen::begin() {
@@ -89,6 +88,14 @@ bool Listen::inactive() {
 }
 
 TaskEval Listen::task() {
+    if (state == ListenerState::Busy) {
+        if (connection->isOpen()) {
+            return TaskEval::busy();
+        }
+
+        state = ListenerState::Disconnected;
+    }
+
     begin();
 
     if (state == ListenerState::Disconnected) {
@@ -100,9 +107,9 @@ TaskEval Listen::task() {
             log("Accepted!");
             pool.clear();
             state = ListenerState::Busy;
-            handleConnection.setConnection(wcl);
+            connection->setConnection(wcl);
             taskQueue->push(handleConnection);
-            return TaskEval::done();
+            return TaskEval::idle();
         }
     }
 

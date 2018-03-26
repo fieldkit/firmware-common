@@ -119,7 +119,7 @@ TaskEval ScanNetworks::task() {
 }
 
 Wifi::Wifi(CoreState &state, AppServicer &servicer, TaskQueue &taskQueue)
-    : ActiveObject("Wifi"), state(&state), connectToWifiAp(state), createWifiAp(state), listen(ServerPort, servicer, taskQueue) {
+    : ActiveObject("Wifi"), state(&state), connectToWifiAp(state), createWifiAp(state), listen(ServerPort, servicer, connection, taskQueue) {
 }
 
 void Wifi::begin() {

@@ -49,7 +49,7 @@ TaskEval ActiveObject::task() {
     if (isIdle()) {
         return TaskEval::done();
     }
-    return TaskEval::idle();
+    return TaskEval::busy();
 }
 
 void ActiveObject::service(Task &active) {

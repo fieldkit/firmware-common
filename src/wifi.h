@@ -9,6 +9,7 @@
 #include "app_servicer.h"
 #include "wifi_connections.h"
 #include "core_state.h"
+#include "wifi_client.h"
 
 namespace fk {
 
@@ -64,6 +65,7 @@ private:
     ConnectToWifiAp connectToWifiAp;
     CreateWifiAp createWifiAp;
     ScanNetworks scanNetworks;
+    WifiConnection connection;
     Delay delay{ 5000 };
     Listen listen;
     bool disabled{ false };

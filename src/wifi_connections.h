@@ -8,7 +8,7 @@
 #include "active_object.h"
 #include "app_servicer.h"
 #include "network_settings.h"
-#include "wifi_message_buffer.h"
+#include "wifi_client.h"
 
 namespace fk {
 
@@ -19,13 +19,12 @@ constexpr uint32_t InactivityTimeout = 60 * 1000 * 1;
 class ReadAppQuery : public Task {
 private:
     uint32_t dieAt{ 0 };
-    WiFiClient *wcl;
+    WifiConnection *connection;
     AppServicer *servicer;
     TaskQueue *taskQueue;
-    WifiMessageBuffer *buffer;
 
 public:
-    ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, TaskQueue &taskQueue, WifiMessageBuffer &buffer);
+    ReadAppQuery(WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue);
 
 public:
     void enqueued() override {
@@ -34,22 +33,17 @@ public:
     TaskEval task() override;
 };
 
-class HandleConnection : public ActiveObject {
+class HandleConnection : public Task {
 private:
     AppServicer *servicer;
-    WiFiClient wcl;
-    WifiMessageBuffer buffer;
+    WifiConnection *connection;
     ReadAppQuery readAppQuery;
 
 public:
-    HandleConnection(AppServicer &servicer, TaskQueue &taskQueue);
-
-    void setConnection(WiFiClient &newClient) {
-        wcl = newClient;
-        buffer.setConnection(wcl);
-    }
+    HandleConnection(AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue);
 
 public:
+    TaskEval task() override;
     void enqueued() override;
     void done() override;
 };
@@ -68,11 +62,12 @@ private:
     StaticPool<ConnectionMemory> pool{ "WifiService" };
     WiFiServer server;
     AppServicer *servicer;
+    WifiConnection *connection;
     TaskQueue *taskQueue;
     HandleConnection handleConnection;
 
 public:
-    Listen(uint16_t port, AppServicer &servicer, TaskQueue &taskQueue);
+    Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue);
 
 public:
     void begin();

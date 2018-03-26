@@ -17,6 +17,7 @@ namespace fk {
 class Task;
 
 enum class TaskEvalState {
+    Idle,
     Busy,
     Done,
     Error,
@@ -33,6 +34,11 @@ private:
 public:
     TaskEvalState state{ TaskEvalState::Busy };
 
+public:
+    bool isIdle() {
+        return state == TaskEvalState::Idle;
+    }
+
     bool isBusy() {
         return state == TaskEvalState::Busy;
     }
@@ -46,7 +52,7 @@ public:
     }
 
     static TaskEval idle() {
-        return TaskEval{ TaskEvalState::Busy };
+        return TaskEval{ TaskEvalState::Idle };
     }
 
     static TaskEval busy() {
@@ -178,8 +184,6 @@ public:
                     if (sequential) {
                         break;
                     }
-                } else {
-                    tasks[i] = nullptr;
                 }
             }
         }
@@ -222,18 +226,21 @@ public:
             if (tasks[i] != nullptr) {
                 auto status = tasks[i]->task();
                 switch (status.state) {
+                case TaskEvalState::Idle: {
+                    break;
+                }
                 case TaskEvalState::Busy: {
                     break;
                 }
                 case TaskEvalState::Done: {
-                    debugfpln("Supervisor", "Done %s", tasks[i]->name);
                     tasks[i]->done();
+                    log("Done: %s", tasks[i]->name);
                     tasks[i] = nullptr;
                     break;
                 }
                 case TaskEvalState::Error: {
-                    debugfpln("Supervisor", "Error %s", tasks[i]->name);
                     tasks[i]->error();
+                    log("Error: %s", tasks[i]->name);
                     tasks[i] = nullptr;
                     break;
                 }
@@ -248,19 +255,29 @@ public:
 
         for (size_t i = 0; i < Size; ++i) {
             if (tasks[i] == nullptr) {
-                debugfpln("Supervisor", "Queuing %s", task.name);
+                log("Queuing: %s", task.name);
                 task.enqueued();
                 tasks[i] = &task;
                 return true;
             }
         }
 
-        debugfpln("Supervisor", "Unable to queue %s, full!", task.name);
+        log("Dropped: %s", task.name);
+        for (size_t i = 0; i < Size; ++i) {
+            log("Queue[%d]: %s", i, tasks[i]->name);
+        }
 
         return false;
     }
 
 private:
+    void log(const char *f, ...) const __attribute__((format(printf, 2, 3))) {
+        va_list args;
+        va_start(args, f);
+        vdebugfpln("Supervisor", f, args);
+        va_end(args);
+    }
+
     void shrink() {
         for (size_t i = 0; i < Size; ++i) {
 
