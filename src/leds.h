@@ -38,7 +38,7 @@ public:
 
 };
 
-class Leds : public ActiveObject {
+class Leds : public Task {
     static constexpr uint8_t MaximumBlinkers = 3;
 
 private:
@@ -49,7 +49,9 @@ public:
 
 public:
     void setup();
-    void idle() override;
+
+public:
+    TaskEval task() override;
 
 private:
     void all(bool value);

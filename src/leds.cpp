@@ -52,7 +52,7 @@ void Blinker::clear() {
     kind = BlinkerKind::None;
 }
 
-Leds::Leds() : ActiveObject("LEDs") {
+Leds::Leds() : Task("LEDs") {
 }
 
 void Leds::setup() {
@@ -72,10 +72,11 @@ void Leds::setup() {
     all(LOW);
 }
 
-void Leds::idle() {
+TaskEval Leds::task() {
     for (auto i = 0; i < MaximumBlinkers; ++i) {
         blinkers[i].task();
     }
+    return TaskEval::busy();
 }
 
 void Leds::all(bool value) {
