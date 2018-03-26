@@ -8,7 +8,7 @@ GatherReadings::GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, Po
 }
 
 void GatherReadings::enqueued() {
-    if (!peripherals.twoWire1().tryAcquire()) {
+    if (!peripherals.twoWire1().tryAcquire(this)) {
         log("TwoWire unavailable.");
         return;
     }
@@ -77,12 +77,12 @@ void GatherReadings::error(Task &task) {
 }
 
 void GatherReadings::error() {
-    peripherals.twoWire1().release();
+    peripherals.twoWire1().release(this);
     state->doneTakingReading();
 }
 
 void GatherReadings::done() {
-    peripherals.twoWire1().release();
+    peripherals.twoWire1().release(this);
     state->doneTakingReading();
 }
 

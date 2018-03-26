@@ -30,7 +30,7 @@ void AppModuleQueryTask::done(Task &task) {
         }
     }
 
-    peripherals.twoWire1().release();
+    peripherals.twoWire1().release(this);
 }
 
 void AppModuleQueryTask::error(Task &task) {
@@ -40,7 +40,7 @@ void AppModuleQueryTask::error(Task &task) {
         log("Error writing reply");
     }
 
-    peripherals.twoWire1().release();
+    peripherals.twoWire1().release(this);
 }
 
 }

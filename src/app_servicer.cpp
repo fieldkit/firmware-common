@@ -225,7 +225,7 @@ TaskEval AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_MODULE: {
-        if (peripherals.twoWire1().tryAcquire()) {
+        if (peripherals.twoWire1().tryAcquire(this)) {
             taskQueue->push(appModuleQueryTask.ready(*bus, reply, query, *buffer, (uint8_t)query.m().module.address, *pool));
             return TaskEval::done();
         }

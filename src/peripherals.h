@@ -8,29 +8,34 @@ namespace fk {
 class Peripheral {
 private:
     uint32_t acquiredAt{ 0 };
+    void *owner{ nullptr };
 
 public:
     bool available() {
         return acquiredAt == 0;
     }
 
-    bool tryAcquire() {
+    bool tryAcquire(void *newOwner) {
         if (available()) {
-            acquire();
+            acquire(newOwner);
             return true;
         }
         return false;
     }
 
     // TODO: Specify who?
-    void acquire() {
+    void acquire(void *newOwner) {
         fk_assert(available());
         acquiredAt = millis();
+        owner = newOwner;
     }
 
-    void release() {
-        fk_assert(!available());
-        acquiredAt = 0;
+    void release(void *anOwner) {
+        if (owner == anOwner) {
+            fk_assert(!available());
+            acquiredAt = 0;
+            owner = nullptr;
+        }
     }
 };
 
