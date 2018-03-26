@@ -43,29 +43,34 @@ constexpr const char API_INGESTION_STREAM[] = FK_API_BASE "/messages/ingestion/s
 
 class CoreModule {
 private:
+    uint8_t addresses[4]{ 7, 8, 9, 0 };
+
     StaticPool<384> appPool{"AppPool"};
     StaticPool<384> modulesPool{"ModulesPool"};
     StaticPool<128> dataPool{"DataPool"};
 
+    Leds leds;
+    Watchdog watchdog{ leds };
+
     TwoWireBus bus{ Wire };
     FileSystem fileSystem{ bus, dataPool };
-    Watchdog watchdog{ leds };
-    Power power{ state };
     SerialFlashChip serialFlash;
     FlashStorage storage{ serialFlash };
     CoreState state{storage, fileSystem.getData()};
-    Leds leds;
+    Power power{ state };
+
+    // Schedule this.
+    AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
 
     HttpTransmissionConfig transmissionConfig = {
         .streamUrl = API_INGESTION_STREAM,
     };
     TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, wifi, transmissionConfig, bus, dataPool};
-    uint8_t addresses[4]{ 7, 8, 9, 0 };
-    AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
 
     SerialPort gpsPort{ Serial1 };
     ReadGps readGps{state, gpsPort};
     GatherReadings gatherReadings{bus, state, leds, modulesPool};
+
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 60 * 1000, gatherReadings },

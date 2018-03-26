@@ -1,8 +1,9 @@
 #ifndef FK_FKFS_TASKS_H_INCLUDED
 #define FK_FKFS_TASKS_H_INCLUDED
 
-#include <fkfs.h>
 #include "active_object.h"
+
+#include <fkfs.h>
 
 namespace fk {
 

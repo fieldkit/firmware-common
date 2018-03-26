@@ -7,12 +7,12 @@
 
 namespace fk {
 
-class Watchdog : public ActiveObject {
+class Watchdog : public Task {
 private:
     Leds *leds;
 
 public:
-    Watchdog(Leds &leds) : ActiveObject("Watchdog"), leds(&leds) {
+    Watchdog(Leds &leds) : Task("Watchdog"), leds(&leds) {
     }
 
 public:
@@ -20,7 +20,7 @@ public:
     void started();
 
 public:
-    void idle() override;
+    TaskEval task() override;
 
 };
 

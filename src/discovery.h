@@ -6,7 +6,7 @@
 
 namespace fk {
 
-class Discovery : public ActiveObject {
+class Discovery : public Task {
 private:
     static constexpr uint16_t FK_CORE_PORT_UDP = 54321;
     TwoWireBus *bus;
@@ -17,7 +17,7 @@ public:
     Discovery(TwoWireBus &bus, Wifi &wifi);
 
 public:
-    void idle() override;
+    TaskEval task() override;
 
 public:
     void ping();

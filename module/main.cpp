@@ -10,6 +10,8 @@
 #include <fk-module-protocol.h>
 #include <fk-module.h>
 
+namespace example {
+
 class TakeFakeReadings : public fk::Task {
 private:
     fk::SensorReading *readings;
@@ -63,6 +65,8 @@ public:
 
 };
 
+}
+
 extern "C" {
 
 void setup() {
@@ -87,8 +91,8 @@ void setup() {
           { 0, 0, fk::SensorReadingStatus::Idle } },
     };
 
-    Sensors sensors;
-    ExampleModule module(info, sensors);
+    example::Sensors sensors;
+    example::ExampleModule module(info, sensors);
 
     module.begin();
 

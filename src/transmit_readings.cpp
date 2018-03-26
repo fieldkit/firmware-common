@@ -6,7 +6,7 @@ namespace fk {
 constexpr uint32_t MaximumUpload = 1024 * 1024;
 
 TransmitAllQueuedReadings::TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, TwoWireBus &bus, Pool &pool) :
-    ActiveObject("TransmitAllQueued"), iterator(fs, file), state(&state), wifi(&wifi), config(&config), bus(&bus), pool(&pool) {
+    Task("TransmitAllQueued"), iterator(fs, file), state(&state), wifi(&wifi), config(&config), bus(&bus), pool(&pool) {
 }
 
 void TransmitAllQueuedReadings::enqueued() {

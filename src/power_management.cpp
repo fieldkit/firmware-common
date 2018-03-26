@@ -10,13 +10,15 @@ void Power::setup() {
     gauge.powerOn();
 }
 
-void Power::idle() {
+TaskEval Power::task() {
     if (millis() > time) {
         time = millis() + Interval;
         auto percentage = gauge.stateOfCharge();
         auto voltage = gauge.cellVoltage();
         state->updateBattery(percentage, voltage);
     }
+
+    return TaskEval::idle();
 }
 
 }

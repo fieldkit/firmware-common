@@ -8,18 +8,18 @@
 
 namespace fk {
 
-class Status : public ActiveObject {
+class Status : public Task {
 private:
     uint32_t lastTick{ 0 };
     CoreState *state;
     TwoWireBus *bus;
 
 public:
-    Status(CoreState &state, TwoWireBus &bus) : ActiveObject("Status"), state(&state), bus(&bus) {
+    Status(CoreState &state, TwoWireBus &bus) : Task("Status"), state(&state), bus(&bus) {
     }
 
 public:
-    void idle() override {
+    TaskEval task() override {
         if (millis() - lastTick > 5000) {
             IpAddress4 ip{ state->getStatus().ip };
             auto now = clock.now();
@@ -28,6 +28,7 @@ public:
                       fk_free_memory(), ip.toString(), deviceId.toString());
             lastTick = millis();
         }
+        return TaskEval::idle();
     }
 
 };

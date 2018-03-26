@@ -1,13 +1,11 @@
 #ifndef FK_DOWNLOAD_FILE_TASK_H_INCLUDED
 #define FK_DOWNLOAD_FILE_TASK_H_INCLUDED
 
-#include <fkfs.h>
-
-#include <fkfs.h>
-
 #include "message_buffer.h"
 #include "app_messages.h"
 #include "fkfs_tasks.h"
+
+#include <fkfs.h>
 
 namespace fk {
 

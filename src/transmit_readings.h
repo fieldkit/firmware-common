@@ -10,7 +10,7 @@
 
 namespace fk {
 
-class TransmitAllQueuedReadings : public ActiveObject {
+class TransmitAllQueuedReadings : public Task {
 private:
     FkfsIterator iterator;
     CoreState *state;

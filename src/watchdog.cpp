@@ -31,7 +31,7 @@ void Watchdog::started() {
     }
 }
 
-void Watchdog::idle() {
+TaskEval Watchdog::task() {
     fk::restartWizard.looped();
 
     if (wdt_read_early_warning()) {
@@ -40,6 +40,8 @@ void Watchdog::idle() {
 
         leds->alive();
     }
+
+    return TaskEval::idle();
 }
 
 }

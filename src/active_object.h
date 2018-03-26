@@ -4,6 +4,10 @@
 #include <cstdarg>
 #include <cstdint>
 
+#undef min
+#undef max
+#include <array>
+
 #include <Arduino.h>
 
 #include "debug.h"
@@ -168,6 +172,49 @@ public:
     }
 
 };
+
+template<std::size_t Size>
+class TaskCollection {
+private:
+    bool sequential { false };
+    std::array<Task*, Size> tasks;
+
+public:
+    TaskCollection(bool sequential, std::array<Task*, Size>&& array) : sequential(sequential), tasks(array) {
+    }
+
+public:
+    TaskEval work() {
+        auto e = TaskEval::done();
+
+        for (std::size_t i = 0; i < Size; ++i) {
+            if (tasks[i] != nullptr) {
+                auto taskStatus = tasks[i]->work();
+                if (!taskStatus.isDone()) {
+                    e = TaskEval::idle();
+                    if (sequential) {
+                        break;
+                    }
+                } else {
+                    tasks[i] = nullptr;
+                }
+            }
+        }
+
+        return e;
+    }
+
+};
+
+template<typename ...T>
+auto to_parallel_task_collection(T&&... tasks) -> TaskCollection<sizeof...(T)> {
+    return TaskCollection<sizeof...(T)>{ false, { { std::forward<T>(tasks)... } } };
+}
+
+template<typename ...T>
+auto to_sequential_task_collection(T&&... tasks) -> TaskCollection<sizeof...(T)> {
+    return TaskCollection<sizeof...(T)>{ true, { { std::forward<T>(tasks)... } } };
+}
 
 }
 

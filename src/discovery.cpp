@@ -5,16 +5,18 @@ namespace fk {
 
 constexpr uint32_t PingInterval = 2500;
 
-Discovery::Discovery(TwoWireBus &bus, Wifi &wifi) : ActiveObject("Discovery"), bus(&bus), wifi(&wifi) {
+Discovery::Discovery(TwoWireBus &bus, Wifi &wifi) : Task("Discovery"), bus(&bus), wifi(&wifi) {
 }
 
-void Discovery::idle() {
+TaskEval Discovery::task() {
     if (pingAt < millis()) {
         if (!wifi->isDisabled()) {
             ping();
         }
         pingAt = millis() + PingInterval;
     }
+
+    return TaskEval::idle();
 }
 
 void Discovery::ping() {

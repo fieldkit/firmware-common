@@ -72,7 +72,7 @@ void Module::reply() {
 }
 
 void Module::idle() {
-    watchdog.tick();
+    watchdog.task();
 
     if (millis() - lastActivity > IdleRebootInterval) {
         log("Reboot due to inactivity.");
