@@ -98,12 +98,10 @@ inline bool areSame(const Task &a, const Task &b) {
 
 class ActiveObject : public Task {
 private:
-    Task *idleTask{ nullptr };
     Task *tasks{ nullptr };
 
 public:
     ActiveObject(const char *name);
-    ActiveObject(const char *name, Task &idleTask);
 
 public:
     TaskEval task() override;

@@ -12,9 +12,6 @@ void Task::log(const char *f, ...) const {
 ActiveObject::ActiveObject(const char *name) : Task(name) {
 }
 
-ActiveObject::ActiveObject(const char *name, Task &idleTask) : Task(name), idleTask(&idleTask) {
-}
-
 bool ActiveObject::inQueue(Task &task) {
     // This should also return true if the Task is in another chain. Probably
     // should be a flag on the Task itself.
@@ -76,10 +73,6 @@ void ActiveObject::tick() {
     if (!isIdle()) {
         ran = tasks->toString();
         service(*tasks);
-    } else if (idleTask != nullptr) {
-        ran = idleTask->toString();
-        service(*idleTask);
-        idle();
     } else {
         idle();
     }
