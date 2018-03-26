@@ -21,10 +21,11 @@ private:
     uint32_t dieAt{ 0 };
     WiFiClient *wcl;
     AppServicer *servicer;
+    TaskQueue *taskQueue;
     WifiMessageBuffer *buffer;
 
 public:
-    ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, WifiMessageBuffer &buffer);
+    ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, TaskQueue &taskQueue, WifiMessageBuffer &buffer);
 
 public:
     void enqueued() override {
@@ -41,7 +42,7 @@ private:
     ReadAppQuery readAppQuery;
 
 public:
-    HandleConnection(AppServicer &servicer);
+    HandleConnection(AppServicer &servicer, TaskQueue &taskQueue);
 
     void setConnection(WiFiClient &newClient) {
         wcl = newClient;
@@ -67,10 +68,11 @@ private:
     StaticPool<ConnectionMemory> pool{ "WifiService" };
     WiFiServer server;
     AppServicer *servicer;
+    TaskQueue *taskQueue;
     HandleConnection handleConnection;
 
 public:
-    Listen(uint16_t port, AppServicer &servicer);
+    Listen(uint16_t port, AppServicer &servicer, TaskQueue &taskQueue);
 
 public:
     void begin();

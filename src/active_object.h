@@ -17,8 +17,7 @@ namespace fk {
 class Task;
 
 enum class TaskEvalState {
-    Idle,
-    Yield,
+    Busy,
     Done,
     Error,
 };
@@ -31,19 +30,11 @@ private:
     TaskEval(TaskEvalState state) : state(state) {
     }
 
-    TaskEval(TaskEvalState state, Task &task) : state(state), nextTask(&task) {
-    }
-
 public:
-    TaskEvalState state{ TaskEvalState::Idle };
-    Task *nextTask{ nullptr };
+    TaskEvalState state{ TaskEvalState::Busy };
 
-    bool isIdle() {
-        return state == TaskEvalState::Idle;
-    }
-
-    bool isYield() {
-        return state == TaskEvalState::Yield;
+    bool isBusy() {
+        return state == TaskEvalState::Busy;
     }
 
     bool isDone() {
@@ -55,15 +46,11 @@ public:
     }
 
     static TaskEval idle() {
-        return TaskEval{ TaskEvalState::Idle };
+        return TaskEval{ TaskEvalState::Busy };
     }
 
-    static TaskEval yield() {
-        return TaskEval{ TaskEvalState::Yield };
-    }
-
-    static TaskEval yield(Task &task) {
-        return TaskEval{ TaskEvalState::Yield, task };
+    static TaskEval busy() {
+        return TaskEval{ TaskEvalState::Busy };
     }
 
     static TaskEval done() {
@@ -72,10 +59,6 @@ public:
 
     static TaskEval error() {
         return TaskEval{ TaskEvalState::Error };
-    }
-
-    static TaskEval pass(Task &task) {
-        return TaskEval{ TaskEvalState::Done, task };
     }
 
 };
@@ -174,24 +157,24 @@ public:
 };
 
 template<std::size_t Size>
-class TaskCollection {
+class TaskCollection : public Task {
 private:
     bool sequential { false };
     std::array<Task*, Size> tasks;
 
 public:
-    TaskCollection(bool sequential, std::array<Task*, Size>&& array) : sequential(sequential), tasks(array) {
+    TaskCollection(bool sequential, std::array<Task*, Size>&& array) : Task("Tasks"), sequential(sequential), tasks(array) {
     }
 
 public:
-    TaskEval work() {
+    TaskEval task() override {
         auto e = TaskEval::done();
 
         for (std::size_t i = 0; i < Size; ++i) {
             if (tasks[i] != nullptr) {
-                auto taskStatus = tasks[i]->work();
+                auto taskStatus = tasks[i]->task();
                 if (!taskStatus.isDone()) {
-                    e = TaskEval::idle();
+                    e = TaskEval::busy();
                     if (sequential) {
                         break;
                     }
@@ -215,6 +198,76 @@ template<typename ...T>
 auto to_sequential_task_collection(T&&... tasks) -> TaskCollection<sizeof...(T)> {
     return TaskCollection<sizeof...(T)>{ true, { { std::forward<T>(tasks)... } } };
 }
+
+class TaskQueue {
+public:
+    virtual bool push(Task &task) = 0;
+};
+
+template<std::size_t Size>
+class Supervisor : public TaskQueue {
+private:
+    size_t size{ Size };
+    std::array<Task*, Size> tasks;
+
+public:
+    Supervisor() {
+        for (size_t i = 0; i < Size; ++i) {
+            tasks[i] = nullptr;
+        }
+    }
+
+    bool tick() {
+        for (size_t i = 0; i < Size; ++i) {
+            if (tasks[i] != nullptr) {
+                auto status = tasks[i]->task();
+                switch (status.state) {
+                case TaskEvalState::Busy: {
+                    break;
+                }
+                case TaskEvalState::Done: {
+                    debugfpln("Supervisor", "Done %s", tasks[i]->name);
+                    tasks[i]->done();
+                    tasks[i] = nullptr;
+                    break;
+                }
+                case TaskEvalState::Error: {
+                    debugfpln("Supervisor", "Error %s", tasks[i]->name);
+                    tasks[i]->error();
+                    tasks[i] = nullptr;
+                    break;
+                }
+                }
+            }
+        }
+        return true;
+    }
+
+    bool push(Task &task) override {
+        shrink();
+
+        for (size_t i = 0; i < Size; ++i) {
+            if (tasks[i] == nullptr) {
+                debugfpln("Supervisor", "Queuing %s", task.name);
+                task.enqueued();
+                tasks[i] = &task;
+                return true;
+            }
+        }
+
+        debugfpln("Supervisor", "Unable to queue %s, full!", task.name);
+
+        return false;
+    }
+
+private:
+    void shrink() {
+        for (size_t i = 0; i < Size; ++i) {
+
+        }
+    }
+
+};
 
 }
 

@@ -86,6 +86,7 @@ class Scheduler : public ActiveObject {
 private:
     CoreState *state;
     Clock *clock;
+    TaskQueue *queue;
     ScheduledTask *tasks;
     PeriodicTask *periodic;
     uint32_t lastCheckAt{ 0 };
@@ -94,14 +95,13 @@ private:
 
 public:
     template<size_t N, size_t M>
-    Scheduler(CoreState &state, Clock &clock, ScheduledTask (&tasks)[N], PeriodicTask (&periodic)[M]) :
-        ActiveObject("Scheduler"), state(&state), clock(&clock), tasks(tasks), periodic(periodic), numberOfTasks(N), numberOfPeriodics(M) {
-        fk_assert(N >= (size_t)ScheduleKind::NumberOfMandatorySchedules);
+    Scheduler(CoreState &state, Clock &clock, TaskQueue &queue, ScheduledTask (&tasks)[N], PeriodicTask (&periodic)[M]) :
+        ActiveObject("Scheduler"), state(&state), clock(&clock), queue(&queue), tasks(tasks), periodic(periodic), numberOfTasks(N), numberOfPeriodics(M) {
     }
 
     template<size_t M>
-    Scheduler(CoreState &state, Clock &clock, PeriodicTask (&periodic)[M]) :
-        ActiveObject("Scheduler"), state(&state), clock(&clock), tasks(nullptr), periodic(periodic), numberOfTasks(0), numberOfPeriodics(M) {
+    Scheduler(CoreState &state, Clock &clock, TaskQueue &queue, PeriodicTask (&periodic)[M]) :
+        ActiveObject("Scheduler"), state(&state), clock(&clock), queue(&queue), tasks(nullptr), periodic(periodic), numberOfTasks(0), numberOfPeriodics(M) {
     }
 
 public:

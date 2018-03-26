@@ -24,10 +24,11 @@ private:
     Scheduler *scheduler;
     FkfsReplies *fileReplies;
     TaskContainer<AppModuleQueryTask> appModuleQueryTask;
+    TaskQueue *taskQueue;
     Pool *pool;
 
 public:
-    AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, Pool &pool);
+    AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, TaskQueue &taskQueue, Pool &pool);
 
 public:
     TaskEval task() override;

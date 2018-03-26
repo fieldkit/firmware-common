@@ -45,14 +45,14 @@ TaskEval ConnectToWifiAp::task() {
     if (network.ssid[0] == 0) {
         log("N[%d] No network configured (%s)", networkNumber, getWifiStatus());
         networkNumber++;
-        return TaskEval::yield();
+        return TaskEval::busy();
     }
 
     log("N[%d] Connecting to AP '%s'... (%s)", networkNumber, network.ssid, getWifiStatus());
     if (WiFi.begin(network.ssid, network.password) != WL_CONNECTED) {
         log("N[%d] Failed (%s)", networkNumber, getWifiStatus());
         networkNumber++;
-        return TaskEval::yield();
+        return TaskEval::busy();
     }
 
     IpAddress4 ip{ WiFi.localIP() };
@@ -118,8 +118,8 @@ TaskEval ScanNetworks::task() {
     return TaskEval::idle();
 }
 
-Wifi::Wifi(CoreState &state, AppServicer &servicer)
-    : ActiveObject("Wifi"), state(&state), connectToWifiAp(state), createWifiAp(state), listen(ServerPort, servicer) {
+Wifi::Wifi(CoreState &state, AppServicer &servicer, TaskQueue &taskQueue)
+    : ActiveObject("Wifi"), state(&state), connectToWifiAp(state), createWifiAp(state), listen(ServerPort, servicer, taskQueue) {
 }
 
 void Wifi::begin() {

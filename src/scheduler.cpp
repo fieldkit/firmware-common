@@ -91,11 +91,9 @@ bool ScheduledTask::matches(DateTime now) {
 }
 
 TaskEval Scheduler::task() {
-    auto e = ActiveObject::task();
-
     auto elapsed = millis() - lastCheckAt;
     if (elapsed < CheckInterval) {
-        return e;
+        return TaskEval::idle();
     }
     lastCheckAt = millis();
 
@@ -107,9 +105,9 @@ TaskEval Scheduler::task() {
                 DateTime runsAgain{tasks[i]. getNextRunTime(now) };
                 FormattedTime nowFormatted{ now };
                 FormattedTime runsAgainFormatted{ runsAgain };
-                log("%s: run task (again = %s) (busy=%d)", nowFormatted.toString(), runsAgainFormatted.toString(), state->isBusy());
+                log("run task %s (again = %s) (busy = %d)", nowFormatted.toString(), runsAgainFormatted.toString(), state->isBusy());
                 if (!state->isBusy()) {
-                    push(task);
+                    queue->push(task);
                 }
             }
         }
@@ -117,14 +115,14 @@ TaskEval Scheduler::task() {
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
         if (periodic[i].shouldRun()) {
             auto &task = periodic[i].getTask();
-            log("run task (busy=%d)", state->isBusy());
+            log("run task (busy = %d)", state->isBusy());
             if (!state->isBusy()) {
-                push(task);
+                queue->push(task);
             }
         }
     }
 
-    return e;
+    return TaskEval::idle();
 }
 
 ScheduledTask &Scheduler::getTaskSchedule(ScheduleKind kind) {

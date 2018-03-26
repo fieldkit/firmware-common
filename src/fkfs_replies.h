@@ -14,10 +14,11 @@ class FkfsReplies {
 private:
     fkfs_t *fs;
     uint8_t dataFileId{ 0 };
+    TaskQueue *taskQueue;
     TaskContainer<DownloadFileTask> downloadFileTask;
 
 public:
-    FkfsReplies(fkfs_t &fs, uint8_t dataFileId);
+    FkfsReplies(fkfs_t &fs, uint8_t dataFileId, TaskQueue &taskQueue);
 
 public:
     void queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);

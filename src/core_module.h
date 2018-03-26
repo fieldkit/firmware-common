@@ -49,11 +49,13 @@ private:
     StaticPool<384> modulesPool{"ModulesPool"};
     StaticPool<128> dataPool{"DataPool"};
 
+    Supervisor<5> supervisor;
+
     Leds leds;
     Watchdog watchdog{ leds };
 
     TwoWireBus bus{ Wire };
-    FileSystem fileSystem{ bus, dataPool };
+    FileSystem fileSystem{ bus, supervisor, dataPool };
     SerialFlashChip serialFlash;
     FlashStorage storage{ serialFlash };
     CoreState state{storage, fileSystem.getData()};
@@ -78,11 +80,11 @@ private:
     ScheduledTask scheduled[1] {
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllQueuedReadings },
     };
-    Scheduler scheduler{state, clock, scheduled, periodics};
+    Scheduler scheduler{state, clock, supervisor, scheduled, periodics};
 
     LiveData liveData{bus, state, leds, modulesPool};
-    AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), appPool};
-    Wifi wifi{state, appServicer};
+    AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), supervisor, appPool};
+    Wifi wifi{state, appServicer, supervisor};
     Discovery discovery{ bus, wifi };
 
 public:

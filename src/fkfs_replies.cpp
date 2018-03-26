@@ -8,7 +8,7 @@ namespace fk {
 
 constexpr uint32_t DefaultPageSize = (size_t)(8 * 4096);
 
-FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId) {
+FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId, TaskQueue &taskQueue) : fs(&fs), dataFileId(dataFileId), taskQueue(&taskQueue) {
 }
 
 void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -56,7 +56,9 @@ TaskEval FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage 
 
     log("Created DownloadFileTask = %p (%lu free)", &downloadFileTask, fk_free_memory());
 
-    return TaskEval::pass(downloadFileTask);
+    taskQueue->push(downloadFileTask);
+
+    return TaskEval::done();
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -128,7 +130,9 @@ TaskEval FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessa
 
     log("Created DownloadFileTask = %p (%lu free)", &downloadFileTask, fk_free_memory());
 
-    return TaskEval::pass(downloadFileTask);
+    taskQueue->push(downloadFileTask);
+
+    return TaskEval::done();
 }
 
 void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {

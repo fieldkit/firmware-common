@@ -55,32 +55,18 @@ TaskEval ActiveObject::task() {
 void ActiveObject::service(Task &active) {
     auto e = active.task();
 
-    if (e.isYield()) {
-        pop();
-        active.nextTask = nullptr;
-        idle();
-        if (e.nextTask != nullptr) {
-            *end() = e.nextTask;
-        }
-        *end() = &active;
-    } else if (e.isDone()) {
+    if (e.isDone()) {
         log("%s done", active.toString());
         pop();
         active.nextTask = nullptr;
         active.done();
         done(active);
-        if (e.nextTask != nullptr) {
-            push(*e.nextTask);
-        }
     } else if (e.isError()) {
         log("%s error", active.toString());
         pop();
         active.nextTask = nullptr;
         active.error();
         error(active);
-        if (e.nextTask != nullptr) {
-            push(*e.nextTask);
-        }
     }
 }
 

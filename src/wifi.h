@@ -70,7 +70,7 @@ private:
     bool busy{ false };
 
 public:
-    Wifi(CoreState &state, AppServicer &servicer);
+    Wifi(CoreState &state, AppServicer &servicer, TaskQueue &taskQueue);
 
 public:
     void disable();

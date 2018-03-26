@@ -59,8 +59,21 @@ void CoreModule::run() {
 
     wifi.begin();
 
-    scheduler.push(ntp);
+    auto tasks = to_parallel_task_collection(
+        &status,
+        &leds,
+        &power,
+        &watchdog,
+        &attachedDevices,
+        &scheduler,
+        &wifi,
+        &discovery
+    );
 
+    supervisor.push(tasks);
+    supervisor.push(ntp);
+
+    /*
     while (true) {
         status.task();
         leds.task();
@@ -75,6 +88,10 @@ void CoreModule::run() {
             wifi.task();
             discovery.task();
         }
+    }
+    */
+    while (true) {
+        supervisor.tick();
     }
 }
 

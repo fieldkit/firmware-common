@@ -3,8 +3,8 @@
 
 namespace fk {
 
-ReadAppQuery::ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, WifiMessageBuffer &buffer) :
-    Task("ReadAppQuery"), wcl(&wcl), servicer(&servicer), buffer(&buffer) {
+ReadAppQuery::ReadAppQuery(WiFiClient &wcl, AppServicer &servicer, TaskQueue &taskQueue, WifiMessageBuffer &buffer) :
+    Task("ReadAppQuery"), wcl(&wcl), servicer(&servicer), taskQueue(&taskQueue), buffer(&buffer) {
 }
 
 TaskEval ReadAppQuery::task() {
@@ -24,7 +24,8 @@ TaskEval ReadAppQuery::task() {
                 log("Error parsing query");
                 return TaskEval::error();
             } else {
-                return TaskEval::pass(*servicer);
+                taskQueue->push(*servicer);
+                return TaskEval::done();
             }
         }
     }
@@ -32,8 +33,8 @@ TaskEval ReadAppQuery::task() {
     return TaskEval::idle();
 }
 
-HandleConnection::HandleConnection(AppServicer &servicer)
-    : ActiveObject("HandleConnection"), servicer(&servicer), buffer(), readAppQuery(wcl, servicer, buffer) {
+HandleConnection::HandleConnection(AppServicer &servicer, TaskQueue &taskQueue)
+    : ActiveObject("HandleConnection"), servicer(&servicer), buffer(), readAppQuery(wcl, servicer, taskQueue, buffer) {
 }
 
 void HandleConnection::enqueued() {
@@ -55,9 +56,9 @@ void HandleConnection::done() {
     }
 }
 
-Listen::Listen(uint16_t port, AppServicer &servicer)
+Listen::Listen(uint16_t port, AppServicer &servicer, TaskQueue &taskQueue)
     : Task("Listen"), server(port),
-      servicer(&servicer), handleConnection(servicer) {
+      servicer(&servicer), taskQueue(&taskQueue), handleConnection(servicer, taskQueue) {
 }
 
 void Listen::begin() {
@@ -100,7 +101,8 @@ TaskEval Listen::task() {
             pool.clear();
             state = ListenerState::Busy;
             handleConnection.setConnection(wcl);
-            return TaskEval::pass(handleConnection);
+            taskQueue->push(handleConnection);
+            return TaskEval::done();
         }
     }
 

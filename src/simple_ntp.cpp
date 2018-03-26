@@ -89,7 +89,7 @@ TaskEval SimpleNTP::task() {
     else {
         stop();
     }
-    return TaskEval::yield();
+    return TaskEval::busy();
 }
 
 }
