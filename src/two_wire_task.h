@@ -141,18 +141,19 @@ class CustomModuleQueryTask : public TwoWireTask {
     static constexpr char Name[] = "CustomModuleQuery";
 
 private:
+    AppQueryMessage *appQuery;
     Pool *pool;
     pb_data_t messageData;
-    AppQueryMessage *appQuery;
 
 public:
-    CustomModuleQueryTask(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask(Name, bus, pool, address), pool(&pool) {
+    CustomModuleQueryTask(TwoWireBus &bus, AppQueryMessage &appQuery, Pool &pool, uint8_t address) : TwoWireTask(Name, bus, pool, address), appQuery(&appQuery), pool(&pool) {
         query.m().type = fk_module_QueryType_QUERY_CUSTOM;
     }
 
-public:
-    CustomModuleQueryTask &ready(AppQueryMessage &query);
-
+    void enqueued() override {
+        TwoWireTask::enqueued();
+        query.m().custom.message.arg = appQuery->m().module.message.arg;
+    }
 
 };
 

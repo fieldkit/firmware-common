@@ -50,10 +50,4 @@ TaskEval TwoWireTask::task() {
     return TaskEval::done();
 }
 
-CustomModuleQueryTask &CustomModuleQueryTask::ready(AppQueryMessage &newAppQuery) {
-    appQuery = &newAppQuery;
-    query.m().custom.message.arg = appQuery->m().module.message.arg;
-    return *this;
-}
-
 }

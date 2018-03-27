@@ -17,7 +17,6 @@ public:
     AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, Pool &pool);
 
 public:
-    void enqueued() override;
     void done() override;
     void error() override;
 
