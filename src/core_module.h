@@ -15,7 +15,6 @@
 #include "core_state.h"
 #include "debug.h"
 #include "two_wire.h"
-#include "module_controller.h"
 #include "pool.h"
 #include "wifi.h"
 #include "watchdog.h"
