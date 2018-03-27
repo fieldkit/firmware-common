@@ -101,6 +101,7 @@ bool AppServicer::flushAndClose() {
     else {
         log("No connection!");
     }
+
     return true;
 }
 
@@ -248,7 +249,9 @@ TaskEval AppServicer::handle() {
         }
 
         reply.busy("Busy");
-        buffer->write(reply);
+        if (!buffer->write(reply)) {
+            log("Error writing reply");
+        }
 
         break;
 
@@ -295,14 +298,18 @@ TaskEval AppServicer::handle() {
         }
 
         reply.busy("Busy");
-        buffer->write(reply);
+        if (!buffer->write(reply)) {
+            log("Error writing reply");
+        }
 
         break;
     }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
     default: {
         reply.error("Unknown query");
-        buffer->write(reply);
+        if (!buffer->write(reply)) {
+            log("Error writing reply");
+        }
 
         break;
     }

@@ -12,38 +12,44 @@
 
 namespace fk {
 
-constexpr uint32_t ConnectionMemory = 128;
-constexpr uint32_t InactivityTimeout = 60 * 1000 * 1;
-
-enum class ListenerState {
-    Idle,
-    Disconnected,
-    Listening,
-    Busy,
-};
-
-class Listen : public Task {
+class ConnectToWifiAp : public Task {
 private:
-    uint32_t lastActivity{ 0 };
-    ListenerState state{ ListenerState::Idle };
-    StaticPool<ConnectionMemory> pool{ "WifiService" };
-    WiFiServer server;
-    AppServicer *servicer;
-    WifiConnection *connection;
-    TaskQueue *taskQueue;
+    CoreState *state;
+    size_t networkNumber{ 0 };
 
 public:
-    Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue);
-
-public:
-    void end();
-    bool inactive();
-
-private:
-    void begin();
+    ConnectToWifiAp(CoreState &state) : Task("ConnectWifiAp"), state(&state) {
+    }
 
 public:
     TaskEval task() override;
+
+};
+
+class CreateWifiAp : public Task {
+private:
+    CoreState *state;
+
+public:
+    CreateWifiAp(CoreState &state) : Task("CreateWifiAp"), state(&state) {
+    }
+
+public:
+    TaskEval task() override;
+
+};
+
+class ScanNetworks : public Task {
+private:
+    uint32_t begunAt{ 0 };
+
+public:
+    ScanNetworks() : Task("ScanNetworks") {
+    }
+
+public:
+    TaskEval task() override;
+
 };
 
 }
