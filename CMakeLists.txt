@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project("FieldKit Firmware Common")
 
-set(CMAKE_VERBOSE_MAKEFILE on)
+# set(CMAKE_VERBOSE_MAKEFILE on)
 
 # The project version number.
 set(VERSION_MAJOR   0   CACHE STRING "Project major version number.")
