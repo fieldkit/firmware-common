@@ -13,6 +13,7 @@ namespace fk {
 
 struct PersistedState {
     uint32_t time;
+    uint32_t seed;
     DeviceIdentity deviceIdentity;
     NetworkSettings networkSettings;
     DeviceLocation location;
