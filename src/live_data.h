@@ -9,22 +9,17 @@ namespace fk {
 
 class LiveData : public ActiveObject {
 private:
+    Task *gatherReadings;
+    CoreState *state;
     uint32_t lastRead{ 0 };
     uint32_t interval{ 0 };
-    CoreState *state;
-    Pool *pool;
-
-private:
-    GatherReadings gatherReadings;
 
 public:
-
-    LiveData(TwoWireBus &bus, CoreState &state, Leds &leds, Pool &pool);
+    LiveData(Task &gatherReadings, CoreState &state);
 
 public:
     void start(uint32_t newInterval);
     void stop();
-    bool hasReadings();
     void done(Task &task) override;
     void error(Task &task) override;
 

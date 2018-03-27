@@ -9,8 +9,6 @@ namespace fk {
 
 StaticWiFiAllocator staticWiFiAllocator;
 
-constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
-
 Wifi::Wifi(CoreState &state, WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue)
     : ActiveObject("Wifi"), state(&state), connection(&connection), connectToWifiAp(state), createWifiAp(state), listen(ServerPort, servicer, connection, taskQueue) {
 }

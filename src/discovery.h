@@ -8,7 +8,6 @@ namespace fk {
 
 class Discovery : public Task {
 private:
-    static constexpr uint16_t FK_CORE_PORT_UDP = 54321;
     TwoWireBus *bus;
     Wifi *wifi;
     uint32_t pingAt{ 0 };

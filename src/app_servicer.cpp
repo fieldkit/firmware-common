@@ -8,9 +8,6 @@
 
 namespace fk {
 
-constexpr uint32_t ConnectionTimeout = 5000;
-constexpr const char *DefaultName = "FieldKit Device";
-
 static void copy(ScheduledTask &to, fk_app_Schedule &from) {
     to.setSecond(TimeSpec{ (int8_t)from.second.fixed, (int8_t)from.second.interval });
     to.setMinute(TimeSpec{ (int8_t)from.minute.fixed, (int8_t)from.minute.interval });

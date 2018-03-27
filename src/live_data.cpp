@@ -1,12 +1,10 @@
+#include "tuning.h"
 #include "live_data.h"
 
 namespace fk {
 
-constexpr uint32_t LivePollInactivity = 1000 * 10;
-
-LiveData::LiveData(TwoWireBus &bus, CoreState &state, Leds &leds, Pool &pool) :
-    ActiveObject("LiveData"),
-    interval{ 0 }, state(&state), pool(&pool), gatherReadings(bus, state, leds, pool) {
+LiveData::LiveData(Task &gatherReadings, CoreState &state) :
+    ActiveObject("LiveData"), gatherReadings(&gatherReadings), state(&state) {
 }
 
 void LiveData::start(uint32_t newInterval) {
@@ -19,7 +17,7 @@ void LiveData::start(uint32_t newInterval) {
         log("Started");
 
         interval = newInterval;
-        push(gatherReadings);
+        push(*gatherReadings);
     }
 
     lastRead = millis();
@@ -39,18 +37,12 @@ void LiveData::done(Task &task) {
         return;
     }
 
-    if (areSame(task, gatherReadings)) {
-        if (interval > 0) {
-            push(gatherReadings);
-        }
+    if (interval > 0) {
+        push(*gatherReadings);
     }
 }
 
 void LiveData::error(Task &task) {
-}
-
-bool LiveData::hasReadings() {
-    return false;
 }
 
 }

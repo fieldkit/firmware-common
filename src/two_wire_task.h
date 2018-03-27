@@ -39,10 +39,8 @@ public:
 };
 
 class QueryCapabilities : public TwoWireTask {
-    static constexpr char Name[] = "QueryCapabilities";
-
 public:
-    QueryCapabilities(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask(Name, bus, pool, address) {
+    QueryCapabilities(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask("QueryCapabilities", bus, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_CAPABILITIES;
         query.m().queryCapabilities.version = FK_MODULE_PROTOCOL_VERSION;
     }
@@ -59,10 +57,8 @@ public:
 };
 
 class QuerySensorCapabilities : public TwoWireTask {
-    static constexpr char Name[] = "QuerySensorCapabilities";
-
 public:
-    QuerySensorCapabilities(TwoWireBus &bus, Pool &pool, uint8_t address, uint8_t sensor) : TwoWireTask(Name, bus, pool, address) {
+    QuerySensorCapabilities(TwoWireBus &bus, Pool &pool, uint8_t address, uint8_t sensor) : TwoWireTask("QuerySensorCapabilities", bus, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_SENSOR_CAPABILITIES;
         query.m().querySensorCapabilities.sensor = sensor;
     }
@@ -78,10 +74,8 @@ public:
 };
 
 class BeginTakeReading : public TwoWireTask {
-    static constexpr char Name[] = "BeginTakeReading";
-
 public:
-    BeginTakeReading(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask(Name, bus, pool, address) {
+    BeginTakeReading(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask("BeginTakeReading", bus, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS;
         query.m().beginTakeReadings.index = 0;
     }
@@ -111,10 +105,8 @@ public:
 };
 
 class QueryReadingStatus : public TwoWireTask {
-    static constexpr char Name[] = "QueryReadingStatus";
-
 public:
-    QueryReadingStatus(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask(Name, bus, pool, address) {
+    QueryReadingStatus(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask("QueryReadingStatus", bus, pool, address) {
         query.m().type = fk_module_QueryType_QUERY_READING_STATUS;
     }
 
@@ -138,15 +130,13 @@ public:
 };
 
 class CustomModuleQueryTask : public TwoWireTask {
-    static constexpr char Name[] = "CustomModuleQuery";
-
 private:
     AppQueryMessage *appQuery;
     Pool *pool;
     pb_data_t messageData;
 
 public:
-    CustomModuleQueryTask(TwoWireBus &bus, AppQueryMessage &appQuery, Pool &pool, uint8_t address) : TwoWireTask(Name, bus, pool, address), appQuery(&appQuery), pool(&pool) {
+    CustomModuleQueryTask(TwoWireBus &bus, AppQueryMessage &appQuery, Pool &pool, uint8_t address) : TwoWireTask("CustomModuleQuery", bus, pool, address), appQuery(&appQuery), pool(&pool) {
         query.m().type = fk_module_QueryType_QUERY_CUSTOM;
     }
 

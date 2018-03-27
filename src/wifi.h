@@ -15,9 +15,6 @@
 namespace fk {
 
 class Wifi : public ActiveObject {
-public:
-    static constexpr uint16_t ServerPort = 54321;
-
 private:
     CoreState *state;
     WifiConnection *connection;

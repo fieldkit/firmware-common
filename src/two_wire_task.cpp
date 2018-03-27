@@ -1,14 +1,7 @@
 #include "two_wire_task.h"
+#include "tuning.h"
 
 namespace fk {
-
-constexpr uint32_t MaximumTwoWireReply = 3000;
-
-constexpr char QueryCapabilities::Name[];
-constexpr char QuerySensorCapabilities::Name[];
-constexpr char BeginTakeReading::Name[];
-constexpr char QueryReadingStatus::Name[];
-constexpr char CustomModuleQueryTask::Name[];
 
 TaskEval TwoWireTask::task() {
     if (checkAt > 0 && millis() < checkAt) {

@@ -1,10 +1,8 @@
 #include "hardware.h"
 #include "gps.h"
+#include "tuning.h"
 
 namespace fk {
-
-constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
-constexpr uint32_t GpsStatusInterval = 1 * 500;
 
 struct GpsReading {
     uint8_t satellites;

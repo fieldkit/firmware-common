@@ -1,10 +1,8 @@
 #include "attached_devices.h"
 #include "leds.h"
+#include "tuning.h"
 
 namespace fk {
-
-constexpr uint32_t RescanIntervalOrphaned = 30 * 1000;
-constexpr uint32_t RescanExistingModulesInterval = 5 * 60 * 1000;
 
 AttachedDevices::AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, Pool &pool)
     : ActiveObject("AttachedDevices"), bus(&bus), addresses(addresses), addressIndex{ 0 }, state(&state), leds(&leds), pool(&pool),

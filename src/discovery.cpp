@@ -3,8 +3,6 @@
 
 namespace fk {
 
-constexpr uint32_t PingInterval = 2500;
-
 Discovery::Discovery(TwoWireBus &bus, Wifi &wifi) : Task("Discovery"), bus(&bus), wifi(&wifi) {
 }
 

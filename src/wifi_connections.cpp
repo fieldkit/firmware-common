@@ -7,8 +7,6 @@
 
 namespace fk {
 
-constexpr uint32_t ScanDuration = 10 * 1000;
-
 #ifdef FK_CORE
 void getAccessPointName(char *name, size_t size) {
     auto length = base64_enc_len(deviceId.length());

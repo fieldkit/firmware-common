@@ -1,10 +1,8 @@
 #include "power_management.h"
+#include "tuning.h"
 #include "debug.h"
 
 namespace fk {
-
-constexpr uint32_t Interval = 5000;
-constexpr const char Log[] = "Power";
 
 void Power::setup() {
     gauge.powerOn();
@@ -12,7 +10,7 @@ void Power::setup() {
 
 TaskEval Power::task() {
     if (millis() > time) {
-        time = millis() + Interval;
+        time = millis() + PowerManagementInterval;
         auto percentage = gauge.stateOfCharge();
         auto voltage = gauge.cellVoltage();
         state->updateBattery(percentage, voltage);

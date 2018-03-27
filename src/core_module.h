@@ -34,12 +34,6 @@
 
 namespace fk {
 
-#ifndef FK_API_BASE
-#define FK_API_BASE "http://api.fkdev.org"
-#endif
-
-constexpr const char API_INGESTION_STREAM[] = FK_API_BASE "/messages/ingestion/stream";
-
 class CoreModule {
 private:
     uint8_t addresses[4]{ 7, 8, 9, 0 };
@@ -81,7 +75,7 @@ private:
     };
     Scheduler scheduler{state, clock, supervisor, scheduled, periodics};
 
-    LiveData liveData{bus, state, leds, modulesPool};
+    LiveData liveData{gatherReadings, state};
 
     WifiConnection connection;
     AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, appPool};

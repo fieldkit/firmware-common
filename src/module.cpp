@@ -1,11 +1,10 @@
 #include <Wire.h>
 
+#include "tuning.h"
 #include "module.h"
 #include "rtc.h"
 
 namespace fk {
-
-constexpr uint32_t IdleRebootInterval = 1000 * 60 * 10;
 
 static void module_request_callback() {
     fk_assert(fk::Module::active != nullptr);

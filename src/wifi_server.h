@@ -12,9 +12,6 @@
 
 namespace fk {
 
-constexpr uint32_t ConnectionMemory = 128;
-constexpr uint32_t InactivityTimeout = 60 * 1000 * 1;
-
 enum class ListenerState {
     Idle,
     Disconnected,

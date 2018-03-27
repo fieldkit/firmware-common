@@ -3,8 +3,6 @@
 
 namespace fk {
 
-constexpr uint32_t MaximumUpload = 1024 * 1024;
-
 TransmitAllQueuedReadings::TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config) :
     Task("TransmitAllQueued"), iterator(fs, file), state(&state), wifi(&wifi), config(&config) {
 }

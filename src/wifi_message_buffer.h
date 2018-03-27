@@ -2,11 +2,9 @@
 #define FK_WIFI_MESSAGE_BUFFER_H_INCLUDED
 
 #include "message_buffer.h"
+#include "tuning.h"
 
 namespace fk {
-
-// This is copied from WiFiSocket.cpp. I wish they were in a header.
-constexpr size_t SOCKET_BUFFER_SIZE = 1472;
 
 class WifiMessageBuffer : public ArrayMessageBuffer<SOCKET_BUFFER_SIZE> {
 private:

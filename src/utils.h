@@ -158,10 +158,10 @@ const char *getWifiStatus(uint8_t status);
 
 const char *getWifiStatus();
 
-constexpr size_t MaximumSerialNumberLengthDwords = 4;
-constexpr size_t MaximumSerialNumberLengthBytes = MaximumSerialNumberLengthDwords * 4;
-
 class SerialNumber {
+    static constexpr size_t MaximumSerialNumberLengthDwords = 4;
+    static constexpr size_t MaximumSerialNumberLengthBytes = MaximumSerialNumberLengthDwords * 4;
+
 private:
     uint32_t values[MaximumSerialNumberLengthDwords];
     char buffer[37];

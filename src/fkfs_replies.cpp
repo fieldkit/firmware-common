@@ -3,10 +3,9 @@
 #include "fkfs_replies.h"
 #include "debug.h"
 #include "utils.h"
+#include "tuning.h"
 
 namespace fk {
-
-constexpr uint32_t DefaultPageSize = (size_t)(8 * 4096);
 
 FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId) {
 }

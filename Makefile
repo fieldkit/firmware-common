@@ -7,7 +7,7 @@ core/config.h:
 	cp core/config.h.template core/config.h
 
 all: $(BUILD)/Makefile
-	cd $(BUILD) && make
+	cd $(BUILD) && make all doc
 
 $(BUILD)/Makefile: gitdeps core/config.h seed
 	mkdir -p $(BUILD)
