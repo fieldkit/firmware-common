@@ -8,45 +8,19 @@
 namespace fk {
 
 template<class T>
-class TaskContainer : public Task {
+class TaskContainer {
 private:
     typename std::aligned_storage<sizeof(T), alignof(T)>::type data;
     T *target{ nullptr };
 
 public:
-    TaskContainer() : Task("TC") {
-    }
-
-    void enqueued() override {
-        require()->enqueued();
-    }
-
-    void done() override {
-        require()->done();
-        clear();
-    }
-
-    void error() override {
-        require()->error();
-        clear();
-    }
-
-    TaskEval task() override {
-        return require()->task();
-    }
-
     template<typename ...Args>
-    T &ready(Args &&...args) {
+    T *ready(Args &&...args) {
         target = new (&data) T(std::forward<Args>(args)...);
-        return *target;
-    }
-
-private:
-    Task *require() {
-        fk_assert(target != nullptr);
         return target;
     }
 
+private:
     void clear() {
         target = nullptr;
     }
