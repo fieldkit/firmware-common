@@ -36,6 +36,10 @@ public:
         acquiredAt = 0;
         owner = nullptr;
     }
+
+    bool isOwner(void *anOwner) {
+        return owner == anOwner;
+    }
 };
 
 class Peripherals {

@@ -77,12 +77,16 @@ void GatherReadings::error(Task &task) {
 }
 
 void GatherReadings::error() {
-    peripherals.twoWire1().release(this);
+    if (peripherals.twoWire1().isOwner(this)) {
+        peripherals.twoWire1().release(this);
+    }
     state->doneTakingReading();
 }
 
 void GatherReadings::done() {
-    peripherals.twoWire1().release(this);
+    if (peripherals.twoWire1().isOwner(this)) {
+        peripherals.twoWire1().release(this);
+    }
     state->doneTakingReading();
 }
 
