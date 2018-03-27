@@ -38,6 +38,23 @@ public:
         return message;
     }
 
+public:
+    size_t calculateSize();
+
+};
+
+class DataLogMessage : public DataRecordMessage {
+public:
+    DataLogMessage(const fk_log_message_t *raw, Pool &pool) : DataRecordMessage(pool) {
+        m().log.uptime = raw->uptime;
+        m().log.time = raw->time;
+        m().log.level = raw->level;
+        m().log.facility.arg = (void *)raw->facility;
+        m().log.facility.funcs.encode = pb_encode_string;
+        m().log.message.arg = (void *)raw->message;
+        m().log.message.funcs.encode = pb_encode_string;
+    }
+
 };
 
 class DataRecordMetadataMessage : public DataRecordMessage {
@@ -50,9 +67,6 @@ private:
 
 public:
     DataRecordMetadataMessage(CoreState &state, Pool &pool);
-
-public:
-    size_t calculateSize();
 
 };
 

@@ -90,7 +90,7 @@ size_t FkfsData::append(DataRecordMessage &message) {
 void FkfsData::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(Log, f, args);
+    vdebugfpln(LogLevels::INFO, Log, f, args);
     va_end(args);
 }
 

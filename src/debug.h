@@ -14,6 +14,14 @@ typedef struct fk_log_message_t {
     const char *message;
 } fk_log_message_t;
 
+enum class LogLevels {
+    TRACE,
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR,
+};
+
 typedef size_t (*debug_hook_fn_t)(const fk_log_message_t *m, const char *formatted, void *arg);
 
 Stream *debug_uart_get();
@@ -24,11 +32,13 @@ void debug_add_hook(debug_hook_fn_t hook, void *arg);
 
 void debug_configure_hook(bool enabled);
 
-void debuglog(const fk_log_message_t *m);
+void debug_raw(const fk_log_message_t *m);
+
+void debug_log(LogLevels level, const char *prefix, const char *f, ...) __attribute__((format(printf, 3, 4)));
+
+void vdebugfpln(LogLevels level, const char *prefix, const char *f, va_list args);
 
 void debugfpln(const char *prefix, const char *f, ...) __attribute__((format(printf, 2, 3)));
-
-void vdebugfpln(const char *prefix, const char *f, va_list args);
 
 const char *firmware_version_get();
 

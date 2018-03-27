@@ -8,9 +8,19 @@ namespace fk {
 extern "C" {
 
 static size_t debug_write_log(const fk_log_message_t *m, const char *formatted, void *arg) {
-    if (!fkfs_log_append((fkfs_log_t *)arg, formatted)) {
+    EmptyPool empty;
+    DataLogMessage dlm{ m, empty };
+    uint8_t buffer[dlm.calculateSize()];
+    auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, dlm.forEncode())) {
+        debug_uart_get()->println("Unable to encode log message");
+        return 0;
+    }
+
+    if (!fkfs_log_append_binary((fkfs_log_t *)arg, buffer, stream.bytes_written)) {
         debug_uart_get()->println("Unable to append log");
     }
+
     return 0;
 }
 
@@ -18,7 +28,7 @@ static size_t fkfs_log_message(const char *f, ...) {
     va_list args;
     va_start(args, f);
     debug_configure_hook(false);
-    vdebugfpln("fkfs", f, args);
+    vdebugfpln(LogLevels::TRACE, "fkfs", f, args);
     debug_configure_hook(true);
     va_end(args);
     return 0;
@@ -60,7 +70,6 @@ bool FileSystem::setup() {
     }
 
     // This ensures our first line is on a newline by itself.
-    fkfs_log_append(&fkfs_log, "\n\nStartup\n\n");
     fkfs_log_flush(&fkfs_log);
 
     debug_add_hook(debug_write_log, &fkfs_log);

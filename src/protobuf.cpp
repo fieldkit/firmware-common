@@ -18,9 +18,9 @@ bool pb_encode_string(pb_ostream_t *stream, const pb_field_t *field, void *const
         return pb_encode_string(stream, (uint8_t *)nullptr, 0);
     }
 
-#ifdef FK_PROTOBUF_VERBOSE
+    #ifdef FK_LOGGING_PROTOBUF_VERBOSE
     debugfpln(Log, "Encode: 0x%p '%s'", str, str != nullptr ? str : "");
-#endif
+    #endif
 
     return pb_encode_string(stream, (uint8_t *)str, strlen(str));
 }
@@ -30,9 +30,9 @@ bool pb_decode_string(pb_istream_t *stream, const pb_field_t *, void **arg) {
     auto len = stream->bytes_left;
 
     if (len == 0) {
-#ifdef FK_PROTOBUF_VERBOSE
+        #ifdef FK_LOGGING_PROTOBUF_VERBOSE
         debugfpln(Log, "Decode: EMPTY");
-#endif
+        #endif
         (*arg) = (void *)"";
         return true;
     }
@@ -44,9 +44,9 @@ bool pb_decode_string(pb_istream_t *stream, const pb_field_t *, void **arg) {
 
     ptr[len] = 0;
 
-#ifdef FK_PROTOBUF_VERBOSE
+    #ifdef FK_LOGGING_PROTOBUF_VERBOSE
     debugfpln(Log, "Decode: '%s' (%d)", ptr, len);
-#endif
+    #endif
 
     (*arg) = (void *)ptr;
 
@@ -145,9 +145,9 @@ bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void *const *
         }
     }
 
-#ifdef FK_PROTOBUF_VERBOSE
+    #ifdef FK_LOGGING_PROTOBUF_VERBOSE
     debugfpln(Log, "Encode: (%d)", data->length);
-#endif
+    #endif
 
     return true;
 }
@@ -163,9 +163,9 @@ bool pb_decode_data(pb_istream_t *stream, const pb_field_t *field, void **arg) {
     auto pool = (Pool *)(*arg);
     auto length = stream->bytes_left;
 
-#ifdef FK_PROTOBUF_VERBOSE
+    #ifdef FK_LOGGING_PROTOBUF_VERBOSE
     debugfpln(Log, "Decode: (%d)", length);
-#endif
+    #endif
 
     auto data = pb_data_allocate(pool, length);
 
@@ -173,9 +173,9 @@ bool pb_decode_data(pb_istream_t *stream, const pb_field_t *field, void **arg) {
         return false;
     }
 
-#ifdef FK_PROTOBUF_VERBOSE
+    #ifdef FK_LOGGING_PROTOBUF_VERBOSE
     debugfpln(Log, "Decode(done): (%d)", length);
-#endif
+    #endif
 
     (*arg) = (void *)data;
 

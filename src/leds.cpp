@@ -94,19 +94,19 @@ void Leds::alive() {
 void Leds::push(BlinkerKind kind) {
     for (auto i = 0; i < MaximumBlinkers; ++i) {
         if (blinkers[i].isIdle()) {
-            log("Blinker #%d is %d", i, kind);
+            trace("Blinker #%d is %d", i, kind);
             blinkers[i] = Blinker{ kind };
             return;
         }
     }
 
-    log("No available blinkers for %d", kind);
+    warn("No available blinkers for %d", kind);
 }
 
 void Leds::clear(BlinkerKind kind) {
     for (auto i = 0; i < MaximumBlinkers; ++i) {
         if (blinkers[i].isOfKind(kind)) {
-            log("Clearing blinker #%d", i);
+            trace("Clearing blinker #%d", i);
             blinkers[i].clear();
         }
     }

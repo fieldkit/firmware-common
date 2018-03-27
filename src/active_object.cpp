@@ -5,7 +5,28 @@ namespace fk {
 void Task::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(name, f, args);
+    vdebugfpln(LogLevels::INFO, name, f, args);
+    va_end(args);
+}
+
+void Task::info(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln(LogLevels::INFO, name, f, args);
+    va_end(args);
+}
+
+void Task::trace(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln(LogLevels::TRACE, name, f, args);
+    va_end(args);
+}
+
+void Task::warn(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln(LogLevels::WARN, name, f, args);
     va_end(args);
 }
 
@@ -26,11 +47,11 @@ bool ActiveObject::inQueue(Task &task) {
 
 void ActiveObject::push(Task &task) {
     if (inQueue(task)) {
-        log("%s enqueue skipped (already queued)", task.toString());
+        info("%s enqueue skipped (already queued)", task.toString());
         return;
     }
 
-    log("%s enqueue (%s)", task.toString(), tasks == nullptr ? "HEAD" : tail()->toString());
+    info("%s enqueue (%s)", task.toString(), tasks == nullptr ? "HEAD" : tail()->toString());
     *end() = &task;
     task.enqueued();
 }
@@ -53,13 +74,13 @@ void ActiveObject::service(Task &active) {
     auto e = active.task();
 
     if (e.isDone()) {
-        log("%s done", active.toString());
+        info("%s done", active.toString());
         pop();
         active.nextTask = nullptr;
         active.done();
         done(active);
     } else if (e.isError()) {
-        log("%s error", active.toString());
+        warn("%s error", active.toString());
         pop();
         active.nextTask = nullptr;
         active.error();
@@ -78,7 +99,7 @@ void ActiveObject::tick() {
     }
     auto ended = millis();
     if (ended - began > 500) {
-        log("Long tick from %s (%lu) (****)", ran, ended - began);
+        info("Long tick from %s (%lu) (****)", ran, ended - began);
     }
 }
 

@@ -61,7 +61,7 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
     m().metadata.modules.arg = (void *)&modulesArray;
 }
 
-size_t DataRecordMetadataMessage::calculateSize() {
+size_t DataRecordMessage::calculateSize() {
     size_t size;
 
     if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &m())) {

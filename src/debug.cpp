@@ -43,7 +43,7 @@ void fklog(const char *f, ...) {
 
 }
 
-void debuglog(const fk_log_message_t *m) {
+void debug_raw(const fk_log_message_t *m) {
     char buffer[FK_DEBUG_LINE_MAX * 2];
     auto pos = snprintf(buffer, sizeof(buffer) - 3, "%06ld %-25s ", m->uptime, m->facility);
     auto len = strlen(m->message);
@@ -68,25 +68,32 @@ void debuglog(const fk_log_message_t *m) {
     }
 }
 
-void vdebugfpln(const char *facility, const char *f, va_list args) {
+void vdebugfpln(LogLevels level, const char *facility, const char *f, va_list args) {
     char messageBuffer[FK_DEBUG_LINE_MAX];
     vsnprintf(messageBuffer, FK_DEBUG_LINE_MAX, f, args);
 
     fk_log_message_t m = {
         .uptime = millis(),
         .time = 0,
-        .level = 0,
+        .level = (uint8_t)level,
         .facility = facility,
         .message = messageBuffer,
     };
 
-    debuglog(&m);
+    debug_raw(&m);
+}
+
+void debug_log(LogLevels level, const char *prefix, const char *f, ...) {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln(level, prefix, f, args);
+    va_end(args);
 }
 
 void debugfpln(const char *prefix, const char *f, ...) {
     va_list args;
     va_start(args, f);
-    vdebugfpln(prefix, f, args);
+    vdebugfpln(LogLevels::INFO, prefix, f, args);
     va_end(args);
 }
 

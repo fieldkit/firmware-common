@@ -73,7 +73,7 @@ private:
     void log(const char *f, ...) const __attribute__((format(printf, 2, 3))) {
         va_list args;
         va_start(args, f);
-        vdebugfpln("Supervisor", f, args);
+        vdebugfpln(LogLevels::INFO, "Supervisor", f, args);
         va_end(args);
     }
 
