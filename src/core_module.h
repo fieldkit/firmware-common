@@ -60,16 +60,16 @@ private:
     CoreState state{storage, fileSystem.getData()};
     Power power{ state };
 
-    // Schedule this.
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
 
     HttpTransmissionConfig transmissionConfig = {
         .streamUrl = API_INGESTION_STREAM,
     };
-    TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, wifi, transmissionConfig, bus, dataPool};
+    TransmitAllQueuedReadings transmitAllQueuedReadings{fileSystem.fkfs(), 1, state, wifi, transmissionConfig};
 
     SerialPort gpsPort{ Serial1 };
     ReadGps readGps{state, gpsPort};
+
     GatherReadings gatherReadings{bus, state, leds, modulesPool};
 
     PeriodicTask periodics[2] {
@@ -82,6 +82,7 @@ private:
     Scheduler scheduler{state, clock, supervisor, scheduled, periodics};
 
     LiveData liveData{bus, state, leds, modulesPool};
+
     WifiConnection connection;
     AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, appPool};
     Wifi wifi{state, connection, appServicer, supervisor};

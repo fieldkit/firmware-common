@@ -7,22 +7,6 @@
 
 namespace fk {
 
-Pool::Pool(const char *name, size_t size) {
-    void *block;
-
-    auto aligned = alignedSize(size);
-
-    block = ::malloc(aligned);
-
-    this->name = name;
-    this->block = block;
-    this->ptr = block;
-    this->size = aligned;
-    this->remaining = aligned;
-
-    debugfpln("Pool", "Create: 0x%x %s size=%d/%d ptr=0x%x (free=%lu)", (unsigned)this, name, size, aligned, (unsigned)ptr, fk_free_memory());
-}
-
 Pool::Pool(const char *name, size_t size, void *block) {
     this->name = name;
     this->block = block;
@@ -59,11 +43,6 @@ void *Pool::copy(void *ptr, size_t size) {
     void *newPtr = malloc(size);
     memcpy(newPtr, ptr, size);
     return newPtr;
-}
-
-Pool::~Pool() {
-    debugfpln("Pool", "Free: 0x%x %s", (unsigned)this, name);
-    ::free((void *)block);
 }
 
 }

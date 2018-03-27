@@ -67,10 +67,13 @@ public:
     Task(const char *name) : name(name) {}
 
 public:
-    virtual void enqueued() {}
-    virtual void done() {}
-    virtual void error() {}
+    virtual void enqueued() { }
+    virtual bool tryBegin() {
+        return true;
+    }
     virtual TaskEval task() = 0;
+    virtual void done() { }
+    virtual void error() { }
 
 public:
     const char *toString() const {
@@ -96,6 +99,14 @@ public:
     }
 
 public:
+    void enqueued() override {
+        for (std::size_t i = 0; i < Size; ++i) {
+            if (tasks[i] != nullptr) {
+                tasks[i]->enqueued();
+            }
+        }
+    }
+
     TaskEval task() override {
         auto e = TaskEval::done();
 

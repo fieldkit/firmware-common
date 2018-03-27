@@ -5,8 +5,8 @@ namespace fk {
 
 constexpr uint32_t MaximumUpload = 1024 * 1024;
 
-TransmitAllQueuedReadings::TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, TwoWireBus &bus, Pool &pool) :
-    Task("TransmitAllQueued"), iterator(fs, file), state(&state), wifi(&wifi), config(&config), bus(&bus), pool(&pool) {
+TransmitAllQueuedReadings::TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config) :
+    Task("TransmitAllQueued"), iterator(fs, file), state(&state), wifi(&wifi), config(&config) {
 }
 
 void TransmitAllQueuedReadings::enqueued() {
@@ -92,7 +92,8 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
         log("Connecting: '%s:%d' / '%s'", parsed.server, parsed.port, parsed.path);
 
         if (cachedDns.cached(parsed.server) && wcl.connect(cachedDns.ip(), parsed.port)) {
-            DataRecordMetadataMessage drm{ *state, *pool };
+            StaticPool<128> pool{"DataPool"};
+            DataRecordMetadataMessage drm{ *state, pool };
             uint8_t buffer[drm.calculateSize()];
             auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
             if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
@@ -128,7 +129,8 @@ TaskEval TransmitAllQueuedReadings::openConnection() {
 }
 
 void TransmitAllQueuedReadings::parseRecord(DataBlock &data) {
-    DataRecordMessage message{ *pool };
+    StaticPool<128> pool{"DataPool"};
+    DataRecordMessage message{ pool };
 
     auto stream = pb_istream_from_buffer((uint8_t *)data.ptr, data.size);
     if (!pb_decode_delimited(&stream, fk_data_DataRecord_fields, message.forDecode())) {

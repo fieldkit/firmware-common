@@ -1,4 +1,5 @@
 #include "fkfs_tasks.h"
+#include "debug.h"
 
 namespace fk {
 

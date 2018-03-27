@@ -22,14 +22,12 @@ private:
     size_t size;
 
 public:
-    Pool(const char *name, size_t size);
     Pool(const char *name, size_t size, void *block);
 
 public:
     void clear();
     void *malloc(size_t size);
     void *copy(void *ptr, size_t size);
-    virtual ~Pool();
 
 };
 
