@@ -7,8 +7,8 @@ namespace fk {
 
 extern "C" {
 
-static size_t debug_write_log(const char *str, void *arg) {
-    if (!fkfs_log_append((fkfs_log_t *)arg, str)) {
+static size_t debug_write_log(const fk_log_message_t *m, const char *formatted, void *arg) {
+    if (!fkfs_log_append((fkfs_log_t *)arg, formatted)) {
         debug_uart_get()->println("Unable to append log");
     }
     return 0;

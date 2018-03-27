@@ -120,7 +120,7 @@ uint32_t crc32_checksum(uint8_t *data, size_t size) {
 namespace std {
 
 void __throw_bad_alloc() {
-    debugfln("std::bad_alloc");
+    debugfpln("Assert", "std::bad_alloc");
     while (true) {
     }
 }

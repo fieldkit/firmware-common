@@ -3,7 +3,7 @@
 
 #include "debug.h"
 
-const uint32_t FK_DEBUG_LINE_MAX = 128;
+constexpr uint32_t FK_DEBUG_LINE_MAX = 128;
 
 Stream *debug_uart = &Serial;
 debug_hook_fn_t global_hook_fn = nullptr;
@@ -27,16 +27,6 @@ void debug_uart_set(Stream &standardOut) {
     debug_uart = &standardOut;
 }
 
-const char *global_firmware_version = "<unknown>";
-
-const char *firmware_version_get() {
-    return global_firmware_version;
-}
-
-void firmware_version_set(const char *hash) {
-    global_firmware_version = hash;
-}
-
 extern "C" {
 
 // Useful for injecting log statements in third party areas for testing.
@@ -48,55 +38,49 @@ void fklog(const char *f, ...) {
     vsnprintf(buffer, FK_DEBUG_LINE_MAX, f, args);
     va_end(args);
 
-    debug(buffer);
+    debug_uart->print(buffer);
 }
 
 }
 
-void debug(const char *str) {
-    debug_uart->print(str);
+void debuglog(const fk_log_message_t *m) {
+    char buffer[FK_DEBUG_LINE_MAX * 2];
+    auto pos = snprintf(buffer, sizeof(buffer) - 3, "%06ld %-25s ", m->uptime, m->facility);
+    auto len = strlen(m->message);
+    memcpy(buffer + pos, m->message, len);
+    pos += len;
+    #if FK_LOGGING_INCLUDE_CR
+    buffer[pos + 0] = '\r';
+    buffer[pos + 1] = '\n';
+    buffer[pos + 2] = 0;
+    #else
+    buffer[pos + 0] = '\n';
+    buffer[pos + 1] = 0;
+    #endif
+    debug_uart->print(buffer);
+
     if (global_hook_fn != nullptr) {
         if (global_hook_enabled) {
             global_hook_enabled = false;
-            global_hook_fn(str, global_hook_arg);
+            global_hook_fn(m, buffer, global_hook_arg);
             global_hook_enabled = true;
         }
     }
 }
 
-void debugf(const char *f, ...) {
-    char buffer[FK_DEBUG_LINE_MAX];
-    va_list args;
-
-    va_start(args, f);
-    vsnprintf(buffer, FK_DEBUG_LINE_MAX, f, args);
-    va_end(args);
-
-    debug(buffer);
-}
-
-void vdebugfln(const char *f, va_list args) {
-    char buffer[FK_DEBUG_LINE_MAX];
-
-    auto w = vsnprintf(buffer, FK_DEBUG_LINE_MAX - 2, f, args);
-#if FK_LOGGING_INCLUDE_CR
-    buffer[w] = '\r';
-    buffer[w + 1] = '\n';
-    buffer[w + 2] = 0;
-#else
-    buffer[w] = '\n';
-    buffer[w + 1] = 0;
-#endif
-
-    debug(buffer);
-}
-
-void vdebugfpln(const char *prefix, const char *f, va_list args) {
+void vdebugfpln(const char *facility, const char *f, va_list args) {
     char messageBuffer[FK_DEBUG_LINE_MAX];
-    char timeAndPrefix[6 + 1 + 25 + 1];
-    snprintf(timeAndPrefix, sizeof(timeAndPrefix), "%06ld %-25s: ", millis(), prefix);
     vsnprintf(messageBuffer, FK_DEBUG_LINE_MAX, f, args);
-    debugfln("%s %s", timeAndPrefix, messageBuffer);
+
+    fk_log_message_t m = {
+        .uptime = millis(),
+        .time = 0,
+        .level = 0,
+        .facility = facility,
+        .message = messageBuffer,
+    };
+
+    debuglog(&m);
 }
 
 void debugfpln(const char *prefix, const char *f, ...) {
@@ -106,11 +90,14 @@ void debugfpln(const char *prefix, const char *f, ...) {
     va_end(args);
 }
 
-void debugfln(const char *f, ...) {
-    va_list args;
-    va_start(args, f);
-    vdebugfln(f, args);
-    va_end(args);
+const char *global_firmware_version = "<unknown>";
+
+const char *firmware_version_get() {
+    return global_firmware_version;
+}
+
+void firmware_version_set(const char *hash) {
+    global_firmware_version = hash;
 }
 
 extern "C" char *sbrk(int32_t i);
@@ -121,7 +108,7 @@ uint32_t fk_free_memory() {
 }
 
 void __fk_assert(const char *msg, const char *file, int lineno) {
-    debugfln("ASSERTION: %s:%d '%s'", file, lineno, msg);
+    debugfpln("Assert", "ASSERTION: %s:%d '%s'", file, lineno, msg);
     debug_uart->flush();
 
     pinMode(A3, OUTPUT);
