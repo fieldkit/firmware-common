@@ -8,7 +8,7 @@ namespace fk {
 
 constexpr uint32_t DefaultPageSize = (size_t)(8 * 4096);
 
-FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId, TaskQueue &taskQueue) : fs(&fs), dataFileId(dataFileId), taskQueue(&taskQueue) {
+FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId) {
 }
 
 void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -44,7 +44,7 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     }
 }
 
-TaskEval FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+Task *FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     fkfs_iterator_token_t *resumeToken = nullptr;
     auto rawToken = query.getDownloadToken();
     if (rawToken != nullptr && rawToken->length > 0) {
@@ -56,9 +56,7 @@ TaskEval FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage 
 
     log("Created DownloadFileTask = %p (%lu free)", &downloadFileTask, fk_free_memory());
 
-    taskQueue->push(downloadFileTask);
-
-    return TaskEval::done();
+    return &downloadFileTask;
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -118,7 +116,7 @@ void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, 
     }
 }
 
-TaskEval FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+Task *FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     fkfs_iterator_token_t *resumeToken = nullptr;
     auto rawToken = query.getDownloadToken();
     if (rawToken != nullptr && rawToken->length > 0) {
@@ -130,9 +128,7 @@ TaskEval FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessa
 
     log("Created DownloadFileTask = %p (%lu free)", &downloadFileTask, fk_free_memory());
 
-    taskQueue->push(downloadFileTask);
-
-    return TaskEval::done();
+    return &downloadFileTask;
 }
 
 void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {

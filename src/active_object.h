@@ -284,6 +284,29 @@ private:
 
 };
 
+class ChildContainer {
+private:
+    Task *child { nullptr };
+
+public:
+    void push(Task &task) {
+        child = &task;
+        child->enqueued();
+    }
+
+    bool hasChild() {
+        return child != nullptr;
+    }
+
+    TaskEval task();
+
+    void clear() {
+        child = nullptr;
+    }
+
+
+};
+
 }
 
 #endif

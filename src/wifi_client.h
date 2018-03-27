@@ -1,6 +1,9 @@
 #ifndef FK_WIFI_CLIENT_H_INCLUDED
 #define FK_WIFI_CLIENT_H_INCLUDED
 
+#include <WiFi101.h>
+#include <WiFiServer.h>
+
 #include "wifi_message_buffer.h"
 
 namespace fk {

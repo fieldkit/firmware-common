@@ -55,7 +55,7 @@ private:
     Watchdog watchdog{ leds };
 
     TwoWireBus bus{ Wire };
-    FileSystem fileSystem{ bus, supervisor, dataPool };
+    FileSystem fileSystem{ bus, dataPool };
     SerialFlashChip serialFlash;
     FlashStorage storage{ serialFlash };
     CoreState state{storage, fileSystem.getData()};
@@ -83,8 +83,9 @@ private:
     Scheduler scheduler{state, clock, supervisor, scheduled, periodics};
 
     LiveData liveData{bus, state, leds, modulesPool};
-    AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), supervisor, appPool};
-    Wifi wifi{state, appServicer, supervisor};
+    WifiConnection connection;
+    AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, appPool};
+    Wifi wifi{state, connection, appServicer, supervisor};
     Discovery discovery{ bus, wifi };
 
 public:

@@ -12,41 +12,8 @@
 
 namespace fk {
 
-constexpr uint32_t ConnectionTimeout = 5000;
 constexpr uint32_t ConnectionMemory = 128;
 constexpr uint32_t InactivityTimeout = 60 * 1000 * 1;
-
-class ReadAppQuery : public Task {
-private:
-    uint32_t dieAt{ 0 };
-    WifiConnection *connection;
-    AppServicer *servicer;
-    TaskQueue *taskQueue;
-
-public:
-    ReadAppQuery(WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue);
-
-public:
-    void enqueued() override {
-        dieAt = 0;
-    }
-    TaskEval task() override;
-};
-
-class HandleConnection : public Task {
-private:
-    AppServicer *servicer;
-    WifiConnection *connection;
-    ReadAppQuery readAppQuery;
-
-public:
-    HandleConnection(AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue);
-
-public:
-    TaskEval task() override;
-    void enqueued() override;
-    void done() override;
-};
 
 enum class ListenerState {
     Idle,
@@ -64,7 +31,6 @@ private:
     AppServicer *servicer;
     WifiConnection *connection;
     TaskQueue *taskQueue;
-    HandleConnection handleConnection;
 
 public:
     Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue);

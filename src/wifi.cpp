@@ -118,8 +118,8 @@ TaskEval ScanNetworks::task() {
     return TaskEval::idle();
 }
 
-Wifi::Wifi(CoreState &state, AppServicer &servicer, TaskQueue &taskQueue)
-    : ActiveObject("Wifi"), state(&state), connectToWifiAp(state), createWifiAp(state), listen(ServerPort, servicer, connection, taskQueue) {
+Wifi::Wifi(CoreState &state, WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue)
+    : ActiveObject("Wifi"), state(&state), connection(&connection), connectToWifiAp(state), createWifiAp(state), listen(ServerPort, servicer, connection, taskQueue) {
 }
 
 void Wifi::begin() {
@@ -245,7 +245,7 @@ void Wifi::idle() {
             listen.end();
         }
 
-        state->setBusy(connection.isConnected());
+        state->setBusy(connection->isConnected());
 
         if (!busy && listen.inactive()) {
             if (millis() - lastActivityAt > InactivityTimeout) {

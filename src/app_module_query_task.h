@@ -7,20 +7,19 @@
 
 namespace fk {
 
-class AppModuleQueryTask : public ActiveObject {
+class AppModuleQueryTask : public CustomModuleQueryTask {
 private:
     AppReplyMessage *reply;
     AppQueryMessage *query;
     MessageBuffer *buffer;
-    CustomModuleQueryTask customModuleQueryTask;
 
 public:
     AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, Pool &pool);
 
 public:
     void enqueued() override;
-    void done(Task &task) override;
-    void error(Task &task) override;
+    void done() override;
+    void error() override;
 
 };
 

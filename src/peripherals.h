@@ -31,11 +31,10 @@ public:
     }
 
     void release(void *anOwner) {
-        if (owner == anOwner) {
-            fk_assert(!available());
-            acquiredAt = 0;
-            owner = nullptr;
-        }
+        fk_assert(owner == anOwner);
+        fk_assert(!available());
+        acquiredAt = 0;
+        owner = nullptr;
     }
 };
 

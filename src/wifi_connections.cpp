@@ -3,61 +3,8 @@
 
 namespace fk {
 
-ReadAppQuery::ReadAppQuery(WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue) :
-    Task("ReadAppQuery"), connection(&connection), servicer(&servicer), taskQueue(&taskQueue) {
-}
-
-TaskEval ReadAppQuery::task() {
-    if (dieAt == 0) {
-        dieAt = millis() + ConnectionTimeout;
-    }
-    else if (millis() > dieAt) {
-        connection->close();
-        log("Connection timed out.");
-        return TaskEval::error();
-    }
-
-    auto bytesRead = connection->read();
-    if (bytesRead > 0) {
-        log("Read %d bytes", bytesRead);
-        if (!servicer->handle(connection->getBuffer())) {
-            connection->close();
-            log("Error parsing query");
-            return TaskEval::error();
-        } else {
-            return servicer->task();
-        }
-    }
-
-    return TaskEval::idle();
-}
-
-HandleConnection::HandleConnection(AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue)
-    : Task("HandleConnection"), servicer(&servicer), connection(&connection), readAppQuery(connection, servicer, taskQueue) {
-}
-
-void HandleConnection::enqueued() {
-    readAppQuery.enqueued();
-}
-
-TaskEval HandleConnection::task() {
-    return readAppQuery.task();
-}
-
-void HandleConnection::done() {
-    connection->flush();
-
-    if (connection->isConnected()) {
-        log("Stop connection");
-        connection->close();
-    }
-    else {
-        log("No connection!");
-    }
-}
-
 Listen::Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue)
-    : Task("Listen"), server(port), servicer(&servicer), connection(&connection), taskQueue(&taskQueue), handleConnection(servicer, connection, taskQueue) {
+    : Task("Listen"), server(port), servicer(&servicer), connection(&connection), taskQueue(&taskQueue) {
 }
 
 void Listen::begin() {
@@ -108,7 +55,7 @@ TaskEval Listen::task() {
             pool.clear();
             state = ListenerState::Busy;
             connection->setConnection(wcl);
-            taskQueue->push(handleConnection);
+            taskQueue->push(*servicer);
             return TaskEval::idle();
         }
     }

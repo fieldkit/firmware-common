@@ -58,21 +58,21 @@ public:
     static constexpr uint16_t ServerPort = 54321;
 
 private:
+    CoreState *state;
+    WifiConnection *connection;
     uint32_t version{ 0 };
     uint8_t status{ WL_IDLE_STATUS };
     uint32_t lastActivityAt{ 0 };
-    CoreState *state;
     ConnectToWifiAp connectToWifiAp;
     CreateWifiAp createWifiAp;
     ScanNetworks scanNetworks;
-    WifiConnection connection;
     Delay delay{ 5000 };
     Listen listen;
     bool disabled{ false };
     bool busy{ false };
 
 public:
-    Wifi(CoreState &state, AppServicer &servicer, TaskQueue &taskQueue);
+    Wifi(CoreState &state, WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue);
 
 public:
     void disable();

@@ -8,6 +8,7 @@
 
 namespace fk {
 
+constexpr uint32_t ConnectionTimeout = 5000;
 constexpr const char *DefaultName = "FieldKit Device";
 
 static void copy(ScheduledTask &to, fk_app_Schedule &from) {
@@ -32,17 +33,75 @@ static void copy(fk_app_Schedule &to, ScheduledTask &from) {
     to.day.offset = 0;
 }
 
-AppServicer::AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, TaskQueue &taskQueue, Pool &pool)
-    : Task("AppServicer"), bus(&bus), query(&pool), reply(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), taskQueue(&taskQueue), pool(&pool) {
+AppServicer::AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, Pool &pool)
+    : Task("AppServicer"), bus(&bus), query(&pool), reply(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), pool(&pool) {
 }
 
-bool AppServicer::handle(MessageBuffer &buffer) {
-    this->buffer = &buffer;
+bool AppServicer::handle(MessageBuffer &newBuffer) {
+    buffer = &newBuffer;
+    active.clear();
     return this->buffer->read(query);
 }
 
+void AppServicer::enqueued() {
+    active.clear();
+    dieAt = 0;
+}
+
 TaskEval AppServicer::task() {
+    if (active.hasChild()) {
+        return active.task();
+    }
+
+    if (!readQuery()) {
+        return TaskEval::error();
+    }
+
     return handle();
+}
+
+bool AppServicer::readQuery() {
+    if (dieAt == 0) {
+        dieAt = millis() + ConnectionTimeout;
+    }
+    else if (millis() > dieAt) {
+        connection->close();
+        log("Connection timed out.");
+        return false;
+    }
+
+    auto bytesRead = connection->read();
+    if (bytesRead > 0) {
+        log("Read %d bytes", bytesRead);
+        if (!handle(connection->getBuffer())) {
+            connection->close();
+            log("Error parsing query");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void AppServicer::done() {
+    flushAndClose();
+}
+
+void AppServicer::error() {
+    flushAndClose();
+}
+
+bool AppServicer::flushAndClose() {
+    connection->flush();
+
+    if (connection->isConnected()) {
+        log("Stop connection");
+        connection->close();
+    }
+    else {
+        log("No connection!");
+    }
+    return true;
 }
 
 TaskEval AppServicer::handle() {
@@ -66,7 +125,9 @@ TaskEval AppServicer::handle() {
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_DATA_SET: {
         log("Download ds %lu page=%lu", query.m().downloadDataSet.id, query.m().downloadDataSet.page);
-        return fileReplies->downloadDataSetReply(query, reply, *buffer);
+        auto newTask = fileReplies->downloadDataSetReply(query, reply, *buffer);
+        active.push(*newTask);
+        return TaskEval::busy();
     }
     case fk_app_QueryType_QUERY_ERASE_DATA_SET: {
         log("Erase ds");
@@ -181,7 +242,9 @@ TaskEval AppServicer::handle() {
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
         if (!state->isReadingInProgress()) {
             log("Download file (%lu / %lu)", query.m().downloadFile.id, query.m().downloadFile.page);
-            return fileReplies->downloadFileReply(query, reply, *buffer);
+            auto newTask = fileReplies->downloadFileReply(query, reply, *buffer);
+            active.push(*newTask);
+            return TaskEval::busy();
         }
 
         reply.busy("Busy");
@@ -225,9 +288,10 @@ TaskEval AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_MODULE: {
-        if (peripherals.twoWire1().tryAcquire(this)) {
-            taskQueue->push(appModuleQueryTask.ready(*bus, reply, query, *buffer, (uint8_t)query.m().module.address, *pool));
-            return TaskEval::done();
+        auto &task = appModuleQueryTask.ready(*bus, reply, query, *buffer, (uint8_t)query.m().module.address, *pool);
+        if (peripherals.twoWire1().tryAcquire(&task)) {
+            active.push(task);
+            return TaskEval::busy();
         }
 
         reply.busy("Busy");

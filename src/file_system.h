@@ -24,7 +24,7 @@ private:
     FkfsReplies replies;
 
 public:
-    FileSystem(TwoWireBus &bus, TaskQueue &taskQueue, Pool &pool);
+    FileSystem(TwoWireBus &bus, Pool &pool);
 
 public:
     bool setup();

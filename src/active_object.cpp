@@ -119,4 +119,24 @@ Task **ActiveObject::end() {
     return &(tail()->nextTask);
 }
 
+TaskEval ChildContainer::task() {
+    if (child == nullptr) {
+        return TaskEval::idle();
+    }
+
+    auto e = child->task();
+    if (e.isDone()) {
+        child->done();
+        clear();
+        return e;
+    }
+    else if (e.isError()) {
+        child->error();
+        clear();
+        return e;
+    }
+
+    return e;
+}
+
 }

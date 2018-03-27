@@ -7,31 +7,37 @@
 #include "live_data.h"
 #include "scheduler.h"
 #include "fkfs_replies.h"
-
 #include "task_container.h"
 #include "app_module_query_task.h"
+#include "wifi_client.h"
 
 namespace fk {
 
 class AppServicer : public Task {
 private:
     TwoWireBus *bus;
-    MessageBuffer *buffer{nullptr};
     AppQueryMessage query;
     AppReplyMessage reply;
     LiveData *liveData;
     CoreState *state;
     Scheduler *scheduler;
     FkfsReplies *fileReplies;
-    TaskContainer<AppModuleQueryTask> appModuleQueryTask;
-    TaskQueue *taskQueue;
+    WifiConnection *connection;
     Pool *pool;
 
-public:
-    AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, TaskQueue &taskQueue, Pool &pool);
+    TaskContainer<AppModuleQueryTask> appModuleQueryTask;
+    MessageBuffer *buffer{nullptr};
+    ChildContainer active;
+    uint32_t dieAt{ 0 };
 
 public:
+    AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, Pool &pool);
+
+public:
+    void enqueued() override;
     TaskEval task() override;
+    void done() override;
+    void error() override;
 
 public:
     bool handle(MessageBuffer &buffer);
@@ -39,6 +45,11 @@ public:
 private:
     TaskEval handle();
 
+private:
+    bool readQuery();
+    bool flushAndClose();
+
+private:
     void capabilitiesReply();
 
     void configureNetworkSettings();

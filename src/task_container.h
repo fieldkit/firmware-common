@@ -34,9 +34,9 @@ public:
     }
 
     template<typename ...Args>
-    TaskContainer &ready(Args &&...args) {
+    T &ready(Args &&...args) {
         target = new (&data) T(std::forward<Args>(args)...);
-        return *this;
+        return *target;
     }
 
 private:
