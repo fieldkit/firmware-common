@@ -67,29 +67,13 @@ void CoreModule::run() {
         &attachedDevices,
         &scheduler,
         &wifi,
-        &discovery
+        &discovery,
+        &liveData
     );
 
     supervisor.push(tasks);
     supervisor.push(ntp);
 
-    /*
-    while (true) {
-        status.task();
-        leds.task();
-        power.task();
-        watchdog.task();
-        attachedDevices.task();
-        if (attachedDevices.isIdle()) {
-            liveData.task();
-            if (liveData.isIdle()) {
-                scheduler.task();
-            }
-            wifi.task();
-            discovery.task();
-        }
-    }
-    */
     while (true) {
         supervisor.tick();
     }
