@@ -18,7 +18,7 @@ struct PersistedState {
     NetworkSettings networkSettings;
     DeviceLocation location;
     uint32_t readingNumber{ 0 };
-    fkfs_iterator_token_t transmissionCursor{ 0 };
+    fkfs_iterator_token_t cursors[2] { fkfs_token_empty, fkfs_token_empty };
 
     bool load(FlashStorage &storage);
     bool save(FlashStorage &storage);
@@ -31,7 +31,7 @@ private:
     NetworkSettings networkSettings;
     DeviceLocation location;
     uint32_t readingNumber{ 0 };
-    fkfs_iterator_token_t transmissionCursor{ 0 };
+    fkfs_iterator_token_t cursors[2] { fkfs_token_empty, fkfs_token_empty };
 
 private:
     DeviceStatus deviceStatus;
@@ -82,8 +82,8 @@ public:
 
     bool isBusy();
     void setBusy(bool value);
-    fkfs_iterator_token_t &getTransmissionCursor();
-    void setTransmissionCursor(fkfs_iterator_token_t &cursor);
+    fkfs_iterator_token_t &getCursor(uint8_t file);
+    void saveCursor(fkfs_iterator_token_t &cursor);
     bool shouldWipeAfterUpload();
 
 private:

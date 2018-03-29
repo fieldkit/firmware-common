@@ -102,7 +102,7 @@ void dumpObjectSizes() {
     FK_DUMP_SIZE(fk::Listen);
     FK_DUMP_SIZE(fk::TwoWireMessageBuffer);
     FK_DUMP_SIZE(fk::WifiMessageBuffer);
-    FK_DUMP_SIZE(fk::TransmitAllQueuedReadings);
+    FK_DUMP_SIZE(fk::TransmitFileTask);
     FK_DUMP_SIZE(fk::ScanNetworks);
     FK_DUMP_SIZE(fk::ConnectToWifiAp);
     FK_DUMP_SIZE(fk::Delay);

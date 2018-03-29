@@ -18,7 +18,9 @@ class FkfsIterator {
 private:
     fkfs_t *fs{ nullptr };
     uint8_t file{ 0 };
-    fkfs_file_iter_t iter = { 0 };
+    fkfs_file_iter_t iter = {
+        .token = { 0 }
+    };
     fkfs_iterator_config_t config = {
         .maxBlocks = 0,
         .maxTime = 250
@@ -38,10 +40,15 @@ public:
     }
 
 public:
+    FkfsIterator(fkfs_t &fs);
     FkfsIterator(fkfs_t &fs, uint8_t file);
     FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t *resumeToken);
 
 public:
+    uint8_t fileNumber() {
+        return file;
+    }
+    void open(uint8_t newFile);
     void truncateFile();
     void reopen(fkfs_iterator_token_t &token);
     void resume(fkfs_iterator_token_t &token);

@@ -4,6 +4,8 @@
 #include <new>
 #include <type_traits>
 #include <utility>
+#include <tuple>
+#include "cpp-std-fill.h"
 
 namespace fk {
 
@@ -79,8 +81,57 @@ public:
         child = nullptr;
     }
 
+};
+
+template<class T, size_t Size, typename ...Args>
+class SimpleQueue : public Task {
+private:
+    typename std::aligned_storage<sizeof(T), alignof(T)>::type data;
+    std::array<std::tuple<Args...>, Size> queue;
+    T *target{ nullptr };
+    size_t position{ 0 };
+
+public:
+    SimpleQueue(std::array<std::tuple<Args...>, Size> queue) : Task("SimpleQueue"), queue(queue) {
+    }
+
+    void enqueued() override {
+        log("Enqueued");
+        target = nullptr;
+        position = 0;
+    }
+
+    TaskEval task() override {
+        auto e = target == nullptr ? TaskEval::done() : target->task();
+        if (e.isDone()) {
+            if (target != nullptr) {
+                target->~T();
+                target = nullptr;
+            }
+            if (position == Size) {
+                return TaskEval::done();
+            }
+            else {
+                target = makeAt(&data);
+                target->enqueued();
+                position++;
+            }
+        }
+        return TaskEval::busy();
+    }
+
+private:
+    template<typename W>
+    T *makeAt(W where) {
+        return make_from_tuple_at<T>(where, queue[position]);
+    }
 
 };
+
+template<class T, size_t Size, typename ...Args>
+auto to_simple_queue(std::array<std::tuple<Args...>, Size> queue) -> SimpleQueue<T, Size, Args...> {
+    return SimpleQueue<T, Size, Args...>(queue);
+}
 
 }
 

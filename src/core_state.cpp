@@ -233,7 +233,8 @@ void CoreState::copyFrom(PersistedState &state) {
     networkSettings = state.networkSettings;
     location = state.location;
     readingNumber = state.readingNumber;
-    transmissionCursor = state.transmissionCursor;
+    cursors[0] = state.cursors[0];
+    cursors[1] = state.cursors[1];
 }
 
 void CoreState::copyTo(PersistedState &state) {
@@ -241,7 +242,8 @@ void CoreState::copyTo(PersistedState &state) {
     state.networkSettings = networkSettings;
     state.location = location;
     state.readingNumber = readingNumber;
-    state.transmissionCursor = transmissionCursor;
+    state.cursors[0] = cursors[0];
+    state.cursors[1] = cursors[1];
 }
 
 void CoreState::takingReading() {
@@ -265,12 +267,12 @@ void CoreState::setBusy(bool value) {
     busy = value;
 }
 
-fkfs_iterator_token_t &CoreState::getTransmissionCursor() {
-    return transmissionCursor;
+fkfs_iterator_token_t &CoreState::getCursor(uint8_t file) {
+    return cursors[file];
 }
 
-void CoreState::setTransmissionCursor(fkfs_iterator_token_t &cursor) {
-    transmissionCursor = cursor;
+void CoreState::saveCursor(fkfs_iterator_token_t &cursor) {
+    cursors[cursor.file] = cursor;
     save();
 }
 

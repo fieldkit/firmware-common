@@ -7,10 +7,11 @@
 #include "core_state.h"
 #include "fkfs_tasks.h"
 #include "utils.h"
+#include "file_system.h"
 
 namespace fk {
 
-class TransmitAllQueuedReadings : public Task {
+class TransmitFileTask : public Task {
 private:
     FkfsIterator iterator;
     CoreState *state;
@@ -22,7 +23,7 @@ private:
     CachedDnsResolution cachedDns;
 
 public:
-    TransmitAllQueuedReadings(fkfs_t &fs, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
+    TransmitFileTask(FileSystem &fileSystem, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
 
 public:
     void enqueued();
@@ -30,7 +31,19 @@ public:
 
 private:
     TaskEval openConnection();
-    void parseRecord(DataBlock &data);
+
+};
+
+class TransmitAllFilesTask : public Task {
+private:
+    TaskQueue *taskQueue;
+    SimpleQueue<TransmitFileTask, 2, FileSystem&, uint8_t, CoreState&, Wifi&, HttpTransmissionConfig&> queue;
+
+public:
+    TransmitAllFilesTask(TaskQueue &taskQueue, FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
+
+public:
+    TaskEval task() override;
 
 };
 

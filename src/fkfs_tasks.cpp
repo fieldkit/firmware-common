@@ -3,13 +3,21 @@
 
 namespace fk {
 
+FkfsIterator::FkfsIterator(fkfs_t &fs) : fs(&fs), file(0) {
+}
+
 FkfsIterator::FkfsIterator(fkfs_t &fs, uint8_t file) : fs(&fs), file(file) {
 }
 
 FkfsIterator::FkfsIterator(fkfs_t &fs, uint8_t file, fkfs_iterator_token_t *resumeToken) : fs(&fs), file(file) {
     if (resumeToken != nullptr) {
-        fkfs_file_iterator_resume(&fs, file, &iter, resumeToken);
+        fkfs_file_iterator_resume(&fs, &iter, resumeToken);
     }
+}
+
+void FkfsIterator::open(uint8_t newFile) {
+    file = newFile;
+    beginning();
 }
 
 void FkfsIterator::beginning() {
@@ -17,23 +25,30 @@ void FkfsIterator::beginning() {
     startedAt = 0;
     iteratedBytes = 0;
     statusAt = 0;
-    iter = { 0 };
+    fkfs_file_iterator_create(fs, file, &iter);
 }
 
 void FkfsIterator::end() {
-    fkfs_file_iterator_move_end(fs, file, &iter);
+    fkfs_file_iterator_move_end(fs, &iter);
 }
 
 void FkfsIterator::reopen(fkfs_iterator_token_t &position) {
     beginning();
-    fkfs_file_iterator_reopen(fs, file, &iter, &position);
+    fkfs_file_iterator_reopen(fs, &iter, &position);
+    if (!fkfs_file_iterator_valid(fs, &iter)) {
+        fkfs_file_iterator_create(fs, file, &iter);
+    }
+
     totalBytes = iter.token.size - position.size;
     debugfpln("FkfsIterator", "Reopen size=(%lu->%lu) (%lu, %d)->(%lu, %d)", position.size, iter.token.size, iter.token.block, iter.token.offset, iter.token.lastBlock, iter.token.lastOffset);
 }
 
 void FkfsIterator::resume(fkfs_iterator_token_t &position) {
     beginning();
-    fkfs_file_iterator_resume(fs, file, &iter, &position);
+    fkfs_file_iterator_resume(fs, &iter, &position);
+    if (!fkfs_file_iterator_valid(fs, &iter)) {
+        fkfs_file_iterator_create(fs, file, &iter);
+    }
 }
 
 void FkfsIterator::status() {
@@ -66,7 +81,7 @@ DataBlock FkfsIterator::move() {
             statusAt = millis();
         }
 
-        if (fkfs_file_iterate(fs, file, &config, &iter)) {
+        if (fkfs_file_iterate(fs, &config, &iter)) {
             iteratedBytes += iter.size;
             return DataBlock{ iter.data, iter.size };
         }

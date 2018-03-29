@@ -17,7 +17,7 @@ static size_t debug_write_log(const fk_log_message_t *m, const char *formatted, 
         return 0;
     }
 
-    if (!fkfs_log_append_binary((fkfs_log_t *)arg, buffer, stream.bytes_written)) {
+    if (!fkfs_log_append_binary((fkfs_log_t *)arg, buffer, stream.bytes_written, false)) {
         debug_uart_get()->println("Unable to append log");
     }
 
