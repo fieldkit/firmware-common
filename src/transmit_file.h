@@ -17,6 +17,7 @@ private:
     CoreState *state;
     Wifi *wifi;
     HttpTransmissionConfig *config;
+    uint32_t startedAt{ 0 };
     bool connected{ false };
     WiFiClient wcl;
     HttpResponseParser parser;

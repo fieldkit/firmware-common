@@ -49,6 +49,8 @@ constexpr uint32_t ConnectionTimeout = 5000;
 constexpr uint32_t RescanIntervalOrphaned = 30 * 1000;
 constexpr uint32_t RescanExistingModulesInterval = 5 * 60 * 1000;
 
+constexpr uint32_t TransmitBusyWaitMax = 10 * 1000;
+
 }
 
 #endif

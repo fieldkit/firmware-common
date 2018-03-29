@@ -22,6 +22,7 @@ TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, uint8_t file, CoreSta
 
 void TransmitFileTask::enqueued() {
     connected = false;
+    startedAt = millis();
 }
 
 TaskEval TransmitFileTask::task() {
@@ -32,8 +33,12 @@ TaskEval TransmitFileTask::task() {
 
     if (!connected) {
         if (state->isBusy() || state->isReadingInProgress()) {
-            log("We're busy, skipping.");
-            return TaskEval::done();
+            if (millis() - startedAt > TransmitBusyWaitMax) {
+                log("We're busy, skipping.");
+                return TaskEval::done();
+            }
+
+            return TaskEval::busy();
         }
 
         iterator.reopen(state->getCursor(iterator.fileNumber()));
