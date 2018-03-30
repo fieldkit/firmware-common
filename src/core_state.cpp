@@ -30,11 +30,11 @@ CoreState::CoreState(FlashStorage &storage, FkfsData &data) : storage(&storage),
 void CoreState::started() {
     PersistedState persisted;
     if (persisted.load(*storage)) {
-        debugfpln("Core", "Loaded state.");
+        log("Loaded state.");
         copyFrom(persisted);
     }
     else {
-        debugfpln("Core", "Clean slate!");
+        log("Clean slate!");
         copyTo(persisted);
         persisted.save(*storage);
     }
@@ -225,7 +225,7 @@ void CoreState::save() {
     copyTo(persisted);
     persisted.time = clock.getTime();
     persisted.save(*storage);
-    debugfpln("CoreState", "Saved");
+    log("Saved");
 }
 
 void CoreState::copyFrom(PersistedState &state) {
@@ -302,6 +302,13 @@ bool CoreState::hasModules() {
 
 bool CoreState::shouldWipeAfterUpload() {
     return wipeAfterUpload;
+}
+
+void CoreState::log(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln(LogLevels::INFO, "CoreState", f, args);
+    va_end(args);
 }
 
 }

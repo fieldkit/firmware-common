@@ -95,6 +95,9 @@ private:
     void copyTo(PersistedState &state);
     void save();
 
+private:
+    void log(const char *f, ...) const;
+
 };
 
 }
