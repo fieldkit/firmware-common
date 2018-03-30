@@ -26,6 +26,7 @@ void FkfsIterator::beginning() {
     iteratedBytes = 0;
     statusAt = 0;
     fkfs_file_iterator_create(fs, file, &iter);
+    totalBytes = iter.token.size;
 }
 
 void FkfsIterator::end() {
@@ -37,18 +38,16 @@ void FkfsIterator::reopen(fkfs_iterator_token_t &position) {
     fkfs_file_iterator_reopen(fs, &iter, &position);
     if (!fkfs_file_iterator_valid(fs, &iter)) {
         fkfs_file_iterator_create(fs, file, &iter);
+        totalBytes = iter.token.size;
+    }
+    else {
+        totalBytes = iter.token.size - position.size;
     }
 
-    totalBytes = iter.token.size - position.size;
-    debugfpln("FkfsIterator", "Reopen size=(%lu->%lu) (%lu, %d)->(%lu, %d)", position.size, iter.token.size, iter.token.block, iter.token.offset, iter.token.lastBlock, iter.token.lastOffset);
-}
-
-void FkfsIterator::resume(fkfs_iterator_token_t &position) {
-    beginning();
-    fkfs_file_iterator_resume(fs, &iter, &position);
-    if (!fkfs_file_iterator_valid(fs, &iter)) {
-        fkfs_file_iterator_create(fs, file, &iter);
-    }
+    debugfpln("FkfsIterator", "Reopen %d / %d size=(%lu->%lu = %d) (%lu, %d)->(%lu, %d)", file, iter.token.file,
+              position.size, iter.token.size, totalBytes,
+              iter.token.block, iter.token.offset,
+              iter.token.lastBlock, iter.token.lastOffset);
 }
 
 void FkfsIterator::status() {
