@@ -61,8 +61,8 @@ private:
 public:
     void alive();
     void fatal();
-    void beginReading();
-    void doneReading();
+    void takingReadings();
+    void doneTakingReadings();
     void noAttachedModules();
     void haveAttachedModules();
 

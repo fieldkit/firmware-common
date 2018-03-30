@@ -60,9 +60,9 @@ public:
 public:
     void started();
 
-    void takingReading();
+    void takingReadings();
     bool isReadingInProgress();
-    void doneTakingReading();
+    void doneTakingReadings();
     AvailableSensorReading getReading(size_t index);
     void clearReadings();
 

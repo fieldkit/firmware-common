@@ -116,11 +116,11 @@ void Leds::fatal() {
     push(BlinkerKind::Fatal);
 }
 
-void Leds::beginReading() {
+void Leds::takingReadings() {
     push(BlinkerKind::Reading);
 }
 
-void Leds::doneReading() {
+void Leds::doneTakingReadings() {
     clear(BlinkerKind::Reading);
 }
 

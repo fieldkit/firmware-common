@@ -19,8 +19,8 @@ void GatherReadings::enqueued() {
         return;
     }
 
-    state->takingReading();
-    leds->beginReading();
+    state->takingReadings();
+    leds->takingReadings();
     push(beginTakeReading);
 }
 
@@ -47,8 +47,6 @@ void GatherReadings::done(Task &task) {
         } else if (queryReadingStatus.isDone()) {
             state->merge(8, queryReadingStatus.replyMessage());
             push(queryReadingStatus);
-        } else {
-            leds->doneReading();
         }
     }
 
@@ -81,14 +79,16 @@ void GatherReadings::error() {
     if (peripherals.twoWire1().isOwner(this)) {
         peripherals.twoWire1().release(this);
     }
-    state->doneTakingReading();
+    state->doneTakingReadings();
+    leds->doneTakingReadings();
 }
 
 void GatherReadings::done() {
     if (peripherals.twoWire1().isOwner(this)) {
         peripherals.twoWire1().release(this);
     }
-    state->doneTakingReading();
+    state->doneTakingReadings();
+    leds->doneTakingReadings();
 }
 
 }

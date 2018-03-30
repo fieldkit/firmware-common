@@ -246,13 +246,14 @@ void CoreState::copyTo(PersistedState &state) {
     state.cursors[1] = cursors[1];
 }
 
-void CoreState::takingReading() {
+void CoreState::takingReadings() {
     readingNumber++;
     readingInProgress = true;
 }
 
-void CoreState::doneTakingReading() {
+void CoreState::doneTakingReadings() {
     readingInProgress = false;
+    data->doneTakingReadings();
 }
 
 bool CoreState::isReadingInProgress() {

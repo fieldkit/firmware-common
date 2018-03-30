@@ -87,6 +87,10 @@ size_t FkfsData::append(DataRecordMessage &message) {
     return stream.bytes_written;
 }
 
+bool FkfsData::doneTakingReadings() {
+    return true;
+}
+
 void FkfsData::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
