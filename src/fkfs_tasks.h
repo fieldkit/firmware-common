@@ -55,7 +55,7 @@ public:
     void end();
     DataBlock move();
     bool isFinished() {
-        return finished;
+        return finished || totalBytes == iteratedBytes;
     }
 
 private:
