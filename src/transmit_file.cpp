@@ -22,7 +22,7 @@ TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, uint8_t file, CoreSta
 
 void TransmitFileTask::enqueued() {
     connected = false;
-    startedAt = millis();
+    waitingSince = millis();
 }
 
 TaskEval TransmitFileTask::task() {
@@ -33,7 +33,7 @@ TaskEval TransmitFileTask::task() {
 
     if (!connected) {
         if (state->isBusy() || state->isReadingInProgress()) {
-            if (millis() - startedAt > TransmitBusyWaitMax) {
+            if (millis() - waitingSince > TransmitBusyWaitMax) {
                 log("We're busy, skipping.");
                 return TaskEval::done();
             }
@@ -49,6 +49,8 @@ TaskEval TransmitFileTask::task() {
             state->saveCursor(iterator.resumeToken());
             return TaskEval::done();
         }
+
+        waitingSince = 0;
 
         return openConnection();
     }
@@ -89,6 +91,15 @@ TaskEval TransmitFileTask::task() {
             wcl.write((uint8_t *)data.ptr, data.size);
         }
     }
+    else {
+        if (waitingSince == 0) {
+            waitingSince = millis();
+        }
+        if (millis() - waitingSince > TransmitBusyWaitMax) {
+            log("No response after (%lu).", TransmitBusyWaitMax);
+            wcl.stop();
+        }
+    }
 
     return TaskEval::idle();
 }
@@ -126,7 +137,7 @@ TaskEval TransmitFileTask::openConnection() {
             HttpResponseWriter httpWriter(wcl);
             httpWriter.writeHeaders(parsed, "application/vnd.fk.data+binary", transmitting);
 
-            log("Sending %d bytes...", transmitting);
+            log("Sending %d + %d = %d bytes...", iterator.size(), bufferSize, transmitting);
             connected = true;
             wcl.write(buffer, bufferSize);
         } else {
