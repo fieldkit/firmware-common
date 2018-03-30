@@ -48,10 +48,8 @@ public:
     uint8_t fileNumber() {
         return file;
     }
-    void open(uint8_t newFile);
     void truncateFile();
     void reopen(fkfs_iterator_token_t &token);
-    void resume(fkfs_iterator_token_t &token);
     void status();
     void beginning();
     void end();
@@ -59,6 +57,9 @@ public:
     bool isFinished() {
         return finished;
     }
+
+private:
+    void open(uint8_t newFile);
 
 };
 
