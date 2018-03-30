@@ -31,7 +31,7 @@ bool Listen::inactive() {
     if (state == ListenerState::Busy) {
         return false;
     }
-    return millis() - lastActivity > InactivityTimeout;
+    return millis() - lastActivity > WifiInactivityTimeout;
 }
 
 TaskEval Listen::task() {

@@ -27,8 +27,6 @@ constexpr uint16_t FK_CORE_PORT_UDP = 54321;
 // This is copied from WiFiSocket.cpp. I wish they were in a header.
 constexpr size_t SOCKET_BUFFER_SIZE = 1472;
 
-constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
-
 constexpr uint32_t PowerManagementInterval = 5000;
 
 constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
@@ -36,8 +34,17 @@ constexpr uint32_t GpsStatusInterval = 1 * 500;
 
 constexpr uint32_t PingInterval = 2500;
 
-constexpr uint32_t ConnectionMemory = 128;
-constexpr uint32_t InactivityTimeout = 60 * 1000 * 1;
+/**
+ *
+ */
+constexpr uint32_t WifiConnectionMemory = 128;
+
+/**
+ *
+ */
+constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
+
+constexpr uint32_t WifiInactivityTimeout = 60 * 1000 * 2;
 
 constexpr uint32_t MaximumUpload = 1024 * 1024;
 
