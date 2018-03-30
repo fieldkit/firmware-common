@@ -59,8 +59,8 @@ private:
     HttpTransmissionConfig transmissionConfig = {
         .streamUrl = API_INGESTION_STREAM,
     };
-    TransmitFileTask transmitFileTask{fileSystem, 1, state, wifi, transmissionConfig};
-    // TransmitAllFilesTask transmitAllFilesTask{supervisor, fileSystem, state, wifi, transmissionConfig};
+    // TransmitFileTask transmitFileTask{fileSystem, 1, state, wifi, transmissionConfig};
+    TransmitAllFilesTask transmitAllFilesTask{supervisor, fileSystem, state, wifi, transmissionConfig};
 
     SerialPort gpsPort{ Serial1 };
     ReadGps readGps{state, gpsPort};
@@ -72,7 +72,7 @@ private:
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
     };
     ScheduledTask scheduled[1] {
-        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitFileTask },
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllFilesTask },
     };
     Scheduler scheduler{state, clock, supervisor, scheduled, periodics};
 
