@@ -6,6 +6,10 @@ DownloadFileTask::DownloadFileTask(fkfs_t *fs, uint8_t file, fkfs_iterator_token
     Task("DownloadFile"), reply(&reply), buffer(&buffer), iterator(*fs, file, resumeToken) {
 }
 
+void DownloadFileTask::enqueued() {
+    iterator.beginning();
+}
+
 TaskEval DownloadFileTask::task() {
     auto data = iterator.move();
     if (data && data.size > 0) {

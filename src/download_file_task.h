@@ -20,6 +20,7 @@ public:
     DownloadFileTask(fkfs_t *fs, uint8_t file, fkfs_iterator_token_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer);
 
 public:
+    void enqueued() override;
     TaskEval task() override;
 
 };
