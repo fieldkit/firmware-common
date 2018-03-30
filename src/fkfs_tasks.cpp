@@ -39,22 +39,27 @@ void FkfsIterator::reopen(fkfs_iterator_token_t &position) {
     if (!fkfs_file_iterator_valid(fs, &iter)) {
         fkfs_file_iterator_create(fs, file, &iter);
         totalBytes = iter.token.size;
+
+        log("Opened %d size=(%lu->%lu = %d) (%lu, %d)->(%lu, %d)", iter.token.file,
+            position.size, iter.token.size, totalBytes,
+            iter.token.block, iter.token.offset,
+            iter.token.lastBlock, iter.token.lastOffset);
     }
     else {
         totalBytes = iter.token.size - position.size;
-    }
 
-    debugfpln("FkfsIterator", "Reopen %d / %d size=(%lu->%lu = %d) (%lu, %d)->(%lu, %d)", file, iter.token.file,
-              position.size, iter.token.size, totalBytes,
-              iter.token.block, iter.token.offset,
-              iter.token.lastBlock, iter.token.lastOffset);
+        log("Reopen %d size=(%lu->%lu = %d) (%lu, %d)->(%lu, %d)", iter.token.file,
+            position.size, iter.token.size, totalBytes,
+            iter.token.block, iter.token.offset,
+            iter.token.lastBlock, iter.token.lastOffset);
+    }
 }
 
 void FkfsIterator::status() {
     auto elapsed = millis() - startedAt;
     auto complete = ((float)iteratedBytes / totalBytes) * 100.0f;
     auto speed = iteratedBytes > 0 ? iteratedBytes / ((float)elapsed / 1000.0f) : 0.0f;
-    debugfpln("FkfsIterator", "%d/%d %lums %.2f %.2fbps", iteratedBytes, totalBytes, elapsed, complete, speed);
+    log("%d/%d %lums %.2f %.2fbps (%lu, %d)", iteratedBytes, totalBytes, elapsed, complete, speed, iter.token.block, iter.token.offset);
 }
 
 DataBlock FkfsIterator::move() {
@@ -62,7 +67,7 @@ DataBlock FkfsIterator::move() {
         if (startedAt == 0) {
             fkfs_file_info_t info = { 0 };
             if (!fkfs_get_file(fs, file, &info)) {
-                debugfpln("FkfsIterator", "Error: Unable to get file information!");
+                log("Error: Unable to get file information!");
                 return DataBlock{ nullptr, 0 };
             }
 
@@ -97,6 +102,13 @@ DataBlock FkfsIterator::move() {
 void FkfsIterator::truncateFile() {
     fkfs_file_truncate(fs, file);
     beginning();
+}
+
+void FkfsIterator::log(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln(LogLevels::INFO, "FkfsIter", f, args);
+    va_end(args);
 }
 
 }

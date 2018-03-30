@@ -60,6 +60,8 @@ public:
 
 private:
     void open(uint8_t newFile);
+    void log(const char *f, ...) const;
+
 
 };
 
