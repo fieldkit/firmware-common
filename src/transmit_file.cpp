@@ -62,6 +62,7 @@ TaskEval TransmitFileTask::task() {
 
     auto status = parser.getStatusCode();
     if (!wcl.connected() || status > 0) {
+        wcl.flush();
         wcl.stop();
         state->setBusy(false);
         wifi->setBusy(false);
@@ -81,6 +82,8 @@ TaskEval TransmitFileTask::task() {
         }
         else {
             log("Failed (status = %d)", status);
+            enqueued();
+            return TaskEval::busy();
         }
         return TaskEval::done();
     }
@@ -97,6 +100,7 @@ TaskEval TransmitFileTask::task() {
         }
         if (millis() - waitingSince > TransmitBusyWaitMax) {
             log("No response after (%lu).", TransmitBusyWaitMax);
+            wcl.flush();
             wcl.stop();
         }
     }
@@ -125,6 +129,7 @@ TaskEval TransmitFileTask::openConnection() {
             auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
             if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
                 log("Error encoding data file record (%d bytes)", sizeof(buffer));
+                wcl.flush();
                 wcl.stop();
                 state->setBusy(false);
                 wifi->setBusy(false);
