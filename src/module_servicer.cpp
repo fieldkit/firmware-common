@@ -135,6 +135,50 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
 
         break;
     }
+    case fk_module_QueryType_QUERY_DATA_APPEND: {
+        log("Data (%lu)", query.m().data.size);
+
+        ModuleReplyMessage reply(*pool);
+        reply.m().type = fk_module_ReplyType_REPLY_DATA;
+        reply.m().data.size = 0;
+
+        outgoing->write(reply);
+
+        break;
+    }
+    case fk_module_QueryType_QUERY_DATA_CLEAR: {
+        log("Data clear");
+
+        ModuleReplyMessage reply(*pool);
+        reply.m().type = fk_module_ReplyType_REPLY_DATA;
+        reply.m().data.size = 0;
+
+        outgoing->write(reply);
+
+        break;
+    }
+    case fk_module_QueryType_QUERY_BEGIN_TRANSMISSION: {
+        log("Begin transmission");
+
+        ModuleReplyMessage reply(*pool);
+        reply.m().type = fk_module_ReplyType_REPLY_TRANSMISSION_STATUS;
+        reply.m().transmissionStatus.state = fk_module_TransmissionState_TRANSMISSION_IDLE;
+
+        outgoing->write(reply);
+
+        break;
+    }
+    case fk_module_QueryType_QUERY_TRANSMISSION_STATUS: {
+        log("Transmission status");
+
+        ModuleReplyMessage reply(*pool);
+        reply.m().type = fk_module_ReplyType_REPLY_TRANSMISSION_STATUS;
+        reply.m().transmissionStatus.state = fk_module_TransmissionState_TRANSMISSION_IDLE;
+
+        outgoing->write(reply);
+
+        break;
+    }
     default: {
         log("Unknown query: %d", query.m().type);
         ModuleReplyMessage reply(*pool);
