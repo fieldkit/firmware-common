@@ -1,4 +1,4 @@
-set(SOURCE_FILES ${COMMON_SOURCE_FILES} main.cpp)
+set(SOURCE_FILES ${COMMON_SOURCE_FILES} main.cpp example_module.cpp)
 
 set(LIBRARIES
   SPI
