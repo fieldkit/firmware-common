@@ -90,7 +90,7 @@ TaskEval TransmitFileTask::task() {
 
     if (!iterator.isFinished()) {
         auto data = iterator.move();
-        if (data && data.size > 0) {
+        if (data) {
             wcl.write((uint8_t *)data.ptr, data.size);
         }
     }

@@ -62,7 +62,7 @@ void FkfsIterator::status() {
     log("%d/%d %lums %.2f %.2fbps (%lu, %d)", iteratedBytes, totalBytes, elapsed, complete, speed, iter.token.block, iter.token.offset);
 }
 
-DataBlock FkfsIterator::move() {
+DataBlock FkfsIterator::peek() {
     if (!finished) {
         if (startedAt == 0) {
             fkfs_file_info_t info = { 0 };
@@ -100,6 +100,18 @@ DataBlock FkfsIterator::move() {
         }
     }
     return DataBlock{ nullptr, 0 };
+}
+
+void FkfsIterator::moveNext() {
+    fkfs_file_iterate_move(fs, false, &iter);
+}
+
+DataBlock FkfsIterator::move() {
+    auto block = peek();
+    if (block) {
+        moveNext();
+    }
+    return block;
 }
 
 void FkfsIterator::truncateFile() {

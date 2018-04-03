@@ -10,7 +10,7 @@ struct DataBlock {
     size_t size;
 
     operator bool() const {
-        return ptr != nullptr;
+        return ptr != nullptr && size > 0;
     }
 };
 
@@ -23,7 +23,8 @@ private:
     };
     fkfs_iterator_config_t config = {
         .maxBlocks = 0,
-        .maxTime = 250
+        .maxTime = 250,
+        .manualNext = true,
     };
     bool finished{ false };
     uint32_t startedAt{ 0 };
@@ -53,6 +54,8 @@ public:
     void status();
     void beginning();
     void end();
+    DataBlock peek();
+    void moveNext();
     DataBlock move();
     bool isFinished() {
         return finished || totalBytes == iteratedBytes;
