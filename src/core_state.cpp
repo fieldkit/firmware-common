@@ -58,6 +58,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
     switch (reply.m().type) {
     case fk_module_ReplyType_REPLY_CAPABILITIES: {
         module.address = address;
+        module.type = reply.m().capabilities.type;
         module.numberOfSensors = reply.m().capabilities.numberOfSensors;
         strncpy(module.name, (const char *)reply.m().capabilities.name.arg, sizeof(module.name));
         break;
