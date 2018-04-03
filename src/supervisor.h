@@ -7,16 +7,17 @@ template<std::size_t Size>
 class Supervisor : public TaskQueue {
 private:
     size_t size{ Size };
+    bool sequential{ false };
     std::array<Task*, Size> tasks;
 
 public:
-    Supervisor() {
+    Supervisor(bool sequential = false) : TaskQueue("Supervisor"), sequential(sequential) {
         for (size_t i = 0; i < Size; ++i) {
             tasks[i] = nullptr;
         }
     }
 
-    bool tick() {
+    TaskEval task() override {
         for (size_t i = 0; i < Size; ++i) {
             if (tasks[i] != nullptr) {
                 auto status = tasks[i]->task();
@@ -40,9 +41,13 @@ public:
                     break;
                 }
                 }
+
+                if (sequential) {
+                    break;
+                }
             }
         }
-        return true;
+        return TaskEval::busy();
     }
 
     bool push(Task &task) override {

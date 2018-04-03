@@ -59,6 +59,8 @@ void CoreModule::run() {
 
     wifi.begin();
 
+    supervisor.push(ntp);
+
     auto tasks = to_parallel_task_collection(
         &status,
         &leds,
@@ -68,14 +70,12 @@ void CoreModule::run() {
         &scheduler,
         &wifi,
         &discovery,
-        &liveData
+        &liveData,
+        &supervisor
     );
 
-    supervisor.push(tasks);
-    supervisor.push(ntp);
-
     while (true) {
-        supervisor.tick();
+        tasks.task();
     }
 }
 

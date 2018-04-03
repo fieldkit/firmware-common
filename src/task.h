@@ -140,7 +140,11 @@ auto to_sequential_task_collection(T&&... tasks) -> TaskCollection<sizeof...(T)>
     return TaskCollection<sizeof...(T)>{ true, { { std::forward<T>(tasks)... } } };
 }
 
-class TaskQueue {
+class TaskQueue : public Task {
+public:
+    TaskQueue(const char *name) : Task(name) {
+    }
+
 public:
     virtual bool push(Task &task) = 0;
 };

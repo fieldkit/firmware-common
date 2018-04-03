@@ -42,7 +42,7 @@ private:
     StaticPool<384> modulesPool{"ModulesPool"};
     StaticPool<128> dataPool{"DataPool"};
 
-    Supervisor<5> supervisor;
+    Supervisor<5> supervisor{ true };
 
     Leds leds;
     Watchdog watchdog{ leds };
