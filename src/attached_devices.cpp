@@ -59,8 +59,21 @@ void AttachedDevices::done(Task &task) {
     auto address = addresses[addressIndex];
     if (areSame(task, queryCapabilities)) {
         state->merge(address, queryCapabilities.replyMessage());
-        querySensorCapabilities = QuerySensorCapabilities(*bus, *pool, address, 0);
-        push(querySensorCapabilities);
+        if (queryCapabilities.isSensor()) {
+            log("[0x%d]: Sensor module", address);
+            querySensorCapabilities = QuerySensorCapabilities(*bus, *pool, address, 0);
+            push(querySensorCapabilities);
+        }
+        if (queryCapabilities.isCommunications()) {
+            log("[0x%d]: Communications module", address);
+            addressIndex++;
+            resume();
+        }
+        else {
+            log("[0x%d]: Unknown module", address);
+            addressIndex++;
+            resume();
+        }
     } else if (areSame(task, querySensorCapabilities)) {
         state->merge(address, querySensorCapabilities.replyMessage());
         auto sensor = (size_t)(querySensorCapabilities.sensor() + 1);

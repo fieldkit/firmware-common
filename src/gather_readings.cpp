@@ -14,7 +14,7 @@ void GatherReadings::enqueued() {
         return;
     }
 
-    if (state->numberOfModules() == 0) {
+    if (state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
         log("No attached modules.");
         return;
     }

@@ -54,6 +54,7 @@ public:
 public:
     ModuleInfo* attachedModules();
     size_t numberOfModules() const;
+    size_t numberOfModules(fk_module_ModuleType type) const;
     size_t numberOfSensors() const;
     size_t numberOfReadings() const;
     bool hasModules();

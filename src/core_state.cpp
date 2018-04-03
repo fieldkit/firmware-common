@@ -133,6 +133,16 @@ size_t CoreState::numberOfModules() const {
     return MaximumNumberOfModules;
 }
 
+size_t CoreState::numberOfModules(fk_module_ModuleType type) const {
+    size_t number = 0;
+    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
+        if (modules[i].address > 0 && modules[i].type == type) {
+            number++;
+        }
+    }
+    return number;
+}
+
 size_t CoreState::numberOfSensors() const {
     size_t number = 0;
     for (size_t i = 0; i < MaximumNumberOfModules; ++i) {

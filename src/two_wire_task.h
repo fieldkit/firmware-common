@@ -50,6 +50,14 @@ public:
         query.m().queryCapabilities.callerTime = clock.getTime();
     }
 
+    bool isCommunications() {
+        return reply.m().capabilities.type == fk_module_ModuleType_COMMUNICATIONS;
+    }
+
+    bool isSensor() {
+        return reply.m().capabilities.type == fk_module_ModuleType_SENSOR;
+    }
+
     size_t numberOfSensors() {
         return reply.m().capabilities.numberOfSensors;
     }
