@@ -44,6 +44,7 @@ void CoreState::started() {
 
 void CoreState::doneScanning() {
     data->appendMetadata(*this);
+    status = CoreStatus::Ready;
 }
 
 void CoreState::scanFailure() {

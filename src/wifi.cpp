@@ -98,6 +98,9 @@ void Wifi::disable() {
 }
 
 void Wifi::idle() {
+    if (!state->isReady()) {
+        return;
+    }
     if (disabled) {
         if (!state->isBusy() && state->isReadingInProgress()) {
             if (millis() - lastActivityAt > WifiAwakenInterval) {

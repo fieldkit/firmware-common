@@ -11,6 +11,12 @@
 
 namespace fk {
 
+enum class CoreStatus {
+    Initializing,
+    Ready,
+    FatalError,
+};
+
 struct PersistedState {
     uint32_t time;
     uint32_t seed;
@@ -40,6 +46,7 @@ private:
     bool wipeAfterUpload{ true };
     FlashStorage *storage;
     FkfsData *data;
+    CoreStatus status{ CoreStatus::Initializing };
 
 public:
     CoreState(FlashStorage &storage, FkfsData &data);
@@ -58,6 +65,9 @@ public:
     NetworkSettings& getNetworkSettings();
 
 public:
+    bool isReady() {
+        return status == CoreStatus::Ready;
+    }
     void started();
 
     void takingReadings();
