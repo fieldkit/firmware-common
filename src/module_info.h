@@ -41,6 +41,7 @@ struct PendingSensorReading {
 };
 
 struct ModuleInfo {
+    uint8_t type;
     uint8_t address;
     uint8_t numberOfSensors;
     char name[MaximumModuleNameLength];

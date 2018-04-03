@@ -79,6 +79,7 @@ void setup() {
     debugfpln("Module", "Starting (%lu free)", fk_free_memory());
 
     fk::ModuleInfo info = {
+        fk_module_ModuleType_SENSOR,
         8,
         3,
         "NOAA-CTD",
