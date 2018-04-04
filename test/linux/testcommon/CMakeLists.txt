@@ -25,6 +25,7 @@ foreach(key ${LIBRARY_INFO})
     message("-- Dependency ${TARGET_NAME} ${LIB_TARGET_NAME}")
     add_dependencies(testcommon ${LIB_TARGET_NAME})
     list(APPEND LIBRARY_DEPS "${LIBRARY_OUTPUT_DIRECTORY}/lib${LIB_TARGET_NAME}.a")
+    target_link_libraries(testcommon "${LIBRARY_OUTPUT_DIRECTORY}/lib${LIB_TARGET_NAME}.a")
   endif()
 endforeach(key)
 
