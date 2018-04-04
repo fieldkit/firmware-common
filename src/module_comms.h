@@ -18,7 +18,6 @@ private:
     AlignedStorageBuffer<SERIAL_BUFFER_SIZE> buffer;
     DirectReader outgoing{ buffer.toBufferPtr() };
     DirectWriter incoming{ buffer.toBufferPtr() };
-    ModuleReplyMessage *ready{ nullptr };
 
 public:
     ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool);

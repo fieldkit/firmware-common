@@ -146,7 +146,8 @@ public:
     }
 
 public:
-    virtual bool push(Task &task) = 0;
+    virtual bool prepend(Task &task) = 0;
+    virtual bool append(Task &task) = 0;
 };
 
 }

@@ -55,7 +55,7 @@ TaskEval Listen::task() {
             pool.clear();
             state = ListenerState::Busy;
             connection->setConnection(wcl);
-            taskQueue->push(*servicer);
+            taskQueue->append(*servicer);
             return TaskEval::idle();
         }
     }

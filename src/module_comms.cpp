@@ -7,7 +7,6 @@ ModuleCommunications::ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Po
 }
 
 void ModuleCommunications::enqueue(uint8_t destination, ModuleQueryMessage &pending) {
-    // fk_assert(!hasReply);
     fk_assert(!hasQuery);
 
     address = destination;
@@ -37,7 +36,7 @@ TaskEval ModuleCommunications::task() {
 
             twoWireTask = StreamTwoWireTask{ "ModuleTwoWire", *bus, outgoing, incoming, address };
 
-            queue->push(twoWireTask);
+            queue->prepend(twoWireTask);
 
             hasQuery = false;
             hasReply = false;

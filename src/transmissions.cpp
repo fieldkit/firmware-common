@@ -43,8 +43,6 @@ TaskEval PrepareTransmissionData::task() {
         if (communications->available()) {
             auto reply = communications->dequeue();
             log("Reply: %d", reply.m().type);
-            // Send more data.
-            return TaskEval::done();
         }
     }
 

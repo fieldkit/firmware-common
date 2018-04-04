@@ -32,12 +32,14 @@ public:
                     tasks[i]->done();
                     log("Done: %s", tasks[i]->name);
                     tasks[i] = nullptr;
+                    shrink(i);
                     break;
                 }
                 case TaskEvalState::Error: {
                     tasks[i]->error();
                     log("Error: %s", tasks[i]->name);
                     tasks[i] = nullptr;
+                    shrink(i);
                     break;
                 }
                 }
@@ -50,24 +52,35 @@ public:
         return TaskEval::busy();
     }
 
-    bool push(Task &task) override {
-        shrink();
-
-        if (!contains(task)) {
-            for (size_t i = 0; i < Size; ++i) {
-                if (tasks[i] == nullptr) {
-                    log("Queuing: %s", task.name);
-                    task.enqueued();
-                    tasks[i] = &task;
-                    return true;
-                }
-            }
+    bool prepend(Task &task) override {
+        if (fullOrAlreadyHas(task)) {
+            log("Dropped: %s", task.name);
+            logQueue();
+            return false;
         }
 
-        log("Dropped: %s", task.name);
+        log("Queuing: %s", task.name);
+        for (size_t i = Size - 1; i > 0; --i) {
+            tasks[i] = tasks[i - 1];
+        }
+        task.enqueued();
+        tasks[0] = &task;
+        return true;
+    }
+
+    bool append(Task &task) override {
+        if (fullOrAlreadyHas(task)) {
+            log("Dropped: %s", task.name);
+            logQueue();
+            return false;
+        }
+
         for (size_t i = 0; i < Size; ++i) {
-            if (tasks[i] != nullptr) {
-                log("Queue[%d]: %s", i, tasks[i]->name);
+            if (tasks[i] == nullptr) {
+                log("Queuing: %s", task.name);
+                task.enqueued();
+                tasks[i] = &task;
+                return true;
             }
         }
 
@@ -75,17 +88,32 @@ public:
     }
 
 private:
-    void log(const char *f, ...) const __attribute__((format(printf, 2, 3))) {
-        va_list args;
-        va_start(args, f);
-        vdebugfpln(LogLevels::INFO, "Supervisor", f, args);
-        va_end(args);
+    void logQueue() {
+        for (size_t i = 0; i < Size; ++i) {
+            if (tasks[i] != nullptr) {
+                log("Queue[%d]: %s", i, tasks[i]->name);
+            }
+        }
     }
 
-    void shrink() {
+    bool full() {
         for (size_t i = 0; i < Size; ++i) {
-
+            if (tasks[i] == nullptr) {
+                return false;
+            }
         }
+        return true;
+    }
+
+    bool fullOrAlreadyHas(Task &task) {
+        return contains(task) || full();
+    }
+
+    void shrink(size_t index) {
+        for (size_t i = index; i < Size - 1; ++i) {
+            tasks[i] = tasks[i + 1];
+        }
+        tasks[Size - 1] = nullptr;
     }
 
     bool contains(Task &task) {
@@ -95,6 +123,13 @@ private:
             }
         }
         return false;
+    }
+
+    void log(const char *f, ...) const __attribute__((format(printf, 2, 3))) {
+        va_list args;
+        va_start(args, f);
+        vdebugfpln(LogLevels::INFO, "Supervisor", f, args);
+        va_end(args);
     }
 
 };

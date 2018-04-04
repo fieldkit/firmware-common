@@ -12,7 +12,7 @@ TransmitAllFilesTask::TransmitAllFilesTask(TaskQueue &taskQueue, FileSystem &fil
 }
 
 TaskEval TransmitAllFilesTask::task() {
-    taskQueue->push(queue);
+    taskQueue->append(queue);
     return TaskEval::done();
 }
 
