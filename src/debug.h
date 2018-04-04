@@ -32,6 +32,8 @@ void debug_add_hook(debug_hook_fn_t hook, void *arg);
 
 void debug_configure_hook(bool enabled);
 
+extern "C" void fklog(const char *f, ...);
+
 void debug_raw(const fk_log_message_t *m);
 
 void debug_log(LogLevels level, const char *prefix, const char *f, ...) __attribute__((format(printf, 3, 4)));
