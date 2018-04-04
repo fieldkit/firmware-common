@@ -16,8 +16,8 @@ $(BUILD)/Makefile: gitdeps core/config.h seed
 doc: $(BUILD)/Makefile
 	cd $(BUILD) && make doc
 
-test: all
-	cd $(BUILD) && env GTEST_COLOR=1 make test ARGS=-VV
+test: $(BUILD)/Makefile
+	cd $(BUILD) && env GTEST_COLOR=1 make testcommon test ARGS=-VV
 
 seed: GIT_HASH=$(shell git log -1 --pretty=format:"%H")
 seed:
