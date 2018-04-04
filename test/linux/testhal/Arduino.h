@@ -24,6 +24,13 @@ typedef uint8_t byte;
 #define isnan(x) std::isnan(x)
 #define isinf(x) std::isinf(x)
 
+
+#define A1             0
+#define A2             0
+#define A3             0
+#define A4             0
+#define A5             0
+
 #define DEC              10
 #define LOW             (0x0)
 #define HIGH            (0x1)
@@ -49,12 +56,16 @@ enum BitOrder {
 };
 
 class Stream {
-};
-
-class Uart {
 public:
     void print(const char *str) {
     }
+
+    void flush() {
+    }
+};
+
+class Uart : public Stream {
+public:
 };
 
 extern Uart Serial;
@@ -65,6 +76,9 @@ inline uint32_t random(uint32_t max) {
 
 inline uint32_t millis() {
     return 0;
+}
+
+inline void delay(uint32_t msecs) {
 }
 
 inline void delayMicroseconds(uint32_t usecs) {

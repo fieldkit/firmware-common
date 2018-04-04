@@ -3,6 +3,8 @@
 #include <cstring>
 #include <cstdint>
 
+#define SERIAL_BUFFER_SIZE  256
+
 class TwoWire {
 public:
     void begin() {
