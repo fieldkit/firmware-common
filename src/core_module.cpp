@@ -61,6 +61,7 @@ void CoreModule::run() {
 
     supervisor.push(ntp);
 
+    // TODO: Can this just take references?
     auto tasks = to_parallel_task_collection(
         &status,
         &leds,
@@ -71,6 +72,7 @@ void CoreModule::run() {
         &wifi,
         &discovery,
         &liveData,
+        &moduleCommunications,
         &supervisor
     );
 

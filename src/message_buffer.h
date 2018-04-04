@@ -65,6 +65,30 @@ private:
 
 };
 
+class DirectMessageBuffer : public MessageBuffer {
+protected:
+    uint8_t *buffer;
+    size_t length;
+
+public:
+    DirectMessageBuffer(uint8_t *buffer, size_t length) : buffer(buffer), length(length) {
+    }
+
+public:
+    void end() {
+        pos = length;
+    }
+
+    uint8_t *ptr() override {
+        return buffer;
+    }
+
+    size_t size() override {
+        return length;
+    }
+
+};
+
 template<size_t Size>
 class ArrayMessageBuffer : public MessageBuffer {
 protected:

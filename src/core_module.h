@@ -31,6 +31,7 @@
 #include "gps.h"
 #include "status.h"
 #include "flash_storage.h"
+#include "transmissions.h"
 
 namespace fk {
 
@@ -54,13 +55,15 @@ private:
     CoreState state{storage, fileSystem.getData()};
     Power power{ state };
 
+    ModuleCommunications moduleCommunications{ bus, supervisor, modulesPool };
+
     AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
 
     HttpTransmissionConfig transmissionConfig = {
         .streamUrl = API_INGESTION_STREAM,
     };
-    // TransmitFileTask transmitFileTask{fileSystem, 1, state, wifi, transmissionConfig};
     TransmitAllFilesTask transmitAllFilesTask{supervisor, fileSystem, state, wifi, transmissionConfig};
+    PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, 0, moduleCommunications, modulesPool};
 
     SerialPort gpsPort{ Serial1 };
     ReadGps readGps{state, gpsPort};
@@ -71,7 +74,8 @@ private:
         fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
     };
-    ScheduledTask scheduled[1] {
+    ScheduledTask scheduled[2] {
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllFilesTask },
     };
     Scheduler scheduler{state, clock, supervisor, scheduled, periodics};

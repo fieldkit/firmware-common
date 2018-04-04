@@ -6,6 +6,7 @@
 #include "message_buffer.h"
 #include "module_messages.h"
 #include "pool.h"
+#include "streams.h"
 
 namespace fk {
 
@@ -35,6 +36,49 @@ public:
     }
 
     TaskEval task() override;
+
+};
+
+class StreamTwoWireTask : public Task {
+private:
+    TwoWireBus *bus;
+    Reader *outgoing;
+    Writer *incoming;
+    uint8_t address{ 0 };
+    uint32_t dieAt{ 0 };
+    uint32_t checkAt{ 0 };
+    uint32_t doneAt{ 0 };
+    size_t bytesReceived{ 0 };
+
+public:
+    StreamTwoWireTask(const char *name, TwoWireBus &bus, Reader &outgoing, Writer &incoming, uint8_t address);
+    StreamTwoWireTask(const char *name, TwoWireBus &bus, Writer &incoming, uint8_t address);
+
+public:
+    void enqueued() override;
+
+    TaskEval task() override;
+
+    void error() override {
+        doneAt = millis();
+    }
+
+    void done() override {
+        doneAt = millis();
+    }
+
+    bool completed() {
+        return doneAt > 0;
+    }
+
+    size_t received() {
+        return bytesReceived;
+    }
+
+private:
+    bool send();
+
+    bool receive();
 
 };
 
@@ -156,5 +200,7 @@ public:
 };
 
 }
+
+#include "module_comms.h"
 
 #endif

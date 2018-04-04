@@ -49,6 +49,7 @@ bool MessageBuffer::write(const pb_field_t *fields, void *src) {
 }
 
 bool MessageBuffer::read(const pb_field_t *fields, void *src) {
+    fk_assert(pos > 0);
     auto stream = pb_istream_from_buffer(ptr(), pos);
     if (!pb_decode_delimited(&stream, fields, src)) {
         return false;

@@ -3,6 +3,82 @@
 
 namespace fk {
 
+StreamTwoWireTask::StreamTwoWireTask(const char *name, TwoWireBus &bus, Reader &outgoing, Writer &incoming, uint8_t address) :
+    Task(name), bus(&bus), outgoing(&outgoing), incoming(&incoming), address(address) {
+}
+
+StreamTwoWireTask::StreamTwoWireTask(const char *name, TwoWireBus &bus, Writer &incoming, uint8_t address) :
+    Task(name), bus(&bus), outgoing(nullptr), incoming(&incoming), address(address) {
+}
+
+void StreamTwoWireTask::enqueued() {
+    dieAt = 0;
+    checkAt = 0;
+    bytesReceived = 0;
+    doneAt = 0;
+    if (outgoing == nullptr) {
+        checkAt = millis() + 200;
+    }
+}
+
+TaskEval StreamTwoWireTask::task() {
+    if (checkAt > 0 && millis() < checkAt) {
+        return TaskEval::idle();
+    }
+
+    if (dieAt == 0 && outgoing != nullptr) {
+        if (!send()) {
+            log("Error: Unable to send.");
+            return TaskEval::error();
+        }
+
+        dieAt = millis() + MaximumTwoWireReply;
+        // They won't be ready yet, check back soon, though.
+        checkAt = millis() + 100;
+        return TaskEval::idle();
+    }
+    else if (millis() > dieAt) {
+        log("Error: No reply in time.");
+        return TaskEval::error();
+    }
+
+    if (!receive()) {
+        log("Error: Unable to receive.");
+        return TaskEval::error();
+    }
+
+    return TaskEval::done();
+}
+
+bool StreamTwoWireTask::send() {
+    uint8_t buffer[SERIAL_BUFFER_SIZE];
+    outgoing->beginning();
+    auto bytes = outgoing->read(buffer, sizeof(buffer));
+
+    if (!bus->send(address, buffer, bytes)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool StreamTwoWireTask::receive() {
+    uint8_t buffer[SERIAL_BUFFER_SIZE];
+    bytesReceived = bus->receive(address, buffer, sizeof(buffer));
+    if (bytesReceived == 0) {
+        log("Error: Empty reply.");
+        return false;
+    }
+
+    auto wrote = incoming->write(buffer, bytesReceived);
+    if (wrote != (int32_t)bytesReceived) {
+        log("Error: Out of buffer space (%lu != %d)", wrote, bytesReceived);
+        return false;
+    }
+
+    return true;
+}
+
 TaskEval TwoWireTask::task() {
     if (checkAt > 0 && millis() < checkAt) {
         return TaskEval::idle();
