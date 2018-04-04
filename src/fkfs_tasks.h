@@ -68,6 +68,31 @@ private:
 
 };
 
+class FkfsStreamingIterator {
+private:
+    FkfsIterator iterator;
+    DataBlock block;
+    size_t position;
+
+public:
+    FkfsStreamingIterator(fkfs_t &fs, uint8_t file) : iterator(fs, file), block{ nullptr, 0 }, position(0) {
+    }
+
+public:
+    void beginning() {
+        iterator.beginning();
+        block = DataBlock{};
+        position = 0;
+    }
+
+    bool isFinished() {
+        return iterator.isFinished();
+    }
+
+    DataBlock read(size_t bytes);
+
+};
+
 }
 
 #endif
