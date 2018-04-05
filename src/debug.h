@@ -50,7 +50,7 @@ uint32_t fk_free_memory();
 
 #define fk_assert(EX) (void)((EX) || (__fk_assert(#EX, __FILE__, __LINE__), 0))
 
-void __fk_assert(const char *msg, const char *file, int lineno);
+void __fk_assert(const char *msg, const char *file, int lineno) __attribute__ ((weak));
 
 #define fk_memzero(ptr, size) memset(ptr, 0, size)
 
