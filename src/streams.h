@@ -7,12 +7,17 @@ namespace fk {
 
 class BufferPtr {
 public:
-    uint8_t *ptr;
-    size_t size;
+    uint8_t *ptr{ nullptr };
+    size_t size{ 0 };
 
 public:
     BufferPtr(uint8_t *ptr, size_t size) : ptr(ptr), size(size) { }
 
+public:
+    uint8_t &operator[](int32_t index) {
+        fk_assert(index >= 0 && index < (int32_t)size);
+        return ptr[index];
+    }
 };
 
 template<size_t Size>
@@ -21,10 +26,18 @@ private:
     typename std::aligned_storage<sizeof(uint8_t), alignof(uint8_t)>::type buffer[Size];
 
 public:
+    const size_t size{ Size };
+
+public:
     BufferPtr toBufferPtr() {
         return BufferPtr{ (uint8_t *)buffer, Size };
     }
 
+public:
+    uint8_t &operator[](int32_t index) {
+        fk_assert(index >= 0 && index < (int32_t)Size);
+        return ((uint8_t *)buffer)[index];
+    }
 };
 
 class Stream {
@@ -202,16 +215,22 @@ constexpr bool is_power_of_2(int32_t v) {
     return v && ((v & (v - 1)) == 0);
 }
 
-class RingBufferPtr {
+template<typename T>
+class RingBufferG {
 private:
-    BufferPtr bp;
+    T bp;
     volatile uint32_t read{ 0 };
     volatile uint32_t write{ 0 };
 
 public:
-    RingBufferPtr() = delete;
+    RingBufferG() {
+    }
 
-    RingBufferPtr(BufferPtr bp) : bp(bp) {
+    RingBufferG(T bp) : bp(bp) {
+        fk_assert(is_power_of_2(bp.size));
+    }
+
+    RingBufferG(T &&bp) : bp(std::forward<T>(bp)) {
         fk_assert(is_power_of_2(bp.size));
     }
 
@@ -221,12 +240,12 @@ public:
 
     void push(uint8_t c) {
         fk_assert(!full());
-        ((uint8_t *)bp.ptr)[mask(write++)] = c;
+        bp[mask(write++)] = c;
     }
 
     uint8_t shift() {
         fk_assert(!empty());
-        return ((uint8_t *)bp.ptr)[mask(read++)];
+        return bp[mask(read++)];
     }
 
     uint32_t available() {
@@ -252,61 +271,18 @@ private:
 
 };
 
-/**
- * Size MUST be a power of 2. Can change how the mask is done to relax this restriction.
- */
-template<size_t Size>
-class RingBufferN {
-private:
-    typename std::aligned_storage<sizeof(uint8_t), alignof(uint8_t)>::type buffer[Size];
-    volatile uint32_t read{ 0 };
-    volatile uint32_t write{ 0 };
+typedef RingBufferG<BufferPtr> RingBufferPtr;
 
+template<size_t Size>
+class RingBufferN : public RingBufferG<AlignedStorageBuffer<Size>> {
 public:
     RingBufferN() {
-        static_assert(is_power_of_2(Size), "Size should be a power of 2.");
     }
-
-    void clear() {
-        read = write = 0;
-    }
-
-    void push(uint8_t c) {
-        fk_assert(!full());
-        ((uint8_t *)buffer)[mask(write++)] = c;
-    }
-
-    uint8_t shift() {
-        fk_assert(!empty());
-        return ((uint8_t *)buffer)[mask(read++)];
-    }
-
-    uint32_t available() {
-        return Size - size();
-    }
-
-    uint32_t size() {
-        return write - read;
-    }
-
-    bool empty() {
-        return read == write;
-    }
-
-    bool full() {
-        return size() == Size;
-    }
-
-private:
-    uint32_t mask(uint32_t i) {
-        return i & (Size - 1);
-    }
-
 };
 
-template<typename RBT>
+template<typename RingBufferType>
 class CircularStreams {
-    using OuterType = CircularStreams<RBT>;
+    using OuterType = CircularStreams<RingBufferType>;
 
     class RingReader : public Reader {
     private:
@@ -376,7 +352,7 @@ class CircularStreams {
         }
     };
 
-    RBT buffer;
+    RingBufferType buffer;
     RingReader reader{ this };
     RingWriter writer{ this };
     bool closed{ false };
@@ -385,7 +361,7 @@ public:
     CircularStreams() {
     }
 
-    CircularStreams(RBT &&buffer) : buffer(std::forward<RBT>(buffer)) {
+    CircularStreams(RingBufferType &&buffer) : buffer(std::forward<RingBufferType>(buffer)) {
     }
 
 public:
