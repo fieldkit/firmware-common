@@ -3,10 +3,11 @@
 namespace fk {
 
 PrepareTransmissionData::PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, uint8_t file, ModuleCommunications &communications, Pool &pool) :
-    Task("PrepareTransmissionData"), state(&state), fileSystem(&fileSystem), iterator(fileSystem.fkfs(), file), communications(&communications), pool(&pool) {
+    Task("PrepareTransmissionData"), state(&state), fileSystem(&fileSystem), iterator(fileSystem.fkfs(), file), protocol(communications, pool), pool(&pool) {
 }
 
 void PrepareTransmissionData::enqueued() {
+    protocol.push(queryCaps);
     iterator.beginning();
 }
 
@@ -27,22 +28,32 @@ TaskEval PrepareTransmissionData::task() {
     }
     */
 
-    if (!communications->busy()) {
-        if (counter == 0) {
-            counter = 3;
-            return TaskEval::done();
+    auto step = protocol.handle();
+    if (step) {
+        if (step.is(queryCaps)) {
+            if (step.error()) {
+            }
+
+            log("Number: %d", queryCaps.getNumberOfSensors());
+            if (queryCaps.getNumberOfSensors() > 0) {
+                querySensorCaps = QuerySensorCaps{};
+                protocol.push(querySensorCaps);
+            }
+            else {
+                return TaskEval::done();
+            }
         }
-
-        ModuleQueryMessage query{ *pool };
-        query.m().type = fk_module_QueryType_QUERY_DATA_CLEAR;
-        communications->enqueue(9, query);
-
-        counter--;
-    }
-    else {
-        if (communications->available()) {
-            auto reply = communications->dequeue();
-            log("Reply: %d", reply.m().type);
+        else if (step.is(querySensorCaps)) {
+            log("Querying sensor caps: %d", querySensorCaps.getSensor());
+            if (querySensorCaps.getSensor() < queryCaps.getNumberOfSensors()) {
+                protocol.push(querySensorCaps);
+            }
+            else {
+                return TaskEval::done();
+            }
+        }
+        else {
+            return TaskEval::error();
         }
     }
 
