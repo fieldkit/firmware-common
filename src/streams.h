@@ -379,43 +379,12 @@ public:
 
 };
 
-class ProtoBufMessageReader : public BufferedReader {
+class ProtoBufMessageWriter {
 private:
-    const pb_field_t *fields;
-    void *message;
-    bool filled{ false };
+    Writer *target;
 
 public:
-    ProtoBufMessageReader(BufferPtr buffer, const pb_field_t *fields, void *message) : BufferedReader(buffer), fields(fields), message(message) {
-    }
-
-protected:
-    int32_t fill(BufferPtr &bp) {
-        if (filled) {
-            return EOS;
-        }
-
-        filled = true;
-
-        size_t required = 0;
-
-        if (!pb_get_encoded_size(&required, fields, message)) {
-            return EOS;
-        }
-
-        auto stream = pb_ostream_from_buffer((uint8_t *)bp.ptr, bp.size);
-        if (!pb_encode_delimited(&stream, fields, message)) {
-            return EOS;
-        }
-
-        return stream.bytes_written;
-    }
-
-};
-
-class ProtoBufMessageWriter : public DirectWriter {
-public:
-    ProtoBufMessageWriter(BufferPtr buffer) : DirectWriter(buffer) {
+    ProtoBufMessageWriter(Writer &target) : target(&target) {
     }
 
     int32_t write(const pb_field_t *fields, void *message) {
@@ -425,14 +394,38 @@ public:
             return 0;
         }
 
-        auto stream = pb_ostream_from_buffer(ptr(), available());
+        uint8_t buffer[required + ProtoBufEncodeOverhead];
+        auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
         if (!pb_encode_delimited(&stream, fields, message)) {
             return 0;
         }
 
-        seek(stream.bytes_written);
+        target->write(buffer, stream.bytes_written);
 
         return stream.bytes_written;
+    }
+
+};
+
+class ProtoBufMessageReader {
+private:
+    Reader *target;
+
+public:
+    ProtoBufMessageReader(Reader &target) : target(&target) {
+    }
+
+    template<size_t Size>
+    int32_t read(const pb_field_t *fields, void *message) {
+        uint8_t buffer[Size];
+        auto bytes = target->read(buffer, sizeof(buffer));
+
+        auto stream = pb_istream_from_buffer(buffer, bytes);
+        if (!pb_decode_delimited(&stream, fields, message)) {
+            return Stream::EOS;
+        }
+
+        return bytes;
     }
 
 };

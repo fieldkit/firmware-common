@@ -1,4 +1,5 @@
 #include "test_streams.h"
+#include "pool.h"
 
 #include <fk-data-protocol.h>
 #include <fk-module-protocol.h>
@@ -47,39 +48,6 @@ TEST_F(StreamsSuite, BufferedReader) {
     }
 }
 
-TEST_F(StreamsSuite, ProtoBufMessageReader) {
-    fk_data_DataRecord record = fk_data_DataRecord_init_default;
-    record.log.uptime = millis();
-    record.log.time = millis();
-    record.log.level = (uint32_t)LogLevels::INFO;
-    record.log.facility.arg = (void *)"Facility";
-    record.log.facility.funcs.encode = fk::pb_encode_string;
-    record.log.message.arg = (void *)"Message";
-    record.log.message.funcs.encode = fk::pb_encode_string;
-
-    auto buffer = fk::AlignedStorageBuffer<256>{};
-    auto bp = buffer.toBufferPtr();
-
-    uint8_t scratch[128];
-    {
-        auto reader = fk::ProtoBufMessageReader{ bp, fk_data_DataRecord_fields, &record };
-        auto bytesRead = reader.read(scratch, sizeof(scratch));
-        ASSERT_EQ(bytesRead, 24);
-        bytesRead = reader.read(scratch, sizeof(scratch));
-        ASSERT_EQ(bytesRead, -1);
-    }
-
-    {
-        auto reader = fk::ProtoBufMessageReader{ bp, fk_data_DataRecord_fields, &record };
-        auto bytesRead = reader.read(scratch, 12);
-        ASSERT_EQ(bytesRead, 12);
-        bytesRead = reader.read(scratch, 12);
-        ASSERT_EQ(bytesRead, 12);
-        bytesRead = reader.read(scratch, 12);
-        ASSERT_EQ(bytesRead, -1);
-    }
-}
-
 TEST_F(StreamsSuite, Nothing) {
     auto buffer = fk::AlignedStorageBuffer<256>{};
     auto ptr = buffer.toBufferPtr();
@@ -88,10 +56,9 @@ TEST_F(StreamsSuite, Nothing) {
     message.type = fk_module_QueryType_QUERY_CAPABILITIES;
     message.queryCapabilities.version = FK_MODULE_PROTOCOL_VERSION;
 
-    auto queryWriter = fk::ProtoBufMessageWriter{ ptr };
+    auto writer = fk::DirectWriter{ ptr };
+    auto queryWriter = fk::ProtoBufMessageWriter{ writer };
     queryWriter.write(fk_module_WireMessageQuery_fields, &message);
-
-    auto outgoing = queryWriter.toBufferPtr();
 
     auto buffer1 = fk::AlignedStorageBuffer<256>{};
     auto buffer2 = fk::AlignedStorageBuffer<256>{};
@@ -241,4 +208,62 @@ TEST_F(StreamsSuite, CircularStreamsFull) {
 
         ASSERT_EQ(0, reader.read((uint8_t *)scratch, sizeof(scratch)));
     }
+}
+
+TEST_F(StreamsSuite, CircularStreamsProtoRoundTrip) {
+    fk::StaticPool<64> pool("Pool");
+
+    fk_data_DataRecord incoming = fk_data_DataRecord_init_default;
+    incoming.log.facility.arg = (void *)&pool;
+    incoming.log.facility.funcs.decode = fk::pb_decode_string;
+    incoming.log.message.arg = (void *)&pool;
+    incoming.log.message.funcs.decode = fk::pb_decode_string;
+
+    fk_data_DataRecord outgoing = fk_data_DataRecord_init_default;
+    outgoing.log.uptime = millis();
+    outgoing.log.time = millis();
+    outgoing.log.level = (uint32_t)LogLevels::INFO;
+    outgoing.log.facility.arg = (void *)"Facility";
+    outgoing.log.facility.funcs.encode = fk::pb_encode_string;
+    outgoing.log.message.arg = (void *)"Message";
+    outgoing.log.message.funcs.encode = fk::pb_encode_string;
+
+    auto buffer = fk::AlignedStorageBuffer<64>{};
+    auto ptr = buffer.toBufferPtr();
+    auto cs = fk::CircularStreams<fk::RingBufferPtr>{ ptr };
+
+    auto& reader = cs.getReader();
+    auto& writer = cs.getWriter();
+
+    auto protoWriter = fk::ProtoBufMessageWriter{ writer };
+    EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
+
+    writer.close();
+
+    auto protoReader = fk::ProtoBufMessageReader{ reader };
+    EXPECT_EQ(protoReader.read<64>(fk_data_DataRecord_fields, &incoming), 24);
+
+    ASSERT_EQ(outgoing.log.uptime, incoming.log.uptime);
+    ASSERT_STREQ((const char *)outgoing.log.facility.arg, (const char *)incoming.log.facility.arg);
+
+    EXPECT_EQ(protoReader.read<64>(fk_data_DataRecord_fields, &incoming), -1);
+
+    // Notice that we're writing to the writer that we closed earlier. I think
+    // that eventually this makes more sense if we throw here. Then we can
+    // require the pairs of readers/writers to be opened together to allow for
+    // this scenario. The problem then because that we need to have "room" for
+    // more than one reader/writer. I'm thinking that we can tell the
+    // CircularStreams class how many readers/writers to allow, and free them
+    // when both ends are closed.
+
+    EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
+
+    incoming.log.facility.arg = (void *)&pool;
+    incoming.log.facility.funcs.decode = fk::pb_decode_string;
+    incoming.log.message.arg = (void *)&pool;
+    incoming.log.message.funcs.decode = fk::pb_decode_string;
+
+    EXPECT_EQ(protoReader.read<64>(fk_data_DataRecord_fields, &incoming), 24);
+
+    EXPECT_EQ(protoReader.read<64>(fk_data_DataRecord_fields, &incoming), -1);
 }

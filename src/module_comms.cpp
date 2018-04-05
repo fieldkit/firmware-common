@@ -3,7 +3,7 @@
 namespace fk {
 
 ModuleCommunications::ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool) :
-    Task("ModuleCommunications"), queue(&queue), bus(&bus), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, outgoing, incoming, 0) {
+    Task("ModuleCommunications"), queue(&queue), bus(&bus), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, streams.getReader(), streams.getWriter(), 0) {
 }
 
 void ModuleCommunications::enqueue(uint8_t destination, ModuleQueryMessage &pending) {
@@ -27,14 +27,12 @@ ModuleReplyMessage &ModuleCommunications::dequeue() {
 TaskEval ModuleCommunications::task() {
     if (address > 0) {
         if (hasQuery) {
-            auto pbWriter = ProtoBufMessageWriter{ buffer.toBufferPtr() };
-            pbWriter.write(fk_module_WireMessageQuery_fields, &query.m());
+            auto &reader = streams.getReader();
+            auto &writer = streams.getWriter();
+            auto protoWriter = ProtoBufMessageWriter{ writer };
+            protoWriter.write(fk_module_WireMessageQuery_fields, &query.m());
 
-            auto bufferPtr = pbWriter.toBufferPtr();
-            outgoing = DirectReader { bufferPtr };
-            incoming = DirectWriter { buffer.toBufferPtr() };
-
-            twoWireTask = StreamTwoWireTask{ "ModuleTwoWire", *bus, outgoing, incoming, address };
+            twoWireTask = StreamTwoWireTask{ "ModuleTwoWire", *bus, reader, writer, address };
 
             queue->prepend(twoWireTask);
 
@@ -44,19 +42,17 @@ TaskEval ModuleCommunications::task() {
 
         if (twoWireTask.completed()) {
             if (twoWireTask.received() > 0) {
-                auto received = twoWireTask.received();
-                auto bufferPtr = incoming.toBufferPtr();
-                auto messageBuffer = DirectMessageBuffer{ bufferPtr.ptr, received };
+                auto &writer = streams.getWriter();
+                auto &reader = streams.getReader();
+                auto protoReader = ProtoBufMessageReader{ reader };
 
-                messageBuffer.end();
-
-                if (!messageBuffer.read(reply)) {
+                if (!protoReader.read<SERIAL_BUFFER_SIZE>(fk_module_WireMessageReply_fields, reply.forDecode())) {
                     log("Error: Unable to read reply.");
                 }
                 else {
                     if (reply.m().type == fk_module_ReplyType_REPLY_RETRY) {
                         log("Retry!");
-                        twoWireTask = StreamTwoWireTask{ "ModuleTwoWire", *bus, outgoing, incoming, address };
+                        twoWireTask = StreamTwoWireTask{ "ModuleTwoWire", *bus, writer, address };
                     }
                     else {
                         log("Reply!");

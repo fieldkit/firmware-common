@@ -51,7 +51,14 @@ private:
     size_t bytesReceived{ 0 };
 
 public:
+    /**
+     *
+     */
     StreamTwoWireTask(const char *name, TwoWireBus &bus, Reader &outgoing, Writer &incoming, uint8_t address);
+
+    /**
+     *
+     */
     StreamTwoWireTask(const char *name, TwoWireBus &bus, Writer &incoming, uint8_t address);
 
 public:

@@ -15,9 +15,7 @@ private:
     bool hasQuery{ false };
     bool hasReply{ false };
     StreamTwoWireTask twoWireTask;
-    AlignedStorageBuffer<SERIAL_BUFFER_SIZE> buffer;
-    DirectReader outgoing{ buffer.toBufferPtr() };
-    DirectWriter incoming{ buffer.toBufferPtr() };
+    CircularStreams<fk::RingBufferN<256>> streams;
 
 public:
     ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool);
