@@ -64,7 +64,7 @@ void AttachedDevices::done(Task &task) {
             querySensorCapabilities = QuerySensorCapabilities(*bus, *pool, address, 0);
             push(querySensorCapabilities);
         }
-        if (queryCapabilities.isCommunications()) {
+        else if (queryCapabilities.isCommunications()) {
             log("[0x%d]: Communications module", address);
             addressIndex++;
             resume();
