@@ -85,7 +85,7 @@ public:
 private:
     TaskEval send();
 
-    bool receive();
+    TaskEval receive();
 
 };
 

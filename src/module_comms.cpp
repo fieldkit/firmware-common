@@ -27,10 +27,14 @@ ModuleReplyMessage &ModuleCommunications::dequeue() {
 TaskEval ModuleCommunications::task() {
     if (address > 0) {
         if (hasQuery) {
+            streams.clear();
+
             auto &reader = streams.getReader();
             auto &writer = streams.getWriter();
             auto protoWriter = ProtoBufMessageWriter{ writer };
             protoWriter.write(fk_module_WireMessageQuery_fields, &query.m());
+
+            writer.close();
 
             twoWireTask = StreamTwoWireTask{ "ModuleTwoWire", *bus, reader, writer, address };
 
@@ -55,7 +59,6 @@ TaskEval ModuleCommunications::task() {
                         twoWireTask = StreamTwoWireTask{ "ModuleTwoWire", *bus, writer, address };
                     }
                     else {
-                        log("Reply!");
                         hasReply = true;
                     }
                 }

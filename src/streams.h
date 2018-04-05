@@ -34,6 +34,12 @@ public:
     }
 
 public:
+    void clear() {
+        for (size_t i = 0; i < Size; ++i) {
+            ((uint8_t *)buffer)[i] = 0;
+        }
+    }
+
     uint8_t &operator[](int32_t index) {
         fk_assert(index >= 0 && index < (int32_t)Size);
         return ((uint8_t *)buffer)[index];
@@ -120,6 +126,10 @@ public:
     }
 
 public:
+    int32_t size() {
+        return position;
+    }
+
     int32_t available() {
         return buffer.size - position;
     }
@@ -165,6 +175,11 @@ public:
 
     void close() override {
         position = EOS;
+    }
+
+public:
+    int32_t available() {
+        return buffer.size - position;
     }
 
 };

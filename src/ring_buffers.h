@@ -32,6 +32,7 @@ public:
 
     void clear() {
         read = write = 0;
+        bp.clear();
     }
 
     void push(uint8_t c) {
@@ -145,6 +146,10 @@ public:
 
     Reader &getReader() {
         return reader;
+    }
+
+    void clear() {
+        buffer.clear();
     }
 
 };

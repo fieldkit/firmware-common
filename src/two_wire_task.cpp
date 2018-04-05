@@ -26,20 +26,21 @@ TaskEval StreamTwoWireTask::task() {
         return TaskEval::idle();
     }
 
-    if (dieAt == 0 && outgoing != nullptr) {
-        return send();
+    if (outgoing != nullptr) {
+        if (dieAt == 0) {
+            return send();
+        }
     }
-    else if (millis() > dieAt) {
+    else {
+        dieAt = millis() + MaximumTwoWireReply;
+    }
+
+    if (millis() > dieAt) {
         log("Error: No reply in time.");
         return TaskEval::error();
     }
 
-    if (!receive()) {
-        log("Error: Unable to receive.");
-        return TaskEval::error();
-    }
-
-    return TaskEval::done();
+    return receive();
 }
 
 TaskEval StreamTwoWireTask::send() {
@@ -64,21 +65,23 @@ TaskEval StreamTwoWireTask::send() {
     return TaskEval::idle();
 }
 
-bool StreamTwoWireTask::receive() {
+TaskEval StreamTwoWireTask::receive() {
     uint8_t buffer[SERIAL_BUFFER_SIZE];
     bytesReceived = bus->receive(address, buffer, sizeof(buffer));
     if (bytesReceived == 0) {
         log("Error: Empty reply.");
-        return false;
+        return TaskEval::error();
     }
 
     auto wrote = incoming->write(buffer, bytesReceived);
     if (wrote != (int32_t)bytesReceived) {
         log("Error: Out of buffer space (%lu != %d)", wrote, bytesReceived);
-        return false;
+        return TaskEval::error();
     }
 
-    return true;
+    // dieAt = 0;
+
+    return TaskEval::done();
 }
 
 TaskEval TwoWireTask::task() {

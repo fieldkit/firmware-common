@@ -258,6 +258,9 @@ TEST_F(StreamsSuite, CircularStreamsProtoRoundTrip) {
     // more than one reader/writer. I'm thinking that we can tell the
     // CircularStreams class how many readers/writers to allow, and free them
     // when both ends are closed.
+    // To elaborate more... we don't allow multiple readers, so other reads are
+    // expected to be closed. The idea is to prevent the re-using of readers
+    // across a single operation from confusing things.
 
     EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
 
