@@ -48,7 +48,8 @@ TEST_F(StreamsSuite, BufferedReader) {
     }
 }
 
-TEST_F(StreamsSuite, Nothing) {
+/*
+TEST_F(StreamsSuite, ConcatenatedReader) {
     auto buffer = fk::AlignedStorageBuffer<256>{};
     auto ptr = buffer.toBufferPtr();
 
@@ -76,6 +77,7 @@ TEST_F(StreamsSuite, Nothing) {
         }
     }
 }
+*/
 
 TEST_F(StreamsSuite, CircularStreamsCloseMidRead) {
     auto circularStreams = fk::CircularStreams<fk::RingBufferN<256>>{ };
@@ -241,6 +243,7 @@ TEST_F(StreamsSuite, CircularStreamsProtoRoundTrip) {
     writer.close();
 
     auto protoReader = fk::ProtoBufMessageReader{ reader };
+
     EXPECT_EQ(protoReader.read<64>(fk_data_DataRecord_fields, &incoming), 24);
 
     ASSERT_EQ(outgoing.log.uptime, incoming.log.uptime);
@@ -258,12 +261,19 @@ TEST_F(StreamsSuite, CircularStreamsProtoRoundTrip) {
 
     EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
 
+    incoming = fk_data_DataRecord_init_default;
     incoming.log.facility.arg = (void *)&pool;
     incoming.log.facility.funcs.decode = fk::pb_decode_string;
     incoming.log.message.arg = (void *)&pool;
     incoming.log.message.funcs.decode = fk::pb_decode_string;
 
     EXPECT_EQ(protoReader.read<64>(fk_data_DataRecord_fields, &incoming), 24);
+
+    incoming = fk_data_DataRecord_init_default;
+    incoming.log.facility.arg = (void *)&pool;
+    incoming.log.facility.funcs.decode = fk::pb_decode_string;
+    incoming.log.message.arg = (void *)&pool;
+    incoming.log.message.funcs.decode = fk::pb_decode_string;
 
     EXPECT_EQ(protoReader.read<64>(fk_data_DataRecord_fields, &incoming), -1);
 }

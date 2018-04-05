@@ -169,6 +169,60 @@ public:
 
 };
 
+class ProtoBufMessageWriter {
+private:
+    Writer *target;
+
+public:
+    ProtoBufMessageWriter(Writer &target) : target(&target) {
+    }
+
+    int32_t write(const pb_field_t *fields, void *message) {
+        size_t required = 0;
+
+        if (!pb_get_encoded_size(&required, fields, message)) {
+            return 0;
+        }
+
+        uint8_t buffer[required + ProtoBufEncodeOverhead];
+        auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        if (!pb_encode_delimited(&stream, fields, message)) {
+            return 0;
+        }
+
+        target->write(buffer, stream.bytes_written);
+
+        return stream.bytes_written;
+    }
+
+};
+
+class ProtoBufMessageReader {
+private:
+    Reader *target;
+
+public:
+    ProtoBufMessageReader(Reader &target) : target(&target) {
+    }
+
+    template<size_t Size>
+    int32_t read(const pb_field_t *fields, void *message) {
+        uint8_t buffer[Size];
+        auto bytes = target->read(buffer, sizeof(buffer));
+        if (bytes < 0) {
+            return bytes;
+        }
+
+        auto stream = pb_istream_from_buffer(buffer, bytes);
+        if (!pb_decode_delimited(&stream, fields, message)) {
+            return Stream::EOS;
+        }
+
+        return bytes;
+    }
+
+};
+
 class BufferedReader : public Reader {
 private:
     BufferPtr buffer;
@@ -211,255 +265,6 @@ protected:
 
 };
 
-constexpr bool is_power_of_2(int32_t v) {
-    return v && ((v & (v - 1)) == 0);
 }
 
-template<typename T>
-class RingBufferG {
-private:
-    T bp;
-    volatile uint32_t read{ 0 };
-    volatile uint32_t write{ 0 };
-
-public:
-    RingBufferG() {
-    }
-
-    RingBufferG(T bp) : bp(bp) {
-        fk_assert(is_power_of_2(bp.size));
-    }
-
-    RingBufferG(T &&bp) : bp(std::forward<T>(bp)) {
-        fk_assert(is_power_of_2(bp.size));
-    }
-
-    void clear() {
-        read = write = 0;
-    }
-
-    void push(uint8_t c) {
-        fk_assert(!full());
-        bp[mask(write++)] = c;
-    }
-
-    uint8_t shift() {
-        fk_assert(!empty());
-        return bp[mask(read++)];
-    }
-
-    uint32_t available() {
-        return bp.size - size();
-    }
-
-    uint32_t size() {
-        return write - read;
-    }
-
-    bool empty() {
-        return read == write;
-    }
-
-    bool full() {
-        return size() == bp.size;
-    }
-
-private:
-    uint32_t mask(uint32_t i) {
-        return i & (bp.size - 1);
-    }
-
-};
-
-typedef RingBufferG<BufferPtr> RingBufferPtr;
-
-template<size_t Size>
-class RingBufferN : public RingBufferG<AlignedStorageBuffer<Size>> {
-public:
-    RingBufferN() {
-    }
-};
-
-template<typename RingBufferType>
-class CircularStreams {
-    using OuterType = CircularStreams<RingBufferType>;
-
-    class RingReader : public Reader {
-    private:
-        OuterType *cs;
-
-    public:
-        RingReader(OuterType *cs) : cs(cs) {
-        }
-
-    public:
-        int32_t read(uint8_t *ptr, size_t size) override {
-            if (cs->buffer.empty()) {
-                if (cs->closed) {
-                    return EOS;
-                }
-                return 0;
-            }
-
-            return Reader::read(ptr, size);
-        }
-
-        int32_t read() override {
-            // Not totally happy with this. Don't have any way of
-            // differentiating between empty and EoS though.
-            if (cs->buffer.empty()) {
-                return EOS;
-            }
-            return cs->buffer.shift();
-        }
-
-        void close() override {
-            cs->closeAll();
-        }
-    };
-
-    class RingWriter : public Writer {
-    private:
-        OuterType *cs;
-
-    public:
-        RingWriter(OuterType *cs) : cs(cs) {
-        }
-
-    public:
-        using Writer::write;
-
-        int32_t write(uint8_t *ptr, size_t size) override {
-            for (size_t i = 0; i < size; ++i) {
-                if (cs->buffer.full()) {
-                    return i;
-                }
-                cs->buffer.push(ptr[i]);
-            }
-            return size;
-        }
-
-        int32_t write(uint8_t byte) override {
-            if (cs->buffer.full()) {
-                return EOS;
-            }
-            cs->buffer.push(byte);
-            return 1;
-        }
-
-        void close() override {
-            cs->closeAll();
-        }
-    };
-
-    RingBufferType buffer;
-    RingReader reader{ this };
-    RingWriter writer{ this };
-    bool closed{ false };
-
-public:
-    CircularStreams() {
-    }
-
-    CircularStreams(RingBufferType &&buffer) : buffer(std::forward<RingBufferType>(buffer)) {
-    }
-
-public:
-    void closeAll() {
-        closed = true;
-    }
-
-    Writer &getWriter() {
-        return writer;
-    }
-
-    Reader &getReader() {
-        return reader;
-    }
-
-};
-
-class ProtoBufMessageWriter {
-private:
-    Writer *target;
-
-public:
-    ProtoBufMessageWriter(Writer &target) : target(&target) {
-    }
-
-    int32_t write(const pb_field_t *fields, void *message) {
-        size_t required = 0;
-
-        if (!pb_get_encoded_size(&required, fields, message)) {
-            return 0;
-        }
-
-        uint8_t buffer[required + ProtoBufEncodeOverhead];
-        auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-        if (!pb_encode_delimited(&stream, fields, message)) {
-            return 0;
-        }
-
-        target->write(buffer, stream.bytes_written);
-
-        return stream.bytes_written;
-    }
-
-};
-
-class ProtoBufMessageReader {
-private:
-    Reader *target;
-
-public:
-    ProtoBufMessageReader(Reader &target) : target(&target) {
-    }
-
-    template<size_t Size>
-    int32_t read(const pb_field_t *fields, void *message) {
-        uint8_t buffer[Size];
-        auto bytes = target->read(buffer, sizeof(buffer));
-
-        auto stream = pb_istream_from_buffer(buffer, bytes);
-        if (!pb_decode_delimited(&stream, fields, message)) {
-            return Stream::EOS;
-        }
-
-        return bytes;
-    }
-
-};
-
-class ConcatenatedReader : public Reader {
-private:
-    Reader *readers[2];
-
-public:
-    ConcatenatedReader(Reader *reader1, Reader *reader2) : readers{ reader1, reader2 } {
-    }
-
-    ConcatenatedReader(Reader *readers[2]) : readers{ readers[0], readers[1] } {
-    }
-
-public:
-    int32_t read() override {
-        for (auto i = 0; i < 2; ++i) {
-            if (readers[i] != nullptr) {
-                auto r = readers[i]->read();
-                if (r < 0) {
-                    readers[i] = nullptr;
-                }
-                else {
-                    return r;
-                }
-            }
-        }
-        return EOS;
-    }
-
-    void close() override {
-    }
-
-};
-
-}
+#include "ring_buffers.h"
