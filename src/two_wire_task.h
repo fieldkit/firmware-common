@@ -76,7 +76,7 @@ public:
     }
 
 private:
-    bool send();
+    TaskEval send();
 
     bool receive();
 

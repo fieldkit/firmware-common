@@ -27,15 +27,7 @@ TaskEval StreamTwoWireTask::task() {
     }
 
     if (dieAt == 0 && outgoing != nullptr) {
-        if (!send()) {
-            log("Error: Unable to send.");
-            return TaskEval::error();
-        }
-
-        dieAt = millis() + MaximumTwoWireReply;
-        // They won't be ready yet, check back soon, though.
-        checkAt = millis() + 100;
-        return TaskEval::idle();
+        return send();
     }
     else if (millis() > dieAt) {
         log("Error: No reply in time.");
@@ -50,16 +42,26 @@ TaskEval StreamTwoWireTask::task() {
     return TaskEval::done();
 }
 
-bool StreamTwoWireTask::send() {
+TaskEval StreamTwoWireTask::send() {
     uint8_t buffer[SERIAL_BUFFER_SIZE];
-    outgoing->beginning();
     auto bytes = outgoing->read(buffer, sizeof(buffer));
-
-    if (!bus->send(address, buffer, bytes)) {
-        return false;
+    if (bytes < 0) {
+        return TaskEval::done();
+    }
+    if (bytes == 0) {
+        return TaskEval::idle();
     }
 
-    return true;
+    if (!bus->send(address, buffer, bytes)) {
+        log("Error: Unable to send.");
+        return TaskEval::error();
+    }
+
+    dieAt = millis() + MaximumTwoWireReply;
+    // They won't be ready yet, check back soon, though.
+    checkAt = millis() + 100;
+
+    return TaskEval::idle();
 }
 
 bool StreamTwoWireTask::receive() {
