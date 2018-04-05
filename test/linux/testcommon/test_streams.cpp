@@ -1,5 +1,6 @@
 #include "test_streams.h"
 
+#include <fk-data-protocol.h>
 #include <fk-module-protocol.h>
 
 StreamsSuite::StreamsSuite() {
@@ -18,29 +19,65 @@ TEST_F(StreamsSuite, BufferedReader) {
     auto name1 = "Jacob Lewallen";
     auto name2 = "Shah Selbe";
 
-    writer.write(name1);
-    writer.write(name2);
+    EXPECT_EQ(writer.write(name1), strlen(name1));
+    EXPECT_EQ(writer.write(name2), strlen(name2));
 
-    auto reader = fk::DirectReader{ writer.toBufferPtr() };
+    {
+        auto reader = fk::DirectReader{ writer.toBufferPtr() };
 
-    char buffer1[256] = { 0 };
-    EXPECT_EQ(strlen(name1), reader.read((uint8_t *)buffer1, (size_t)strlen(name1)));
+        char buffer1[256] = { 0 };
+        EXPECT_EQ(strlen(name1), reader.read((uint8_t *)buffer1, (size_t)strlen(name1)));
+        ASSERT_STREQ(name1, buffer1);
 
-    char buffer2[256] = { 0 };
-    EXPECT_EQ(strlen(name2), reader.read((uint8_t *)buffer2, (size_t)strlen(name2)));
+        char buffer2[256] = { 0 };
+        EXPECT_EQ(strlen(name2), reader.read((uint8_t *)buffer2, (size_t)strlen(name2)));
+        ASSERT_STREQ(name2, buffer2);
 
-    ASSERT_STREQ(name1, buffer1);
-    ASSERT_STREQ(name2, buffer2);
+        ASSERT_EQ(-1, reader.read());
+    }
 
-    ASSERT_EQ(-1, reader.read());
+    {
+        auto reader = fk::DirectReader{ writer.toBufferPtr() };
 
-    reader.beginning();
+        char buffer3[256] = { 0 };
+        EXPECT_EQ(strlen(name1) + strlen(name2), reader.read((uint8_t *)buffer3, sizeof(buffer3)));
 
-    char buffer3[256] = { 0 };
-    EXPECT_EQ(strlen(name1) + strlen(name2), reader.read((uint8_t *)buffer3, sizeof(buffer3)));
+        auto names = "Jacob LewallenShah Selbe";
+        ASSERT_STREQ(buffer3, names);
+    }
+}
 
-    auto names = "Jacob LewallenShah Selbe";
-    ASSERT_STREQ(buffer3, names);
+TEST_F(StreamsSuite, ProtoBufMessageReader) {
+    fk_data_DataRecord record = fk_data_DataRecord_init_default;
+    record.log.uptime = millis();
+    record.log.time = millis();
+    record.log.level = (uint32_t)LogLevels::INFO;
+    record.log.facility.arg = (void *)"Facility";
+    record.log.facility.funcs.encode = fk::pb_encode_string;
+    record.log.message.arg = (void *)"Message";
+    record.log.message.funcs.encode = fk::pb_encode_string;
+
+    auto buffer = fk::AlignedStorageBuffer<256>{};
+    auto bp = buffer.toBufferPtr();
+
+    uint8_t scratch[128];
+    {
+        auto reader = fk::ProtoBufMessageReader{ bp, fk_data_DataRecord_fields, &record };
+        auto bytesRead = reader.read(scratch, sizeof(scratch));
+        ASSERT_EQ(bytesRead, 24);
+        bytesRead = reader.read(scratch, sizeof(scratch));
+        ASSERT_EQ(bytesRead, -1);
+    }
+
+    {
+        auto reader = fk::ProtoBufMessageReader{ bp, fk_data_DataRecord_fields, &record };
+        auto bytesRead = reader.read(scratch, 12);
+        ASSERT_EQ(bytesRead, 12);
+        bytesRead = reader.read(scratch, 12);
+        ASSERT_EQ(bytesRead, 12);
+        bytesRead = reader.read(scratch, 12);
+        ASSERT_EQ(bytesRead, -1);
+    }
 }
 
 TEST_F(StreamsSuite, Nothing) {
@@ -70,5 +107,72 @@ TEST_F(StreamsSuite, Nothing) {
         if (r < 0) {
             break;
         }
+    }
+}
+
+TEST_F(StreamsSuite, CircularStreamsCloseMidRead) {
+    auto circularStreams = fk::CircularStreams<256>{ };
+
+    auto& reader = circularStreams.getReader();
+    auto& writer = circularStreams.getWriter();
+
+    auto name1 = "Jacob";
+    auto name2 = "Shah";
+
+    EXPECT_EQ(writer.write(name1), strlen(name1));
+    EXPECT_EQ(writer.write(name2), strlen(name2));
+
+    {
+        char scratch[256] = { 0 };
+        EXPECT_EQ(strlen(name1), reader.read((uint8_t *)scratch, strlen(name1)));
+        scratch[strlen(name1)] = 0;
+        ASSERT_STREQ(name1, scratch);
+
+        writer.close();
+
+        EXPECT_EQ(strlen(name2), reader.read((uint8_t *)scratch, strlen(name2)));
+        scratch[strlen(name2)] = 0;
+        ASSERT_STREQ(name2, scratch);
+
+        ASSERT_EQ(-1, reader.read((uint8_t *)scratch, sizeof(scratch)));
+    }
+}
+
+TEST_F(StreamsSuite, CircularStreams) {
+    auto circularStreams = fk::CircularStreams<256>{ };
+
+    auto& reader = circularStreams.getReader();
+    auto& writer = circularStreams.getWriter();
+
+    auto name1 = "Jacob";
+    auto name2 = "Shah";
+
+    EXPECT_EQ(writer.write(name1), strlen(name1));
+
+    {
+        char scratch[256] = { 0 };
+        EXPECT_EQ(strlen(name1), reader.read((uint8_t *)scratch, sizeof(scratch)));
+        scratch[strlen(name1)] = 0;
+        ASSERT_STREQ(name1, scratch);
+
+        ASSERT_EQ(0, reader.read((uint8_t *)scratch, sizeof(scratch)));
+    }
+
+    EXPECT_EQ(writer.write(name2), strlen(name2));
+
+    {
+        char scratch[256] = { 0 };
+        EXPECT_EQ(strlen(name2), reader.read((uint8_t *)scratch, sizeof(scratch)));
+        scratch[strlen(name2)] = 0;
+        ASSERT_STREQ(name2, scratch);
+
+        EXPECT_EQ(0, reader.read((uint8_t *)scratch, sizeof(scratch)));
+    }
+
+    writer.close();
+
+    {
+        char scratch[256] = { 0 };
+        ASSERT_EQ(-1, reader.read((uint8_t *)scratch, sizeof(scratch)));
     }
 }

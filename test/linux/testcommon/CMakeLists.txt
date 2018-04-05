@@ -1,4 +1,10 @@
-file(GLOB SRCS *.cpp ../testhal/*.cpp ../../../src/debug.cpp)
+file(GLOB SRCS
+  *.cpp
+  ../testhal/*.cpp
+  ../../../src/debug.cpp
+  ../../../src/protobuf.cpp
+  ../../../src/pool.cpp
+)
 
 add_executable(testcommon ${SRCS})
 

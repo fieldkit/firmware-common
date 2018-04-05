@@ -9,21 +9,9 @@ class BufferPtr {
 public:
     uint8_t *ptr;
     size_t size;
-    size_t index;
 
 public:
-    BufferPtr(uint8_t *ptr, size_t size) : ptr(ptr), size(size), index(0) { }
-
-public:
-    bool empty() {
-        return index == 0;
-    }
-
-};
-
-class BufferAllocator {
-public:
-    virtual BufferPtr allocate(size_t size) = 0;
+    BufferPtr(uint8_t *ptr, size_t size) : ptr(ptr), size(size) { }
 
 };
 
@@ -39,23 +27,28 @@ public:
 
 };
 
-class Writer {
-public:
-    virtual void beginning() = 0;
-    virtual int32_t write(uint8_t *ptr, size_t size) = 0;
-    virtual int32_t write(uint8_t byte) = 0;
-    virtual size_t remaining() = 0;
-
-};
-
-class Reader {
+class Stream {
 public:
     static constexpr int32_t EOS = -1;
 
+};
+
+class Writer : public Stream {
 public:
-    virtual void beginning() = 0;
-    virtual int32_t available() = 0;
+    virtual int32_t write(uint8_t *ptr, size_t size) = 0;
+    virtual int32_t write(uint8_t byte) = 0;
+    virtual void close() = 0;
+
+public:
+    int32_t write(const char *str) {
+        return write((uint8_t *)str, strlen(str));
+    }
+};
+
+class Reader : public Stream {
+public:
     virtual int32_t read() = 0;
+    virtual void close() = 0;
 
 public:
     virtual int32_t read(uint8_t *ptr, size_t size) {
@@ -63,7 +56,7 @@ public:
             auto r = read();
             if (r < 0) {
                 if (i == 0) {
-                    return -1;
+                    return EOS;
                 }
                 return i;
             }
@@ -71,50 +64,66 @@ public:
         }
         return size;
     }
-
 };
 
 class DirectWriter : public Writer {
-protected:
+private:
     BufferPtr buffer;
+    int32_t position{ 0 };
 
 public:
     DirectWriter(BufferPtr buffer) : buffer(buffer) {
     }
 
 public:
-    virtual void beginning() override {
-        buffer.index = 0;
-    }
+    using Writer::write;
 
-    virtual size_t remaining() override {
-        return 0;
-    }
-
-    virtual int32_t write(uint8_t *ptr, size_t size) override {
-        if (buffer.index + size >= buffer.size) {
-            return -1;
+    int32_t write(uint8_t *ptr, size_t size) override {
+        if (position == EOS) {
+            return EOS;
         }
-        memcpy(buffer.ptr + buffer.index, ptr, size);
-        buffer.index += size;
-        return size;
+        auto available = buffer.size - position;
+        auto copying = size > available ? available : size;
+        if (copying > 0) {
+            memcpy(buffer.ptr + position, ptr, copying);
+            position += copying;
+        }
+        return copying;
     }
 
-    virtual int32_t write(uint8_t byte) override {
-        if (buffer.index >= buffer.size) {
-            return -1;
+    int32_t write(uint8_t byte) override {
+        if (position == EOS) {
+            return EOS;
         }
-        buffer.ptr[buffer.index++] = byte;
-        return 0;
+        if (position == (int32_t)buffer.size) {
+            return EOS;
+        }
+        buffer.ptr[position++] = byte;
+        return 1;
+    }
+
+    void close() override {
+        position = EOS;
     }
 
 public:
-    int32_t write(const char *str) {
-        return write((uint8_t *)str, strlen(str));
+    int32_t available() {
+        return buffer.size - position;
     }
 
     BufferPtr toBufferPtr() {
-        return BufferPtr{ buffer.ptr, buffer.index };
+        fk_assert(position >= 0);
+        return BufferPtr{ buffer.ptr, (size_t)position };
+    }
+
+protected:
+    uint8_t *ptr() {
+        return buffer.ptr + position;
+    }
+
+    int32_t seek(int32_t bytes) {
+        position += bytes;
+        return position;
     }
 
 };
@@ -122,28 +131,245 @@ public:
 class DirectReader : public Reader {
 private:
     BufferPtr buffer;
+    int32_t position{ 0 };
 
 public:
     DirectReader(BufferPtr buffer) : buffer(buffer) {
     }
 
 public:
-    void beginning() override {
-        buffer.index = 0;
-    }
-
-    int32_t available() override {
-        return buffer.size - buffer.index;
-    }
+    using Reader::read;
 
     int32_t read() override {
-        if (buffer.index >= buffer.size) {
+        if (position == EOS) {
             return EOS;
         }
-        return buffer.ptr[buffer.index++];
+        if (position >= (int32_t)buffer.size) {
+            return EOS;
+        }
+        return buffer.ptr[position++];
     }
 
+    void close() override {
+        position = EOS;
+    }
+
+};
+
+class BufferedReader : public Reader {
+private:
+    BufferPtr buffer;
+    int32_t position{ 0 };
+    int32_t buffered{ 0 };
+
+public:
+    BufferedReader(BufferPtr buffer) : buffer(buffer) {
+    }
+
+public:
     using Reader::read;
+
+    int32_t read() override {
+        if (replenish() < 0) {
+            return EOS;
+        }
+        if (position >= (int32_t)buffer.size) {
+            return EOS;
+        }
+        return buffer.ptr[position++];
+    }
+
+    void close() override {
+    }
+
+protected:
+    virtual int32_t fill(BufferPtr &buffer) = 0;
+
+    int32_t replenish() {
+        if (buffered == 0 || buffered == position) {
+            buffered = fill(buffer);
+            position = 0;
+        }
+        if (buffered < 0) {
+            return EOS;
+        }
+        return buffered;
+    }
+
+};
+
+/**
+ * Size MUST be a power of 2. Can change how the mask is done to relax this restriction.
+ */
+template<size_t Size>
+class RingBufferN {
+private:
+    typename std::aligned_storage<sizeof(uint8_t), alignof(uint8_t)>::type buffer[Size];
+    volatile uint32_t read{ 0 };
+    volatile uint32_t write{ 0 };
+
+public:
+    RingBufferN() {
+    }
+
+    void clear() {
+        read = write = 0;
+    }
+
+    void push(uint8_t c) {
+        fk_assert(!full());
+        ((uint8_t *)buffer)[mask(write++)] = c;
+    }
+
+    uint8_t shift() {
+        fk_assert(!empty());
+        return ((uint8_t *)buffer)[mask(read++)];
+    }
+
+    uint32_t available() {
+        return Size - size();
+    }
+
+    uint32_t size() {
+        return write - read;
+    }
+
+    bool empty() {
+        return read == write;
+    }
+
+    bool full() {
+        return size() == Size;
+    }
+
+private:
+    uint32_t mask(uint32_t i) {
+        return i & (Size - 1);
+    }
+
+};
+
+template<size_t Size>
+class CircularStreams {
+    class RingReader : public Reader {
+    private:
+        CircularStreams<Size> *cs;
+
+    public:
+        RingReader(CircularStreams<Size> *cs) : cs(cs) {
+        }
+
+    public:
+        int32_t read(uint8_t *ptr, size_t size) override {
+            if (cs->buffer.empty()) {
+                if (cs->closed) {
+                    return EOS;
+                }
+                return 0;
+            }
+
+            return Reader::read(ptr, size);
+        }
+
+        int32_t read() override {
+            // Not totally happy with this. Don't have any way of
+            // differentiating between empty and EoS though.
+            if (cs->buffer.empty()) {
+                return EOS;
+            }
+            return cs->buffer.shift();
+        }
+
+        void close() override {
+            cs->closeAll();
+        }
+    };
+
+    class RingWriter : public Writer {
+    private:
+        CircularStreams<Size> *cs;
+
+    public:
+        RingWriter(CircularStreams<Size> *cs) : cs(cs) {
+        }
+
+    public:
+        using Writer::write;
+
+        int32_t write(uint8_t *ptr, size_t size) override {
+            for (size_t i = 0; i < size; ++i) {
+                if (cs->buffer.full()) {
+                    return i;
+                }
+                cs->buffer.push(ptr[i]);
+            }
+            return size;
+        }
+
+        int32_t write(uint8_t byte) override {
+            if (cs->buffer.full()) {
+                return EOS;
+            }
+            cs->buffer.push(byte);
+            return 1;
+        }
+
+        void close() override {
+            cs->closeAll();
+        }
+    };
+
+    RingBufferN<Size> buffer;
+    RingReader reader{ this };
+    RingWriter writer{ this };
+    bool closed{ false };
+
+public:
+    void closeAll() {
+        closed = true;
+    }
+
+    Writer &getWriter() {
+        return writer;
+    }
+
+    Reader &getReader() {
+        return reader;
+    }
+
+};
+
+class ProtoBufMessageReader : public BufferedReader {
+private:
+    const pb_field_t *fields;
+    void *message;
+    bool filled{ false };
+
+public:
+    ProtoBufMessageReader(BufferPtr buffer, const pb_field_t *fields, void *message) : BufferedReader(buffer), fields(fields), message(message) {
+    }
+
+protected:
+    int32_t fill(BufferPtr &bp) {
+        if (filled) {
+            return EOS;
+        }
+
+        filled = true;
+
+        size_t required = 0;
+
+        if (!pb_get_encoded_size(&required, fields, message)) {
+            return EOS;
+        }
+
+        auto stream = pb_ostream_from_buffer((uint8_t *)bp.ptr, bp.size);
+        if (!pb_encode_delimited(&stream, fields, message)) {
+            return EOS;
+        }
+
+        return stream.bytes_written;
+    }
 
 };
 
@@ -159,12 +385,12 @@ public:
             return 0;
         }
 
-        auto stream = pb_ostream_from_buffer((uint8_t *)buffer.ptr, buffer.size);
+        auto stream = pb_ostream_from_buffer(ptr(), available());
         if (!pb_encode_delimited(&stream, fields, message)) {
             return 0;
         }
 
-        buffer.index += stream.bytes_written;
+        seek(stream.bytes_written);
 
         return stream.bytes_written;
     }
@@ -183,26 +409,6 @@ public:
     }
 
 public:
-    void beginning() override {
-        for (auto i = 0; i < 2; ++i) {
-            if (readers[i] != nullptr) {
-                readers[i]->beginning();
-            }
-        }
-    }
-
-    int32_t available() override {
-        int32_t total = 0;
-        bool hasReaders = false;
-        for (auto i = 0; i < 2; ++i) {
-            if (readers[i] != nullptr) {
-                total += readers[i]->available();
-                hasReaders = true;
-            }
-        }
-        return hasReaders ? total : EOS;
-    }
-
     int32_t read() override {
         for (auto i = 0; i < 2; ++i) {
             if (readers[i] != nullptr) {
@@ -215,7 +421,10 @@ public:
                 }
             }
         }
-        return -1;
+        return EOS;
+    }
+
+    void close() override {
     }
 
 };
