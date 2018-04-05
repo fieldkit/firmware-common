@@ -87,15 +87,16 @@ DataBlock FkfsIterator::peek() {
 
         if (fkfs_file_iterate(fs, &config, &iter)) {
             iteratedBytes += iter.size;
-            if (fkfs_file_iterator_done(fs, &iter)) {
-                finished = true;
-            }
             return DataBlock{ iter.data, iter.size };
         }
         else {
             if (fkfs_file_iterator_done(fs, &iter)) {
                 finished = true;
                 status();
+
+                if (totalBytes != iteratedBytes) {
+                    log("Warning: totalBytes != iteratedBytes (%d != %d)", totalBytes, iteratedBytes);
+                }
             }
         }
     }
