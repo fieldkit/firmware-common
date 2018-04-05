@@ -111,7 +111,7 @@ TEST_F(StreamsSuite, Nothing) {
 }
 
 TEST_F(StreamsSuite, CircularStreamsCloseMidRead) {
-    auto circularStreams = fk::CircularStreams<256>{ };
+    auto circularStreams = fk::CircularStreams<fk::RingBufferN<256>>{ };
 
     auto& reader = circularStreams.getReader();
     auto& writer = circularStreams.getWriter();
@@ -138,8 +138,8 @@ TEST_F(StreamsSuite, CircularStreamsCloseMidRead) {
     }
 }
 
-TEST_F(StreamsSuite, CircularStreams) {
-    auto circularStreams = fk::CircularStreams<256>{ };
+TEST_F(StreamsSuite, CircularStreamsBasics) {
+    auto circularStreams = fk::CircularStreams<fk::RingBufferN<256>>{ };
 
     auto& reader = circularStreams.getReader();
     auto& writer = circularStreams.getWriter();
@@ -174,5 +174,71 @@ TEST_F(StreamsSuite, CircularStreams) {
     {
         char scratch[256] = { 0 };
         ASSERT_EQ(-1, reader.read((uint8_t *)scratch, sizeof(scratch)));
+    }
+}
+
+TEST_F(StreamsSuite, CircularStreamsBufferPtr) {
+    auto buffer = fk::AlignedStorageBuffer<8>{};
+    auto ptr = buffer.toBufferPtr();
+
+    auto circularStreams = fk::CircularStreams<fk::RingBufferPtr>{ ptr };
+
+    auto& reader = circularStreams.getReader();
+    auto& writer = circularStreams.getWriter();
+
+    auto name1 = "Jacob";
+    auto name2 = "Shah";
+
+    EXPECT_EQ(writer.write(name1), strlen(name1));
+
+    {
+        char scratch[256] = { 0 };
+        EXPECT_EQ(strlen(name1), reader.read((uint8_t *)scratch, sizeof(scratch)));
+        scratch[strlen(name1)] = 0;
+        ASSERT_STREQ(name1, scratch);
+
+        ASSERT_EQ(0, reader.read((uint8_t *)scratch, sizeof(scratch)));
+    }
+
+    EXPECT_EQ(writer.write(name2), strlen(name2));
+
+    {
+        char scratch[256] = { 0 };
+        EXPECT_EQ(strlen(name2), reader.read((uint8_t *)scratch, sizeof(scratch)));
+        scratch[strlen(name2)] = 0;
+        ASSERT_STREQ(name2, scratch);
+
+        EXPECT_EQ(0, reader.read((uint8_t *)scratch, sizeof(scratch)));
+    }
+
+    writer.close();
+
+    {
+        char scratch[256] = { 0 };
+        ASSERT_EQ(-1, reader.read((uint8_t *)scratch, sizeof(scratch)));
+    }
+}
+
+TEST_F(StreamsSuite, CircularStreamsFull) {
+    auto buffer = fk::AlignedStorageBuffer<4>{};
+    auto ptr = buffer.toBufferPtr();
+
+    auto circularStreams = fk::CircularStreams<fk::RingBufferPtr>{ ptr };
+
+    auto& reader = circularStreams.getReader();
+    auto& writer = circularStreams.getWriter();
+
+    auto name1 = "Jacob";
+
+    EXPECT_EQ(writer.write(name1), 4);
+    EXPECT_EQ(writer.write(name1), 0);
+
+    {
+        char scratch[256] = { 0 };
+        EXPECT_EQ(4, reader.read((uint8_t *)scratch, sizeof(scratch)));
+        scratch[4] = 0;
+        ASSERT_STREQ("Jaco", scratch);
+
+        ASSERT_EQ(0, reader.read((uint8_t *)scratch, sizeof(scratch)));
     }
 }

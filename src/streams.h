@@ -198,6 +198,60 @@ protected:
 
 };
 
+constexpr bool is_power_of_2(int32_t v) {
+    return v && ((v & (v - 1)) == 0);
+}
+
+class RingBufferPtr {
+private:
+    BufferPtr bp;
+    volatile uint32_t read{ 0 };
+    volatile uint32_t write{ 0 };
+
+public:
+    RingBufferPtr() = delete;
+
+    RingBufferPtr(BufferPtr bp) : bp(bp) {
+        fk_assert(is_power_of_2(bp.size));
+    }
+
+    void clear() {
+        read = write = 0;
+    }
+
+    void push(uint8_t c) {
+        fk_assert(!full());
+        ((uint8_t *)bp.ptr)[mask(write++)] = c;
+    }
+
+    uint8_t shift() {
+        fk_assert(!empty());
+        return ((uint8_t *)bp.ptr)[mask(read++)];
+    }
+
+    uint32_t available() {
+        return bp.size - size();
+    }
+
+    uint32_t size() {
+        return write - read;
+    }
+
+    bool empty() {
+        return read == write;
+    }
+
+    bool full() {
+        return size() == bp.size;
+    }
+
+private:
+    uint32_t mask(uint32_t i) {
+        return i & (bp.size - 1);
+    }
+
+};
+
 /**
  * Size MUST be a power of 2. Can change how the mask is done to relax this restriction.
  */
@@ -210,6 +264,7 @@ private:
 
 public:
     RingBufferN() {
+        static_assert(is_power_of_2(Size), "Size should be a power of 2.");
     }
 
     void clear() {
@@ -249,14 +304,16 @@ private:
 
 };
 
-template<size_t Size>
+template<typename RBT>
 class CircularStreams {
+    using OuterType = CircularStreams<RBT>;
+
     class RingReader : public Reader {
     private:
-        CircularStreams<Size> *cs;
+        OuterType *cs;
 
     public:
-        RingReader(CircularStreams<Size> *cs) : cs(cs) {
+        RingReader(OuterType *cs) : cs(cs) {
         }
 
     public:
@@ -287,10 +344,10 @@ class CircularStreams {
 
     class RingWriter : public Writer {
     private:
-        CircularStreams<Size> *cs;
+        OuterType *cs;
 
     public:
-        RingWriter(CircularStreams<Size> *cs) : cs(cs) {
+        RingWriter(OuterType *cs) : cs(cs) {
         }
 
     public:
@@ -319,10 +376,17 @@ class CircularStreams {
         }
     };
 
-    RingBufferN<Size> buffer;
+    RBT buffer;
     RingReader reader{ this };
     RingWriter writer{ this };
     bool closed{ false };
+
+public:
+    CircularStreams() {
+    }
+
+    CircularStreams(RBT &&buffer) : buffer(std::forward<RBT>(buffer)) {
+    }
 
 public:
     void closeAll() {
