@@ -88,7 +88,7 @@ private:
     Pool *pool;
 
 public:
-    ModuleProtocolHandler(ModuleCommunications &communications, Pool &pool);
+    ModuleProtocolHandler(ModuleCommunications &communications);
 
 public:
     void push(uint8_t address, ModuleQuery &query, uint32_t delay = 0);

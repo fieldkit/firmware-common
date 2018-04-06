@@ -2,8 +2,8 @@
 
 namespace fk {
 
-PrepareTransmissionData::PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, uint8_t file, ModuleCommunications &communications, Pool &pool) :
-    Task("PrepareTransmissionData"), state(&state), fileSystem(&fileSystem), iterator(fileSystem.fkfs(), file), protocol(communications, pool), pool(&pool) {
+PrepareTransmissionData::PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, uint8_t file, ModuleCommunications &communications) :
+    Task("PrepareTransmissionData"), state(&state), fileSystem(&fileSystem), iterator(fileSystem.fkfs(), file), protocol(communications) {
 }
 
 void PrepareTransmissionData::enqueued() {

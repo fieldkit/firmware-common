@@ -55,20 +55,20 @@ private:
     CoreState state{storage, fileSystem.getData()};
     Power power{ state };
 
-    ModuleCommunications moduleCommunications{ bus, supervisor, modulesPool };
+    ModuleCommunications moduleCommunications{bus, supervisor, modulesPool};
 
-    AttachedDevices attachedDevices{bus, addresses, state, leds, moduleCommunications, modulesPool};
+    AttachedDevices attachedDevices{bus, addresses, state, leds, moduleCommunications};
 
     HttpTransmissionConfig transmissionConfig = {
         .streamUrl = API_INGESTION_STREAM,
     };
     TransmitAllFilesTask transmitAllFilesTask{supervisor, fileSystem, state, wifi, transmissionConfig};
-    PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, 0, moduleCommunications, modulesPool};
+    PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, 0, moduleCommunications};
 
     SerialPort gpsPort{ Serial1 };
     ReadGps readGps{state, gpsPort};
 
-    GatherReadings gatherReadings{bus, state, leds, moduleCommunications, modulesPool};
+    GatherReadings gatherReadings{bus, state, leds, moduleCommunications};
 
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },

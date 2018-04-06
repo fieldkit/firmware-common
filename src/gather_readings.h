@@ -104,7 +104,7 @@ private:
     uint8_t retries{ 0 };
 
 public:
-    GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, ModuleCommunications &communications, Pool &pool);
+    GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, ModuleCommunications &communications);
 
 public:
     void enqueued() override;

@@ -4,8 +4,8 @@
 
 namespace fk {
 
-GatherReadings::GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, ModuleCommunications &communications, Pool &pool) :
-    Task("GatherReadings"), state(&state), leds(&leds), protocol{ communications, pool } {
+GatherReadings::GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, ModuleCommunications &communications) :
+    Task("GatherReadings"), state(&state), leds(&leds), protocol(communications) {
 }
 
 void GatherReadings::enqueued() {

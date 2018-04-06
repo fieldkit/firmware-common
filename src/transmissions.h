@@ -14,10 +14,9 @@ private:
     FileSystem *fileSystem;
     FkfsStreamingIterator iterator;
     ModuleProtocolHandler protocol;
-    Pool *pool;
 
 public:
-    PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, uint8_t file, ModuleCommunications &communications, Pool &pool);
+    PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, uint8_t file, ModuleCommunications &communications);
 
 public:
     void enqueued() override;

@@ -4,8 +4,8 @@
 
 namespace fk {
 
-AttachedDevices::AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, ModuleCommunications &communications, Pool &pool)
-    : Task("AttachedDevices"), bus(&bus), addresses(addresses), addressIndex{ 0 }, state(&state), leds(&leds), protocol(communications, pool) {
+AttachedDevices::AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, ModuleCommunications &communications)
+    : Task("AttachedDevices"), bus(&bus), addresses(addresses), addressIndex{ 0 }, state(&state), leds(&leds), protocol(communications) {
 }
 
 void AttachedDevices::scan() {

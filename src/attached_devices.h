@@ -80,7 +80,7 @@ private:
     uint8_t retries{ 0 };
 
 public:
-    AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, ModuleCommunications &communications, Pool &pool);
+    AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, ModuleCommunications &communications);
 
 public:
     TaskEval task() override;

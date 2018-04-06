@@ -75,7 +75,7 @@ TaskEval ModuleCommunications::task() {
     return TaskEval::idle();
 }
 
-ModuleProtocolHandler::ModuleProtocolHandler(ModuleCommunications &communications, Pool &pool) : communications(&communications), pool(&pool) {
+ModuleProtocolHandler::ModuleProtocolHandler(ModuleCommunications &communications) : communications(&communications) {
 }
 
 void ModuleProtocolHandler::push(uint8_t address, ModuleQuery &query, uint32_t delay) {
