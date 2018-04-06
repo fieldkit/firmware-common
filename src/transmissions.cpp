@@ -7,7 +7,7 @@ PrepareTransmissionData::PrepareTransmissionData(TwoWireBus &bus, CoreState &sta
 }
 
 void PrepareTransmissionData::enqueued() {
-    protocol.push(queryCaps);
+    // protocol.push(queryCaps);
     iterator.beginning();
 }
 
@@ -27,37 +27,7 @@ TaskEval PrepareTransmissionData::task() {
         }
     }
     */
-
-    auto step = protocol.handle();
-    if (step) {
-        if (step.is(queryCaps)) {
-            if (step.error()) {
-            }
-
-            log("Number: %d", queryCaps.getNumberOfSensors());
-            if (queryCaps.getNumberOfSensors() > 0) {
-                querySensorCaps = QuerySensorCaps{};
-                protocol.push(querySensorCaps);
-            }
-            else {
-                return TaskEval::done();
-            }
-        }
-        else if (step.is(querySensorCaps)) {
-            log("Querying sensor caps: %d", querySensorCaps.getSensor());
-            if (querySensorCaps.getSensor() < queryCaps.getNumberOfSensors()) {
-                protocol.push(querySensorCaps);
-            }
-            else {
-                return TaskEval::done();
-            }
-        }
-        else {
-            return TaskEval::error();
-        }
-    }
-
-    return TaskEval::busy();
+    return TaskEval::done();
 }
 
 }

@@ -57,7 +57,7 @@ private:
 
     ModuleCommunications moduleCommunications{ bus, supervisor, modulesPool };
 
-    AttachedDevices attachedDevices{bus, addresses, state, leds, modulesPool};
+    AttachedDevices attachedDevices{bus, addresses, state, leds, moduleCommunications, modulesPool};
 
     HttpTransmissionConfig transmissionConfig = {
         .streamUrl = API_INGESTION_STREAM,

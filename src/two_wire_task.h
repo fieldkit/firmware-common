@@ -89,49 +89,6 @@ private:
 
 };
 
-class QueryCapabilities : public TwoWireTask {
-public:
-    QueryCapabilities(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask("QueryCapabilities", bus, pool, address) {
-        query.m().type = fk_module_QueryType_QUERY_CAPABILITIES;
-        query.m().queryCapabilities.version = FK_MODULE_PROTOCOL_VERSION;
-    }
-
-    void enqueued() override {
-        TwoWireTask::enqueued();
-        query.m().queryCapabilities.callerTime = clock.getTime();
-    }
-
-    bool isCommunications() {
-        return reply.m().capabilities.type == fk_module_ModuleType_COMMUNICATIONS;
-    }
-
-    bool isSensor() {
-        return reply.m().capabilities.type == fk_module_ModuleType_SENSOR;
-    }
-
-    size_t numberOfSensors() {
-        return reply.m().capabilities.numberOfSensors;
-    }
-
-};
-
-class QuerySensorCapabilities : public TwoWireTask {
-public:
-    QuerySensorCapabilities(TwoWireBus &bus, Pool &pool, uint8_t address, uint8_t sensor) : TwoWireTask("QuerySensorCapabilities", bus, pool, address) {
-        query.m().type = fk_module_QueryType_QUERY_SENSOR_CAPABILITIES;
-        query.m().querySensorCapabilities.sensor = sensor;
-    }
-
-    uint8_t sensor() {
-        return query.m().querySensorCapabilities.sensor;
-    }
-
-    void done() override {
-        log("Sensor #%" PRIu32 ": '%s'", reply.m().sensorCapabilities.id, (const char *)reply.m().sensorCapabilities.name.arg);
-    }
-
-};
-
 class BeginTakeReading : public TwoWireTask {
 public:
     BeginTakeReading(TwoWireBus &bus, Pool &pool, uint8_t address) : TwoWireTask("BeginTakeReading", bus, pool, address) {

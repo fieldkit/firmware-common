@@ -64,13 +64,52 @@ TaskEval ModuleCommunications::task() {
                 }
             }
             else {
-                log("Error");
+                // log("Error");
             }
             address = 0;
         }
     }
 
     return TaskEval::idle();
+}
+
+void ModuleProtocolHandler::push(uint8_t address, ModuleQuery &query) {
+    active = Queued{ };
+    pending = Queued{ address, &query };
+}
+
+ModuleProtocolHandler::Finished ModuleProtocolHandler::handle() {
+    if (!communications->busy()) {
+        if (pending.query != nullptr) {
+            pool->clear();
+            ModuleQueryMessage query{ *pool };
+            pending.query->query(query);
+            communications->enqueue(pending.address, query);
+            active = pending;
+            pending = Queued{};
+        }
+    }
+
+    if (active.query != nullptr) {
+        if (communications->available()) {
+            ModuleQuery *finished = active.query;
+            auto &reply = communications->dequeue();
+
+            active.query->reply(reply);
+            active = Queued{};
+
+            return Finished { finished, &reply };
+        }
+        if (!communications->busy()) {
+            ModuleQuery *finished = active.query;
+
+            active = Queued{};
+
+            return Finished { finished, nullptr };
+        }
+    }
+
+    return Finished{ nullptr, nullptr };
 }
 
 }

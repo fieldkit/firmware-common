@@ -5,6 +5,13 @@
 
 namespace fk {
 
+class ModuleQuery {
+public:
+    virtual void query(ModuleQueryMessage &message) = 0;
+    virtual void reply(ModuleReplyMessage &message) = 0;
+
+};
+
 class ModuleCommunications : public Task {
 private:
     TaskQueue *queue;
@@ -33,6 +40,47 @@ public:
     bool busy() {
         return address > 0;
     }
+
+};
+
+class ModuleProtocolHandler {
+public:
+    struct Queued {
+        uint8_t address;
+        ModuleQuery *query;
+    };
+
+    struct Finished {
+        ModuleQuery *query;
+        ModuleReplyMessage *reply;
+
+        operator bool() {
+            return query != nullptr;
+        }
+
+        bool error() {
+            return reply == nullptr;
+        }
+
+        bool is(ModuleQuery &other) {
+            return query == &other;
+        }
+    };
+
+private:
+    Queued active{ 0, nullptr };
+    Queued pending{ 0, nullptr };
+    ModuleCommunications *communications;
+    Pool *pool;
+
+public:
+    ModuleProtocolHandler(ModuleCommunications &communications, Pool &pool) : communications(&communications), pool(&pool) {
+    }
+
+public:
+    void push(uint8_t address, ModuleQuery &query);
+
+    Finished handle();
 
 };
 

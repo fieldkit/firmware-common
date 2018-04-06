@@ -30,7 +30,7 @@ void Clock::setTime(DateTime dt) {
 
 void Clock::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        debugfpln("Clock", "Ignoring invalid time");
+        debugfpln("Clock", "Ignoring invalid time (%lu)", newTime);
         return;
     }
 

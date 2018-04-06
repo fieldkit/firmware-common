@@ -4,9 +4,8 @@
 
 namespace fk {
 
-AttachedDevices::AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, Pool &pool)
-    : ActiveObject("AttachedDevices"), bus(&bus), addresses(addresses), addressIndex{ 0 }, state(&state), leds(&leds), pool(&pool),
-      queryCapabilities(bus, pool, 0), querySensorCapabilities(bus, pool, 0, 0) {
+AttachedDevices::AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, ModuleCommunications &communications, Pool &pool)
+    : ActiveObject("AttachedDevices"), bus(&bus), addresses(addresses), addressIndex{ 0 }, state(&state), leds(&leds), protocol(communications, pool) {
 }
 
 void AttachedDevices::scan() {
@@ -20,11 +19,10 @@ void AttachedDevices::resume() {
     while (true) {
         auto address = addresses[addressIndex];
         if (address > 0) {
-            if (!state->hasModules() || state->hasModuleWithAddress(address)) {
-                query(address);
-                break;
-            }
+            query(address);
+            break;
         } else {
+            log("Done scanning.");
             state->doneScanning();
             peripherals.twoWire1().release(this);
             break;
@@ -43,26 +41,35 @@ void AttachedDevices::idle() {
     if (lastScanAt == 0 || millis() - lastScanAt > rescanInterval) {
         log("Starting scan...");
         lastScanAt = millis();
-        pool->clear();
         scan();
+    }
+
+    auto finished = protocol.handle();
+    if (finished) {
+        if (finished.error()) {
+            error(finished);
+        }
+        else {
+            done(finished);
+        }
     }
 }
 
 void AttachedDevices::query(uint8_t address) {
     log("[0x%d]: Query", address);
 
-    queryCapabilities = QueryCapabilities(*bus, *pool, address);
-    push(queryCapabilities);
+    queryCapabilities = QueryCapabilities();
+    protocol.push(address, queryCapabilities);
 }
 
-void AttachedDevices::done(Task &task) {
+void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
     auto address = addresses[addressIndex];
-    if (areSame(task, queryCapabilities)) {
-        state->merge(address, queryCapabilities.replyMessage());
+    if (finished.is(queryCapabilities)) {
+        state->merge(address, *finished.reply);
         if (queryCapabilities.isSensor()) {
             log("[0x%d]: Sensor module", address);
-            querySensorCapabilities = QuerySensorCapabilities(*bus, *pool, address, 0);
-            push(querySensorCapabilities);
+            querySensorCapabilities = QuerySensorCapabilities();
+            protocol.push(address, querySensorCapabilities);
         }
         else if (queryCapabilities.isCommunications()) {
             log("[0x%d]: Communications module", address);
@@ -74,12 +81,10 @@ void AttachedDevices::done(Task &task) {
             addressIndex++;
             resume();
         }
-    } else if (areSame(task, querySensorCapabilities)) {
-        state->merge(address, querySensorCapabilities.replyMessage());
-        auto sensor = (size_t)(querySensorCapabilities.sensor() + 1);
-        if (sensor < queryCapabilities.numberOfSensors()) {
-            querySensorCapabilities = QuerySensorCapabilities(*bus, *pool, address, sensor);
-            push(querySensorCapabilities);
+    } else if (finished.is(querySensorCapabilities)) {
+        state->merge(address, *finished.reply);
+        if (querySensorCapabilities.getSensor() < queryCapabilities.getNumberOfSensors()) {
+            protocol.push(address, querySensorCapabilities);
         } else {
             addressIndex++;
             resume();
@@ -95,11 +100,11 @@ void AttachedDevices::done(Task &task) {
     }
 }
 
-void AttachedDevices::error(Task &task) {
-    if (areSame(task, querySensorCapabilities)) {
+void AttachedDevices::error(ModuleProtocolHandler::Finished &finished) {
+    if (finished.is(querySensorCapabilities)) {
         if (retries < NumberOfTwoWireRetries) {
             log("Retry %d/%d", retries, NumberOfTwoWireRetries);
-            push(querySensorCapabilities);
+            protocol.push(addresses[addressIndex], querySensorCapabilities);
             retries++;
         } else {
             state->scanFailure();
