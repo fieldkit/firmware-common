@@ -128,20 +128,30 @@ void FkfsIterator::log(const char *f, ...) const {
     va_end(args);
 }
 
+bool FkfsStreamingIterator::isFinished() {
+    return iterator.isFinished() && !block;
+}
+
 DataBlock FkfsStreamingIterator::read(size_t bytes) {
     if (!block || position >= block.size) {
         block = iterator.move();
         position = 0;
     }
 
+    if (!block) {
+        return block;
+    }
+
     auto ptr = (uint8_t *)block.ptr + position;
     auto blockRemaining = block.size - position;
     auto size = bytes > blockRemaining ? blockRemaining : bytes;
 
-    position += size;
-
     return DataBlock{ ptr, size };
 
+}
+
+void FkfsStreamingIterator::moveNext(DataBlock block) {
+    position += block.size;
 }
 
 }

@@ -85,11 +85,11 @@ public:
         position = 0;
     }
 
-    bool isFinished() {
-        return iterator.isFinished();
-    }
+    bool isFinished();
 
     DataBlock read(size_t bytes);
+
+    void moveNext(DataBlock block);
 
 };
 
