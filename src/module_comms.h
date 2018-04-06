@@ -25,7 +25,8 @@ private:
     bool hasQuery{ false };
     bool hasReply{ false };
     TwoWireTask twoWireTask;
-    CircularStreams<fk::RingBufferN<256>> streams;
+    CircularStreams<fk::RingBufferN<256>> outgoing;
+    CircularStreams<fk::RingBufferN<256>> incoming;
 
 public:
     ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool);

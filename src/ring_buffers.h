@@ -150,6 +150,8 @@ public:
 
     void clear() {
         buffer.clear();
+        reader = RingReader<RingBufferType>{ &buffer, &writer };
+        writer = RingWriter<RingBufferType>{ &buffer, &reader };
     }
 
 };

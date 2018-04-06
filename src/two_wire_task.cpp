@@ -26,13 +26,15 @@ TaskEval TwoWireTask::task() {
         return TaskEval::idle();
     }
 
-    if (outgoing != nullptr) {
-        if (dieAt == 0) {
+    if (dieAt == 0) {
+        if (outgoing != nullptr) {
             return send();
         }
-    }
-    else {
-        dieAt = millis() + MaximumTwoWireReply;
+        else {
+            dieAt = millis() + MaximumTwoWireReply;
+            checkAt = millis() + 100;
+            return TaskEval::idle();
+        }
     }
 
     if (millis() > dieAt) {
@@ -79,9 +81,13 @@ TaskEval TwoWireTask::receive() {
         return TaskEval::error();
     }
 
-    // dieAt = 0;
+    if (outgoing == nullptr) {
+        // We don't have a reader to indicate we're done, so just be done.
+        return TaskEval::done();
+    }
 
-    return TaskEval::done();
+    dieAt = 0;
+    return TaskEval::idle();
 }
 
 }
