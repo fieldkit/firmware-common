@@ -2,6 +2,17 @@
 
 namespace fk {
 
+void ModuleQuery::prepare(ModuleQueryMessage &message, Writer &outgoing) {
+    query(message);
+
+    auto protoWriter = ProtoBufMessageWriter{ outgoing };
+    protoWriter.write(fk_module_WireMessageQuery_fields, &message.m());
+    outgoing.close();
+}
+
+void ModuleQuery::tick(Writer &outgoing) {
+}
+
 ModuleCommunications::ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool) :
     Task("ModuleCommunications"), bus(&bus), queue(&queue), pool(&pool), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, outgoing.getReader(), incoming.getWriter(), 0) {
 }
@@ -31,17 +42,17 @@ TaskEval ModuleCommunications::task() {
             outgoing.clear();
             pool->clear();
             query.clear();
-            pending->query(query);
 
-            auto protoWriter = ProtoBufMessageWriter{ outgoing.getWriter() };
-            protoWriter.write(fk_module_WireMessageQuery_fields, &query.m());
-            outgoing.getWriter().close();
+            pending->prepare(query, outgoing.getWriter());
 
             twoWireTask = TwoWireTask{ pending->name(), *bus, outgoing.getReader(), incoming.getWriter(), address };
             queue->prepend(twoWireTask);
 
             hasQuery = false;
             hasReply = false;
+        }
+        else {
+            pending->tick(outgoing.getWriter());
         }
 
         if (twoWireTask.completed()) {
@@ -57,6 +68,8 @@ TaskEval ModuleCommunications::task() {
                         incoming.clear();
                         outgoing.clear();
                         pool->clear();
+                        query.clear();
+
                         twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address };
                         queue->prepend(twoWireTask);
                         return TaskEval::idle();

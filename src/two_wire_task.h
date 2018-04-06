@@ -19,7 +19,9 @@ private:
     uint32_t dieAt{ 0 };
     uint32_t checkAt{ 0 };
     uint32_t doneAt{ 0 };
+    uint32_t bytesSent{ 0 };
     size_t bytesReceived{ 0 };
+    int8_t expectedReplies{ 0 };
 
 public:
     /**

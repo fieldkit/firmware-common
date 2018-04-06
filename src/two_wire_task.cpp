@@ -16,6 +16,8 @@ void TwoWireTask::enqueued() {
     checkAt = 0;
     bytesReceived = 0;
     doneAt = 0;
+    expectedReplies = 1;
+    bytesSent = 0;
     if (outgoing == nullptr) {
         checkAt = millis() + 200;
     }
@@ -55,6 +57,10 @@ TaskEval TwoWireTask::send() {
         return TaskEval::idle();
     }
 
+    bytesSent += bytes;
+
+    log("Sending %lu bytes to module (%lu)", bytes, bytesSent);
+
     if (!bus->send(address, buffer, bytes)) {
         log("Error: Unable to send.");
         return TaskEval::error();
@@ -68,17 +74,25 @@ TaskEval TwoWireTask::send() {
 }
 
 TaskEval TwoWireTask::receive() {
-    uint8_t buffer[SERIAL_BUFFER_SIZE];
-    bytesReceived = bus->receive(address, buffer, sizeof(buffer));
-    if (bytesReceived == 0) {
-        log("Error: Empty reply.");
-        return TaskEval::error();
-    }
+    if (expectedReplies > 0) {
+        uint8_t buffer[SERIAL_BUFFER_SIZE];
+        bytesReceived = bus->receive(address, buffer, sizeof(buffer));
+        if (bytesReceived == 0) {
+            log("Error: Empty reply.");
+            return TaskEval::error();
+        }
 
-    auto wrote = incoming->write(buffer, bytesReceived);
-    if (wrote != (int32_t)bytesReceived) {
-        log("Error: Out of buffer space (%lu != %d)", wrote, bytesReceived);
-        return TaskEval::error();
+        log("Received %d (%d) bytes from module", bytesReceived, sizeof(buffer));
+
+        auto wrote = incoming->write(buffer, bytesReceived);
+        if (wrote != (int32_t)bytesReceived) {
+            log("Error: Out of buffer space (%lu != %d)", wrote, bytesReceived);
+            // return TaskEval::error();
+            // return TaskEval::idle();
+        }
+        else {
+            expectedReplies--;
+        }
     }
 
     if (outgoing == nullptr) {

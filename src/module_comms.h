@@ -10,6 +10,8 @@ public:
     virtual const char *name() const = 0;
     virtual void query(ModuleQueryMessage &message) = 0;
     virtual void reply(ModuleReplyMessage &message) = 0;
+    virtual void prepare(ModuleQueryMessage &message, Writer &outgoing);
+    virtual void tick(Writer &outgoing);
 
 };
 
