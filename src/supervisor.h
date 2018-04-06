@@ -30,7 +30,9 @@ public:
                 }
                 case TaskEvalState::Done: {
                     tasks[i]->done();
+                    #ifdef FK_SUPERVISOR_LOGGING_VERBOSE
                     log("Done: %s", tasks[i]->name);
+                    #endif
                     tasks[i] = nullptr;
                     shrink(i);
                     break;
@@ -59,7 +61,9 @@ public:
             return false;
         }
 
+        #ifdef FK_SUPERVISOR_LOGGING_VERBOSE
         log("Queuing: %s", task.name);
+        #endif
         for (size_t i = Size - 1; i > 0; --i) {
             tasks[i] = tasks[i - 1];
         }
@@ -77,7 +81,9 @@ public:
 
         for (size_t i = 0; i < Size; ++i) {
             if (tasks[i] == nullptr) {
+                #ifdef FK_SUPERVISOR_LOGGING_VERBOSE
                 log("Queuing: %s", task.name);
+                #endif
                 task.enqueued();
                 tasks[i] = &task;
                 return true;
