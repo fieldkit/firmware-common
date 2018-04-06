@@ -49,6 +49,7 @@ void Module::receive(size_t bytes) {
 
 void Module::reply() {
     if (outgoing.empty()) {
+        log("Sending retry.");
         TwoWireMessageBuffer retryBuffer{ *bus };
         ModuleReplyMessage reply(replyPool);
         reply.m().type = fk_module_ReplyType_REPLY_RETRY;

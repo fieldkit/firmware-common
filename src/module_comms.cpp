@@ -37,7 +37,6 @@ TaskEval ModuleCommunications::task() {
             writer.close();
 
             twoWireTask = StreamTwoWireTask{ "ModuleTwoWire", *bus, reader, writer, address };
-
             queue->prepend(twoWireTask);
 
             hasQuery = false;
@@ -57,6 +56,8 @@ TaskEval ModuleCommunications::task() {
                     if (reply.m().type == fk_module_ReplyType_REPLY_RETRY) {
                         log("Retry!");
                         twoWireTask = StreamTwoWireTask{ "ModuleTwoWire", *bus, writer, address };
+                        queue->prepend(twoWireTask);
+                        return TaskEval::idle();
                     }
                     else {
                         hasReply = true;
