@@ -46,8 +46,19 @@ public:
 class ModuleProtocolHandler {
 public:
     struct Queued {
-        uint8_t address;
-        ModuleQuery *query;
+        uint8_t address{ 0 };
+        ModuleQuery *query{ nullptr };
+        uint32_t delay{ 0 };
+
+        Queued() {
+        }
+
+        Queued(uint8_t address, ModuleQuery *query, uint32_t delay) : address(address), query(query), delay(delay) {
+        }
+
+        operator bool() {
+            return address > 0;
+        }
     };
 
     struct Finished {
@@ -68,17 +79,16 @@ public:
     };
 
 private:
-    Queued active{ 0, nullptr };
-    Queued pending{ 0, nullptr };
+    Queued active;
+    Queued pending;
     ModuleCommunications *communications;
     Pool *pool;
 
 public:
-    ModuleProtocolHandler(ModuleCommunications &communications, Pool &pool) : communications(&communications), pool(&pool) {
-    }
+    ModuleProtocolHandler(ModuleCommunications &communications, Pool &pool);
 
 public:
-    void push(uint8_t address, ModuleQuery &query);
+    void push(uint8_t address, ModuleQuery &query, uint32_t delay = 0);
 
     Finished handle();
 

@@ -74,20 +74,25 @@ TaskEval ModuleCommunications::task() {
     return TaskEval::idle();
 }
 
-void ModuleProtocolHandler::push(uint8_t address, ModuleQuery &query) {
+ModuleProtocolHandler::ModuleProtocolHandler(ModuleCommunications &communications, Pool &pool) : communications(&communications), pool(&pool) {
+}
+
+void ModuleProtocolHandler::push(uint8_t address, ModuleQuery &query, uint32_t delay) {
     active = Queued{ };
-    pending = Queued{ address, &query };
+    pending = Queued{ address, &query, delay > 0 ? millis() + delay : 0 };
 }
 
 ModuleProtocolHandler::Finished ModuleProtocolHandler::handle() {
     if (!communications->busy()) {
         if (pending.query != nullptr) {
-            pool->clear();
-            ModuleQueryMessage query{ *pool };
-            pending.query->query(query);
-            communications->enqueue(pending.address, query);
-            active = pending;
-            pending = Queued{};
+            if (millis() > pending.delay) {
+                pool->clear();
+                ModuleQueryMessage query{ *pool };
+                pending.query->query(query);
+                communications->enqueue(pending.address, query);
+                active = pending;
+                pending = Queued{};
+            }
         }
     }
 
