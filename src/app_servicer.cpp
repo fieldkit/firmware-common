@@ -30,8 +30,8 @@ static void copy(fk_app_Schedule &to, ScheduledTask &from) {
     to.day.offset = 0;
 }
 
-AppServicer::AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, Pool &pool)
-    : Task("AppServicer"), bus(&bus), query(&pool), reply(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), pool(&pool) {
+AppServicer::AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
+    : Task("AppServicer"), bus(&bus), query(&pool), reply(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
 }
 
 bool AppServicer::handle(MessageBuffer &newBuffer) {
@@ -288,7 +288,7 @@ TaskEval AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_MODULE: {
-        auto task = appModuleQueryTask.ready(*bus, reply, query, *buffer, (uint8_t)query.m().module.address, *pool);
+        auto task = appModuleQueryTask.ready(*bus, reply, query, *buffer, (uint8_t)query.m().module.address, *communications, *pool);
         if (peripherals.twoWire1().tryAcquire(task)) {
             active.push(*task);
             return TaskEval::busy();

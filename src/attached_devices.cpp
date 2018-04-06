@@ -5,7 +5,7 @@
 namespace fk {
 
 AttachedDevices::AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, ModuleCommunications &communications, Pool &pool)
-    : ActiveObject("AttachedDevices"), bus(&bus), addresses(addresses), addressIndex{ 0 }, state(&state), leds(&leds), protocol(communications, pool) {
+    : Task("AttachedDevices"), bus(&bus), addresses(addresses), addressIndex{ 0 }, state(&state), leds(&leds), protocol(communications, pool) {
 }
 
 void AttachedDevices::scan() {
@@ -32,9 +32,9 @@ void AttachedDevices::resume() {
     }
 }
 
-void AttachedDevices::idle() {
+TaskEval AttachedDevices::task() {
     if (state->isBusy()) {
-        return;
+        return TaskEval::idle();
     }
 
     auto rescanInterval = (state->numberOfModules() == 0 ? RescanExistingModulesInterval : RescanExistingModulesInterval);
@@ -53,6 +53,8 @@ void AttachedDevices::idle() {
             done(finished);
         }
     }
+
+    return TaskEval::idle();
 }
 
 void AttachedDevices::query(uint8_t address) {

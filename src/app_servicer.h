@@ -23,6 +23,7 @@ private:
     Scheduler *scheduler;
     FkfsReplies *fileReplies;
     WifiConnection *connection;
+    ModuleCommunications *communications;
     Pool *pool;
 
     TaskContainer<AppModuleQueryTask> appModuleQueryTask;
@@ -31,7 +32,7 @@ private:
     uint32_t dieAt{ 0 };
 
 public:
-    AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, Pool &pool);
+    AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
 
 public:
     void enqueued() override;

@@ -58,7 +58,7 @@ public:
     }
 };
 
-class AttachedDevices : public ActiveObject {
+class AttachedDevices : public Task {
 private:
     TwoWireBus *bus;
     uint32_t lastScanAt{ 0 };
@@ -75,10 +75,12 @@ public:
     AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, ModuleCommunications &communications, Pool &pool);
 
 public:
+    TaskEval task() override;
+
+public:
     void scan();
     void done(ModuleProtocolHandler::Finished &task);
     void error(ModuleProtocolHandler::Finished &task);
-    void idle() override;
 
 private:
     void resume();

@@ -4,8 +4,8 @@
 
 namespace fk {
 
-GatherReadings::GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, Pool &pool) :
-    ActiveObject("GatherReadings"), state(&state), leds(&leds), beginTakeReading(bus, pool, 8), queryReadingStatus(bus, pool, 8) {
+GatherReadings::GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, ModuleCommunications &communications, Pool &pool) :
+    Task("GatherReadings"), state(&state), leds(&leds), protocol{ communications, pool } {
 }
 
 void GatherReadings::enqueued() {
@@ -21,58 +21,77 @@ void GatherReadings::enqueued() {
 
     state->takingReadings();
     leds->takingReadings();
-    push(beginTakeReading);
+    protocol.push(8, beginTakeReading);
 }
 
-void GatherReadings::done(Task &task) {
-    if (areSame(task, beginTakeReading)) {
+TaskEval GatherReadings::task() {
+    auto finished = protocol.handle();
+    if (finished) {
+        if (finished.error()) {
+            return error(finished);
+        }
+        else {
+            return done(finished);
+        }
+    }
+    return TaskEval::idle();
+}
+
+TaskEval GatherReadings::done(ModuleProtocolHandler::Finished &finished) {
+    if (finished.is(beginTakeReading)) {
+        auto delay = 300;
         if (beginTakeReading.getBackoff() > 0) {
             log("Using backoff of %lu", beginTakeReading.getBackoff());
-            delay.adjust(beginTakeReading.getBackoff());
-        } else {
-            delay.adjust(300);
+            delay = beginTakeReading.getBackoff();
         }
-        push(delay);
-        push(queryReadingStatus);
-    } else if (areSame(task, queryReadingStatus)) {
-        if (queryReadingStatus.isBusy()) {
+        protocol.push(8, queryReadingStatus, delay);
+    }
+    else if (finished.is(queryReadingStatus)) {
+        if (queryReadingStatus.isBegin() || queryReadingStatus.isBusy()) {
+            auto delay = 300;
             if (queryReadingStatus.getBackoff() > 0) {
                 log("Using backoff of %lu", queryReadingStatus.getBackoff());
-                delay.adjust(queryReadingStatus.getBackoff());
-            } else {
-                delay.adjust(300);
+                delay = queryReadingStatus.getBackoff();
             }
-            push(delay);
-            push(queryReadingStatus);
-        } else if (queryReadingStatus.isDone()) {
-            state->merge(8, queryReadingStatus.replyMessage());
-            push(queryReadingStatus);
+            protocol.push(8, queryReadingStatus, delay);
+        }
+        else if (queryReadingStatus.isDone()) {
+            state->merge(8, *finished.reply);
+            protocol.push(8, queryReadingStatus);
+        }
+        else {
+            return TaskEval::done();
         }
     }
 
     retries = 0;
+
+    return TaskEval::idle();
 }
 
-void GatherReadings::error(Task &task) {
-    if (areSame(task, beginTakeReading)) {
+TaskEval GatherReadings::error(ModuleProtocolHandler::Finished &finished) {
+    if (finished.is(beginTakeReading)) {
         if (retries < NumberOfTwoWireRetries) {
             log("Retry %d/%d", retries, NumberOfTwoWireRetries);
-            push(beginTakeReading);
+            protocol.push(8, beginTakeReading);
             retries++;
         }
         else {
             retries = 0;
+            return TaskEval::error();
         }
-    } else if (areSame(task, queryReadingStatus)) {
+    } else if (finished.is(queryReadingStatus)) {
         if (retries < NumberOfTwoWireRetries) {
             log("Retry %d/%d", retries, NumberOfTwoWireRetries);
-            push(queryReadingStatus);
+            protocol.push(8, queryReadingStatus);
             retries++;
         }
         else {
             retries = 0;
+            return TaskEval::error();
         }
     }
+    return TaskEval::idle();
 }
 
 void GatherReadings::error() {

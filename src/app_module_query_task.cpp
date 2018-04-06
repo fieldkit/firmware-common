@@ -2,21 +2,40 @@
 
 namespace fk {
 
-AppModuleQueryTask::AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, Pool &pool) :
-    CustomModuleQueryTask(bus, query, pool, address), reply(&reply), query(&query), buffer(&buffer) {
+AppModuleQueryTask::AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, ModuleCommunications &communications, Pool &pool) :
+    Task("AppModuleQueryTask"), reply(&reply), query(&query), buffer(&buffer), customModuleQuery(reply, query, buffer), protocol(communications, pool) {
 }
 
-void AppModuleQueryTask::done() {
+void AppModuleQueryTask::enqueued() {
+    protocol.push(8, customModuleQuery);
+}
+
+TaskEval AppModuleQueryTask::task() {
+    auto finished = protocol.handle();
+    if (finished) {
+        if (finished.error()) {
+            error(finished);
+            return TaskEval::error();
+        }
+        else {
+            done(finished);
+            return TaskEval::done();
+        }
+    }
+    return TaskEval::idle();
+}
+
+void AppModuleQueryTask::done(ModuleProtocolHandler::Finished &finished) {
     reply->clear();
 
-    if (replyMessage().isError()) {
+    if (finished.reply->isError()) {
         reply->m().type = fk_app_ReplyType_REPLY_ERROR;
         log("Error reply from module.");
     }
     else {
         reply->m().type = fk_app_ReplyType_REPLY_MODULE;
         reply->m().module.message.funcs.encode = pb_encode_data;
-        reply->m().module.message.arg = replyMessage().m().custom.message.arg;
+        reply->m().module.message.arg = finished.reply->m().custom.message.arg;
     }
 
     if (!buffer->write(*reply)) {
@@ -26,7 +45,7 @@ void AppModuleQueryTask::done() {
     peripherals.twoWire1().release(this);
 }
 
-void AppModuleQueryTask::error() {
+void AppModuleQueryTask::error(ModuleProtocolHandler::Finished &finished) {
     reply->m().type = fk_app_ReplyType_REPLY_ERROR;
 
     if (!buffer->write(*reply)) {

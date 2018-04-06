@@ -68,7 +68,7 @@ private:
     SerialPort gpsPort{ Serial1 };
     ReadGps readGps{state, gpsPort};
 
-    GatherReadings gatherReadings{bus, state, leds, modulesPool};
+    GatherReadings gatherReadings{bus, state, leds, moduleCommunications, modulesPool};
 
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },
@@ -83,7 +83,7 @@ private:
     LiveData liveData{gatherReadings, state};
 
     WifiConnection connection;
-    AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, appPool};
+    AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
     Wifi wifi{state, connection, appServicer, supervisor};
     Discovery discovery{ bus, wifi };
 
