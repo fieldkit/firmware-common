@@ -10,35 +10,6 @@
 
 namespace fk {
 
-class TwoWireTask : public Task {
-private:
-    TwoWireBus *bus;
-    uint8_t address{ 0 };
-    uint32_t dieAt{ 0 };
-    uint32_t checkAt{ 0 };
-
-protected:
-    ModuleQueryMessage query;
-    ModuleReplyMessage reply;
-
-public:
-    TwoWireTask(const char *name, TwoWireBus &bus, Pool &pool, uint8_t address)
-        : Task(name), bus(&bus), address(address), query(pool), reply(pool) {
-    }
-
-    void enqueued() override {
-        dieAt = 0;
-        checkAt = 0;
-    }
-
-    ModuleReplyMessage &replyMessage() {
-        return reply;
-    }
-
-    TaskEval task() override;
-
-};
-
 class StreamTwoWireTask : public Task {
 private:
     TwoWireBus *bus;

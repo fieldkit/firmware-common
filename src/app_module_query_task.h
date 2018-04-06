@@ -8,26 +8,6 @@
 
 namespace fk {
 
-#if 0
-class CustomModuleQueryTask_ : public TwoWireTask {
-private:
-    AppQueryMessage *appQuery;
-    Pool *pool;
-    pb_data_t messageData;
-
-public:
-    CustomModuleQueryTask_(TwoWireBus &bus, AppQueryMessage &appQuery, Pool &pool, uint8_t address) : TwoWireTask("CustomModuleQuery", bus, pool, address), appQuery(&appQuery), pool(&pool) {
-        query.m().type = fk_module_QueryType_QUERY_CUSTOM;
-    }
-
-    void enqueued() override {
-        TwoWireTask::enqueued();
-        query.m().custom.message.arg = appQuery->m().module.message.arg;
-    }
-
-};
-#endif
-
 class CustomModuleQuery : public ModuleQuery {
 private:
     AppReplyMessage *appReply;
