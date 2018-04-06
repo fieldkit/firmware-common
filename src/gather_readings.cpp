@@ -29,6 +29,10 @@ TaskEval GatherReadings::task() {
         return TaskEval::done();
     }
 
+    if (startedAt == 0) {
+        startedAt = millis();
+    }
+
     auto finished = protocol.handle();
     if (finished) {
         if (finished.error()) {
@@ -64,6 +68,7 @@ TaskEval GatherReadings::done(ModuleProtocolHandler::Finished &finished) {
             protocol.push(8, queryReadingStatus);
         }
         else {
+            log("Readings done after %lums", millis() - startedAt);
             return TaskEval::done();
         }
     }
