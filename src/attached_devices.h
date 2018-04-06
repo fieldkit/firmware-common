@@ -15,6 +15,10 @@ private:
     uint8_t numberOfSensors{ 0 };
 
 public:
+    const char *name() const override {
+        return "QueryCapabilities";
+    }
+
     void query(ModuleQueryMessage &message) override {
         message.m().type = fk_module_QueryType_QUERY_CAPABILITIES;
     }
@@ -43,6 +47,10 @@ private:
     uint8_t sensor{ 0 };
 
 public:
+    const char *name() const override {
+        return "QuerySensorCapabilities";
+    }
+
     void query(ModuleQueryMessage &message) override {
         message.m().type = fk_module_QueryType_QUERY_SENSOR_CAPABILITIES;
         message.m().querySensorCapabilities.sensor = sensor;

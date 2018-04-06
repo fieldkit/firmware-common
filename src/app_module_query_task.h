@@ -19,6 +19,10 @@ public:
     }
 
 public:
+    const char *name() const override {
+        return "CustomModuleQuery";
+    }
+
     void query(ModuleQueryMessage &message) override {
         message.m().type = fk_module_QueryType_QUERY_CUSTOM;
         message.m().custom.message.arg = appQuery->m().module.message.arg;

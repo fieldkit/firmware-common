@@ -16,6 +16,10 @@ private:
     uint32_t status{ 0 };
 
 public:
+    const char *name() const override {
+        return "BeginTakeReading";
+    }
+
     void query(ModuleQueryMessage &message) override {
         message.m().type = fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS;
         message.m().beginTakeReadings.callerTime = clock.getTime();
@@ -55,6 +59,10 @@ private:
     uint32_t status{ 0 };
 
 public:
+    const char *name() const override {
+        return "QueryReadingStatus";
+    }
+
     void query(ModuleQueryMessage &message) override {
         message.m().type = fk_module_QueryType_QUERY_READING_STATUS;
     }
