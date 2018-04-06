@@ -4,6 +4,46 @@
 #include <fk-data-protocol.h>
 #include <fk-module-protocol.h>
 
+class CountingReader : public fk::Reader {
+private:
+    uint32_t total{ 0 };
+    uint32_t jitter{ 0 };
+    uint8_t counter{ 0 };
+    uint32_t position{ 0 };
+
+public:
+    CountingReader(uint32_t total, uint32_t jitter) : total(total), jitter(jitter) {
+    }
+
+public:
+    int32_t read() override {
+        fk_assert(false);
+        return EOS;
+    }
+
+    void close() override {
+
+    }
+
+    int32_t read(uint8_t *ptr, size_t size) override {
+        auto remaining = total - position;
+        auto bytes = size > remaining ? remaining : (int32_t)size;
+
+        if (remaining == 0) {
+            return EOS;
+        }
+
+        for (auto i = 0; i < bytes; ++i) {
+            *ptr++ = counter++;
+        }
+
+        position += bytes;
+
+        return bytes;
+    }
+
+};
+
 StreamsSuite::StreamsSuite() {
 }
 
@@ -280,3 +320,42 @@ TEST_F(StreamsSuite, CircularStreamsProtoRoundTrip) {
 
     EXPECT_EQ(protoReader.read<64>(fk_data_DataRecord_fields, &incoming), -1);
 }
+
+TEST_F(StreamsSuite, CircularStreamsProtoCounting) {
+    auto reader = CountingReader{ 196, 0 };
+    auto total = 0;
+
+    while (true) {
+        uint8_t buffer[24];
+        auto r = reader.read(buffer, sizeof(buffer));
+        if (r == fk::Stream::EOS) {
+            break;
+        }
+        total += r;
+    }
+
+    EXPECT_EQ(total, 196);
+}
+
+
+TEST_F(StreamsSuite, CircularStreamsProtoCopying) {
+    auto destination = fk::AlignedStorageBuffer<256>{};
+    auto buffer = fk::AlignedStorageBuffer<256>{};
+
+    auto writer = fk::DirectWriter{ destination.toBufferPtr() };
+    auto reader = CountingReader{ 196, 0 };
+    auto total = 0;
+
+    auto copier = fk::StreamCopier{ buffer.toBufferPtr() };
+
+    while (true) {
+        auto r = copier.copy(reader, writer);
+        if (r < 0) {
+            break;
+        }
+        total += r;
+    }
+
+    EXPECT_EQ(total, 196);
+}
+

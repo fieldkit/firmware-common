@@ -4,6 +4,7 @@ file(GLOB SRCS
   ../../../src/debug.cpp
   ../../../src/protobuf.cpp
   ../../../src/pool.cpp
+  ../../../src/streams.cpp
 )
 
 add_executable(testcommon ${SRCS})

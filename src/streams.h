@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "protobuf.h"
 #include "debug.h"
 
@@ -277,6 +279,20 @@ protected:
         }
         return buffered;
     }
+
+};
+
+class StreamCopier {
+private:
+    BufferPtr buffer;
+    size_t position{ 0 };
+
+public:
+    StreamCopier(BufferPtr &&bp) : buffer(std::forward<BufferPtr>(bp)) {
+    }
+
+public:
+    int32_t copy(Reader &reader, Writer &writer);
 
 };
 
