@@ -15,11 +15,13 @@ public:
 
 class ModuleCommunications : public Task {
 private:
-    TaskQueue *queue;
     TwoWireBus *bus;
+    TaskQueue *queue;
+    Pool *pool;
+    uint8_t address{ 0 };
+    ModuleQuery *pending{ nullptr };
     ModuleQueryMessage query;
     ModuleReplyMessage reply;
-    uint8_t address{ 0 };
     bool hasQuery{ false };
     bool hasReply{ false };
     TwoWireTask twoWireTask;
@@ -32,7 +34,7 @@ public:
     TaskEval task() override;
 
 public:
-    void enqueue(uint8_t destination, ModuleQueryMessage &pending);
+    void enqueue(uint8_t destination, ModuleQuery &mq);
 
     bool available();
 

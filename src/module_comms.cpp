@@ -3,14 +3,14 @@
 namespace fk {
 
 ModuleCommunications::ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool) :
-    Task("ModuleCommunications"), queue(&queue), bus(&bus), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, streams.getReader(), streams.getWriter(), 0) {
+    Task("ModuleCommunications"), bus(&bus), queue(&queue), pool(&pool), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, streams.getReader(), streams.getWriter(), 0) {
 }
 
-void ModuleCommunications::enqueue(uint8_t destination, ModuleQueryMessage &pending) {
+void ModuleCommunications::enqueue(uint8_t destination, ModuleQuery &mq) {
     fk_assert(!hasQuery);
 
     address = destination;
-    query = pending;
+    pending = &mq;
     hasQuery = true;
 }
 
@@ -29,6 +29,10 @@ TaskEval ModuleCommunications::task() {
         if (hasQuery) {
             streams.clear();
 
+            pool->clear();
+            query.clear();
+            pending->query(query);
+
             auto &reader = streams.getReader();
             auto &writer = streams.getWriter();
             auto protoWriter = ProtoBufMessageWriter{ writer };
@@ -36,7 +40,7 @@ TaskEval ModuleCommunications::task() {
 
             writer.close();
 
-            twoWireTask = TwoWireTask{ "ModuleTwoWire", *bus, reader, writer, address };
+            twoWireTask = TwoWireTask{ pending->name(), *bus, reader, writer, address };
             queue->prepend(twoWireTask);
 
             hasQuery = false;
@@ -55,7 +59,7 @@ TaskEval ModuleCommunications::task() {
                 else {
                     if (reply.m().type == fk_module_ReplyType_REPLY_RETRY) {
                         log("Retry!");
-                        twoWireTask = TwoWireTask{ "ModuleTwoWire", *bus, writer, address };
+                        twoWireTask = TwoWireTask{ pending->name(), *bus, writer, address };
                         queue->prepend(twoWireTask);
                         return TaskEval::idle();
                     }
@@ -90,10 +94,7 @@ ModuleProtocolHandler::Finished ModuleProtocolHandler::handle() {
     if (!communications->busy()) {
         if (pending.query != nullptr) {
             if (millis() > pending.delay) {
-                pool->clear();
-                ModuleQueryMessage query{ *pool };
-                pending.query->query(query);
-                communications->enqueue(pending.address, query);
+                communications->enqueue(pending.address, *pending.query);
                 active = pending;
                 pending = Queued{};
             }
