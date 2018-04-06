@@ -48,7 +48,7 @@ TaskEval TwoWireTask::task() {
 }
 
 TaskEval TwoWireTask::send() {
-    uint8_t buffer[SERIAL_BUFFER_SIZE];
+    uint8_t buffer[SERIAL_BUFFER_SIZE - 1];
     auto bytes = outgoing->read(buffer, sizeof(buffer));
     if (bytes < 0) {
         return TaskEval::done();
@@ -75,7 +75,7 @@ TaskEval TwoWireTask::send() {
 
 TaskEval TwoWireTask::receive() {
     if (expectedReplies > 0) {
-        uint8_t buffer[SERIAL_BUFFER_SIZE];
+        uint8_t buffer[SERIAL_BUFFER_SIZE - 1];
         bytesReceived = bus->receive(address, buffer, sizeof(buffer));
         if (bytesReceived == 0) {
             log("Error: Empty reply.");
