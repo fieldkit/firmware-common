@@ -3,15 +3,15 @@
 
 namespace fk {
 
-StreamTwoWireTask::StreamTwoWireTask(const char *name, TwoWireBus &bus, Reader &outgoing, Writer &incoming, uint8_t address) :
+TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, Reader &outgoing, Writer &incoming, uint8_t address) :
     Task(name), bus(&bus), outgoing(&outgoing), incoming(&incoming), address(address) {
 }
 
-StreamTwoWireTask::StreamTwoWireTask(const char *name, TwoWireBus &bus, Writer &incoming, uint8_t address) :
+TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, Writer &incoming, uint8_t address) :
     Task(name), bus(&bus), outgoing(nullptr), incoming(&incoming), address(address) {
 }
 
-void StreamTwoWireTask::enqueued() {
+void TwoWireTask::enqueued() {
     dieAt = 0;
     checkAt = 0;
     bytesReceived = 0;
@@ -21,7 +21,7 @@ void StreamTwoWireTask::enqueued() {
     }
 }
 
-TaskEval StreamTwoWireTask::task() {
+TaskEval TwoWireTask::task() {
     if (checkAt > 0 && millis() < checkAt) {
         return TaskEval::idle();
     }
@@ -43,7 +43,7 @@ TaskEval StreamTwoWireTask::task() {
     return receive();
 }
 
-TaskEval StreamTwoWireTask::send() {
+TaskEval TwoWireTask::send() {
     uint8_t buffer[SERIAL_BUFFER_SIZE];
     auto bytes = outgoing->read(buffer, sizeof(buffer));
     if (bytes < 0) {
@@ -65,7 +65,7 @@ TaskEval StreamTwoWireTask::send() {
     return TaskEval::idle();
 }
 
-TaskEval StreamTwoWireTask::receive() {
+TaskEval TwoWireTask::receive() {
     uint8_t buffer[SERIAL_BUFFER_SIZE];
     bytesReceived = bus->receive(address, buffer, sizeof(buffer));
     if (bytesReceived == 0) {

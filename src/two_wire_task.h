@@ -10,7 +10,7 @@
 
 namespace fk {
 
-class StreamTwoWireTask : public Task {
+class TwoWireTask : public Task {
 private:
     TwoWireBus *bus;
     Reader *outgoing;
@@ -25,12 +25,12 @@ public:
     /**
      *
      */
-    StreamTwoWireTask(const char *name, TwoWireBus &bus, Reader &outgoing, Writer &incoming, uint8_t address);
+    TwoWireTask(const char *name, TwoWireBus &bus, Reader &outgoing, Writer &incoming, uint8_t address);
 
     /**
      *
      */
-    StreamTwoWireTask(const char *name, TwoWireBus &bus, Writer &incoming, uint8_t address);
+    TwoWireTask(const char *name, TwoWireBus &bus, Writer &incoming, uint8_t address);
 
 public:
     void enqueued() override;

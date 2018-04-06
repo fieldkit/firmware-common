@@ -21,7 +21,7 @@ private:
     uint8_t address{ 0 };
     bool hasQuery{ false };
     bool hasReply{ false };
-    StreamTwoWireTask twoWireTask;
+    TwoWireTask twoWireTask;
     CircularStreams<fk::RingBufferN<256>> streams;
 
 public:
