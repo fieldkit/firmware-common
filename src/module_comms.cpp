@@ -82,6 +82,10 @@ void ModuleProtocolHandler::push(uint8_t address, ModuleQuery &query, uint32_t d
     pending = Queued{ address, &query, delay > 0 ? millis() + delay : 0 };
 }
 
+bool ModuleProtocolHandler::isBusy() {
+    return active || pending;
+}
+
 ModuleProtocolHandler::Finished ModuleProtocolHandler::handle() {
     if (!communications->busy()) {
         if (pending.query != nullptr) {

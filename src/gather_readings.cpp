@@ -25,6 +25,10 @@ void GatherReadings::enqueued() {
 }
 
 TaskEval GatherReadings::task() {
+    if (!protocol.isBusy()) {
+        return TaskEval::done();
+    }
+
     auto finished = protocol.handle();
     if (finished) {
         if (finished.error()) {

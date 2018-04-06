@@ -90,6 +90,8 @@ public:
 public:
     void push(uint8_t address, ModuleQuery &query, uint32_t delay = 0);
 
+    bool isBusy();
+
     Finished handle();
 
 };
