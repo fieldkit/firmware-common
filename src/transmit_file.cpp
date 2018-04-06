@@ -75,7 +75,7 @@ TaskEval TransmitFileTask::task() {
 
                 if (state->shouldWipeAfterUpload()) {
                     log("Truncating data!");
-                    iterator.truncateFile();
+                    iterator.truncate();
                 }
             }
             state->saveCursor(iterator.resumeToken());

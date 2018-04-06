@@ -49,7 +49,7 @@ public:
     uint8_t fileNumber() {
         return file;
     }
-    void truncateFile();
+    void truncate();
     void reopen(fkfs_iterator_token_t &token);
     void status();
     void beginning();

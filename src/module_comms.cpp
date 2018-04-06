@@ -68,9 +68,6 @@ TaskEval ModuleCommunications::task() {
                     }
                 }
             }
-            else {
-                // log("Error");
-            }
             address = 0;
         }
     }

@@ -95,7 +95,8 @@ DataBlock FkfsIterator::peek() {
                 status();
 
                 if (totalBytes != iteratedBytes) {
-                    log("Warning: totalBytes != iteratedBytes (%d != %d)", totalBytes, iteratedBytes);
+                    log("Warning: totalBytes != iteratedBytes (%d != %d) (%d)", totalBytes, iteratedBytes, iter.iterated);
+                    truncate();
                 }
             }
         }
@@ -115,7 +116,7 @@ DataBlock FkfsIterator::move() {
     return block;
 }
 
-void FkfsIterator::truncateFile() {
+void FkfsIterator::truncate() {
     fkfs_file_truncate(fs, file);
     beginning();
 }
