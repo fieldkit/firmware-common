@@ -38,7 +38,30 @@ int32_t FileReader::read(uint8_t *ptr, size_t size) {
 void FileReader::close() {
 }
 
+ClearModuleData::ClearModuleData() {
+}
+
+void ClearModuleData::query(ModuleQueryMessage &message) {
+    message.m().type = fk_module_QueryType_QUERY_DATA_CLEAR;
+}
+
+void ClearModuleData::reply(ModuleReplyMessage &message) {
+    maximumBytes = message.m().data.size;
+}
+
 ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, uint8_t file) : fileReader(fileSystem, file), buffer(), streamCopier{ buffer.toBufferPtr() } {
+}
+
+void ModuleDataTransfer::query(ModuleQueryMessage &message) {
+    fileReader.open();
+    bytesCopied = 0;
+
+    message.m().type = fk_module_QueryType_QUERY_DATA_APPEND;
+    message.m().data.size = fileReader.size();
+}
+
+void ModuleDataTransfer::reply(ModuleReplyMessage &message) {
+    maximumBytes = message.m().data.size;
 }
 
 void ModuleDataTransfer::prepare(ModuleQueryMessage &message, Writer &outgoing) {
@@ -46,14 +69,18 @@ void ModuleDataTransfer::prepare(ModuleQueryMessage &message, Writer &outgoing) 
 
     auto protoWriter = ProtoBufMessageWriter{ outgoing };
     protoWriter.write(fk_module_WireMessageQuery_fields, &message.m());
-
-    fileReader.open();
 }
 
 void ModuleDataTransfer::tick(Writer &outgoing) {
-    if (streamCopier.copy(fileReader, outgoing) == Stream::EOS) {
+    auto bytes = streamCopier.copy(fileReader, outgoing);
+    if (bytes == Stream::EOS) {
         outgoing.close();
-        return;
+    }
+    else {
+        bytesCopied += bytes;
+        if (bytesCopied > maximumBytes) {
+            outgoing.close();
+        }
     }
 }
 
@@ -62,14 +89,24 @@ PrepareTransmissionData::PrepareTransmissionData(TwoWireBus &bus, CoreState &sta
 }
 
 void PrepareTransmissionData::enqueued() {
-    protocol.push(9, moduleDataTransfer);
+    protocol.push(9, clearModuleData);
 }
 
 TaskEval PrepareTransmissionData::task() {
     if (protocol.isBusy()) {
         auto finished = protocol.handle();
         if (finished) {
-            log("Done");
+            if (finished.error()) {
+                return TaskEval::error();
+            }
+
+            if (finished.is(clearModuleData)) {
+                moduleDataTransfer.setMaximumBytes(clearModuleData.getMaximumBytes());
+                protocol.push(9, moduleDataTransfer);
+            }
+            else {
+                log("Done");
+            }
         }
         return TaskEval::busy();
     }

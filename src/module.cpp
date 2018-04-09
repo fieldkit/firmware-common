@@ -20,7 +20,7 @@ static void module_receive_callback(int bytes) {
 
 Module::Module(TwoWireBus &bus, ModuleInfo &info)
     : ActiveObject(info.name), bus(&bus),
-      outgoing{ bus }, incoming{ bus }, moduleServicer{ bus, info, *this, outgoing, incoming, replyPool }, info(&info) {
+      outgoing{ bus }, incoming{ bus }, moduleServicer{ bus, info, *this, outgoing, incoming, incomingPipe.getWriter(), replyPool }, info(&info) {
 }
 
 void Module::begin() {
@@ -77,6 +77,14 @@ void Module::idle() {
     if (millis() - lastActivity > IdleRebootInterval) {
         log("Reboot due to inactivity.");
         NVIC_SystemReset();
+    }
+
+    auto block = blockReader.read();
+    if (block.eos()) {
+        log("End of stream.");
+    }
+    if (block) {
+        log("Read %ld bytes", block.blockSize);
     }
 }
 

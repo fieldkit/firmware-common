@@ -7,6 +7,7 @@
 #include "watchdog.h"
 #include "leds.h"
 #include "two_wire.h"
+#include "varint_streams.h"
 
 namespace fk {
 
@@ -21,6 +22,9 @@ private:
     Leds leds;
     Watchdog watchdog{ leds };
     ModuleInfo *info;
+    AlignedStorageBuffer<256> scratch;
+    CircularStreams<fk::RingBufferN<256>> incomingPipe;
+    VarintEncodedStream blockReader{ incomingPipe.getReader(), scratch.toBufferPtr() };
 
 public:
     static Module *active;

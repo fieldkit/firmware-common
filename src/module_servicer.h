@@ -5,6 +5,7 @@
 #include "message_buffer.h"
 #include "module_info.h"
 #include "module_messages.h"
+#include "streams.h"
 
 namespace fk {
 
@@ -36,10 +37,11 @@ private:
     PendingSensorReading pending;
     TwoWireMessageBuffer *outgoing;
     TwoWireMessageBuffer *incoming;
+    Writer *writer;
     Pool *pool;
 
 public:
-    ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, Pool &pool);
+    ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, Writer &writer, Pool &pool);
 
 public:
     TaskEval task() override;

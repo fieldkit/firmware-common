@@ -4,12 +4,14 @@
 
 namespace fk {
 
-ModuleServicer::ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, Pool &pool)
-    : Task("ModuleServicer"), bus(&bus), info(&info), callbacks(&callbacks), outgoing(&o), incoming(&i), pool(&pool) {
+ModuleServicer::ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, Writer &writer, Pool &pool)
+    : Task("ModuleServicer"), bus(&bus), info(&info), callbacks(&callbacks), outgoing(&o), incoming(&i), writer(&writer), pool(&pool) {
 }
 
 void ModuleServicer::read(size_t bytes) {
     incoming->readIncoming(bytes);
+    auto wrote = writer->write(incoming->ptr(), incoming->position());
+    // log("Read %d bytes (%ld)", bytes, wrote);
 }
 
 TaskEval ModuleServicer::task() {
@@ -140,7 +142,7 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_DATA;
-        reply.m().data.size = 0;
+        reply.m().data.size = 4096;
 
         outgoing->write(reply);
 

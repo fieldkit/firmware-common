@@ -85,6 +85,10 @@ public:
         position = 0;
     }
 
+    uint32_t size() {
+        return iterator.size();
+    }
+
     bool isFinished();
 
     DataBlock read(size_t bytes);
