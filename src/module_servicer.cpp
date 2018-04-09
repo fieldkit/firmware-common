@@ -11,7 +11,9 @@ ModuleServicer::ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallback
 void ModuleServicer::read(size_t bytes) {
     incoming->readIncoming(bytes);
     auto wrote = writer->write(incoming->ptr(), incoming->position());
-    // log("Read %d bytes (%ld)", bytes, wrote);
+    if (false) {
+        log("Read %d bytes (%ld)", bytes, wrote);
+    }
 }
 
 TaskEval ModuleServicer::task() {
