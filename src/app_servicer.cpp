@@ -34,14 +34,9 @@ AppServicer::AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, 
     : Task("AppServicer"), bus(&bus), query(&pool), reply(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
 }
 
-bool AppServicer::handle(MessageBuffer &newBuffer) {
-    buffer = &newBuffer;
-    active.clear();
-    return this->buffer->read(query);
-}
-
 void AppServicer::enqueued() {
     active.clear();
+    bytesRead = 0;
     dieAt = 0;
 }
 
@@ -52,6 +47,10 @@ TaskEval AppServicer::task() {
 
     if (!readQuery()) {
         return TaskEval::error();
+    }
+
+    if (bytesRead == 0) {
+        return TaskEval::idle();
     }
 
     return handle();
@@ -67,10 +66,13 @@ bool AppServicer::readQuery() {
         return false;
     }
 
-    auto bytesRead = connection->read();
-    if (bytesRead > 0) {
-        log("Read %d bytes", bytesRead);
-        if (!handle(connection->getBuffer())) {
+    auto read = connection->read();
+    if (read > 0) {
+        log("Read %d bytes", read);
+        bytesRead += read;
+        buffer = &connection->getBuffer();
+        active.clear();
+        if (!buffer->read(query)) {
             connection->close();
             log("Error parsing query");
             return false;

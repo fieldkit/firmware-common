@@ -30,6 +30,7 @@ private:
     MessageBuffer *buffer{nullptr};
     ChildContainer active;
     uint32_t dieAt{ 0 };
+    size_t bytesRead{ 0 };
 
 public:
     AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
@@ -39,9 +40,6 @@ public:
     TaskEval task() override;
     void done() override;
     void error() override;
-
-public:
-    bool handle(MessageBuffer &buffer);
 
 private:
     TaskEval handle();

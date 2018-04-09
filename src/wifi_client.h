@@ -51,6 +51,7 @@ private:
 public:
     void setConnection(WiFiClient &newClient) {
         wcl = newClient;
+        buffer.clear();
         buffer.setConnection(wcl);
     }
 
