@@ -337,7 +337,6 @@ TEST_F(StreamsSuite, CircularStreamsProtoCounting) {
     EXPECT_EQ(total, 196);
 }
 
-
 TEST_F(StreamsSuite, CircularStreamsProtoCopying) {
     auto destination = fk::AlignedStorageBuffer<256>{};
     auto buffer = fk::AlignedStorageBuffer<256>{};
@@ -357,5 +356,121 @@ TEST_F(StreamsSuite, CircularStreamsProtoCopying) {
     }
 
     EXPECT_EQ(total, 196);
+}
+
+TEST_F(StreamsSuite, CircularStreamsVarintStream) {
+    fk_data_DataRecord outgoing = fk_data_DataRecord_init_default;
+    outgoing.log.uptime = millis();
+    outgoing.log.time = millis();
+    outgoing.log.level = (uint32_t)LogLevels::INFO;
+    outgoing.log.facility.arg = (void *)"Facility";
+    outgoing.log.facility.funcs.encode = fk::pb_encode_string;
+    outgoing.log.message.arg = (void *)"Message";
+    outgoing.log.message.funcs.encode = fk::pb_encode_string;
+
+    auto destination = fk::AlignedStorageBuffer<256>{};
+    auto writer = fk::DirectWriter{ destination.toBufferPtr() };
+
+    auto protoWriter = fk::ProtoBufMessageWriter{ writer };
+    EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
+    EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
+    EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
+    EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
+
+    {
+        auto scratch = fk::AlignedStorageBuffer<256>{};
+        auto reader = fk::DirectReader{ writer.toBufferPtr() };
+        auto varintReader = fk::VarintEncodedStream{ reader, scratch.toBufferPtr() };
+
+        for (size_t i = 0; i < 4; ++i)
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 23);
+            EXPECT_EQ(block.position, 0);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.eos(), true);
+        }
+    }
+
+    {
+        auto scratch = fk::AlignedStorageBuffer<32>{};
+        auto reader = fk::DirectReader{ writer.toBufferPtr() };
+        auto varintReader = fk::VarintEncodedStream{ reader, scratch.toBufferPtr() };
+
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 23);
+            EXPECT_EQ(block.position, 0);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 7);
+            EXPECT_EQ(block.position, 0);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 16);
+            EXPECT_EQ(block.position, 7);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 15);
+            EXPECT_EQ(block.position, 0);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 8);
+            EXPECT_EQ(block.position, 15);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 23);
+            EXPECT_EQ(block.position, 0);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.eos(), true);
+        }
+    }
+
+    {
+        auto scratch = fk::AlignedStorageBuffer<8>{};
+        auto reader = fk::DirectReader{ writer.toBufferPtr() };
+        auto varintReader = fk::VarintEncodedStream{ reader, scratch.toBufferPtr() };
+
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 7);
+            EXPECT_EQ(block.position, 0);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 8);
+            EXPECT_EQ(block.position, 7);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 8);
+            EXPECT_EQ(block.position, 15);
+        }
+        {
+            auto block = varintReader.read();
+            EXPECT_EQ(block.totalSize, 23);
+            EXPECT_EQ(block.blockSize, 7);
+            EXPECT_EQ(block.position, 0);
+        }
+    }
 }
 
