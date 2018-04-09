@@ -59,7 +59,7 @@ void CoreModule::run() {
 
     wifi.begin();
 
-    supervisor.append(ntp);
+    background.append(ntp);
 
     // TODO: Can this just take references?
     auto tasks = to_parallel_task_collection(
@@ -73,7 +73,8 @@ void CoreModule::run() {
         &discovery,
         &liveData,
         &moduleCommunications,
-        &supervisor
+        &background,
+        &servicing
     );
 
     while (true) {

@@ -43,7 +43,8 @@ private:
     StaticPool<384> modulesPool{"ModulesPool"};
     StaticPool<128> dataPool{"DataPool"};
 
-    Supervisor<5> supervisor{ true };
+    Supervisor<5> background{ true };
+    Supervisor<5> servicing{ true };
 
     Leds leds;
     Watchdog watchdog{ leds };
@@ -55,14 +56,14 @@ private:
     CoreState state{storage, fileSystem.getData()};
     Power power{ state };
 
-    ModuleCommunications moduleCommunications{bus, supervisor, modulesPool};
+    ModuleCommunications moduleCommunications{bus, background, modulesPool};
 
     AttachedDevices attachedDevices{bus, addresses, state, leds, moduleCommunications};
 
     HttpTransmissionConfig transmissionConfig = {
         .streamUrl = API_INGESTION_STREAM,
     };
-    TransmitAllFilesTask transmitAllFilesTask{supervisor, fileSystem, state, wifi, transmissionConfig};
+    TransmitAllFilesTask transmitAllFilesTask{background, fileSystem, state, wifi, transmissionConfig};
     PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, 0, moduleCommunications};
 
     SerialPort gpsPort{ Serial1 };
@@ -78,13 +79,13 @@ private:
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllFilesTask },
     };
-    Scheduler scheduler{state, clock, supervisor, scheduled, periodics};
+    Scheduler scheduler{state, clock, background, scheduled, periodics};
 
     LiveData liveData{gatherReadings, state};
 
     WifiConnection connection;
     AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
-    Wifi wifi{state, connection, appServicer, supervisor};
+    Wifi wifi{state, connection, appServicer, servicing};
     Discovery discovery{ bus, wifi };
 
 public:
