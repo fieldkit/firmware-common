@@ -29,6 +29,7 @@ TaskEval DownloadFileTask::task() {
         reply->m().fileData.data.arg = (void *)&dataData;
         reply->m().fileData.token.funcs.encode = pb_encode_data;
         reply->m().fileData.token.arg = (void *)&tokenData;
+        reply->m().fileData.size = iterator.size();
 
         if (!buffer->write(*reply)) {
             log("Error writing reply");
