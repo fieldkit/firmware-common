@@ -76,7 +76,7 @@ private:
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
     };
     ScheduledTask scheduled[2] {
-        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
+        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllFilesTask },
     };
     Scheduler scheduler{state, clock, background, scheduled, periodics};
