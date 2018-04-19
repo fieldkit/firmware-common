@@ -1,6 +1,8 @@
 #ifndef FK_RTC_H_INCLUDED
 #define FK_RTC_H_INCLUDED
 
+#include <cstdlib>
+
 #include <RTCZero.h>
 #include <RTClib.h>
 
@@ -73,7 +75,7 @@ inline bool isTimeOff(uint32_t time) {
     }
 
     auto now = clock.getTime();
-    auto difference = abs(now - time);
+    auto difference = abs((long)(now - time));
     if (difference > 5 * 60) {
         return true;
     }
