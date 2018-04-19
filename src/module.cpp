@@ -18,8 +18,7 @@ static void module_receive_callback(int bytes) {
     fk::Module::active->receive((size_t)bytes);
 }
 
-Module::Module(TwoWireBus &bus, ModuleInfo &info)
-    : ActiveObject(info.name), bus(&bus),
+Module::Module(TwoWireBus &bus, ModuleInfo &info) : bus(&bus),
       outgoing{ bus }, incoming{ bus }, moduleServicer{ bus, info, *this, outgoing, incoming, incomingPipe.getWriter(), replyPool }, info(&info) {
 }
 
@@ -43,7 +42,7 @@ void Module::receive(size_t bytes) {
     if (bytes > 0) {
         lastActivity = millis();
         moduleServicer.read(bytes);
-        push(moduleServicer);
+        servicing.append(moduleServicer);
     }
 }
 
@@ -71,8 +70,9 @@ void Module::reply() {
     replyPool.clear();
 }
 
-void Module::idle() {
+void Module::tick() {
     watchdog.task();
+    servicing.task();
 
     if (millis() - lastActivity > IdleRebootInterval) {
         log("Reboot due to inactivity.");
@@ -86,6 +86,13 @@ void Module::idle() {
     if (block) {
         log("Read %ld bytes", block.blockSize);
     }
+}
+
+void Module::log(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vdebugfpln(LogLevels::INFO, "Module", f, args);
+    va_end(args);
 }
 
 ModuleReadingStatus Module::beginReading(PendingSensorReading &pending) {

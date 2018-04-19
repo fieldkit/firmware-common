@@ -11,10 +11,11 @@
 
 namespace fk {
 
-class Module : public ActiveObject, public ModuleCallbacks {
+class Module : public ModuleCallbacks {
 private:
     TwoWireBus *bus;
     StaticPool<128> replyPool{ "Reply" };
+    Supervisor<5> servicing{ true };
     TwoWireMessageBuffer outgoing;
     TwoWireMessageBuffer incoming;
     ModuleServicer moduleServicer;
@@ -34,12 +35,18 @@ public:
 
 public:
     virtual void begin();
-    void idle() override;
+    virtual void tick();
+
+public:
+    TaskQueue &taskQueue() {
+        return servicing;
+    }
 
 public:
     void resume();
     void receive(size_t bytes);
     void reply();
+    void log(const char *f, ...) const;
 
 public:
     ModuleReadingStatus beginReading(PendingSensorReading &pending) override;
