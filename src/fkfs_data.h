@@ -26,6 +26,7 @@ public:
 
 public:
     bool appendMetadata(CoreState &state);
+    bool appendStatus(CoreState &state);
     bool appendLocation(DeviceLocation &location);
     bool appendReading(DeviceLocation &location, uint32_t readingNumber, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading);
     bool doneTakingReadings();

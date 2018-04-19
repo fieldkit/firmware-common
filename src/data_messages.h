@@ -70,6 +70,12 @@ public:
 
 };
 
+class DataRecordStatusMessage : public DataRecordMessage {
+public:
+    DataRecordStatusMessage(CoreState &state, Pool &pool);
+
+};
+
 }
 
 #endif

@@ -40,10 +40,12 @@ void CoreState::started() {
     }
 
     data->appendMetadata(*this);
+    data->appendStatus(*this);
 }
 
 void CoreState::doneScanning() {
     data->appendMetadata(*this);
+    data->appendStatus(*this);
     status = CoreStatus::Ready;
 }
 
@@ -229,6 +231,7 @@ void CoreState::updateIp(uint32_t ip) {
 void CoreState::updateLocation(DeviceLocation&& fix) {
     location = fix;
     data->appendLocation(location);
+    data->appendStatus(*this);
     save();
 }
 

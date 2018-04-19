@@ -27,6 +27,16 @@ bool FkfsData::appendMetadata(CoreState &state) {
     return true;
 }
 
+bool FkfsData::appendStatus(CoreState &state) {
+    DataRecordStatusMessage message{ state, *pool };
+
+    auto size = append(message);
+
+    log("Appended status (%d bytes)", size);
+
+    return true;
+}
+
 bool FkfsData::appendLocation(DeviceLocation &location) {
     DataRecordMessage message{ *pool };
 

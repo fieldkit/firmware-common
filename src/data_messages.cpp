@@ -5,6 +5,16 @@
 
 namespace fk {
 
+size_t DataRecordMessage::calculateSize() {
+    size_t size;
+
+    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &m())) {
+        return 0;
+    }
+
+    return size + ProtoBufEncodeOverhead;
+}
+
 DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &pool) : DataRecordMessage(pool) {
     auto *attached = state.attachedModules();
     auto numberOfSensors = state.numberOfSensors();
@@ -63,14 +73,12 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
     m().metadata.modules.arg = (void *)&modulesArray;
 }
 
-size_t DataRecordMessage::calculateSize() {
-    size_t size;
-
-    if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, &m())) {
-        return 0;
-    }
-
-    return size + ProtoBufEncodeOverhead;
+DataRecordStatusMessage::DataRecordStatusMessage(CoreState &state, Pool &pool) : DataRecordMessage(pool) {
+    m().status.time = clock.getTime();
+    m().status.uptime = millis();
+    m().status.battery = state.getStatus().batteryPercentage;
+    m().status.memory = fk_free_memory();
+    m().status.busy = 0;
 }
 
 }
