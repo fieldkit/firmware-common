@@ -56,6 +56,7 @@ void setup() {
 
     randomSeed(RANDOM_SEED);
     firmware_version_set(FIRMWARE_GIT_HASH);
+    firmware_build_set(FIRMWARE_BUILD);
 
     debugfpln("Core", "Starting");
 #ifdef DEBUG_UART_FALLBACK

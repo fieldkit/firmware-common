@@ -46,6 +46,10 @@ const char *firmware_version_get();
 
 void firmware_version_set(const char *hash);
 
+const char *firmware_build_get();
+
+void firmware_build_set(const char *hash);
+
 uint32_t fk_free_memory();
 
 #define fk_assert(EX) (void)((EX) || (__fk_assert(#EX, __FILE__, __LINE__), 0))

@@ -55,6 +55,8 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
     m().metadata.deviceId.arg = (void *)&deviceIdData;
     m().metadata.git.funcs.encode = pb_encode_string;
     m().metadata.git.arg = (void *)firmware_version_get();
+    m().metadata.build.funcs.encode = pb_encode_string;
+    m().metadata.build.arg = (void *)firmware_build_get();
     m().metadata.sensors.funcs.encode = pb_encode_array;
     m().metadata.sensors.arg = (void *)&sensorsArray;
     m().metadata.modules.funcs.encode = pb_encode_array;

@@ -27,6 +27,7 @@ void CoreModule::begin() {
     debugfpln("Core", "Serial(%s)", serialNumber.toString());
     debugfpln("Core", "DeviceId(%s)", deviceId.toString());
     debugfpln("Core", "Hash(%s)", firmware_version_get());
+    debugfpln("Core", "Build(%s)", firmware_build_get());
 
     delay(10);
 
