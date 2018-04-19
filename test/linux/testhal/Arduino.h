@@ -109,6 +109,7 @@ public:
     }
 
     uint16_t transfer16(uint16_t data) {
+        return 0xff;
     }
 
     void transfer(void *buf, size_t count) {
