@@ -6,7 +6,7 @@ void ModuleQuery::prepare(ModuleQueryMessage &message, Writer &outgoing) {
     query(message);
 
     auto protoWriter = ProtoBufMessageWriter{ outgoing };
-    protoWriter.write(fk_module_WireMessageQuery_fields, &message.m());
+    protoWriter.write(fk_module_WireMessageQuery_fields, message.forEncode());
     outgoing.close();
 }
 
