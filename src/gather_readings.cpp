@@ -22,6 +22,7 @@ void GatherReadings::enqueued() {
     state->takingReadings();
     leds->takingReadings();
     protocol.push(8, beginTakeReading);
+    startedAt = 0;
 }
 
 TaskEval GatherReadings::task() {
