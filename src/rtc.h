@@ -10,6 +10,73 @@
 
 namespace fk {
 
+class ClockPair {
+private:
+    bool valid{ false };
+    RTC_PCF8523 external;
+    RTCZero local;
+
+public:
+    void begin();
+    bool isValid() {
+        return valid;
+    }
+
+public:
+    void setTime(DateTime dt);
+    void setTime(uint32_t newTime);
+    DateTime now();
+    uint32_t getTime();
+
+};
+
+class Clock {
+private:
+    bool valid{ false };
+    RTCZero local;
+
+public:
+    void begin();
+    bool isValid() {
+        return valid;
+    }
+
+public:
+    void setTime(DateTime dt);
+    void setTime(uint32_t newTime);
+    DateTime now();
+    uint32_t getTime();
+
+};
+
+#ifdef FK_RTC_PCF8523
+using ClockType = ClockPair;
+#else
+using ClockType = Clock;
+#endif
+
+extern ClockType clock;
+
+inline bool isTimeOff(uint32_t time) {
+    if (!clock.isValid()) {
+        return false;
+    }
+
+    // Decided to only do this check if we have a valid time, because if we
+    // didn't then what would we do?
+    if (time == 0) {
+        return true;
+    }
+
+    auto now = clock.getTime();
+    auto difference = abs((long)(now - time));
+    if (difference > 5 * 60) {
+        return true;
+    }
+
+    return false;
+}
+
 template<size_t N>
 constexpr size_t length(char const (&)[N]) {
     return N - 1;
@@ -37,51 +104,6 @@ public:
     }
 
 };
-
-class Clock {
-private:
-    bool valid{ false };
-    #ifdef FK_RTC_PCF8523
-    RTC_PCF8523 rtc;
-    #else
-    RTCZero rtc;
-    #endif
-
-public:
-    void begin();
-    bool isValid() {
-        return valid;
-    }
-
-public:
-    void setTime(DateTime dt);
-    void setTime(uint32_t newTime);
-    DateTime now();
-    uint32_t getTime();
-
-};
-
-extern Clock clock;
-
-inline bool isTimeOff(uint32_t time) {
-    if (!clock.isValid()) {
-        return false;
-    }
-
-    // Decided to only do this check if we have a valid time, because if we
-    // didn't then what would we do?
-    if (time == 0) {
-        return true;
-    }
-
-    auto now = clock.getTime();
-    auto difference = abs((long)(now - time));
-    if (difference > 5 * 60) {
-        return true;
-    }
-
-    return false;
-}
 
 }
 

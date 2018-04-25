@@ -3,28 +3,62 @@
 
 namespace fk {
 
-Clock clock;
+ClockType clock;
+
+void ClockPair::begin() {
+    external.begin();
+    local.begin();
+}
+
+void ClockPair::setTime(DateTime dt) {
+    external.adjust(dt);
+    local.setYear(dt.year() - 2000);
+    local.setMonth(dt.month());
+    local.setDay(dt.day());
+    local.setHours(dt.hour());
+    local.setMinutes(dt.minute());
+    local.setSeconds(dt.second());
+    valid = true;
+}
+
+void ClockPair::setTime(uint32_t newTime) {
+    if (newTime == 0) {
+        debugfpln("Clock", "Ignoring invalid time (%lu)", newTime);
+        return;
+    }
+
+    setTime(DateTime(newTime));
+
+    FormattedTime nowFormatted{ now() };
+    debugfpln("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
+}
+
+DateTime ClockPair::now() {
+    // auto e = external.now();
+    return DateTime(local.getYear(),
+                    local.getMonth(),
+                    local.getDay(),
+                    local.getHours(),
+                    local.getMinutes(),
+                    local.getSeconds());
+}
+
+uint32_t ClockPair::getTime() {
+    return now().unixtime();
+}
 
 void Clock::begin() {
-    rtc.begin();
-    #ifdef FK_RTC_PCF8523
-    valid = true;
-    #else
+    local.begin();
     valid = false;
-    #endif
 }
 
 void Clock::setTime(DateTime dt) {
-    #ifdef FK_RTC_PCF8523
-    rtc.adjust(dt);
-    #else
-    rtc.setYear(dt.year() - 2000);
-    rtc.setMonth(dt.month());
-    rtc.setDay(dt.day());
-    rtc.setHours(dt.hour());
-    rtc.setMinutes(dt.minute());
-    rtc.setSeconds(dt.second());
-    #endif
+    local.setYear(dt.year() - 2000);
+    local.setMonth(dt.month());
+    local.setDay(dt.day());
+    local.setHours(dt.hour());
+    local.setMinutes(dt.minute());
+    local.setSeconds(dt.second());
     valid = true;
 }
 
@@ -36,21 +70,17 @@ void Clock::setTime(uint32_t newTime) {
 
     setTime(DateTime(newTime));
 
-    FormattedTime nowFormatted{ clock.now() };
+    FormattedTime nowFormatted{ now() };
     debugfpln("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
 }
 
 DateTime Clock::now() {
-    #ifdef FK_RTC_PCF8523
-    return rtc.now();
-    #else
-    return DateTime(rtc.getYear(),
-                    rtc.getMonth(),
-                    rtc.getDay(),
-                    rtc.getHours(),
-                    rtc.getMinutes(),
-                    rtc.getSeconds());
-    #endif
+    return DateTime(local.getYear(),
+                    local.getMonth(),
+                    local.getDay(),
+                    local.getHours(),
+                    local.getMinutes(),
+                    local.getSeconds());
 }
 
 uint32_t Clock::getTime() {

@@ -85,7 +85,7 @@ enum class ScheduleKind {
 class Scheduler : public Task {
 private:
     CoreState *state;
-    Clock *clock;
+    ClockType *clock;
     TaskQueue *queue;
     ScheduledTask *tasks;
     PeriodicTask *periodic;
@@ -95,12 +95,12 @@ private:
 
 public:
     template<size_t N, size_t M>
-    Scheduler(CoreState &state, Clock &clock, TaskQueue &queue, ScheduledTask (&tasks)[N], PeriodicTask (&periodic)[M]) :
+    Scheduler(CoreState &state, ClockType &clock, TaskQueue &queue, ScheduledTask (&tasks)[N], PeriodicTask (&periodic)[M]) :
         Task("Scheduler"), state(&state), clock(&clock), queue(&queue), tasks(tasks), periodic(periodic), numberOfTasks(N), numberOfPeriodics(M) {
     }
 
     template<size_t M>
-    Scheduler(CoreState &state, Clock &clock, TaskQueue &queue, PeriodicTask (&periodic)[M]) :
+    Scheduler(CoreState &state, ClockType &clock, TaskQueue &queue, PeriodicTask (&periodic)[M]) :
         Task("Scheduler"), state(&state), clock(&clock), queue(&queue), tasks(nullptr), periodic(periodic), numberOfTasks(0), numberOfPeriodics(M) {
     }
 

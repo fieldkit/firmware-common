@@ -8,7 +8,7 @@ constexpr uint64_t SeventyYears = 2208988800UL;
 constexpr uint32_t SimpleNTPPacketSize = 48;
 constexpr uint32_t RetryAfter = 5000;
 
-SimpleNTP::SimpleNTP(Clock &clock, Wifi &wifi) : Task("NTP"), clock(&clock), wifi(&wifi) {
+SimpleNTP::SimpleNTP(ClockType &clock, Wifi &wifi) : Task("NTP"), clock(&clock), wifi(&wifi) {
 }
 
 SimpleNTP::~SimpleNTP() {
