@@ -102,8 +102,8 @@ void Wifi::idle() {
         return;
     }
     if (disabled) {
-        if (!state->isBusy() && state->isReadingInProgress()) {
-            if (millis() - lastActivityAt > WifiAwakenInterval) {
+        if (millis() - lastActivityAt > WifiAwakenInterval) {
+            if (!state->isBusy() && !state->isReadingInProgress()) {
                 log("Enabling...");
                 begin();
                 lastActivityAt = millis();
