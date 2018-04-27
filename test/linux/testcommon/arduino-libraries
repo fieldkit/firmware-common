@@ -2,6 +2,7 @@
 ../../../../app-protocol
 ../../../../data-protocol
 ../../../../fkfs
+../../../../lwstreams
 https://github.com/nanopb/nanopb.git b1e2b4396ba5d669ae8876bcc51240c30a87d260
 https://github.com/adafruit/RTClib.git 82d00a1a15bcf738b001e42bf26a3d1f1a15be32
 https://github.com/mikalhart/TinyGPS.git db4ef9c97af767e7345f5ccb277ac3bd1a2eb81f

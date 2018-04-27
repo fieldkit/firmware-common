@@ -64,16 +64,16 @@ void ModuleDataTransfer::reply(ModuleReplyMessage &message) {
     maximumBytes = message.m().data.size;
 }
 
-void ModuleDataTransfer::prepare(ModuleQueryMessage &message, Writer &outgoing) {
+void ModuleDataTransfer::prepare(ModuleQueryMessage &message, lws::Writer &outgoing) {
     query(message);
 
-    auto protoWriter = ProtoBufMessageWriter{ outgoing };
+    auto protoWriter = lws::ProtoBufMessageWriter{ outgoing };
     protoWriter.write(fk_module_WireMessageQuery_fields, &message.m());
 }
 
-void ModuleDataTransfer::tick(Writer &outgoing) {
+void ModuleDataTransfer::tick(lws::Writer &outgoing) {
     auto bytes = streamCopier.copy(fileReader, outgoing);
-    if (bytes == Stream::EOS) {
+    if (bytes == lws::Stream::EOS) {
         outgoing.close();
     }
     else {

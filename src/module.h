@@ -1,13 +1,15 @@
 #ifndef FK_MODULE_H_INCLUDED
 #define FK_MODULE_H_INCLUDED
 
+#define LWS_ENABLE_PROTOBUF
+#include <lwstreams/lwstreams.h>
+
 #include "active_object.h"
 #include "module_messages.h"
 #include "module_servicer.h"
 #include "watchdog.h"
 #include "leds.h"
 #include "two_wire.h"
-#include "varint_streams.h"
 
 namespace fk {
 
@@ -23,9 +25,9 @@ private:
     Leds leds;
     Watchdog watchdog{ leds };
     ModuleInfo *info;
-    AlignedStorageBuffer<256> scratch;
-    CircularStreams<fk::RingBufferN<256>> incomingPipe;
-    VarintEncodedStream blockReader{ incomingPipe.getReader(), scratch.toBufferPtr() };
+    lws::AlignedStorageBuffer<256> scratch;
+    lws::CircularStreams<lws::RingBufferN<256>> incomingPipe;
+    lws::VarintEncodedStream blockReader{ incomingPipe.getReader(), scratch.toBufferPtr() };
 
 public:
     static Module *active;

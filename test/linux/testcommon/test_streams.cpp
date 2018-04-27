@@ -1,10 +1,12 @@
-#include "test_streams.h"
-#include "pool.h"
-
 #include <fk-data-protocol.h>
 #include <fk-module-protocol.h>
 
-class CountingReader : public fk::Reader {
+#include "test_streams.h"
+#include "pool.h"
+#include "protobuf.h"
+#include "debug.h"
+
+class CountingReader : public lws::Reader {
 private:
     uint32_t total{ 0 };
     uint32_t jitter{ 0 };
@@ -54,8 +56,8 @@ void StreamsSuite::SetUp() {};
 void StreamsSuite::TearDown() {};
 
 TEST_F(StreamsSuite, BufferedReader) {
-    auto buffer = fk::AlignedStorageBuffer<256>{};
-    auto writer = fk::DirectWriter{ buffer.toBufferPtr() };
+    auto buffer = lws::AlignedStorageBuffer<256>{};
+    auto writer = lws::DirectWriter{ buffer.toBufferPtr() };
 
     auto name1 = "Jacob Lewallen";
     auto name2 = "Shah Selbe";
@@ -64,7 +66,7 @@ TEST_F(StreamsSuite, BufferedReader) {
     EXPECT_EQ(writer.write(name2), strlen(name2));
 
     {
-        auto reader = fk::DirectReader{ writer.toBufferPtr() };
+        auto reader = lws::DirectReader{ writer.toBufferPtr() };
 
         char buffer1[256] = { 0 };
         EXPECT_EQ(strlen(name1), reader.read((uint8_t *)buffer1, (size_t)strlen(name1)));
@@ -78,7 +80,7 @@ TEST_F(StreamsSuite, BufferedReader) {
     }
 
     {
-        auto reader = fk::DirectReader{ writer.toBufferPtr() };
+        auto reader = lws::DirectReader{ writer.toBufferPtr() };
 
         char buffer3[256] = { 0 };
         EXPECT_EQ(strlen(name1) + strlen(name2), reader.read((uint8_t *)buffer3, sizeof(buffer3)));
@@ -90,25 +92,25 @@ TEST_F(StreamsSuite, BufferedReader) {
 
 /*
 TEST_F(StreamsSuite, ConcatenatedReader) {
-    auto buffer = fk::AlignedStorageBuffer<256>{};
+    auto buffer = lws::AlignedStorageBuffer<256>{};
     auto ptr = buffer.toBufferPtr();
 
     fk_module_WireMessageQuery message = fk_module_WireMessageQuery_init_default;
     message.type = fk_module_QueryType_QUERY_CAPABILITIES;
     message.queryCapabilities.version = FK_MODULE_PROTOCOL_VERSION;
 
-    auto writer = fk::DirectWriter{ ptr };
-    auto queryWriter = fk::ProtoBufMessageWriter{ writer };
+    auto writer = lws::DirectWriter{ ptr };
+    auto queryWriter = lws::ProtoBufMessageWriter{ writer };
     queryWriter.write(fk_module_WireMessageQuery_fields, &message);
 
-    auto buffer1 = fk::AlignedStorageBuffer<256>{};
-    auto buffer2 = fk::AlignedStorageBuffer<256>{};
-    auto writer1 = fk::DirectWriter{ buffer1.toBufferPtr() };
-    auto writer2 = fk::DirectWriter{ buffer2.toBufferPtr() };
+    auto buffer1 = lws::AlignedStorageBuffer<256>{};
+    auto buffer2 = lws::AlignedStorageBuffer<256>{};
+    auto writer1 = lws::DirectWriter{ buffer1.toBufferPtr() };
+    auto writer2 = lws::DirectWriter{ buffer2.toBufferPtr() };
 
-    auto reader1 = fk::DirectReader{ writer1.toBufferPtr() };
-    auto reader2 = fk::DirectReader{ writer2.toBufferPtr() };
-    auto readers = fk::ConcatenatedReader{ &reader1, &reader2 };
+    auto reader1 = lws::DirectReader{ writer1.toBufferPtr() };
+    auto reader2 = lws::DirectReader{ writer2.toBufferPtr() };
+    auto readers = lws::ConcatenatedReader{ &reader1, &reader2 };
 
     while (true) {
         auto r = readers.read();
@@ -120,7 +122,7 @@ TEST_F(StreamsSuite, ConcatenatedReader) {
 */
 
 TEST_F(StreamsSuite, CircularStreamsCloseMidRead) {
-    auto circularStreams = fk::CircularStreams<fk::RingBufferN<256>>{ };
+    auto circularStreams = lws::CircularStreams<lws::RingBufferN<256>>{ };
 
     auto& reader = circularStreams.getReader();
     auto& writer = circularStreams.getWriter();
@@ -148,7 +150,7 @@ TEST_F(StreamsSuite, CircularStreamsCloseMidRead) {
 }
 
 TEST_F(StreamsSuite, CircularStreamsBasics) {
-    auto circularStreams = fk::CircularStreams<fk::RingBufferN<256>>{ };
+    auto circularStreams = lws::CircularStreams<lws::RingBufferN<256>>{ };
 
     auto& reader = circularStreams.getReader();
     auto& writer = circularStreams.getWriter();
@@ -187,10 +189,10 @@ TEST_F(StreamsSuite, CircularStreamsBasics) {
 }
 
 TEST_F(StreamsSuite, CircularStreamsBufferPtr) {
-    auto buffer = fk::AlignedStorageBuffer<8>{};
+    auto buffer = lws::AlignedStorageBuffer<8>{};
     auto ptr = buffer.toBufferPtr();
 
-    auto circularStreams = fk::CircularStreams<fk::RingBufferPtr>{ ptr };
+    auto circularStreams = lws::CircularStreams<lws::RingBufferPtr>{ ptr };
 
     auto& reader = circularStreams.getReader();
     auto& writer = circularStreams.getWriter();
@@ -229,10 +231,10 @@ TEST_F(StreamsSuite, CircularStreamsBufferPtr) {
 }
 
 TEST_F(StreamsSuite, CircularStreamsFull) {
-    auto buffer = fk::AlignedStorageBuffer<4>{};
+    auto buffer = lws::AlignedStorageBuffer<4>{};
     auto ptr = buffer.toBufferPtr();
 
-    auto circularStreams = fk::CircularStreams<fk::RingBufferPtr>{ ptr };
+    auto circularStreams = lws::CircularStreams<lws::RingBufferPtr>{ ptr };
 
     auto& reader = circularStreams.getReader();
     auto& writer = circularStreams.getWriter();
@@ -270,19 +272,19 @@ TEST_F(StreamsSuite, CircularStreamsProtoRoundTrip) {
     outgoing.log.message.arg = (void *)"Message";
     outgoing.log.message.funcs.encode = fk::pb_encode_string;
 
-    auto buffer = fk::AlignedStorageBuffer<64>{};
+    auto buffer = lws::AlignedStorageBuffer<64>{};
     auto ptr = buffer.toBufferPtr();
-    auto cs = fk::CircularStreams<fk::RingBufferPtr>{ ptr };
+    auto cs = lws::CircularStreams<lws::RingBufferPtr>{ ptr };
 
     auto& reader = cs.getReader();
     auto& writer = cs.getWriter();
 
-    auto protoWriter = fk::ProtoBufMessageWriter{ writer };
+    auto protoWriter = lws::ProtoBufMessageWriter{ writer };
     EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
 
     writer.close();
 
-    auto protoReader = fk::ProtoBufMessageReader{ reader };
+    auto protoReader = lws::ProtoBufMessageReader{ reader };
 
     EXPECT_EQ(protoReader.read<64>(fk_data_DataRecord_fields, &incoming), 24);
 
@@ -328,7 +330,7 @@ TEST_F(StreamsSuite, CircularStreamsProtoCounting) {
     while (true) {
         uint8_t buffer[24];
         auto r = reader.read(buffer, sizeof(buffer));
-        if (r == fk::Stream::EOS) {
+        if (r == lws::Stream::EOS) {
             break;
         }
         total += r;
@@ -338,14 +340,14 @@ TEST_F(StreamsSuite, CircularStreamsProtoCounting) {
 }
 
 TEST_F(StreamsSuite, CircularStreamsProtoCopying) {
-    auto destination = fk::AlignedStorageBuffer<256>{};
-    auto buffer = fk::AlignedStorageBuffer<256>{};
+    auto destination = lws::AlignedStorageBuffer<256>{};
+    auto buffer = lws::AlignedStorageBuffer<256>{};
 
-    auto writer = fk::DirectWriter{ destination.toBufferPtr() };
+    auto writer = lws::DirectWriter{ destination.toBufferPtr() };
     auto reader = CountingReader{ 196, 0 };
     auto total = 0;
 
-    auto copier = fk::StreamCopier{ buffer.toBufferPtr() };
+    auto copier = lws::StreamCopier{ buffer.toBufferPtr() };
 
     while (true) {
         auto r = copier.copy(reader, writer);
@@ -368,19 +370,19 @@ TEST_F(StreamsSuite, CircularStreamsVarintStream) {
     outgoing.log.message.arg = (void *)"Message";
     outgoing.log.message.funcs.encode = fk::pb_encode_string;
 
-    auto destination = fk::AlignedStorageBuffer<256>{};
-    auto writer = fk::DirectWriter{ destination.toBufferPtr() };
+    auto destination = lws::AlignedStorageBuffer<256>{};
+    auto writer = lws::DirectWriter{ destination.toBufferPtr() };
 
-    auto protoWriter = fk::ProtoBufMessageWriter{ writer };
+    auto protoWriter = lws::ProtoBufMessageWriter{ writer };
     EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
     EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
     EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
     EXPECT_EQ(protoWriter.write(fk_data_DataRecord_fields, &outgoing), 24);
 
     {
-        auto scratch = fk::AlignedStorageBuffer<256>{};
-        auto reader = fk::DirectReader{ writer.toBufferPtr() };
-        auto varintReader = fk::VarintEncodedStream{ reader, scratch.toBufferPtr() };
+        auto scratch = lws::AlignedStorageBuffer<256>{};
+        auto reader = lws::DirectReader{ writer.toBufferPtr() };
+        auto varintReader = lws::VarintEncodedStream{ reader, scratch.toBufferPtr() };
 
         for (size_t i = 0; i < 4; ++i)
         {
@@ -396,9 +398,9 @@ TEST_F(StreamsSuite, CircularStreamsVarintStream) {
     }
 
     {
-        auto scratch = fk::AlignedStorageBuffer<32>{};
-        auto reader = fk::DirectReader{ writer.toBufferPtr() };
-        auto varintReader = fk::VarintEncodedStream{ reader, scratch.toBufferPtr() };
+        auto scratch = lws::AlignedStorageBuffer<32>{};
+        auto reader = lws::DirectReader{ writer.toBufferPtr() };
+        auto varintReader = lws::VarintEncodedStream{ reader, scratch.toBufferPtr() };
 
         {
             auto block = varintReader.read();
@@ -443,9 +445,9 @@ TEST_F(StreamsSuite, CircularStreamsVarintStream) {
     }
 
     {
-        auto scratch = fk::AlignedStorageBuffer<8>{};
-        auto reader = fk::DirectReader{ writer.toBufferPtr() };
-        auto varintReader = fk::VarintEncodedStream{ reader, scratch.toBufferPtr() };
+        auto scratch = lws::AlignedStorageBuffer<8>{};
+        auto reader = lws::DirectReader{ writer.toBufferPtr() };
+        auto varintReader = lws::VarintEncodedStream{ reader, scratch.toBufferPtr() };
 
         {
             auto block = varintReader.read();

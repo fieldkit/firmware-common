@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "streams.h"
+#define LWS_ENABLE_PROTOBUF
+#include <lwstreams/lwstreams.h>
 
 class StreamsSuite : public ::testing::Test {
 protected:

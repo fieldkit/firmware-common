@@ -3,11 +3,11 @@
 
 namespace fk {
 
-TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, Reader &outgoing, Writer &incoming, uint8_t address) :
+TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Reader &outgoing, lws::Writer &incoming, uint8_t address) :
     Task(name), bus(&bus), outgoing(&outgoing), incoming(&incoming), address(address) {
 }
 
-TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, Writer &incoming, uint8_t address) :
+TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Writer &incoming, uint8_t address) :
     Task(name), bus(&bus), outgoing(nullptr), incoming(&incoming), address(address) {
 }
 

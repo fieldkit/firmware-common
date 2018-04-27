@@ -1,15 +1,18 @@
 #ifndef FK_TRANSMISSIONS_H_INCLUDED
 #define FK_TRANSMISSIONS_H_INCLUDED
 
+#define LWS_ENABLE_PROTOBUF
+
+#include <lwstreams/lwstreams.h>
+
 #include "active_object.h"
 #include "core_state.h"
 #include "two_wire_task.h"
 #include "file_system.h"
-#include "varint_streams.h"
 
 namespace fk {
 
-class FileReader : public Reader {
+class FileReader : public lws::Reader {
 private:
     FkfsStreamingIterator iterator;
 
@@ -54,9 +57,9 @@ public:
 class ModuleDataTransfer : public ModuleQuery {
 private:
     FileReader fileReader;
-    AlignedStorageBuffer<128> buffer;
-    VarintEncodedStream blockReader{ fileReader, buffer.toBufferPtr() };
-    StreamCopier streamCopier;
+    lws::AlignedStorageBuffer<128> buffer;
+    lws::VarintEncodedStream blockReader{ fileReader, buffer.toBufferPtr() };
+    lws::StreamCopier streamCopier;
     uint32_t bytesCopied{ 0 };
     uint32_t maximumBytes{ 0 };
 
@@ -70,8 +73,8 @@ public:
 
     void query(ModuleQueryMessage &message) override;
     void reply(ModuleReplyMessage &message) override;
-    void prepare(ModuleQueryMessage &message, Writer &outgoing) override;
-    void tick(Writer &outgoing) override;
+    void prepare(ModuleQueryMessage &message, lws::Writer &outgoing) override;
+    void tick(lws::Writer &outgoing) override;
 
 public:
     void setMaximumBytes(uint32_t bytes) {

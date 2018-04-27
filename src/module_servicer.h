@@ -1,11 +1,13 @@
 #ifndef FK_MODULE_SERVICER_H_INCLUDED
 #define FK_MODULE_SERVICER_H_INCLUDED
 
+#define LWS_ENABLE_PROTOBUF
+#include <lwstreams/lwstreams.h>
+
 #include "active_object.h"
 #include "message_buffer.h"
 #include "module_info.h"
 #include "module_messages.h"
-#include "streams.h"
 
 namespace fk {
 
@@ -37,11 +39,11 @@ private:
     PendingSensorReading pending;
     TwoWireMessageBuffer *outgoing;
     TwoWireMessageBuffer *incoming;
-    Writer *writer;
+    lws::Writer *writer;
     Pool *pool;
 
 public:
-    ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, Writer &writer, Pool &pool);
+    ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, lws::Writer &writer, Pool &pool);
 
 public:
     TaskEval task() override;

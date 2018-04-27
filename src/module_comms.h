@@ -1,6 +1,10 @@
 #ifndef FK_MODULE_COMMS_H_INCLUDED
 #define FK_MODULE_COMMS_H_INCLUDED
 
+#define LWS_ENABLE_PROTOBUF
+
+#include <lwstreams/lwstreams.h>
+
 #include "two_wire_task.h"
 
 namespace fk {
@@ -10,8 +14,8 @@ public:
     virtual const char *name() const = 0;
     virtual void query(ModuleQueryMessage &message) = 0;
     virtual void reply(ModuleReplyMessage &message) = 0;
-    virtual void prepare(ModuleQueryMessage &message, Writer &outgoing);
-    virtual void tick(Writer &outgoing);
+    virtual void prepare(ModuleQueryMessage &message, lws::Writer &outgoing);
+    virtual void tick(lws::Writer &outgoing);
 
 };
 
@@ -27,8 +31,8 @@ private:
     bool hasQuery{ false };
     bool hasReply{ false };
     TwoWireTask twoWireTask;
-    CircularStreams<fk::RingBufferN<256>> outgoing;
-    CircularStreams<fk::RingBufferN<256>> incoming;
+    lws::CircularStreams<lws::RingBufferN<256>> outgoing;
+    lws::CircularStreams<lws::RingBufferN<256>> incoming;
 
 public:
     ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool);

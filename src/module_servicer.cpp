@@ -4,7 +4,7 @@
 
 namespace fk {
 
-ModuleServicer::ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, Writer &writer, Pool &pool)
+ModuleServicer::ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, lws::Writer &writer, Pool &pool)
     : Task("ModuleServicer"), bus(&bus), info(&info), callbacks(&callbacks), outgoing(&o), incoming(&i), writer(&writer), pool(&pool) {
 }
 

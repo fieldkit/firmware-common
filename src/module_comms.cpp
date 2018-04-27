@@ -2,15 +2,15 @@
 
 namespace fk {
 
-void ModuleQuery::prepare(ModuleQueryMessage &message, Writer &outgoing) {
+void ModuleQuery::prepare(ModuleQueryMessage &message, lws::Writer &outgoing) {
     query(message);
 
-    auto protoWriter = ProtoBufMessageWriter{ outgoing };
+    auto protoWriter = lws::ProtoBufMessageWriter{ outgoing };
     protoWriter.write(fk_module_WireMessageQuery_fields, message.forEncode());
     outgoing.close();
 }
 
-void ModuleQuery::tick(Writer &outgoing) {
+void ModuleQuery::tick(lws::Writer &outgoing) {
 }
 
 ModuleCommunications::ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool) :
@@ -57,7 +57,7 @@ TaskEval ModuleCommunications::task() {
 
         if (twoWireTask.completed()) {
             if (twoWireTask.received() > 0) {
-                auto protoReader = ProtoBufMessageReader{ incoming.getReader() };
+                auto protoReader = lws::ProtoBufMessageReader{ incoming.getReader() };
 
                 if (!protoReader.read<SERIAL_BUFFER_SIZE>(fk_module_WireMessageReply_fields, reply.forDecode())) {
                     log("Error: Unable to read reply.");
