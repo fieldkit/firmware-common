@@ -41,6 +41,8 @@ if(DISABLE_FLASH)
   add_definitions(-DFK_DISABLE_FLASH)
 endif(DISABLE_FLASH)
 
+add_definitions(-DFK_ENABLE_RADIO)
+
 # Get the current working branch
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD

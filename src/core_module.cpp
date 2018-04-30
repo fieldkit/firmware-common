@@ -38,6 +38,15 @@ void CoreModule::begin() {
     delay(100);
     #endif
 
+    #ifdef FK_ENABLE_RADIO
+    if (!radioService.setup()) {
+        debugfpln("Core", "Radio service unavailable");
+    }
+    else {
+        debugfpln("Core", "Radio service ready");
+    }
+    #endif
+
     fk_assert(fileSystem.setup());
 
     watchdog.started();
@@ -71,6 +80,9 @@ void CoreModule::run() {
         &attachedDevices,
         &scheduler,
         &wifi,
+        #ifdef FK_ENABLE_RADIO
+        &radioService,
+        #endif
         &discovery,
         &liveData,
         &moduleCommunications,

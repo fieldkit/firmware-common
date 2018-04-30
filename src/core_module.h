@@ -32,6 +32,7 @@
 #include "status.h"
 #include "flash_storage.h"
 #include "transmissions.h"
+#include "radio_service.h"
 
 namespace fk {
 
@@ -82,6 +83,10 @@ private:
     Scheduler scheduler{state, clock, background, scheduled, periodics};
 
     LiveData liveData{gatherReadings, state};
+
+    #ifdef FK_ENABLE_RADIO
+    RadioService radioService;
+    #endif
 
     WifiConnection connection;
     AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
