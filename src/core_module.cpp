@@ -39,7 +39,7 @@ void CoreModule::begin() {
     #endif
 
     #ifdef FK_ENABLE_RADIO
-    if (!radioService.setup()) {
+    if (!radioService.setup(deviceId)) {
         debugfpln("Core", "Radio service unavailable");
     }
     else {

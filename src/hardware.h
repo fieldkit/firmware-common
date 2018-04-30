@@ -46,9 +46,13 @@ public:
     static constexpr uint8_t WIFI_PIN_WAKE = 8;
     #endif
 
+    #ifdef FK_NATURALIST
+    #else
     static constexpr uint8_t RFM95_PIN_CS = 5;
-    static constexpr uint8_t RFM95_PIN_RST = 4;
-    static constexpr uint8_t RFM95_PIN_INT = 3;
+    static constexpr uint8_t RFM95_PIN_RESET = 3;
+    static constexpr uint8_t RFM95_PIN_ENABLE = 0;
+    static constexpr uint8_t RFM95_PIN_D0 = 2;
+    #endif
 
     static constexpr uint8_t SD_PIN_CS = 12;
     #ifdef FK_NATURALIST
