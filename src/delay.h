@@ -35,6 +35,18 @@ public:
 
 };
 
+class NoopTask  : public Task {
+public:
+    NoopTask() : Task("Noop") {
+    }
+
+public:
+    TaskEval task() override {
+        return TaskEval::done();
+    }
+
+};
+
 }
 
 #endif
