@@ -10,6 +10,20 @@
 
 namespace fk {
 
+class RadioService;
+
+class SendDataToLoraGateway : public Task {
+private:
+    RadioService *radioService;
+
+public:
+    SendDataToLoraGateway(RadioService &radioService);
+
+public:
+    TaskEval task() override;
+
+};
+
 class RadioService : public Task {
 private:
     LoraRadioRadioHead radio;
@@ -20,6 +34,7 @@ public:
 
 public:
     bool setup(DeviceId &deviceId);
+    void sendToGateway();
 
 public:
     TaskEval task() override;

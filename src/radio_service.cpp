@@ -22,6 +22,10 @@ bool RadioService::setup(DeviceId &deviceId) {
     return true;
 }
 
+void RadioService::sendToGateway() {
+    protocol.sendToGateway();
+}
+
 TaskEval RadioService::task() {
     protocol.tick();
 
@@ -31,6 +35,15 @@ TaskEval RadioService::task() {
     }
 
     return TaskEval::busy();
+}
+
+SendDataToLoraGateway::SendDataToLoraGateway(RadioService &radioService) : Task("SendDataToLoraGateway"), radioService(&radioService) {
+}
+
+TaskEval SendDataToLoraGateway::task() {
+    radioService->sendToGateway();
+
+    return TaskEval::done();
 }
 
 #endif

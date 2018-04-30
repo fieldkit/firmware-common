@@ -72,21 +72,29 @@ private:
 
     GatherReadings gatherReadings{bus, state, leds, moduleCommunications};
 
+    #ifdef FK_ENABLE_RADIO
+    RadioService radioService;
+    SendDataToLoraGateway sendDataToLoraGateway{ radioService };
+    #endif
+
+    NoopTask noop;
+
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
     };
-    ScheduledTask scheduled[2] {
+    ScheduledTask scheduled[3 ] {
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllFilesTask },
+        #ifdef FK_ENABLE_RADIO
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendDataToLoraGateway },
+        #else
+        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, noop },
+        #endif
     };
     Scheduler scheduler{state, clock, background, scheduled, periodics};
 
     LiveData liveData{gatherReadings, state};
-
-    #ifdef FK_ENABLE_RADIO
-    RadioService radioService;
-    #endif
 
     WifiConnection connection;
     AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
