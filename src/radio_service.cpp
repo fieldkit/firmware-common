@@ -26,6 +26,14 @@ void RadioService::sendToGateway() {
     protocol.sendToGateway();
 }
 
+lws::Reader *RadioService::openReader() {
+    outgoing.clear();
+    return &outgoing.getReader();
+}
+
+void RadioService::closeReader(lws::Reader *reader) {
+}
+
 TaskEval RadioService::task() {
     protocol.tick();
 
@@ -37,13 +45,42 @@ TaskEval RadioService::task() {
     return TaskEval::busy();
 }
 
-SendDataToLoraGateway::SendDataToLoraGateway(RadioService &radioService) : Task("SendDataToLoraGateway"), radioService(&radioService) {
+SendDataToLoraGateway::SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, uint8_t file) :
+    Task("SendDataToLoraGateway"), radioService(&radioService), fileReader(fileSystem, file), buffer(), streamCopier{ buffer.toBufferPtr() } {
+}
+
+void SendDataToLoraGateway::enqueued() {
+    log("Enqueued!");
+    started = false;
 }
 
 TaskEval SendDataToLoraGateway::task() {
-    radioService->sendToGateway();
+    if (!started) {
+        log("Beginning!");
+        started = true;
+        copying = true;
+        fileReader.open();
+        radioService->sendToGateway();
+    }
 
-    return TaskEval::done();
+    if (radioService->hasErrorOccured()) {
+        return TaskEval::error();
+    }
+    if (radioService->isSleeping()) {
+        return TaskEval::done();
+    }
+
+    if (copying) {
+        auto& writer = radioService->getWriter();
+        auto bytes = streamCopier.copy(fileReader, writer);
+        if (bytes == lws::Stream::EOS) {
+            log("Done!");
+            writer.close();
+            copying = false;
+        }
+    }
+
+    return TaskEval::busy();
 }
 
 #endif

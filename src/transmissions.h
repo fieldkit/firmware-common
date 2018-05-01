@@ -9,28 +9,9 @@
 #include "core_state.h"
 #include "two_wire_task.h"
 #include "file_system.h"
+#include "file_reader.h"
 
 namespace fk {
-
-class FileReader : public lws::Reader {
-private:
-    FkfsStreamingIterator iterator;
-
-public:
-    FileReader(FileSystem &fileSystem, uint8_t file);
-
-public:
-    int32_t read() override;
-    int32_t read(uint8_t *ptr, size_t size) override;
-    void close() override;
-
-public:
-    void open();
-    uint32_t size() {
-        return iterator.size();
-    }
-
-};
 
 class ClearModuleData : public ModuleQuery {
 private:
@@ -58,7 +39,6 @@ class ModuleDataTransfer : public ModuleQuery {
 private:
     FileReader fileReader;
     lws::AlignedStorageBuffer<128> buffer;
-    lws::VarintEncodedStream blockReader{ fileReader, buffer.toBufferPtr() };
     lws::StreamCopier streamCopier;
     uint32_t bytesCopied{ 0 };
     uint32_t maximumBytes{ 0 };

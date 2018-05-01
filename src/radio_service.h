@@ -8,6 +8,8 @@
 
 #include "active_object.h"
 #include "device_id.h"
+#include "file_system.h"
+#include "file_reader.h"
 
 namespace fk {
 
@@ -16,20 +18,26 @@ class RadioService;
 class SendDataToLoraGateway : public Task {
 private:
     RadioService *radioService;
+    FileReader fileReader;
+    lws::AlignedStorageBuffer<128> buffer;
+    lws::StreamCopier streamCopier;
+    bool started{ false };
+    bool copying{ false };
 
 public:
-    SendDataToLoraGateway(RadioService &radioService);
+    SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, uint8_t file);
 
 public:
+    void enqueued() override;
     TaskEval task() override;
 
 };
 
 class RadioService : public Task, NodeNetworkCallbacks {
 private:
-    lws::CountingReader reader { 4096 };
     LoraRadioRadioHead radio;
     NodeNetworkProtocol protocol;
+    lws::CircularStreams<lws::RingBufferN<256>> outgoing;
 
 public:
     RadioService();
@@ -37,15 +45,19 @@ public:
 public:
     bool setup(DeviceId &deviceId);
     void sendToGateway();
+    bool hasErrorOccured() {
+        return protocol.hasErrorOccured();
+    }
+    bool isSleeping() {
+        return protocol.isSleeping();
+    }
 
 public:
-    lws::Reader *openReader() override {
-        reader = lws::CountingReader(4096);
-        return &reader;
+    lws::Writer &getWriter() {
+        return outgoing.getWriter();
     }
-
-    void closeReader(lws::Reader *reader) override {
-    }
+    lws::Reader *openReader() override;
+    void closeReader(lws::Reader *reader) override;
 
 public:
     TaskEval task() override;

@@ -74,7 +74,7 @@ private:
 
     #ifdef FK_ENABLE_RADIO
     RadioService radioService;
-    SendDataToLoraGateway sendDataToLoraGateway{ radioService };
+    SendDataToLoraGateway sendDataToLoraGateway{ radioService, fileSystem, 0 };
     #endif
 
     NoopTask noop;
