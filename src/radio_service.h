@@ -4,6 +4,7 @@
 #ifdef FK_ENABLE_RADIO
 
 #include <lora_radio_rh.h>
+#include <node_protocol.h>
 
 #include "active_object.h"
 #include "device_id.h"
@@ -24,8 +25,9 @@ public:
 
 };
 
-class RadioService : public Task {
+class RadioService : public Task, NodeNetworkCallbacks {
 private:
+    lws::CountingReader reader { 4096 };
     LoraRadioRadioHead radio;
     NodeNetworkProtocol protocol;
 
@@ -35,6 +37,15 @@ public:
 public:
     bool setup(DeviceId &deviceId);
     void sendToGateway();
+
+public:
+    lws::Reader *openReader() override {
+        reader = lws::CountingReader(4096);
+        return &reader;
+    }
+
+    void closeReader(lws::Reader *reader) override {
+    }
 
 public:
     TaskEval task() override;
