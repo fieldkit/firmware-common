@@ -11,7 +11,7 @@ static bool cygEnabled = false;
 
 void RestartWizard::startup() {
     if (system_get_reset_cause() != SYSTEM_RESET_CAUSE_WDT) {
-        debugfpln("RW", "RestartWizard: Reset.");
+        loginfof("RW", "RestartWizard: Reset.");
         calls.startup();
         deepestStack = 0;
     }
@@ -30,11 +30,11 @@ void RestartWizard::checkin(Call where) {
 }
 
 void RestartWizard::dump() {
-    debugfpln("RW", "LastLoop: %lu", lastLoop);
-    debugfpln("RW", "DeepestStack: %lu (%lu)", deepestStack, (uint32_t)&__stack - deepestStack);
-    debugfpln("RW", "Calls:");
+    loginfof("RW", "LastLoop: %lu", lastLoop);
+    loginfof("RW", "DeepestStack: %lu (%lu)", deepestStack, (uint32_t)&__stack - deepestStack);
+    loginfof("RW", "Calls:");
     calls.dump([] (size_t i, Call &entry) {
-        debugfpln("RW", "[%02d]: %p %p %d", i, entry.function, entry.site, entry.returned);
+        loginfof("RW", "[%02d]: %p %p %d", i, entry.function, entry.site, entry.returned);
     });
 }
 

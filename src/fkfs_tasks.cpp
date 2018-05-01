@@ -124,7 +124,7 @@ void FkfsIterator::truncate() {
 void FkfsIterator::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(LogLevels::INFO, "FkfsIter", f, args);
+    vlogf(LogLevels::INFO, "FkfsIter", f, args);
     va_end(args);
 }
 

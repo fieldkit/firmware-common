@@ -132,7 +132,7 @@ void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &rep
 void FkfsReplies::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(LogLevels::INFO, "Files", f, args);
+    vlogf(LogLevels::INFO, "Files", f, args);
     va_end(args);
 }
 

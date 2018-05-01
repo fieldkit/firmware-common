@@ -40,7 +40,7 @@ bool MessageBuffer::write(const pb_field_t *fields, void *src) {
 
     auto stream = pb_ostream_from_buffer(ptr(), size());
     if (!pb_encode_delimited(&stream, fields, src)) {
-        debugfpln("Error", "Stream needs %d, we have %d", required, size());
+        loginfof("Error", "Stream needs %d, we have %d", required, size());
         return false;
     }
     pos = stream.bytes_written;

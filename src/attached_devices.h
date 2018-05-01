@@ -58,7 +58,7 @@ public:
 
     void reply(ModuleReplyMessage &message) override {
         sensor++;
-        debugfpln("QuerySensorCapabilities", "Sensor #%" PRIu32 ": '%s'", message.m().sensorCapabilities.id, (const char *)message.m().sensorCapabilities.name.arg);
+        loginfof("QuerySensorCapabilities", "Sensor #%" PRIu32 ": '%s'", message.m().sensorCapabilities.id, (const char *)message.m().sensorCapabilities.name.arg);
     }
 
     uint8_t getSensor() {

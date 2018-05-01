@@ -50,7 +50,7 @@ void setup() {
         // The call to end here seems to free up some memory.
         Serial.end();
         Serial5.begin(115200);
-        debug_uart_set(Serial5);
+        log_uart_set(Serial5);
     }
 #endif
 
@@ -58,12 +58,12 @@ void setup() {
     firmware_version_set(FIRMWARE_GIT_HASH);
     firmware_build_set(FIRMWARE_BUILD);
 
-    debugfpln("Core", "Starting");
+    loginfof("Core", "Starting");
 #ifdef DEBUG_UART_FALLBACK
-    debugfpln("Core", "Configured with UART fallback.");
+    loginfof("Core", "Configured with UART fallback.");
 #endif
 #ifdef DEBUG_MTB_ENABLE
-    debugfpln("Core", "Configured with MTB.");
+    loginfof("Core", "Configured with MTB.");
 #endif
 
     fk::restartWizard.startup();
@@ -90,7 +90,7 @@ void setup() {
 }
 
 void dumpObjectSizes() {
-#define FK_DUMP_SIZE(K) debugfpln("Core", "%s: %d", #K, sizeof(K))
+#define FK_DUMP_SIZE(K) loginfof("Core", "%s: %d", #K, sizeof(K))
     FK_DUMP_SIZE(fk::Watchdog);
     FK_DUMP_SIZE(fk::CoreState);
     FK_DUMP_SIZE(fk::Clock);

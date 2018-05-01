@@ -45,7 +45,7 @@ public:
 
 class DataLogMessage : public DataRecordMessage {
 public:
-    DataLogMessage(const fk_log_message_t *raw, Pool &pool) : DataRecordMessage(pool) {
+    DataLogMessage(const LogMessage *raw, Pool &pool) : DataRecordMessage(pool) {
         m().log.uptime = raw->uptime;
         m().log.time = raw->time;
         m().log.level = raw->level;

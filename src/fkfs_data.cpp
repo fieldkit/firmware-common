@@ -104,7 +104,7 @@ bool FkfsData::doneTakingReadings() {
 void FkfsData::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(LogLevels::INFO, Log, f, args);
+    vlogf(LogLevels::INFO, Log, f, args);
     va_end(args);
 }
 

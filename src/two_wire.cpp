@@ -128,7 +128,7 @@ void TwoWireBus::flush() {
             flushed++;
             bus->read();
         }
-        debugfpln("I2C", "Flushed %d bytes", flushed);
+        loginfof("I2C", "Flushed %d bytes", flushed);
     }
 }
 

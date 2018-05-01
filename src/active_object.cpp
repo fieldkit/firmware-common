@@ -5,28 +5,28 @@ namespace fk {
 void Task::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(LogLevels::INFO, name, f, args);
+    vlogf(LogLevels::INFO, name, f, args);
     va_end(args);
 }
 
 void Task::info(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(LogLevels::INFO, name, f, args);
+    vlogf(LogLevels::INFO, name, f, args);
     va_end(args);
 }
 
 void Task::trace(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(LogLevels::TRACE, name, f, args);
+    vlogf(LogLevels::TRACE, name, f, args);
     va_end(args);
 }
 
 void Task::warn(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(LogLevels::WARN, name, f, args);
+    vlogf(LogLevels::WARN, name, f, args);
     va_end(args);
 }
 

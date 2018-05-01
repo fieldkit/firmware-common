@@ -19,7 +19,7 @@ bool pb_encode_string(pb_ostream_t *stream, const pb_field_t *field, void *const
     }
 
     #ifdef FK_LOGGING_PROTOBUF_VERBOSE
-    debugfpln(Log, "Encode: 0x%p '%s'", str, str != nullptr ? str : "");
+    loginfof(Log, "Encode: 0x%p '%s'", str, str != nullptr ? str : "");
     #endif
 
     return pb_encode_string(stream, (uint8_t *)str, strlen(str));
@@ -31,7 +31,7 @@ bool pb_decode_string(pb_istream_t *stream, const pb_field_t *, void **arg) {
 
     if (len == 0) {
         #ifdef FK_LOGGING_PROTOBUF_VERBOSE
-        debugfpln(Log, "Decode: EMPTY");
+        loginfof(Log, "Decode: EMPTY");
         #endif
         (*arg) = (void *)"";
         return true;
@@ -45,7 +45,7 @@ bool pb_decode_string(pb_istream_t *stream, const pb_field_t *, void **arg) {
     ptr[len] = 0;
 
     #ifdef FK_LOGGING_PROTOBUF_VERBOSE
-    debugfpln(Log, "Decode: '%s' (%d)", ptr, len);
+    loginfof(Log, "Decode: '%s' (%d)", ptr, len);
     #endif
 
     (*arg) = (void *)ptr;
@@ -117,7 +117,7 @@ bool pb_decode_array(pb_istream_t *stream, const pb_field_t *field, void **arg) 
         }
         memcpy(ptr, &info, array->itemSize);
     } else {
-        debugfpln(Log, "Error in pb_decode_array. Unknown type.");
+        loginfof(Log, "Error in pb_decode_array. Unknown type.");
     }
 
     return true;
@@ -146,7 +146,7 @@ bool pb_encode_data(pb_ostream_t *stream, const pb_field_t *field, void *const *
     }
 
     #ifdef FK_LOGGING_PROTOBUF_VERBOSE
-    debugfpln(Log, "Encode: (%d)", data->length);
+    loginfof(Log, "Encode: (%d)", data->length);
     #endif
 
     return true;
@@ -164,7 +164,7 @@ bool pb_decode_data(pb_istream_t *stream, const pb_field_t *field, void **arg) {
     auto length = stream->bytes_left;
 
     #ifdef FK_LOGGING_PROTOBUF_VERBOSE
-    debugfpln(Log, "Decode: (%d)", length);
+    loginfof(Log, "Decode: (%d)", length);
     #endif
 
     auto data = pb_data_allocate(pool, length);
@@ -174,7 +174,7 @@ bool pb_decode_data(pb_istream_t *stream, const pb_field_t *field, void **arg) {
     }
 
     #ifdef FK_LOGGING_PROTOBUF_VERBOSE
-    debugfpln(Log, "Decode(done): (%d)", length);
+    loginfof(Log, "Decode(done): (%d)", length);
     #endif
 
     (*arg) = (void *)data;

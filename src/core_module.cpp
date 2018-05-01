@@ -24,10 +24,10 @@ void CoreModule::begin() {
     fk_assert(deviceId.initialize(bus));
 
     SerialNumber serialNumber;
-    debugfpln("Core", "Serial(%s)", serialNumber.toString());
-    debugfpln("Core", "DeviceId(%s)", deviceId.toString());
-    debugfpln("Core", "Hash(%s)", firmware_version_get());
-    debugfpln("Core", "Build(%s)", firmware_build_get());
+    loginfof("Core", "Serial(%s)", serialNumber.toString());
+    loginfof("Core", "DeviceId(%s)", deviceId.toString());
+    loginfof("Core", "Hash(%s)", firmware_version_get());
+    loginfof("Core", "Build(%s)", firmware_build_get());
 
     delay(10);
 
@@ -40,10 +40,10 @@ void CoreModule::begin() {
 
     #ifdef FK_ENABLE_RADIO
     if (!radioService.setup(deviceId)) {
-        debugfpln("Core", "Radio service unavailable");
+        loginfof("Core", "Radio service unavailable");
     }
     else {
-        debugfpln("Core", "Radio service ready");
+        loginfof("Core", "Radio service ready");
     }
     #endif
 
@@ -58,7 +58,7 @@ void CoreModule::begin() {
     clock.begin();
 
     FormattedTime nowFormatted{ clock.now() };
-    debugfpln("Core", "Now: %s", nowFormatted.toString());
+    loginfof("Core", "Now: %s", nowFormatted.toString());
 
     state.started();
 }

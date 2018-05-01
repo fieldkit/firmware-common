@@ -91,7 +91,7 @@ void Module::tick() {
 void Module::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(LogLevels::INFO, "Module", f, args);
+    vlogf(LogLevels::INFO, "Module", f, args);
     va_end(args);
 }
 

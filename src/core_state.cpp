@@ -99,7 +99,7 @@ void CoreState::merge(uint8_t moduleIndex, IncomingSensorReading &incoming) {
     if (isTimeOff(reading.time)) {
         auto now = clock.getTime();
         auto difference = abs(now - reading.time);
-        debugfpln("CoreState", "Fixing reading with drifted time: %lu - %lu = %d", now, reading.time, difference);
+        log("Fixing reading with drifted time: %lu - %lu = %d", now, reading.time, difference);
         reading.time = now;
     }
 
@@ -323,7 +323,7 @@ bool CoreState::shouldWipeAfterUpload() {
 void CoreState::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vdebugfpln(LogLevels::INFO, "CoreState", f, args);
+    vlogf(LogLevels::INFO, "CoreState", f, args);
     va_end(args);
 }
 

@@ -23,14 +23,14 @@ void ClockPair::setTime(DateTime dt) {
 
 void ClockPair::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        debugfpln("Clock", "Ignoring invalid time (%lu)", newTime);
+        loginfof("Clock", "Ignoring invalid time (%lu)", newTime);
         return;
     }
 
     setTime(DateTime(newTime));
 
     FormattedTime nowFormatted{ now() };
-    debugfpln("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
+    loginfof("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
 }
 
 DateTime ClockPair::now() {
@@ -64,14 +64,14 @@ void Clock::setTime(DateTime dt) {
 
 void Clock::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        debugfpln("Clock", "Ignoring invalid time (%lu)", newTime);
+        loginfof("Clock", "Ignoring invalid time (%lu)", newTime);
         return;
     }
 
     setTime(DateTime(newTime));
 
     FormattedTime nowFormatted{ now() };
-    debugfpln("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
+    loginfof("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
 }
 
 DateTime Clock::now() {

@@ -82,7 +82,7 @@ size_t FlashStorage::read(uint32_t address, void *ptr, size_t size) {
 
     auto expected = crc16_update(address, buffer + sizeof(uint16_t), size);
     if (expected != hash) {
-        debugfpln("Flash", "Hash mismatch (%d != %d)", expected, hash);
+        loginfof("Flash", "Hash mismatch (%d != %d)", expected, hash);
         return 0;
     }
 
