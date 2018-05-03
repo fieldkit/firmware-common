@@ -54,6 +54,7 @@ public:
     void status();
     void beginning();
     void end();
+    uint8_t ensure();
     DataBlock peek();
     void moveNext();
     DataBlock move();

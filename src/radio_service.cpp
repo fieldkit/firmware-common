@@ -23,11 +23,12 @@ bool RadioService::setup(DeviceId &deviceId) {
 }
 
 void RadioService::sendToGateway() {
+    log("Cleared buffers.");
+    outgoing.clear();
     protocol.sendToGateway();
 }
 
 lws::Reader *RadioService::openReader() {
-    outgoing.clear();
     return &outgoing.getReader();
 }
 
@@ -56,11 +57,11 @@ void SendDataToLoraGateway::enqueued() {
 
 TaskEval SendDataToLoraGateway::task() {
     if (!started) {
-        log("Beginning!");
         started = true;
         copying = true;
         fileReader.open();
         radioService->sendToGateway();
+        log("Beginning, opened file (%lu bytes).", fileReader.size());
     }
 
     if (radioService->hasErrorOccured()) {
@@ -72,11 +73,17 @@ TaskEval SendDataToLoraGateway::task() {
 
     if (copying) {
         auto& writer = radioService->getWriter();
-        auto bytes = streamCopier.copy(fileReader, writer);
-        if (bytes == lws::Stream::EOS) {
-            log("Done!");
-            writer.close();
-            copying = false;
+        while (true) {
+            auto bytes = streamCopier.copy(fileReader, writer);
+            if (bytes == lws::Stream::EOS) {
+                log("Done!");
+                writer.close();
+                copying = false;
+                break;
+            }
+            if (bytes == 0) {
+                break;
+            }
         }
     }
 

@@ -121,10 +121,14 @@ void FkfsIterator::truncate() {
     beginning();
 }
 
+uint8_t FkfsIterator::ensure() {
+    return fkfs_file_iterator_ensure(fs, &iter);
+}
+
 void FkfsIterator::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::INFO, "FkfsIter", f, args);
+    vlogf(LogLevels::TRACE, "FkfsIter", f, args);
     va_end(args);
 }
 
@@ -136,6 +140,19 @@ DataBlock FkfsStreamingIterator::read(size_t bytes) {
     if (!block || position >= block.size) {
         block = iterator.move();
         position = 0;
+    }
+    else {
+        switch (iterator.ensure()) {
+        case FKFS_ENSURE_FAILED: {
+            break;
+        }
+        case FKFS_ENSURE_LOADED: {
+            break;
+        }
+        case FKFS_ENSURE_NOOP: {
+            break;
+        }
+        }
     }
 
     if (!block) {

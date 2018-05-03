@@ -8,6 +8,10 @@ namespace fk {
 extern "C" {
 
 static size_t debug_write_log(const LogMessage *m, const char *formatted, void *arg) {
+    if (m->level == (uint8_t)LogLevels::TRACE) {
+        return 0;
+    }
+
     EmptyPool empty;
     DataLogMessage dlm{ m, empty };
     uint8_t buffer[dlm.calculateSize()];
@@ -19,6 +23,7 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
 
     if (!fkfs_log_append_binary((fkfs_log_t *)arg, buffer, stream.bytes_written, false)) {
         log_uart_get()->println("Unable to append log");
+        return 0;
     }
 
     return 0;
