@@ -47,10 +47,10 @@ public:
     #endif
 
     #ifdef FK_NATURALIST
-    static constexpr uint8_t RFM95_PIN_CS = 0;
-    static constexpr uint8_t RFM95_PIN_RESET = 0;
+    static constexpr uint8_t RFM95_PIN_CS = 5;
+    static constexpr uint8_t RFM95_PIN_RESET = 3;
     static constexpr uint8_t RFM95_PIN_ENABLE = 0;
-    static constexpr uint8_t RFM95_PIN_D0 = 0;
+    static constexpr uint8_t RFM95_PIN_D0 = 2;
     #else
     static constexpr uint8_t RFM95_PIN_CS = 5;
     static constexpr uint8_t RFM95_PIN_RESET = 3;
