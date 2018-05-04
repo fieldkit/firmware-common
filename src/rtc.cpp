@@ -5,9 +5,28 @@ namespace fk {
 
 ClockType clock;
 
+static void log(const char *f, ...) {
+    va_list args;
+    va_start(args, f);
+    vlogf(LogLevels::TRACE, "Clock", f, args);
+    va_end(args);
+}
+
 void ClockPair::begin() {
     external.begin();
     local.begin();
+
+    auto externalNow = external.now();
+    local.setYear(externalNow.year() - 2000);
+    local.setMonth(externalNow.month());
+    local.setDay(externalNow.day());
+    local.setHours(externalNow.hour());
+    local.setMinutes(externalNow.minute());
+    local.setSeconds(externalNow.second());
+
+    FormattedTime nowFormatted{ externalNow };
+    log("Synced from external: %s", nowFormatted.toString());
+
 }
 
 void ClockPair::setTime(DateTime dt) {
@@ -23,18 +42,17 @@ void ClockPair::setTime(DateTime dt) {
 
 void ClockPair::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        loginfof("Clock", "Ignoring invalid time (%lu)", newTime);
+        log("Ignoring invalid time (%lu)", newTime);
         return;
     }
 
     setTime(DateTime(newTime));
 
     FormattedTime nowFormatted{ now() };
-    loginfof("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
+    log("Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
 }
 
 DateTime ClockPair::now() {
-    // auto e = external.now();
     return DateTime(local.getYear(),
                     local.getMonth(),
                     local.getDay(),
@@ -64,14 +82,14 @@ void Clock::setTime(DateTime dt) {
 
 void Clock::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        loginfof("Clock", "Ignoring invalid time (%lu)", newTime);
+        log("Ignoring invalid time (%lu)", newTime);
         return;
     }
 
     setTime(DateTime(newTime));
 
     FormattedTime nowFormatted{ now() };
-    loginfof("Clock", "Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
+    log("Clock changed: %s (%lu)", nowFormatted.toString(), newTime);
 }
 
 DateTime Clock::now() {
