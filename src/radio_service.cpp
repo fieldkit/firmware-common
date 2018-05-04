@@ -47,7 +47,7 @@ TaskEval RadioService::task() {
 }
 
 SendDataToLoraGateway::SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, uint8_t file) :
-    Task("SendDataToLoraGateway"), radioService(&radioService), fileReader(fileSystem, file), buffer(), streamCopier{ buffer.toBufferPtr() } {
+    Task("SendDataToLoraGateway"), radioService(&radioService), fileReader(fileSystem, file) {
 }
 
 void SendDataToLoraGateway::enqueued() {
@@ -70,6 +70,7 @@ TaskEval SendDataToLoraGateway::task() {
     if (radioService->isSleeping()) {
         log("Truncating data!");
         fileReader.truncate();
+        return TaskEval::done();
     }
 
     if (copying) {
