@@ -41,7 +41,11 @@ if(DISABLE_FLASH)
   add_definitions(-DFK_DISABLE_FLASH)
 endif(DISABLE_FLASH)
 
-add_definitions(-DFK_ENABLE_RADIO)
+option(DISABLE_RADIO "Disable radio.")
+if(DISABLE_RADIO)
+else()
+  add_definitions(-DFK_ENABLE_RADIO)
+endif(DISABLE_RADIO)
 
 # Get the current working branch
 execute_process(
