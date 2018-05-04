@@ -6,6 +6,7 @@
 #include "wifi.h"
 #include "core_state.h"
 #include "fkfs_tasks.h"
+#include "file_reader.h"
 #include "utils.h"
 #include "file_system.h"
 
@@ -13,7 +14,7 @@ namespace fk {
 
 class TransmitFileTask : public Task {
 private:
-    FkfsIterator iterator;
+    FileReader fileReader;
     CoreState *state;
     Wifi *wifi;
     HttpTransmissionConfig *config;
@@ -22,6 +23,8 @@ private:
     WiFiClient wcl;
     HttpResponseParser parser;
     CachedDnsResolution cachedDns;
+    lws::BufferedStreamCopier<256> streamCopier;
+    lws::CircularStreams<lws::RingBufferN<256>> outgoing;
 
 public:
     TransmitFileTask(FileSystem &fileSystem, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);

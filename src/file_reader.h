@@ -21,8 +21,20 @@ public:
 
 public:
     void open();
+    void open(fkfs_iterator_token_t &token);
+    void end();
+    void truncate();
     uint32_t size() {
         return iterator.size();
+    }
+    uint8_t fileNumber() {
+        return iterator.fileNumber();
+    }
+    fkfs_iterator_token_t &resumeToken() {
+        return iterator.resumeToken();
+    }
+    bool isFinished() {
+        return iterator.isFinished();
     }
 
 };

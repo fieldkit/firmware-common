@@ -80,14 +80,34 @@ public:
     }
 
 public:
+    void reopen(fkfs_iterator_token_t &token) {
+        iterator.reopen(token);
+    }
+
     void beginning() {
         iterator.beginning();
         block = DataBlock{};
         position = 0;
     }
 
+    void truncate() {
+        iterator.truncate();
+    }
+
+    void end() {
+        iterator.end();
+    }
+
     uint32_t size() {
         return iterator.size();
+    }
+
+    uint8_t fileNumber() {
+        return iterator.fileNumber();
+    }
+
+    fkfs_iterator_token_t &resumeToken() {
+        return iterator.resumeToken();
     }
 
     bool isFinished();

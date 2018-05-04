@@ -1,6 +1,8 @@
 #ifndef FK_WIFI_CLIENT_H_INCLUDED
 #define FK_WIFI_CLIENT_H_INCLUDED
 
+#include <lwstreams/lwstreams.h>
+
 #include <WiFi101.h>
 #include <WiFiServer.h>
 
@@ -41,6 +43,28 @@ public:
         fk_assert(!available());
         acquiredAt = 0;
     }
+};
+
+class WifiWriter : public lws::Writer {
+private:
+    WiFiClient *wcl;
+
+public:
+    WifiWriter(WiFiClient &wcl) : wcl(&wcl) {
+    }
+
+public:
+    int32_t write(uint8_t *ptr, size_t size) override {
+        return wcl->write(ptr, size);
+    }
+
+    int32_t write(uint8_t byte) override {
+        return wcl->write(byte);
+    }
+
+    void close() override {
+    }
+
 };
 
 class WifiConnection {

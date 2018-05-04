@@ -17,7 +17,7 @@ TaskEval TransmitAllFilesTask::task() {
 }
 
 TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config) :
-    Task("TransmitFileTask"), iterator(fileSystem.fkfs(), file), state(&state), wifi(&wifi), config(&config) {
+    Task("TransmitFileTask"), fileReader(fileSystem, file), state(&state), wifi(&wifi), config(&config) {
 }
 
 void TransmitFileTask::enqueued() {
@@ -41,12 +41,12 @@ TaskEval TransmitFileTask::task() {
             return TaskEval::busy();
         }
 
-        iterator.reopen(state->getCursor(iterator.fileNumber()));
+        fileReader.open(state->getCursor(fileReader.fileNumber()));
 
-        if (iterator.size() > MaximumUpload) {
-            log("Skipping, upload too large at %d bytes.", iterator.size());
-            iterator.end();
-            state->saveCursor(iterator.resumeToken());
+        if (fileReader.size() > MaximumUpload) {
+            log("Skipping, upload too large at %lu bytes.", fileReader.size());
+            fileReader.end();
+            state->saveCursor(fileReader.resumeToken());
             return TaskEval::done();
         }
 
@@ -67,7 +67,7 @@ TaskEval TransmitFileTask::task() {
         state->setBusy(false);
         wifi->setBusy(false);
         if (status == 200) {
-            if (!iterator.isFinished()) {
+            if (!fileReader.isFinished()) {
                 log("Unfinished success (status = %d)", status);
             }
             else {
@@ -75,10 +75,10 @@ TaskEval TransmitFileTask::task() {
 
                 if (state->shouldWipeAfterUpload()) {
                     log("Truncating data!");
-                    iterator.truncate();
+                    fileReader.truncate();
                 }
             }
-            state->saveCursor(iterator.resumeToken());
+            state->saveCursor(fileReader.resumeToken());
         }
         else {
             log("Failed (status = %d)", status);
@@ -88,11 +88,9 @@ TaskEval TransmitFileTask::task() {
         return TaskEval::done();
     }
 
-    if (!iterator.isFinished()) {
-        auto data = iterator.move();
-        if (data) {
-            wcl.write((uint8_t *)data.ptr, data.size);
-        }
+    if (!fileReader.isFinished()) {
+        auto writer = WifiWriter{ wcl };
+        streamCopier.copy(fileReader, writer);
     }
     else {
         if (waitingSince == 0) {
@@ -137,12 +135,12 @@ TaskEval TransmitFileTask::openConnection() {
             }
 
             auto bufferSize = stream.bytes_written;
-            auto transmitting = iterator.size() + bufferSize;
+            auto transmitting = fileReader.size() + bufferSize;
 
             HttpResponseWriter httpWriter(wcl);
             httpWriter.writeHeaders(parsed, "application/vnd.fk.data+binary", transmitting);
 
-            log("Sending %d + %d = %d bytes...", iterator.size(), bufferSize, transmitting);
+            log("Sending %lu + %d = %lu bytes...", fileReader.size(), bufferSize, transmitting);
             connected = true;
             wcl.write(buffer, bufferSize);
         } else {

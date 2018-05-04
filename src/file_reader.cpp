@@ -9,6 +9,18 @@ void FileReader::open() {
     iterator.beginning();
 }
 
+void FileReader::end() {
+    iterator.end();
+}
+
+void FileReader::truncate() {
+    iterator.truncate();
+}
+
+void FileReader::open(fkfs_iterator_token_t &token) {
+    iterator.reopen(token);
+}
+
 int32_t FileReader::read() {
     fk_assert(false);
     return EOS;
