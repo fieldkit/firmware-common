@@ -61,6 +61,7 @@ TaskEval SendDataToLoraGateway::task() {
         started = true;
         copying = true;
         fileReader.open();
+        streamCopier.restart();
         radioService->sendToGateway(fileReader.size());
         log("Beginning, opened file (%d bytes).", fileReader.size());
     }
