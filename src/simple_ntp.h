@@ -12,11 +12,17 @@ namespace fk {
 class Wifi;
 
 class SimpleNTP : public Task {
+    static constexpr size_t NumberOfAddresses = 2;
+
 private:
     ClockType *clock;
     Wifi *wifi;
     WiFiUDP udp;
-    IPAddress address{129, 6, 15, 28};
+    IPAddress addresses[NumberOfAddresses] {
+        IPAddress{129, 6, 15, 28},
+        IPAddress{164, 67, 62, 194}
+    };
+    uint8_t addressIndex{ 0 };
     bool initialized{ false };
     uint32_t lastSent{ 0 };
 

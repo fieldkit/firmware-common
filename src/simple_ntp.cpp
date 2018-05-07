@@ -46,9 +46,11 @@ bool SimpleNTP::send() {
     buffer[14]  = 49;
     buffer[15]  = 52;
 
-    udp.beginPacket(address, 123);
+    udp.beginPacket(addresses[addressIndex % NumberOfAddresses], 123);
     udp.write(buffer, sizeof(buffer));
     udp.endPacket();
+
+    addressIndex++;
 
     return true;
 }
