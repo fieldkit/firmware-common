@@ -44,7 +44,7 @@ TaskEval TransmitFileTask::task() {
         fileReader.open(state->getCursor(fileReader.fileNumber()));
 
         if (fileReader.size() > MaximumUpload) {
-            log("Skipping, upload too large at %lu bytes.", fileReader.size());
+            log("Skipping, upload too large at %d bytes.", fileReader.size());
             fileReader.end();
             state->saveCursor(fileReader.resumeToken());
             return TaskEval::done();
@@ -140,7 +140,7 @@ TaskEval TransmitFileTask::openConnection() {
             HttpResponseWriter httpWriter(wcl);
             httpWriter.writeHeaders(parsed, "application/vnd.fk.data+binary", transmitting);
 
-            log("Sending %lu + %d = %lu bytes...", fileReader.size(), bufferSize, transmitting);
+            log("Sending %d + %d = %d bytes...", fileReader.size(), bufferSize, transmitting);
             connected = true;
             wcl.write(buffer, bufferSize);
         } else {

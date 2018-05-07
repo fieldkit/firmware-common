@@ -122,7 +122,21 @@ void FkfsIterator::truncate() {
 }
 
 uint8_t FkfsIterator::ensure() {
-    return fkfs_file_iterator_ensure(fs, &iter);
+    switch (fkfs_file_iterator_ensure(fs, &iter)) {
+    case FKFS_ENSURE_FAILED: {
+        log("Ensure failed!");
+        return false;
+    }
+    case FKFS_ENSURE_LOADED: {
+        log("Ensure loaded!");
+        return true;
+    }
+    case FKFS_ENSURE_NOOP: {
+        log("Ensure noop!");
+        return true;
+    }
+    }
+    return false;
 }
 
 void FkfsIterator::log(const char *f, ...) const {
@@ -142,17 +156,7 @@ DataBlock FkfsStreamingIterator::read(size_t bytes) {
         position = 0;
     }
     else {
-        switch (iterator.ensure()) {
-        case FKFS_ENSURE_FAILED: {
-            break;
-        }
-        case FKFS_ENSURE_LOADED: {
-            break;
-        }
-        case FKFS_ENSURE_NOOP: {
-            break;
-        }
-        }
+        iterator.ensure();
     }
 
     if (!block) {

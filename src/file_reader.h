@@ -7,7 +7,7 @@
 
 namespace fk {
 
-class FileReader : public lws::Reader {
+class FileReader : public lws::SizedReader {
 private:
     FkfsStreamingIterator iterator;
 
@@ -24,7 +24,7 @@ public:
     void open(fkfs_iterator_token_t &token);
     void end();
     void truncate();
-    uint32_t size() {
+    size_t size() override {
         return iterator.size();
     }
     uint8_t fileNumber() {

@@ -37,13 +37,14 @@ private:
     LoraRadioRadioHead radio;
     NodeNetworkProtocol protocol;
     lws::CircularStreams<lws::RingBufferN<256>> outgoing;
+    size_t size_;
 
 public:
     RadioService();
 
 public:
     bool setup(DeviceId &deviceId);
-    void sendToGateway();
+    void sendToGateway(size_t size);
     bool hasErrorOccured() {
         return protocol.hasErrorOccured();
     }
@@ -55,7 +56,7 @@ public:
     lws::Writer &getWriter() {
         return outgoing.getWriter();
     }
-    lws::Reader *openReader() override;
+    NodeNetworkCallbacks::OpenedReader openReader() override;
     void closeReader(lws::Reader *reader) override;
 
 public:

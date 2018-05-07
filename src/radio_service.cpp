@@ -22,14 +22,15 @@ bool RadioService::setup(DeviceId &deviceId) {
     return true;
 }
 
-void RadioService::sendToGateway() {
+void RadioService::sendToGateway(size_t size) {
     log("Cleared buffers.");
     outgoing.clear();
     protocol.sendToGateway();
+    size_ = size;
 }
 
-lws::Reader *RadioService::openReader() {
-    return &outgoing.getReader();
+NodeNetworkCallbacks::OpenedReader RadioService::openReader() {
+    return NodeNetworkCallbacks::OpenedReader{ &outgoing.getReader(), size_ };
 }
 
 void RadioService::closeReader(lws::Reader *reader) {
@@ -60,8 +61,8 @@ TaskEval SendDataToLoraGateway::task() {
         started = true;
         copying = true;
         fileReader.open();
-        radioService->sendToGateway();
-        log("Beginning, opened file (%lu bytes).", fileReader.size());
+        radioService->sendToGateway(fileReader.size());
+        log("Beginning, opened file (%d bytes).", fileReader.size());
     }
 
     if (radioService->hasErrorOccured()) {
