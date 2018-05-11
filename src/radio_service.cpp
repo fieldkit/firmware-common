@@ -62,8 +62,14 @@ TaskEval SendDataToLoraGateway::task() {
         copying = true;
         fileReader.open();
         streamCopier.restart();
-        radioService->sendToGateway(fileReader.size());
-        log("Beginning, opened file (%d bytes).", fileReader.size());
+        if (fileReader.size() < 32768) {
+            radioService->sendToGateway(fileReader.size());
+            log("Beginning, opened file (%d bytes).", fileReader.size());
+        }
+        else {
+            log("Opened file, too large (%d bytes).", fileReader.size());
+            return TaskEval::done();
+        }
     }
 
     if (radioService->hasErrorOccured()) {
