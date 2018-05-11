@@ -19,6 +19,8 @@ bool RadioService::setup(DeviceId &deviceId) {
     radio.setHeaderFrom(0x00);
     radio.setThisAddress(0x00);
 
+    available_ = true;
+
     return true;
 }
 
@@ -57,6 +59,10 @@ void SendDataToLoraGateway::enqueued() {
 }
 
 TaskEval SendDataToLoraGateway::task() {
+    if (!radioService->isAvailable()) {
+        log("No radio.");
+        return TaskEval::done();
+    }
     if (!started) {
         started = true;
         copying = true;

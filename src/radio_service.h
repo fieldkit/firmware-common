@@ -38,6 +38,7 @@ private:
     NodeNetworkProtocol protocol;
     lws::CircularStreams<lws::RingBufferN<256>> outgoing;
     size_t size_;
+    bool available_{ false };
 
 public:
     RadioService();
@@ -50,6 +51,10 @@ public:
     }
     bool isSleeping() {
         return protocol.isSleeping();
+    }
+
+    bool isAvailable() {
+        return available_;
     }
 
 public:
