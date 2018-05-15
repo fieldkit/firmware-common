@@ -124,15 +124,15 @@ void FkfsIterator::truncate() {
 uint8_t FkfsIterator::ensure() {
     switch (fkfs_file_iterator_ensure(fs, &iter)) {
     case FKFS_ENSURE_FAILED: {
-        log("Ensure failed!");
+        // log("Ensure failed!");
         return false;
     }
     case FKFS_ENSURE_LOADED: {
-        log("Ensure loaded!");
+        // log("Ensure loaded!");
         return true;
     }
     case FKFS_ENSURE_NOOP: {
-        log("Ensure noop!");
+        // log("Ensure noop!");
         return true;
     }
     }

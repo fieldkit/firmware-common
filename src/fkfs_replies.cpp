@@ -43,7 +43,7 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     }
 }
 
-Task *FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+Task *FkfsReplies::downloadFileReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     fkfs_iterator_token_t *resumeToken = nullptr;
     auto rawToken = query.getDownloadToken();
     if (rawToken != nullptr && rawToken->length > 0) {
@@ -51,7 +51,7 @@ Task *FkfsReplies::downloadFileReply(AppQueryMessage &query, AppReplyMessage &re
         resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
     }
 
-    return downloadFileTask.ready(fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer);
+    return downloadFileTask.ready(state, fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer);
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -111,7 +111,7 @@ void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, 
     }
 }
 
-Task *FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+Task *FkfsReplies::downloadDataSetReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     fkfs_iterator_token_t *resumeToken = nullptr;
     auto rawToken = query.getDownloadToken();
     if (rawToken != nullptr && rawToken->length > 0) {
@@ -119,7 +119,7 @@ Task *FkfsReplies::downloadDataSetReply(AppQueryMessage &query, AppReplyMessage 
         resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
     }
 
-    return downloadFileTask.ready(fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer);
+    return downloadFileTask.ready(state, fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer);
 }
 
 void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {

@@ -21,13 +21,13 @@ public:
 
 public:
     void queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
-    Task *downloadFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
+    Task *downloadFileReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
     void eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
     void resetAll();
 
 public:
     void dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
-    Task *downloadDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
+    Task *downloadDataSetReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
     void eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
 
 private:

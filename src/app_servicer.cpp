@@ -125,7 +125,7 @@ TaskEval AppServicer::handle() {
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_DATA_SET: {
         log("Download ds %lu page=%lu", query.m().downloadDataSet.id, query.m().downloadDataSet.page);
-        auto newTask = fileReplies->downloadDataSetReply(query, reply, *buffer);
+        auto newTask = fileReplies->downloadDataSetReply(*state, query, reply, *buffer);
         active.push(*newTask);
         return TaskEval::busy();
     }
@@ -242,7 +242,7 @@ TaskEval AppServicer::handle() {
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
         if (!state->isReadingInProgress()) {
             log("Download file (%lu / %lu)", query.m().downloadFile.id, query.m().downloadFile.page);
-            auto newTask = fileReplies->downloadFileReply(query, reply, *buffer);
+            auto newTask = fileReplies->downloadFileReply(*state, query, reply, *buffer);
             active.push(*newTask);
             return TaskEval::busy();
         }

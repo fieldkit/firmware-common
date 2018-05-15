@@ -2,15 +2,52 @@
 
 namespace fk {
 
-DownloadFileTask::DownloadFileTask(fkfs_t *fs, uint8_t file, fkfs_iterator_token_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer) :
-    Task("DownloadFile"), reply(&reply), buffer(&buffer), iterator(*fs, file, resumeToken) {
+DownloadFileTask::DownloadFileTask(CoreState &state, fkfs_t *fs, uint8_t file, fkfs_iterator_token_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer) :
+    Task("DownloadFile"), state(&state), reply(&reply), buffer(&buffer), iterator(*fs, file, resumeToken) {
 }
 
 void DownloadFileTask::enqueued() {
     iterator.beginning();
+    bytesCopied = 0;
 }
 
 TaskEval DownloadFileTask::task() {
+    if (bytesCopied == 0) {
+        StaticPool<128> pool{"DataPool"};
+        DataRecordMetadataMessage drm{ *state, pool };
+        uint8_t metadataBuffer[drm.calculateSize()];
+        auto stream = pb_ostream_from_buffer(metadataBuffer, sizeof(metadataBuffer));
+        if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
+            log("Error encoding data file record (%d bytes)", sizeof(metadataBuffer));
+            return TaskEval::error();
+        }
+        auto bufferSize = stream.bytes_written;
+
+        pb_data_t dataData = {
+            .length = bufferSize,
+            .buffer = metadataBuffer,
+        };
+
+        reply->clear();
+        reply->m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
+        reply->m().fileData.data.funcs.encode = pb_encode_data;
+        reply->m().fileData.data.arg = (void *)&dataData;
+        reply->m().fileData.size = iterator.size();
+
+        if (!buffer->write(*reply)) {
+            log("Error writing reply");
+            return TaskEval::error();
+        }
+
+        auto size = buffer->position();
+        if (buffer->write() != size) {
+            log("Error sending buffer");
+            return TaskEval::error();
+        }
+
+        log("Wrote metadata prefix (%d bytes)", bufferSize);
+    }
+
     auto data = iterator.move();
     if (data && data.size > 0) {
         pb_data_t dataData = {
@@ -30,6 +67,8 @@ TaskEval DownloadFileTask::task() {
         reply->m().fileData.token.funcs.encode = pb_encode_data;
         reply->m().fileData.token.arg = (void *)&tokenData;
         reply->m().fileData.size = iterator.size();
+
+        bytesCopied += data.size;
 
         if (!buffer->write(*reply)) {
             log("Error writing reply");
