@@ -20,6 +20,7 @@ private:
     HttpTransmissionConfig *config;
     uint32_t waitingSince{ 0 };
     bool connected{ false };
+    uint8_t tries{ 0 };
     WiFiClient wcl;
     HttpResponseParser parser;
     CachedDnsResolution cachedDns;

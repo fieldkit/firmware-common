@@ -21,6 +21,7 @@ TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, uint8_t file, CoreSta
 }
 
 void TransmitFileTask::enqueued() {
+    tries = 0;
     connected = false;
     waitingSince = millis();
 }
@@ -82,8 +83,15 @@ TaskEval TransmitFileTask::task() {
         }
         else {
             log("Failed (status = %d)", status);
-            enqueued();
-            return TaskEval::busy();
+            tries++;
+            if (tries == TransmitFileMaximumTries) {
+                return TaskEval::error();
+            }
+            else {
+                connected = false;
+                waitingSince = millis();
+                return TaskEval::busy();
+            }
         }
         return TaskEval::done();
     }

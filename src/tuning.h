@@ -58,6 +58,8 @@ constexpr uint32_t RescanExistingModulesInterval = 5 * 60 * 1000;
 
 constexpr uint32_t TransmitBusyWaitMax = 10 * 1000;
 
+constexpr uint32_t TransmitFileMaximumTries = 3;
+
 }
 
 #endif
