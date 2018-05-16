@@ -6,6 +6,7 @@
 #include <lora_radio_rh.h>
 #include <node_protocol.h>
 
+#include "tuning.h"
 #include "active_object.h"
 #include "device_id.h"
 #include "file_system.h"
@@ -19,7 +20,7 @@ class SendDataToLoraGateway : public Task {
 private:
     RadioService *radioService;
     FileReader fileReader;
-    lws::BufferedStreamCopier<128> streamCopier;
+    lws::BufferedStreamCopier<RadioTransmitFileCopierBufferSize> streamCopier;
     bool started{ false };
     bool copying{ false };
 
@@ -36,7 +37,7 @@ class RadioService : public Task, NodeNetworkCallbacks {
 private:
     LoraRadioRadioHead radio;
     NodeNetworkProtocol protocol;
-    lws::CircularStreams<lws::RingBufferN<256>> outgoing;
+    lws::CircularStreams<lws::RingBufferN<RadioTransmitFileBufferSize>> outgoing;
     size_t size_;
     bool available_{ false };
 

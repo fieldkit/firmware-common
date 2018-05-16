@@ -34,14 +34,8 @@ constexpr uint32_t GpsStatusInterval = 1 * 500;
 
 constexpr uint32_t PingInterval = 2500;
 
-/**
- *
- */
 constexpr uint32_t WifiConnectionMemory = 128;
 
-/**
- *
- */
 constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
 
 constexpr uint32_t WifiInactivityTimeout = 60 * 1000 * 2;
@@ -59,6 +53,11 @@ constexpr uint32_t RescanExistingModulesInterval = 5 * 60 * 1000;
 constexpr uint32_t TransmitBusyWaitMax = 10 * 1000;
 
 constexpr uint32_t TransmitFileMaximumTries = 3;
+
+constexpr size_t RadioTransmitFileBufferSize = 256;
+constexpr size_t RadioTransmitFileCopierBufferSize = 128;
+constexpr uint32_t RadioTransmitFileMaximumSize = 32768;
+constexpr bool RadioTransmitFileTruncateAfter = false;
 
 }
 

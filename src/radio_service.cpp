@@ -68,7 +68,7 @@ TaskEval SendDataToLoraGateway::task() {
         copying = true;
         fileReader.open();
         streamCopier.restart();
-        if (fileReader.size() < 32768) {
+        if (fileReader.size() < RadioTransmitFileMaximumSize) {
             radioService->sendToGateway(fileReader.size());
             log("Beginning, opened file (%d bytes).", fileReader.size());
         }
@@ -82,8 +82,10 @@ TaskEval SendDataToLoraGateway::task() {
         return TaskEval::error();
     }
     if (radioService->isSleeping()) {
-        log("Truncating data!");
-        fileReader.truncate();
+        if (RadioTransmitFileTruncateAfter) {
+            log("Truncating data!");
+            fileReader.truncate();
+        }
         return TaskEval::done();
     }
 
