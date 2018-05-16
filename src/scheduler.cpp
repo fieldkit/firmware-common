@@ -105,7 +105,7 @@ TaskEval Scheduler::task() {
                 DateTime runsAgain{tasks[i]. getNextRunTime(now) };
                 FormattedTime nowFormatted{ now };
                 FormattedTime runsAgainFormatted{ runsAgain };
-                log("run task %s (again = %s) (busy = %d)", nowFormatted.toString(), runsAgainFormatted.toString(), state->isBusy());
+                log("Run %s %s (again = %s) (busy = %d)", task.toString(),nowFormatted.toString(), runsAgainFormatted.toString(), state->isBusy());
                 if (!state->isBusy()) {
                     queue->append(task);
                 }
@@ -115,7 +115,7 @@ TaskEval Scheduler::task() {
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
         if (periodic[i].shouldRun()) {
             auto &task = periodic[i].getTask();
-            log("run task (busy = %d)", state->isBusy());
+            log("Run %s (busy = %d)", task.toString(), state->isBusy());
             if (!state->isBusy()) {
                 queue->append(task);
             }
