@@ -7,12 +7,12 @@ namespace fk {
 
 class StaticWiFiAllocator : public WiFiAllocator {
     static constexpr size_t NumberOfBuffers = 2;
-    typename std::aligned_storage<sizeof(uint8_t) * SOCKET_BUFFER_SIZE, alignof(uint8_t)>::type data[NumberOfBuffers];
+    typename std::aligned_storage<sizeof(uint8_t) * WifiSocketBufferSize, alignof(uint8_t)>::type data[NumberOfBuffers];
     bool available[NumberOfBuffers] = { true, true };
 
 public:
     void *malloc(size_t size) override {
-        fk_assert(size == SOCKET_BUFFER_SIZE);
+        fk_assert(size == WifiSocketBufferSize);
 
         for (size_t i = 0; i < NumberOfBuffers; ++i) {
             if (available[i]) {

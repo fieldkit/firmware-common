@@ -46,8 +46,6 @@ TaskEval Listen::task() {
     begin();
 
     if (state == ListenerState::Disconnected) {
-        // WiFiClient is 1480 bytes. Only has one buffer of the size
-        // SOCKET_BUFFER_TCP_SIZE. Where SOCKET_BUFFER_TCP_SIZE is 1446.
         auto wcl = server.available();
         if (wcl) {
             lastActivity = millis();

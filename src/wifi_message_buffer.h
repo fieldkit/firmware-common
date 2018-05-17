@@ -6,7 +6,7 @@
 
 namespace fk {
 
-class WifiMessageBuffer : public ArrayMessageBuffer<SOCKET_BUFFER_SIZE> {
+class WifiMessageBuffer : public ArrayMessageBuffer<WifiSocketBufferSize> {
 private:
     WiFiClient *wcl;
 

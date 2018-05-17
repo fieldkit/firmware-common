@@ -40,8 +40,10 @@ constexpr uint32_t WifiTransmitFileMaximumSize = 1024 * 1024;
 constexpr uint32_t WifiConnectionTimeout = 5000;
 constexpr uint32_t WifiTransmitBusyWaitMax = 10 * 1000;
 constexpr uint32_t WifiTransmitFileMaximumTries = 3;
-// This is copied from WiFiSocket.cpp. I wish they were in a header.
-constexpr size_t SOCKET_BUFFER_SIZE = 1472;
+/**
+ * This is copied from SOCKET_BUFFER_SIZE in WiFiSocket.cpp.
+ */
+constexpr size_t WifiSocketBufferSize = 1472;
 
 constexpr size_t RadioTransmitFileBufferSize = 256;
 constexpr size_t RadioTransmitFileCopierBufferSize = 128;
