@@ -86,7 +86,7 @@ TaskEval ScanNetworks::task() {
             return TaskEval::error();
         }
 
-        begunAt = millis() + ScanDuration;
+        begunAt = millis() + WifiScanDuration;
     }
 
     if (begunAt > millis()) {

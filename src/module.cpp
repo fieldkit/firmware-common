@@ -74,7 +74,7 @@ void Module::tick() {
     watchdog.task();
     servicing.task();
 
-    if (millis() - lastActivity > IdleRebootInterval) {
+    if (millis() - lastActivity > ModuleIdleRebootInterval) {
         log("Reboot due to inactivity.");
         NVIC_SystemReset();
     }

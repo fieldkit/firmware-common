@@ -58,7 +58,7 @@ TaskEval AppServicer::task() {
 
 bool AppServicer::readQuery() {
     if (dieAt == 0) {
-        dieAt = millis() + ConnectionTimeout;
+        dieAt = millis() + WifiConnectionTimeout;
     }
     else if (millis() > dieAt) {
         connection->close();

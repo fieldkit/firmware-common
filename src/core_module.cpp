@@ -31,7 +31,9 @@ void CoreModule::begin() {
 
     delay(10);
 
-    #ifndef FK_DISABLE_FLASH
+    #ifdef FK_DISABLE_FLASH
+    loginfof("Core", "Flash memory disabled");
+    #else
     fk_assert(serialFlash.begin(Hardware::FLASH_PIN_CS));
     fk_assert(storage.setup());
 
@@ -45,6 +47,8 @@ void CoreModule::begin() {
     else {
         loginfof("Core", "Radio service ready");
     }
+    #else
+    loginfof("Core", "Radio service disabled");
     #endif
 
     fk_assert(fileSystem.setup());

@@ -81,8 +81,8 @@ TaskEval GatherReadings::done(ModuleProtocolHandler::Finished &finished) {
 
 TaskEval GatherReadings::error(ModuleProtocolHandler::Finished &finished) {
     if (finished.is(beginTakeReading)) {
-        if (retries < NumberOfTwoWireRetries) {
-            log("Retry %d/%d", retries, NumberOfTwoWireRetries);
+        if (retries < TwoWireNumberOfRetries) {
+            log("Retry %d/%d", retries, TwoWireNumberOfRetries);
             protocol.push(8, beginTakeReading);
             retries++;
         }
@@ -91,8 +91,8 @@ TaskEval GatherReadings::error(ModuleProtocolHandler::Finished &finished) {
             return TaskEval::error();
         }
     } else if (finished.is(queryReadingStatus)) {
-        if (retries < NumberOfTwoWireRetries) {
-            log("Retry %d/%d", retries, NumberOfTwoWireRetries);
+        if (retries < TwoWireNumberOfRetries) {
+            log("Retry %d/%d", retries, TwoWireNumberOfRetries);
             protocol.push(8, queryReadingStatus);
             retries++;
         }

@@ -62,7 +62,7 @@ private:
     AttachedDevices attachedDevices{bus, addresses, state, leds, moduleCommunications};
 
     HttpTransmissionConfig transmissionConfig = {
-        .streamUrl = API_INGESTION_STREAM,
+        .streamUrl = WifiApiUrlIngestionStream,
     };
     TransmitAllFilesTask transmitAllFilesTask{background, fileSystem, state, wifi, transmissionConfig};
     PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, 0, moduleCommunications};

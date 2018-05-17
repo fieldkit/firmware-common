@@ -11,7 +11,7 @@ TaskEval Discovery::task() {
         if (!wifi->isDisabled()) {
             ping();
         }
-        pingAt = millis() + PingInterval;
+        pingAt = millis() + DiscoveryPingInterval;
     }
 
     return TaskEval::idle();
@@ -24,8 +24,8 @@ void Discovery::ping() {
 
     // Why is this API like this? So weird.
     WiFiUDP udp;
-    if (udp.begin(FK_CORE_PORT_UDP)) {
-        udp.beginPacket(destination, FK_CORE_PORT_UDP);
+    if (udp.begin(DiscoveryUdpPort)) {
+        udp.beginPacket(destination, DiscoveryUdpPort);
         udp.write(deviceId.toBuffer(), deviceId.length());
         udp.endPacket();
         udp.stop();

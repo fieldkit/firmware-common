@@ -107,8 +107,8 @@ void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
 
 void AttachedDevices::error(ModuleProtocolHandler::Finished &finished) {
     if (finished.is(querySensorCapabilities)) {
-        if (retries < NumberOfTwoWireRetries) {
-            log("Retry %d/%d", retries, NumberOfTwoWireRetries);
+        if (retries < TwoWireNumberOfRetries) {
+            log("Retry %d/%d", retries, TwoWireNumberOfRetries);
             protocol.push(addresses[addressIndex], querySensorCapabilities);
             retries++;
         }

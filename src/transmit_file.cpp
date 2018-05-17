@@ -34,7 +34,7 @@ TaskEval TransmitFileTask::task() {
 
     if (!connected) {
         if (state->isBusy() || state->isReadingInProgress()) {
-            if (millis() - waitingSince > TransmitBusyWaitMax) {
+            if (millis() - waitingSince > WifiTransmitBusyWaitMax) {
                 log("We're busy, skipping.");
                 return TaskEval::done();
             }
@@ -44,7 +44,7 @@ TaskEval TransmitFileTask::task() {
 
         fileReader.open(state->getCursor(fileReader.fileNumber()));
 
-        if (fileReader.size() > MaximumUpload) {
+        if (fileReader.size() > WifiTransmitFileMaximumSize) {
             log("Skipping, upload too large at %d bytes.", fileReader.size());
             fileReader.end();
             state->saveCursor(fileReader.resumeToken());
@@ -84,7 +84,7 @@ TaskEval TransmitFileTask::task() {
         else {
             log("Failed (status = %d)", status);
             tries++;
-            if (tries == TransmitFileMaximumTries) {
+            if (tries == WifiTransmitFileMaximumTries) {
                 return TaskEval::error();
             }
             else {
@@ -104,8 +104,8 @@ TaskEval TransmitFileTask::task() {
         if (waitingSince == 0) {
             waitingSince = millis();
         }
-        if (millis() - waitingSince > TransmitBusyWaitMax) {
-            log("No response after (%lu).", TransmitBusyWaitMax);
+        if (millis() - waitingSince > WifiTransmitBusyWaitMax) {
+            log("No response after (%lu).", WifiTransmitBusyWaitMax);
             wcl.flush();
             wcl.stop();
         }

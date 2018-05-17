@@ -33,7 +33,7 @@ TaskEval TwoWireTask::task() {
             return send();
         }
         else {
-            dieAt = millis() + MaximumTwoWireReply;
+            dieAt = millis() + TwoWireMaximumReplyWait;
             checkAt = millis() + 100;
             return TaskEval::idle();
         }
@@ -68,7 +68,7 @@ TaskEval TwoWireTask::send() {
         return TaskEval::error();
     }
 
-    dieAt = millis() + MaximumTwoWireReply;
+    dieAt = millis() + TwoWireMaximumReplyWait;
     // They won't be ready yet, check back soon, though.
     checkAt = millis() + 100;
 

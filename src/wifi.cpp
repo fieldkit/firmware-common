@@ -10,7 +10,7 @@ namespace fk {
 StaticWiFiAllocator staticWiFiAllocator;
 
 Wifi::Wifi(CoreState &state, WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue)
-    : ActiveObject("Wifi"), state(&state), connection(&connection), connectToWifiAp(state), createWifiAp(state), listen(ServerPort, servicer, connection, taskQueue) {
+    : ActiveObject("Wifi"), state(&state), connection(&connection), connectToWifiAp(state), createWifiAp(state), listen(WifiServerPort, servicer, connection, taskQueue) {
 }
 
 void Wifi::begin() {
