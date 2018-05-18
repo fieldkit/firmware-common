@@ -45,6 +45,9 @@ constexpr uint32_t WifiTransmitFileMaximumTries = 3;
  */
 constexpr size_t WifiSocketBufferSize = 1472;
 
+constexpr uint32_t NtpRetryAfter = 2000;
+constexpr uint32_t NtpMaximumWait = 30 * 1000;
+
 constexpr size_t RadioTransmitFileBufferSize = 256;
 constexpr size_t RadioTransmitFileCopierBufferSize = 128;
 constexpr uint32_t RadioTransmitFileMaximumSize = 32768;

@@ -6,13 +6,62 @@ namespace fk {
 
 constexpr uint64_t SeventyYears = 2208988800UL;
 constexpr uint32_t SimpleNTPPacketSize = 48;
-constexpr uint32_t RetryAfter = 5000;
 
 SimpleNTP::SimpleNTP(ClockType &clock, Wifi &wifi) : Task("NTP"), clock(&clock), wifi(&wifi) {
 }
 
 SimpleNTP::~SimpleNTP() {
     stop();
+}
+
+void SimpleNTP::enqueued() {
+    lastSent = 0;
+    started = millis();
+    initialized = false;
+}
+
+TaskEval SimpleNTP::task() {
+    if (clock->isValid()) {
+        return TaskEval::done();
+    }
+
+    if (millis() - started > NtpMaximumWait) {
+        return TaskEval::error();
+    }
+
+    if (wifi->possiblyOnline()) {
+        if (lastSent == 0 || millis() - lastSent > NtpRetryAfter) {
+            log("Asking for time...");
+            start();
+            lastSent = millis();
+        }
+
+        if (udp.parsePacket()) {
+            uint8_t buffer[SimpleNTPPacketSize];
+
+            udp.read(buffer, sizeof(buffer));
+
+            // Pull time from the packet. Stored as a DWORD here as seconds since 1/1/1900
+            auto high = word(buffer[40], buffer[41]);
+            auto low = word(buffer[42], buffer[43]);
+            auto secondsSince1900 = high << 16 | low;
+
+            // Rezero to get UnixTime.
+            auto oldEpoch = clock->getTime();
+            auto epoch = (uint32_t)(secondsSince1900 - SeventyYears);
+            clock->setTime(epoch);
+
+            log("UTC: %lu (old = %lu)", epoch, oldEpoch);
+
+            stop();
+
+            return TaskEval::done();
+        }
+    }
+    else {
+        stop();
+    }
+    return TaskEval::busy();
 }
 
 void SimpleNTP::start() {
@@ -53,45 +102,6 @@ bool SimpleNTP::send() {
     addressIndex++;
 
     return true;
-}
-
-TaskEval SimpleNTP::task() {
-    if (clock->isValid()) {
-        return TaskEval::done();
-    }
-    if (wifi->possiblyOnline()) {
-        if (lastSent == 0 || millis() - lastSent > RetryAfter) {
-            log("Asking for time...");
-            start();
-            lastSent = millis();
-        }
-
-        if (udp.parsePacket()) {
-            uint8_t buffer[SimpleNTPPacketSize];
-
-            udp.read(buffer, sizeof(buffer));
-
-            // Pull time from the packet. Stored as a DWORD here as seconds since 1/1/1900
-            auto high = word(buffer[40], buffer[41]);
-            auto low = word(buffer[42], buffer[43]);
-            auto secondsSince1900 = high << 16 | low;
-
-            // Rezero to get UnixTime.
-            auto oldEpoch = clock->getTime();
-            auto epoch = (uint32_t)(secondsSince1900 - SeventyYears);
-            clock->setTime(epoch);
-
-            log("UTC: %lu (old = %lu)", epoch, oldEpoch);
-
-            stop();
-
-            return TaskEval::done();
-        }
-    }
-    else {
-        stop();
-    }
-    return TaskEval::busy();
 }
 
 }

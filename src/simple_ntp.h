@@ -25,15 +25,17 @@ private:
     uint8_t addressIndex{ 0 };
     bool initialized{ false };
     uint32_t lastSent{ 0 };
+    uint32_t started{ 0 };
 
 public:
     SimpleNTP(ClockType &clock, Wifi &wifi);
     ~SimpleNTP();
 
 public:
+    void enqueued() override;
     TaskEval task() override;
 
-public:
+private:
     void start();
     void stop();
     bool send();
