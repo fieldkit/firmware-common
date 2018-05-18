@@ -60,6 +60,7 @@ public:
 
     static constexpr uint8_t SD_PIN_CS = 12;
     #ifdef FK_NATURALIST
+    static constexpr uint8_t PIN_PERIPH_ENABLE = (25u); // PIN_LED_RXL;
     static constexpr uint8_t FLASH_PIN_CS = (26u); // PIN_LED_TXL;
     #else
     static constexpr uint8_t FLASH_PIN_CS = 4;
