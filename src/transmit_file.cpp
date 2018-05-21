@@ -82,8 +82,8 @@ TaskEval TransmitFileTask::task() {
             state->saveCursor(fileReader.resumeToken());
         }
         else {
-            log("Failed (status = %d)", status);
             tries++;
+            log("Failed (status = %d) tries(%d / %d)", status, tries, WifiTransmitFileMaximumTries);
             if (tries == WifiTransmitFileMaximumTries) {
                 return TaskEval::error();
             }
