@@ -22,6 +22,11 @@ void Wifi::begin() {
         log("Error: no wifi (%d, %d, %d, %d)", Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
         return;
     }
+
+    lastActivityAt = millis();
+    disabled = false;
+    lastStatusAt = 0;
+    version = 0;
 }
 
 void Wifi::done(Task &task) {
@@ -36,7 +41,12 @@ void Wifi::error(Task &task) {
         #ifdef FK_WIFI_AP_DISABLE
         disable();
         #else
-        push(createWifiAp);
+        if (triedAp) {
+            disable();
+        } else {
+            triedAp = true;
+            push(createWifiAp);
+        }
         #endif
     }
     else if (areSame(task, createWifiAp)) {
@@ -71,11 +81,17 @@ void Wifi::ensureDisconnected() {
     log("Disconnected(%s)", getWifiStatus());
 }
 
+void Wifi::traceStatus() {
+    IpAddress4 ip{ WiFi.localIP() };
+    trace("Status: %s/%s readyToServe=%d isListening=%d busy=%d (%s)", getWifiStatus(WiFi.status()), getWifiStatus(status), readyToServe(), isListening(), busy, ip.toString());
+}
+
 void Wifi::disable() {
     listen.end();
     WiFi.end();
     lastActivityAt = millis();
     disabled = true;
+    status = WL_IDLE_STATUS;
     state->updateIp(0);
 
     // Allow me to explain:
@@ -107,44 +123,32 @@ void Wifi::idle() {
             if (!state->isBusy() && !state->isReadingInProgress()) {
                 log("Enabling...");
                 begin();
-                lastActivityAt = millis();
-                disabled = false;
-                version = 0;
             }
         }
         return;
     }
 
-    auto newStatus = WiFi.status();
-
     if (millis() - lastStatusAt > WifiStatusInterval) {
-        trace("Status: %s/%s readyToServe=%d isListening=%d busy=%d", getWifiStatus(newStatus), getWifiStatus(status), readyToServe(), isListening(), busy);
+        traceStatus();
         lastStatusAt = millis();
     }
 
+    auto newStatus = WiFi.status();
     if (newStatus != status) {
         log("Changed: %s", getWifiStatus());
         status = newStatus;
         lastActivityAt = millis();
         state->updateIp(WiFi.localIP());
-        if (newStatus == WL_DISCONNECTED) {
+        switch (newStatus) {
+        case WL_AP_CONNECTED: {
+            traceStatus();
+            break;
+        }
+        case WL_DISCONNECTED: {
             disable();
             return;
         }
-    }
-
-    switch (status) {
-    case WL_AP_CONNECTED: {
-        if (millis() - lastActivityAt > WifiApRestartInterval) {
-            log("Restart AP");
-            disable();
-            begin();
-            lastActivityAt = millis();
-            disabled = false;
-            version = 0;
         }
-        break;
-    }
     }
 
     if (status == WL_NO_SHIELD) {
@@ -172,13 +176,16 @@ void Wifi::idle() {
         return;
     }
 
-    log("New configuration...");
-    version = settings.version;
-    ensureDisconnected();
-    listen.end();
+    log("New configuration (%lu vs %lu)", version, settings.version);
+    disable();
+    ::delay(1000);
+    begin();
     cancel();
 
     push(connectToWifiAp);
+
+    // Afterwards cause the above clears the state.
+    version = settings.version;
 }
 
 }

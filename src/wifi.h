@@ -29,6 +29,7 @@ private:
     Listen listen;
     bool disabled{ false };
     bool busy{ false };
+    bool triedAp{ false };
 
 public:
     Wifi(CoreState &state, WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue);
@@ -57,6 +58,7 @@ private:
     bool isListening();
     void ensureDisconnected();
     bool readyToServe();
+    void traceStatus();
 
 };
 
