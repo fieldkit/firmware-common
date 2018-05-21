@@ -20,6 +20,10 @@ struct NetworkInfo {
         strncpy(ssid, _ssid, sizeof(ssid));
         strncpy(password, _password, sizeof(password));
     }
+
+    bool valid() {
+        return ssid[0] != 0 && password[0] != 0;
+    }
 };
 
 struct NetworkSettings {
@@ -42,6 +46,21 @@ struct NetworkSettings {
         for (auto i = 0; i < N; ++i) {
             memcpy(&networks[i], &infos[i], sizeof(NetworkInfo));
         }
+    }
+
+    bool overrideNetworksFrom(NetworkSettings &other) {
+        auto modified = false;
+
+        for (auto i = 0; i < MaximumRememberedNetworks; ++i) {
+            if (other.networks[i].valid()) {
+                if (!networks[i].valid()) {
+                    networks[i] = other.networks[i];
+                    modified = true;
+                }
+            }
+        }
+
+        return modified;
     }
 
 };

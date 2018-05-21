@@ -85,7 +85,8 @@ void setup() {
 
     fk::CoreModule coreModule;
     coreModule.begin();
-    coreModule.getState().configure(fk::NetworkSettings{ false, networks });
+    auto startupConfig = fk::StartupConfigurer{ coreModule.getState() };
+    startupConfig.overrideEmptyNetworkConfigurations(fk::NetworkSettings{ false, networks });
     coreModule.run();
 }
 

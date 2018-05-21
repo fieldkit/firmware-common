@@ -111,6 +111,18 @@ private:
 
 };
 
+class StartupConfigurer {
+private:
+    CoreState *state;
+
+public:
+    StartupConfigurer(CoreState &state);
+
+public:
+    void overrideEmptyNetworkConfigurations(NetworkSettings newSettings);
+
+};
+
 }
 
 #endif
