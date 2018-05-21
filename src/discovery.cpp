@@ -1,5 +1,6 @@
 #include "discovery.h"
 #include "device_id.h"
+#include "utils.h"
 
 namespace fk {
 
@@ -8,7 +9,7 @@ Discovery::Discovery(TwoWireBus &bus, Wifi &wifi) : Task("Discovery"), bus(&bus)
 
 TaskEval Discovery::task() {
     if (pingAt < millis()) {
-        if (!wifi->isDisabled()) {
+        if (wifi->discoveryEnabled()) {
             ping();
         }
         pingAt = millis() + DiscoveryPingInterval;
@@ -25,6 +26,8 @@ void Discovery::ping() {
     // Why is this API like this? So weird.
     WiFiUDP udp;
     if (udp.begin(DiscoveryUdpPort)) {
+        auto ipv4 = IpAddress4 { (uint32_t)destination };
+        trace("Ping: %s", ipv4.toString());
         udp.beginPacket(destination, DiscoveryUdpPort);
         udp.write(deviceId.toBuffer(), deviceId.length());
         udp.endPacket();

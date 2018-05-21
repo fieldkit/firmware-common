@@ -21,6 +21,7 @@ private:
     uint32_t version{ 0 };
     uint8_t status{ WL_IDLE_STATUS };
     uint32_t lastActivityAt{ 0 };
+    uint32_t lastStatusAt{ 0 };
     ConnectToWifiAp connectToWifiAp;
     CreateWifiAp createWifiAp;
     ScanNetworks scanNetworks;
@@ -42,7 +43,10 @@ public:
         return disabled;
     }
     bool possiblyOnline() {
-        return !isDisabled() && WiFi.status() == WL_CONNECTED;
+        return !isDisabled() && (WiFi.status() == WL_CONNECTED);
+    }
+    bool discoveryEnabled() {
+        return !isDisabled() && (WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_CONNECTED);
     }
     void begin();
     void done(Task &task) override;

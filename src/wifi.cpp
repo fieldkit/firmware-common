@@ -101,6 +101,7 @@ void Wifi::idle() {
     if (!state->isReady()) {
         return;
     }
+
     if (disabled) {
         if (millis() - lastActivityAt > WifiAwakenInterval) {
             if (!state->isBusy() && !state->isReadingInProgress()) {
@@ -115,6 +116,12 @@ void Wifi::idle() {
     }
 
     auto newStatus = WiFi.status();
+
+    if (millis() - lastStatusAt > WifiStatusInterval) {
+        trace("Status: %s/%s readyToServe=%d isListening=%d busy=%d", getWifiStatus(newStatus), getWifiStatus(status), readyToServe(), isListening(), busy);
+        lastStatusAt = millis();
+    }
+
     if (newStatus != status) {
         log("Changed: %s", getWifiStatus());
         status = newStatus;
@@ -124,6 +131,20 @@ void Wifi::idle() {
             disable();
             return;
         }
+    }
+
+    switch (status) {
+    case WL_AP_CONNECTED: {
+        if (millis() - lastActivityAt > WifiApRestartInterval) {
+            log("Restart AP");
+            disable();
+            begin();
+            lastActivityAt = millis();
+            disabled = false;
+            version = 0;
+        }
+        break;
+    }
     }
 
     if (status == WL_NO_SHIELD) {

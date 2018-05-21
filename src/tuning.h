@@ -10,7 +10,11 @@ namespace fk {
 #define FK_API_BASE "http://api.fkdev.org"
 #endif
 
+#ifdef FK_NATURALIST
+constexpr const char *DefaultName = "FieldKit Naturalist";
+#else
 constexpr const char *DefaultName = "FieldKit Device";
+#endif
 
 constexpr uint32_t LivePollInactivity = 1000 * 10;
 
@@ -38,8 +42,10 @@ constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
 constexpr uint32_t WifiInactivityTimeout = 60 * 1000 * 2;
 constexpr uint32_t WifiTransmitFileMaximumSize = 1024 * 1024;
 constexpr uint32_t WifiConnectionTimeout = 5000;
+constexpr uint32_t WifiStatusInterval = 5000;
 constexpr uint32_t WifiTransmitBusyWaitMax = 10 * 1000;
 constexpr uint32_t WifiTransmitFileMaximumTries = 3;
+constexpr uint32_t WifiApRestartInterval = 60 * 1000;
 /**
  * This is copied from SOCKET_BUFFER_SIZE in WiFiSocket.cpp.
  */

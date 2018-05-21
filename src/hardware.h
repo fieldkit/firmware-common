@@ -5,7 +5,7 @@
 
 #ifdef FK_NATURALIST
 #define FK_RTC_PCF8523
-#define FK_WIFI_AP_DISABLE
+// #define FK_WIFI_AP_DISABLE
 #define FK_HARDWARE_SERIAL2_ENABLE
 
 /**
