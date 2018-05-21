@@ -83,8 +83,8 @@ TaskEval TransmitFileTask::task() {
         }
         else {
             tries++;
-            log("Failed (status = %d) tries(%d / %d)", status, tries, WifiTransmitFileMaximumTries);
-            if (tries == WifiTransmitFileMaximumTries) {
+            log("Failed (status = %d) tries(%d / %d)", status, tries, (uint8_t)WifiTransmitFileMaximumTries);
+            if (tries >= WifiTransmitFileMaximumTries) {
                 return TaskEval::error();
             }
             else {

@@ -103,7 +103,7 @@ public:
 
     TaskEval task() override {
         auto e = target == nullptr ? TaskEval::done() : target->task();
-        if (e.isDone()) {
+        if (e.isDone() || e.isError()) {
             if (target != nullptr) {
                 target->~T();
                 target = nullptr;
