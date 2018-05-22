@@ -66,8 +66,6 @@ void setup() {
     loginfof("Core", "Configured with MTB.");
 #endif
 
-    fk::restartWizard.startup();
-
     fk::NetworkInfo networks[] = {
         {
             FK_CONFIG_WIFI_1_SSID,
@@ -85,6 +83,7 @@ void setup() {
 
     fk::CoreModule coreModule;
     coreModule.begin();
+    fk::restartWizard.startup();
     auto startupConfig = fk::StartupConfigurer{ coreModule.getState() };
     startupConfig.overrideEmptyNetworkConfigurations(fk::NetworkSettings{ false, networks });
     coreModule.run();
