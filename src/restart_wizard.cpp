@@ -43,6 +43,8 @@ void RestartWizard::dump() {
 #include "driver/source/nmbus.h"
 #include "driver/include/m2m_periph.h"
 #include "driver/source/m2m_hif.h"
+#include "pb_encode.h"
+#include "pb_decode.h"
 
 extern "C" {
     static bool masked = false;
@@ -56,7 +58,7 @@ extern "C" {
         if (ptr == nm_read_block || ptr == nm_read_reg_with_ret || ptr == nm_write_reg) {
             return true;
         }
-        if (ptr == hif_receive) {
+        if (ptr == pb_write) {
             return true;
         }
 
