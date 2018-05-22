@@ -53,7 +53,6 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
         .fields = fk_data_SensorInfo_fields,
     };
 
-
     deviceIdData = {
         .length = deviceId.length(),
         .buffer = deviceId.toBuffer(),

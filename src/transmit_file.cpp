@@ -146,7 +146,14 @@ TaskEval TransmitFileTask::openConnection() {
             auto transmitting = fileReader.size() + bufferSize;
 
             HttpResponseWriter httpWriter(wcl);
-            httpWriter.writeHeaders(parsed, "application/vnd.fk.data+binary", transmitting);
+            OutgoingHttpHeaders headers{
+                    "application/vnd.fk.data+binary",
+                    transmitting,
+                    firmware_version_get(),
+                    firmware_build_get(),
+                    deviceId.toString()
+            };
+            httpWriter.writeHeaders(parsed, headers);
 
             log("Sending %d + %d = %d bytes...", fileReader.size(), bufferSize, transmitting);
             connected = true;

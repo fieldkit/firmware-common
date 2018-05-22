@@ -1,11 +1,15 @@
 #ifndef FK_UTILS_H_INCLUDED
 #define FK_UTILS_H_INCLUDED
 
-#include <WiFi101.h>
 #include <IPAddress.h>
 
 #include <cstdint>
 #include <cstdio>
+
+#include "url_parser.h"
+#include "http_response_writer.h"
+#include "http_response_parser.h"
+#include "print_helpers.h"
 
 namespace fk {
 
@@ -49,108 +53,6 @@ public:
     uint32_t ip() {
         return cachedAddress;
     }
-
-};
-
-struct Url {
-public:
-    char *server{ nullptr };
-    char *path{ nullptr };
-    uint16_t port{ 80 };
-
-public:
-    Url(char *url) {
-        for (auto p = url; p[0] != 0 && p[1] != 0; ++p) {
-            if (server == nullptr && p[0] == '/' && p[1] == '/') {
-                p += 2;
-                server = p;
-            } else if (server != nullptr && p[0] == ':') {
-                p[0] = 0;
-                auto portBegin = ++p;
-                for ( ; p[0] != 0; ++p) {
-                    if (p[0] == '/') {
-                        p[0] = 0;
-                        port = atoi(portBegin);
-                        path = p + 1;
-                        break;
-                    }
-                }
-                break;
-            } else if (server != nullptr && p[0] == '/') {
-                p[0] = 0;
-                path = p + 1;
-                break;
-            }
-        }
-    }
-};
-
-class PrintSizeCalculator : public Print {
-private:
-    size_t size{ 0 };
-
-public:
-    size_t getSize() {
-        return size;
-    }
-
-    size_t write(uint8_t c) override {
-        size++;
-        return 1;
-    }
-};
-
-class BufferPrinter : public Print {
-public:
-    char *buffer;
-    size_t size;
-    size_t pos{ 0 };
-
-public:
-    BufferPrinter(char *buffer, size_t size) : buffer(buffer), size(size) {
-    }
-
-    size_t write(uint8_t c) override {
-        if (pos < size) {
-            buffer[pos++] = c;
-            buffer[pos] = 0;
-            return 1;
-        }
-        return 0;
-    }
-
-};
-
-class HttpResponseParser {
-    static constexpr size_t MaxStatusCodeLength = 4;
-
-private:
-    // This only needs to be big enough to hold a status code.
-    char buffer[MaxStatusCodeLength];
-    uint8_t spacesSeen{ 0 };
-    uint8_t pos{ 0 };
-    uint16_t statusCode{ 0 };
-
-public:
-    void begin();
-    void write(uint8_t c);
-
-public:
-    uint16_t getStatusCode() {
-        return statusCode;
-    }
-
-};
-
-class HttpResponseWriter {
-private:
-    WiFiClient &wcl;
-
-public:
-    explicit HttpResponseWriter(WiFiClient &wcl);
-
-public:
-    void writeHeaders(Url &url, const char *contentType, uint32_t contentLength);
 
 };
 

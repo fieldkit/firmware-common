@@ -28,45 +28,6 @@ const char *getWifiStatus() {
     return getWifiStatus(WiFi.status());
 }
 
-void HttpResponseParser::begin() {
-    buffer[0] = pos = spacesSeen = 0;
-    statusCode = 0;
-}
-
-void HttpResponseParser::write(uint8_t c) {
-    if (spacesSeen < 2) {
-        if (c == ' ') {
-            spacesSeen++;
-            if (spacesSeen == 2) {
-                statusCode = atoi(buffer);
-            }
-            buffer[0] = pos = 0;
-        } else {
-            if (pos < MaxStatusCodeLength - 1) {
-                buffer[pos++] = c;
-                buffer[pos] = 0;
-            }
-        }
-    }
-}
-
-HttpResponseWriter::HttpResponseWriter(WiFiClient &wcl) : wcl(wcl) {
-}
-
-void HttpResponseWriter::writeHeaders(Url &url, const char *contentType, uint32_t contentLength) {
-    wcl.print("POST /");
-    wcl.print(url.path);
-    wcl.println(" HTTP/1.1");
-    wcl.print("Host: ");
-    wcl.println(url.server);
-    wcl.print("Content-Type: ");
-    wcl.println(contentType);
-    wcl.print("Content-Length: ");
-    wcl.println(contentLength);
-    wcl.println("Connection: close");
-    wcl.println();
-}
-
 SerialNumber::SerialNumber() {
     volatile uint32_t *ptr1 = (volatile uint32_t *)0x0080A00C;
     values[0] = *ptr1;
