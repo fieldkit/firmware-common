@@ -23,6 +23,9 @@ void HttpResponseWriter::writeHeaders(Url &url, OutgoingHttpHeaders &headers) {
         wcl.println(headers.contentType);
     }
 
+    wcl.print("Fk-FileId: ");
+    wcl.println(headers.fileId);
+
     if (headers.version != nullptr) {
         wcl.print("Fk-Version: ");
         wcl.println(headers.version);

@@ -152,7 +152,8 @@ TaskEval TransmitFileTask::openConnection() {
                     transmitting,
                     firmware_version_get(),
                     firmware_build_get(),
-                    deviceId.toString()
+                    deviceId.toString(),
+                    fileReader.fileNumber()
             };
             httpWriter.writeHeaders(parsed, headers);
 

@@ -13,6 +13,7 @@ struct OutgoingHttpHeaders {
     const char *version;
     const char *build;
     const char *deviceId;
+    uint8_t fileId;
 };
 
 class HttpResponseWriter {
