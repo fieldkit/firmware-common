@@ -82,6 +82,8 @@ public:
 public:
     void reopen(fkfs_iterator_token_t &token) {
         iterator.reopen(token);
+        block = DataBlock{};
+        position = 0;
     }
 
     void beginning() {

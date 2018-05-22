@@ -43,6 +43,9 @@ TaskEval TransmitFileTask::task() {
         }
 
         fileReader.open(state->getCursor(fileReader.fileNumber()));
+        streamCopier.restart();
+        outgoing.clear();
+        waitingSince = 0;
 
         if (fileReader.size() > WifiTransmitFileMaximumSize) {
             log("Skipping, upload too large at %d bytes.", fileReader.size());
@@ -50,8 +53,6 @@ TaskEval TransmitFileTask::task() {
             state->saveCursor(fileReader.resumeToken());
             return TaskEval::done();
         }
-
-        waitingSince = 0;
 
         return openConnection();
     }
