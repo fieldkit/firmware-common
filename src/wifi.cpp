@@ -38,16 +38,18 @@ void Wifi::done(Task &task) {
 
 void Wifi::error(Task &task) {
     if (areSame(task, connectToWifiAp)) {
-        #ifdef FK_WIFI_AP_DISABLE
-        disable();
-        #else
         if (triedAp) {
             disable();
         } else {
+            #ifndef FK_WIFI_ALWAYS_ON
             triedAp = true;
+            #endif
+            #ifdef FK_WIFI_AP_DISABLE
+            disable();
+            #else
             push(createWifiAp);
+            #endif
         }
-        #endif
     }
     else if (areSame(task, createWifiAp)) {
         disable();
@@ -66,24 +68,9 @@ bool Wifi::isListening() {
     return status == WL_AP_LISTENING;
 }
 
-void Wifi::ensureDisconnected() {
-    if (WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_IDLE_STATUS) {
-        return;
-    }
-
-    WiFi.disconnect();
-
-    while (!(WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_IDLE_STATUS)) {
-        ::delay(1000);
-        log("Disconnecting(%s)...", getWifiStatus());
-    }
-
-    log("Disconnected(%s)", getWifiStatus());
-}
-
 void Wifi::traceStatus() {
     IpAddress4 ip{ WiFi.localIP() };
-    trace("Status: %s/%s readyToServe=%d isListening=%d busy=%d (%s)", getWifiStatus(WiFi.status()), getWifiStatus(status), readyToServe(), isListening(), busy, ip.toString());
+    trace("Status %s/%s readyToServe=%d isListening=%d busy=%d (%s)", getWifiStatus(WiFi.status()), getWifiStatus(status), readyToServe(), isListening(), busy, ip.toString());
 }
 
 void Wifi::disable() {
@@ -169,7 +156,9 @@ void Wifi::idle() {
         if (!busy && listen.inactive()) {
             if (millis() - lastActivityAt > WifiInactivityTimeout) {
                 if (isListening() || readyToServe())  {
+                    #ifndef FK_WIFI_ALWAYS_ON
                     disable();
+                    #endif
                 }
             }
         }

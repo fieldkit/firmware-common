@@ -56,7 +56,6 @@ public:
 
 private:
     bool isListening();
-    void ensureDisconnected();
     bool readyToServe();
     void traceStatus();
 

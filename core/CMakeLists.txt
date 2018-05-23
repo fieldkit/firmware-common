@@ -47,6 +47,11 @@ else()
   add_definitions(-DFK_ENABLE_RADIO)
 endif(DISABLE_RADIO)
 
+option(WIFI_ALWAYS_ON "Never disable Wifi.")
+if(WIFI_ALWAYS_ON)
+  add_definitions(-DFK_WIFI_ALWAYS_ON)
+endif(WIFI_ALWAYS_ON)
+
 # Get the current working branch
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD
