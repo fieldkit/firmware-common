@@ -57,7 +57,7 @@ constexpr uint32_t NtpMaximumWait = 30 * 1000;
 constexpr size_t RadioTransmitFileBufferSize = 256;
 constexpr size_t RadioTransmitFileCopierBufferSize = 128;
 constexpr uint32_t RadioTransmitFileMaximumSize = 32768;
-constexpr bool RadioTransmitFileTruncateAfter = false;
+constexpr bool RadioTransmitFileTruncateAfter = true;
 
 constexpr uint32_t RescanIntervalOrphaned = 30 * 1000;
 constexpr uint32_t RescanExistingModulesInterval = 5 * 60 * 1000;
