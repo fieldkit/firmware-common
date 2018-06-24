@@ -30,6 +30,10 @@ int32_t SerialPort::read() {
     return uart->read();
 }
 
+void SerialPort::println(const char *str) {
+    uart->println(str);
+}
+
 }
 
 #ifdef FK_HARDWARE_SERIAL2_ENABLE

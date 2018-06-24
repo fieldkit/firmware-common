@@ -14,6 +14,7 @@ private:
     CoreState *state;
     SerialPort *serial;
     TinyGPS gps;
+    bool configured{ false };
     uint32_t lastStatus{ 0 };
     uint32_t started{ 0 };
     uint16_t position{ 0 };

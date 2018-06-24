@@ -81,6 +81,7 @@ public:
     void begin(int32_t baud);
     bool available();
     int32_t read();
+    void println(const char *str);
 
 };
 

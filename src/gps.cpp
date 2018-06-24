@@ -67,17 +67,28 @@ void ReadGps::enqueued() {
     serial->begin(9600);
 }
 
+constexpr const char *PGCMD_ANTENNA = "$PGCMD,33,1*6C";
+constexpr const char *PMTK_SET_NMEA_UPDATE_1HZ = "$PMTK220,1000*1F";
+constexpr const char *PMTK_API_SET_FIX_CTL_1HZ = "$PMTK300,1000,0,0,0,0*1C";
+
 TaskEval ReadGps::task() {
     if (started == 0) {
         position = 0;
         started = millis();
+
+        if (!configured) {
+            serial->println(PGCMD_ANTENNA);
+            serial->println(PMTK_SET_NMEA_UPDATE_1HZ);
+            serial->println(PMTK_API_SET_FIX_CTL_1HZ);
+            configured = true;
+        }
     }
 
     while (serial->available()) {
         auto c = (char)serial->read();
         gps.encode(c);
         if (c == '\n' || c == '\r' || position == sizeof(buffer) - 1) {
-            if (buffer[0] == '$') {
+            if (position > 0 && buffer[0] == '$') {
                 buffer[position] = 0;
                 log("GPS: %s", buffer);
             }
