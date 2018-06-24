@@ -69,7 +69,7 @@ void CoreModule::begin() {
 
 void CoreModule::run() {
     SimpleNTP ntp(clock, wifi);
-    Status status{ state, bus };
+    Status status{ state, bus, leds };
 
     wifi.begin();
 

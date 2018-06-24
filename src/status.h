@@ -4,6 +4,7 @@
 #include "active_object.h"
 #include "core_state.h"
 #include "two_wire.h"
+#include "leds.h"
 #include "utils.h"
 
 namespace fk {
@@ -13,23 +14,14 @@ private:
     uint32_t lastTick{ 0 };
     CoreState *state;
     TwoWireBus *bus;
+    Leds *leds;
 
 public:
-    Status(CoreState &state, TwoWireBus &bus) : Task("Status"), state(&state), bus(&bus) {
+    Status(CoreState &state, TwoWireBus &bus, Leds &leds) : Task("Status"), state(&state), bus(&bus), leds(&leds) {
     }
 
 public:
-    TaskEval task() override {
-        if (millis() - lastTick > 5000) {
-            IpAddress4 ip{ state->getStatus().ip };
-            auto now = clock.now();
-            loginfof("Status", "Status %" PRIu32 " (%.2f%% / %.2fmv) (%" PRIu32 " free) (%s) (%s)", now.unixtime(),
-                     state->getStatus().batteryPercentage, state->getStatus().batteryVoltage,
-                     fk_free_memory(), ip.toString(), deviceId.toString());
-            lastTick = millis();
-        }
-        return TaskEval::idle();
-    }
+    TaskEval task() override;
 
 };
 

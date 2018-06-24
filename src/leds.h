@@ -11,15 +11,17 @@ enum class BlinkerKind {
     NoAttachedModules,
     Alive,
     Reading,
+    Status,
 };
 
 class Blinker : public Task {
 private:
     BlinkerKind kind{ BlinkerKind::None };
     uint32_t nextChange{ 0 };
+    uint8_t blinksRemaining{ 0 };
 
 public:
-    Blinker(BlinkerKind kind = BlinkerKind::None) : Task("Blinker"), kind(kind) {
+    Blinker(BlinkerKind kind = BlinkerKind::None, uint8_t blinksRemaining = 0) : Task("Blinker"), kind(kind), blinksRemaining(blinksRemaining) {
     }
 
 public:
@@ -55,7 +57,7 @@ public:
 
 private:
     void all(bool value);
-    void push(BlinkerKind kind);
+    void push(BlinkerKind kind, uint8_t blinksRemaining = 0);
     void clear(BlinkerKind kind);
 
 public:
@@ -65,6 +67,7 @@ public:
     void doneTakingReadings();
     void noAttachedModules();
     void haveAttachedModules();
+    void status(uint8_t batteryBlinks);
 
 };
 

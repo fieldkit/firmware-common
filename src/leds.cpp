@@ -30,6 +30,25 @@ TaskEval Blinker::task() {
         digitalWrite(A4, HIGH);
         break;
     }
+    case BlinkerKind::Status:  {
+        if (nextChange < millis()) {
+            if (digitalRead(A5)) {
+                digitalWrite(A5, LOW);
+                if (blinksRemaining > 1) {
+                    blinksRemaining--;
+                    nextChange = millis() + 200;
+                }
+                else {
+                    clear();
+                }
+            }
+            else {
+                digitalWrite(A5, HIGH);
+                nextChange = millis() + 200;
+            }
+        }
+        break;
+    }
     default: {
         break;
     }
@@ -85,17 +104,11 @@ void Leds::all(bool value) {
     digitalWrite(A5, value);
 }
 
-void Leds::alive() {
-    digitalWrite(A3, HIGH);
-    delay(100);
-    digitalWrite(A3, LOW);
-}
-
-void Leds::push(BlinkerKind kind) {
+void Leds::push(BlinkerKind kind, uint8_t blinksRemaining) {
     for (auto i = 0; i < MaximumBlinkers; ++i) {
         if (blinkers[i].isIdle()) {
             trace("Blinker #%d is %d", i, kind);
-            blinkers[i] = Blinker{ kind };
+            blinkers[i] = Blinker{ kind, blinksRemaining };
             return;
         }
     }
@@ -110,6 +123,12 @@ void Leds::clear(BlinkerKind kind) {
             blinkers[i].clear();
         }
     }
+}
+
+void Leds::alive() {
+    digitalWrite(A3, HIGH);
+    delay(100);
+    digitalWrite(A3, LOW);
 }
 
 void Leds::fatal() {
@@ -130,6 +149,10 @@ void Leds::noAttachedModules() {
 
 void Leds::haveAttachedModules() {
     clear(BlinkerKind::NoAttachedModules);
+}
+
+void Leds::status(uint8_t batteryBlinks) {
+    push(BlinkerKind::Status, batteryBlinks);
 }
 
 }

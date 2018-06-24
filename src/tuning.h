@@ -62,6 +62,9 @@ constexpr bool RadioTransmitFileTruncateAfter = true;
 constexpr uint32_t RescanIntervalOrphaned = 30 * 1000;
 constexpr uint32_t RescanExistingModulesInterval = 5 * 60 * 1000;
 
+constexpr uint32_t StatusInterval = 10000;
+constexpr float StatusBatteryBlinkThreshold = 60.0f;
+
 }
 
 #endif
