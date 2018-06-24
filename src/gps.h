@@ -16,6 +16,8 @@ private:
     TinyGPS gps;
     uint32_t lastStatus{ 0 };
     uint32_t started{ 0 };
+    uint16_t position{ 0 };
+    uint8_t buffer[128];
 
 public:
     ReadGps(CoreState &state, SerialPort &serial) : Task("GPS"), state(&state), serial(&serial) {
