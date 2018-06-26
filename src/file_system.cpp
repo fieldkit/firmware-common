@@ -4,7 +4,12 @@
 #include "hardware.h"
 #include "rtc.h"
 
+using namespace phylum;
+
 namespace fk {
+
+static phylum::SimpleFile logFile;
+static phylum::SimpleFile dataFile;
 
 extern "C" {
 
@@ -26,71 +31,61 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
         return 0;
     }
 
-    /*
-    if (!fkfs_log_append_binary((fkfs_log_t *)arg, buffer, stream.bytes_written, false)) {
+    int32_t bytes = stream.bytes_written;
+    if (logFile.write(buffer, bytes) != bytes) {
         log_uart_get()->println("Unable to append log");
         return 0;
     }
-    */
 
     return 0;
 }
-/*
-static size_t fkfs_log_message(const char *f, ...) {
-    va_list args;
-    va_start(args, f);
-    log_configure_hook(false);
-    vlogf(LogLevels::TRACE, "fkfs", f, args);
-    log_configure_hook(true);
-    va_end(args);
-    return 0;
-}
-*/
+
 }
 
-FileSystem::FileSystem(TwoWireBus &bus, Pool &pool) : data{ bus, pool }, replies{ } {
+FileSystem::FileSystem(TwoWireBus &bus, Pool &pool) : data_{ bus, files_, pool }, replies_{ } {
 }
 
 bool FileSystem::setup() {
-    /*
-    fkfs_configure_logging(fkfs_log_message);
-
-    if (!fkfs_create(&fs)) {
+    if (!storage.initialize(g, Hardware::SD_PIN_CS)) {
         return false;
     }
 
-    if (!sd_raw_initialize(&fs.sd, Hardware::SD_PIN_CS)) {
+    if (!storage.open()) {
         return false;
     }
 
-    if (!fkfs_initialize_file(&fs, FKFS_FILE_LOG, FKFS_FILE_PRIORITY_LOWEST, true, "FK.LOG")) {
+    if (!fs.format(descriptors)) {
         return false;
     }
 
-    if (!fkfs_initialize_file(&fs, FKFS_FILE_DATA, FKFS_FILE_PRIORITY_HIGHEST, true, "DATA.BIN")) {
+    auto startup = fs.open(file_log_startup_fd, OpenMode::Write);
+    if (!startup) {
         return false;
     }
 
-    auto wipe = false;
-    if (!fkfs_initialize(&fs, wipe)) {
+    logFile = startup;
+
+    dataFile = fs.open(file_data_fk, OpenMode::Write);
+    if (!dataFile) {
         return false;
     }
-
-    fkfs_log_statistics(&fs);
-
-    if (!fkfs_log_initialize(&fkfs_log, &fs, FKFS_FILE_LOG)) {
-        return false;
-    }
-
-    // This ensures our first line is on a newline by itself.
-    fkfs_log_flush(&fkfs_log);
-    */
 
     log_configure_time(millis, log_uptime);
     log_add_hook(debug_write_log, nullptr);
     log_configure_hook(true);
 
     return true;
+}
+
+Files::Files(phylum::FileOpener &files) : files(&files) {
+}
+
+phylum::SimpleFile &Files::log() {
+    return logFile;
+}
+
+phylum::SimpleFile &Files::data() {
+    return dataFile;
 }
 
 }

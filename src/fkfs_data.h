@@ -7,6 +7,7 @@
 #include "pool.h"
 #include "two_wire.h"
 #include "data_messages.h"
+#include "files.h"
 
 namespace fk {
 
@@ -15,10 +16,11 @@ class CoreState;
 class FkfsData {
 private:
     TwoWireBus *bus;
+    Files *files;
     Pool *pool;
 
 public:
-    FkfsData(TwoWireBus &bus, Pool &pool);
+    FkfsData(TwoWireBus &bus, Files &files, Pool &pool);
 
 public:
     bool appendMetadata(CoreState &state);

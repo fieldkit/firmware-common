@@ -14,7 +14,7 @@ namespace fk {
 
 constexpr const char Log[] = "Data";
 
-FkfsData::FkfsData(TwoWireBus &bus, Pool &pool) : bus(&bus), pool(&pool) {
+FkfsData::FkfsData(TwoWireBus &bus, Files &files, Pool &pool) : bus(&bus), files(&files), pool(&pool) {
 }
 
 bool FkfsData::appendMetadata(CoreState &state) {
@@ -89,12 +89,11 @@ size_t FkfsData::append(DataRecordMessage &message) {
         return 0;
     }
 
-    /*
-    if (!fkfs_file_append(fs, file, stream.bytes_written, buffer)) {
+    int32_t bytes = stream.bytes_written;
+    if (files->data().write(buffer, bytes) != bytes) {
         log("Error appending data file.");
         return 0;
     }
-    */
 
     return stream.bytes_written;
 }

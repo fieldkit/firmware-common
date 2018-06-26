@@ -5,6 +5,7 @@
 #include <cstdint>
 #undef min
 #undef max
+#undef round
 #include <array>
 
 #include <Arduino.h>
