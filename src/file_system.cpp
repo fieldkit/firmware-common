@@ -54,8 +54,13 @@ bool FileSystem::setup() {
         return false;
     }
 
-    if (!fs.format(descriptors)) {
-        return false;
+    if (!fs.mount(descriptors)) {
+        if (!fs.format(descriptors)) {
+            return false;
+        }
+        if (!fs.mount(descriptors)) {
+            return false;
+        }
     }
 
     auto startup = fs.open(file_log_startup_fd, OpenMode::Write);
