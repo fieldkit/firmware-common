@@ -5,10 +5,6 @@
 #include <cstdint>
 #include <cstdio>
 
-#include <sd_raw.h>
-#include <fkfs.h>
-#include <fkfs_log.h>
-
 #include "hardware.h"
 #include "app_servicer.h"
 #include "attached_devices.h"
@@ -26,7 +22,6 @@
 #include "discovery.h"
 #include "leds.h"
 #include "file_system.h"
-#include "fkfs_tasks.h"
 #include "transmit_file.h"
 #include "gps.h"
 #include "status.h"

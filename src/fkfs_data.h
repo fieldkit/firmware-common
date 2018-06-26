@@ -3,8 +3,6 @@
 
 #include <fk-data-protocol.h>
 
-#include <fkfs.h>
-
 #include "module_info.h"
 #include "pool.h"
 #include "two_wire.h"
@@ -16,13 +14,11 @@ class CoreState;
 
 class FkfsData {
 private:
-    fkfs_t *fs;
     TwoWireBus *bus;
-    uint8_t file;
     Pool *pool;
 
 public:
-    FkfsData(fkfs_t &fs, TwoWireBus &bus, uint8_t file, Pool &pool);
+    FkfsData(TwoWireBus &bus, Pool &pool);
 
 public:
     bool appendMetadata(CoreState &state);

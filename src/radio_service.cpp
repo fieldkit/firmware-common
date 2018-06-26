@@ -50,7 +50,7 @@ TaskEval RadioService::task() {
 }
 
 SendDataToLoraGateway::SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, uint8_t file) :
-    Task("SendDataToLoraGateway"), radioService(&radioService), fileReader(fileSystem, file) {
+    Task("SendDataToLoraGateway"), radioService(&radioService), fileReader() {
 }
 
 void SendDataToLoraGateway::enqueued() {

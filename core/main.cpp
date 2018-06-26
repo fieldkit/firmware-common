@@ -124,9 +124,6 @@ void dumpObjectSizes() {
     FK_DUMP_SIZE(WiFiUDP);
     FK_DUMP_SIZE(WiFiClient);
     FK_DUMP_SIZE(WiFiServer);
-    FK_DUMP_SIZE(fkfs_t);
-    FK_DUMP_SIZE(fkfs_header_t);
-    FK_DUMP_SIZE(fkfs_log_t);
 }
 
 void loop() {

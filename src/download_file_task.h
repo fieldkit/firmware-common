@@ -4,9 +4,6 @@
 #include "active_object.h"
 #include "message_buffer.h"
 #include "app_messages.h"
-#include "fkfs_tasks.h"
-
-#include <fkfs.h>
 
 namespace fk {
 
@@ -15,11 +12,10 @@ private:
     CoreState *state;
     AppReplyMessage *reply;
     MessageBuffer *buffer;
-    FkfsIterator iterator;
     uint32_t bytesCopied{ 0 };
 
 public:
-    DownloadFileTask(CoreState &state, fkfs_t *fs, uint8_t file, fkfs_iterator_token_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer);
+    DownloadFileTask(CoreState &state, AppReplyMessage &reply, MessageBuffer &buffer);
 
 public:
     void enqueued() override;

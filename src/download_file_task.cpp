@@ -2,16 +2,17 @@
 
 namespace fk {
 
-DownloadFileTask::DownloadFileTask(CoreState &state, fkfs_t *fs, uint8_t file, fkfs_iterator_token_t *resumeToken, AppReplyMessage &reply, MessageBuffer &buffer) :
-    Task("DownloadFile"), state(&state), reply(&reply), buffer(&buffer), iterator(*fs, file, resumeToken) {
+DownloadFileTask::DownloadFileTask(CoreState &state, AppReplyMessage &reply, MessageBuffer &buffer) :
+    Task("DownloadFile"), state(&state), reply(&reply), buffer(&buffer) {
 }
 
 void DownloadFileTask::enqueued() {
-    iterator.beginning();
+    // iterator.beginning();
     bytesCopied = 0;
 }
 
 TaskEval DownloadFileTask::task() {
+    /*
     if (bytesCopied == 0) {
         StaticPool<128> pool{"DataPool"};
         DataRecordMetadataMessage drm{ *state, pool };
@@ -32,7 +33,7 @@ TaskEval DownloadFileTask::task() {
         reply->m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
         reply->m().fileData.data.funcs.encode = pb_encode_data;
         reply->m().fileData.data.arg = (void *)&dataData;
-        reply->m().fileData.size = iterator.size();
+        reply->m().fileData.size = 0; // iterator.size();
 
         if (!buffer->write(*reply)) {
             log("Error writing reply");
@@ -48,7 +49,7 @@ TaskEval DownloadFileTask::task() {
         log("Wrote metadata prefix (%d bytes)", bufferSize);
     }
 
-    auto data = iterator.move();
+    auto data = DataBlock{ }; // iterator.move();
     if (data && data.size > 0) {
         pb_data_t dataData = {
             .length = data.size,
@@ -56,8 +57,8 @@ TaskEval DownloadFileTask::task() {
         };
 
         pb_data_t tokenData = {
-            .length = sizeof(fkfs_iterator_token_t),
-            .buffer = &iterator.resumeToken(),
+            .length = 0, // sizeof(fkfs_iterator_token_t),
+            .buffer = nullptr, // &iterator.resumeToken(),
         };
 
         reply->clear();
@@ -66,7 +67,7 @@ TaskEval DownloadFileTask::task() {
         reply->m().fileData.data.arg = (void *)&dataData;
         reply->m().fileData.token.funcs.encode = pb_encode_data;
         reply->m().fileData.token.arg = (void *)&tokenData;
-        reply->m().fileData.size = iterator.size();
+        reply->m().fileData.size = 0; // iterator.size();
 
         bytesCopied += data.size;
 
@@ -85,6 +86,7 @@ TaskEval DownloadFileTask::task() {
     if (iterator.isFinished()) {
         return TaskEval::done();
     }
+    */
 
     return TaskEval::idle();
 }

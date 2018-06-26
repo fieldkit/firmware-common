@@ -5,7 +5,6 @@
 #include "pool.h"
 #include "wifi.h"
 #include "core_state.h"
-#include "fkfs_tasks.h"
 #include "file_reader.h"
 #include "utils.h"
 #include "file_system.h"

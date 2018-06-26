@@ -77,6 +77,6 @@ include(ArduinoMinimal)
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")
 
 target_compile_options(arduino_zero_Wire PUBLIC -finstrument-functions)
-target_compile_options(arduino_zero_fkfs PUBLIC -finstrument-functions)
+target_compile_options(arduino_zero_phylum PUBLIC -finstrument-functions)
 target_compile_options(arduino_zero_WiFi101 PUBLIC -finstrument-functions)
 target_compile_options(fk-core PUBLIC -Wall -Werror -finstrument-functions)

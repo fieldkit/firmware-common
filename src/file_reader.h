@@ -3,16 +3,13 @@
 
 #include <lwstreams/lwstreams.h>
 
-#include "file_system.h"
-
 namespace fk {
 
 class FileReader : public lws::SizedReader {
 private:
-    FkfsStreamingIterator iterator;
 
 public:
-    FileReader(FileSystem &fileSystem, uint8_t file);
+    FileReader();
 
 public:
     int32_t read() override;
@@ -21,20 +18,13 @@ public:
 
 public:
     void open();
-    void open(fkfs_iterator_token_t &token);
     void end();
     void truncate();
     size_t size() override {
-        return iterator.size();
-    }
-    uint8_t fileNumber() {
-        return iterator.fileNumber();
-    }
-    fkfs_iterator_token_t &resumeToken() {
-        return iterator.resumeToken();
+        return 0;
     }
     bool isFinished() {
-        return iterator.isFinished();
+        return false;
     }
 
 };

@@ -7,10 +7,11 @@
 
 namespace fk {
 
-FkfsReplies::FkfsReplies(fkfs_t &fs, uint8_t dataFileId) : fs(&fs), dataFileId(dataFileId) {
+FkfsReplies::FkfsReplies() {
 }
 
 void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    /*
     auto numberOfFiles = fkfs_number_of_files(fs);
     fkfs_file_info_t fkfsFiles[numberOfFiles];
     fk_app_File replyFiles[numberOfFiles];
@@ -41,26 +42,21 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     if (!buffer.write(reply)) {
         log("Error writing reply");
     }
+    */
 }
 
 Task *FkfsReplies::downloadFileReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    fkfs_iterator_token_t *resumeToken = nullptr;
-    auto rawToken = query.getDownloadToken();
-    if (rawToken != nullptr && rawToken->length > 0) {
-        fk_assert(rawToken->length == sizeof(fkfs_iterator_token_t));
-        resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
-    }
-
-    return downloadFileTask.ready(state, fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer);
+    return downloadFileTask.ready(state, reply, buffer);
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    fkfs_file_truncate(fs, query.m().eraseFile.id);
+    // fkfs_file_truncate(fs, query.m().eraseFile.id);
 
     queryFilesReply(query, reply, buffer);
 }
 
 void FkfsReplies::resetAll() {
+    /*
     if (!fkfs_file_truncate_all(fs)) {
         log("Error: Unable to truncateAll");
     }
@@ -68,11 +64,13 @@ void FkfsReplies::resetAll() {
     if (!fkfs_initialize(fs, true)) {
         log("Error: Unable to resetAll");
     }
+    */
 
     NVIC_SystemReset();
 }
 
 void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    /*
     fkfs_file_info_t fkfsFile;
 
     // My plan is to pusht his into FkfsData and possibly consolidate fkfs handling.
@@ -109,22 +107,15 @@ void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, 
     if (!buffer.write(reply)) {
         log("Error writing reply");
     }
+    */
 }
 
 Task *FkfsReplies::downloadDataSetReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    fkfs_iterator_token_t *resumeToken = nullptr;
-    auto rawToken = query.getDownloadToken();
-    if (rawToken != nullptr && rawToken->length > 0) {
-        fk_assert(rawToken->length == sizeof(fkfs_iterator_token_t));
-        resumeToken = (fkfs_iterator_token_t *)rawToken->buffer;
-    }
-
-    return downloadFileTask.ready(state, fs, (uint8_t)query.m().downloadFile.id, resumeToken, reply, buffer);
+    return downloadFileTask.ready(state, reply, buffer);
 }
 
 void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    // We only have one data set right now.
-    fkfs_file_truncate(fs, dataFileId);
+    // fkfs_file_truncate(fs, dataFileId);
 
     dataSetsReply(query, reply, buffer);
 }

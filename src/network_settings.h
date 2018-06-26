@@ -1,6 +1,8 @@
 #ifndef FK_NETWORK_SETTINGS_H_INCLUDED
 #define FK_NETWORK_SETTINGS_H_INCLUDED
 
+#include "debug.h"
+
 namespace fk {
 
 constexpr uint8_t MaximumSsidLength = 33;
@@ -32,17 +34,17 @@ struct NetworkSettings {
     NetworkInfo networks[MaximumRememberedNetworks];
 
     NetworkSettings() : createAccessPoint(true), version(0) {
-        memzero(networks, sizeof(networks));
+        fk_memzero(networks, sizeof(networks));
     }
 
     NetworkSettings(bool ap, NetworkInfo info) : createAccessPoint(ap), version(0) {
-        memzero(networks, sizeof(networks));
+        fk_memzero(networks, sizeof(networks));
         memcpy(&networks[0], &info, sizeof(NetworkInfo));
     }
 
     template<size_t N>
     NetworkSettings(bool ap, NetworkInfo (&infos)[N]) : createAccessPoint(ap), version(0) {
-        memzero(networks, sizeof(networks));
+        fk_memzero(networks, sizeof(networks));
         for (auto i = 0; i < N; ++i) {
             memcpy(&networks[i], &infos[i], sizeof(NetworkInfo));
         }

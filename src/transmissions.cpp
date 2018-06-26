@@ -13,7 +13,7 @@ void ClearModuleData::reply(ModuleReplyMessage &message) {
     maximumBytes = message.m().data.size;
 }
 
-ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, uint8_t file) : fileReader(fileSystem, file), buffer(), streamCopier{ buffer.toBufferPtr() } {
+ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, uint8_t file) : fileReader(), buffer(), streamCopier{ buffer.toBufferPtr() } {
 }
 
 void ModuleDataTransfer::query(ModuleQueryMessage &message) {

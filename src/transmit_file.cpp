@@ -17,7 +17,7 @@ TaskEval TransmitAllFilesTask::task() {
 }
 
 TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config) :
-    Task("TransmitFileTask"), fileReader(fileSystem, file), state(&state), wifi(&wifi), config(&config) {
+    Task("TransmitFileTask"), fileReader(), state(&state), wifi(&wifi), config(&config) {
 }
 
 void TransmitFileTask::enqueued() {
@@ -42,7 +42,7 @@ TaskEval TransmitFileTask::task() {
             return TaskEval::busy();
         }
 
-        fileReader.open(state->getCursor(fileReader.fileNumber()));
+        fileReader.open();
         streamCopier.restart();
         outgoing.clear();
         waitingSince = 0;
@@ -50,7 +50,7 @@ TaskEval TransmitFileTask::task() {
         if (fileReader.size() > WifiTransmitFileMaximumSize) {
             log("Skipping, upload too large at %d bytes.", fileReader.size());
             fileReader.end();
-            state->saveCursor(fileReader.resumeToken());
+            // state->saveCursor(fileReader.resumeToken());
             return TaskEval::done();
         }
 
@@ -80,7 +80,7 @@ TaskEval TransmitFileTask::task() {
                     fileReader.truncate();
                 }
             }
-            state->saveCursor(fileReader.resumeToken());
+            // state->saveCursor(fileReader.resumeToken());
         }
         else {
             tries++;
@@ -153,7 +153,7 @@ TaskEval TransmitFileTask::openConnection() {
                     firmware_version_get(),
                     firmware_build_get(),
                     deviceId.toString(),
-                    fileReader.fileNumber()
+                    0 // fileReader.fileNumber()
             };
             httpWriter.writeHeaders(parsed, headers);
 

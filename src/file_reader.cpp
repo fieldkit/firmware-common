@@ -1,24 +1,21 @@
 #include "file_reader.h"
+#include "debug.h"
 
 namespace fk {
 
-FileReader::FileReader(FileSystem &fileSystem, uint8_t file) : iterator(fileSystem.fkfs(), file) {
+FileReader::FileReader() {
 }
 
 void FileReader::open() {
-    iterator.beginning();
+    // iterator.beginning();
 }
 
 void FileReader::end() {
-    iterator.end();
+    // iterator.end();
 }
 
 void FileReader::truncate() {
-    iterator.truncate();
-}
-
-void FileReader::open(fkfs_iterator_token_t &token) {
-    iterator.reopen(token);
+    // iterator.truncate();
 }
 
 int32_t FileReader::read() {
@@ -27,6 +24,7 @@ int32_t FileReader::read() {
 }
 
 int32_t FileReader::read(uint8_t *ptr, size_t size) {
+    /*
     if (iterator.isFinished()) {
         return EOS;
     }
@@ -45,6 +43,8 @@ int32_t FileReader::read(uint8_t *ptr, size_t size) {
     }
 
     return position;
+    */
+    return 0;
 }
 
 void FileReader::close() {
