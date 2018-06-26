@@ -87,15 +87,17 @@ TaskEval ReadGps::task() {
     while (serial->available()) {
         auto c = (char)serial->read();
         gps.encode(c);
-        if (c == '\n' || c == '\r' || position == sizeof(buffer) - 1) {
-            if (position > 0 && buffer[0] == '$') {
-                buffer[position] = 0;
-                log("GPS: %s", buffer);
+        if (GpsEchoRaw) {
+            if (c == '\n' || c == '\r' || position == sizeof(buffer) - 1) {
+                if (position > 0 && buffer[0] == '$') {
+                    buffer[position] = 0;
+                    log("GPS: %s", buffer);
+                }
+                position = 0;
             }
-            position = 0;
-        }
-        else {
-            buffer[position++] = c;
+            else {
+                buffer[position++] = c;
+            }
         }
     }
 
