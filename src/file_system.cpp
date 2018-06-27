@@ -8,6 +8,8 @@ using namespace phylum;
 
 namespace fk {
 
+constexpr const char Log[] = "FileSystem";
+
 static phylum::SimpleFile logFile;
 static phylum::SimpleFile dataFile;
 
@@ -47,21 +49,30 @@ FileSystem::FileSystem(TwoWireBus &bus, Pool &pool) : data_{ bus, files_, pool }
 
 bool FileSystem::setup() {
     if (!storage.initialize(g, Hardware::SD_PIN_CS)) {
+        logf(LogLevels::ERROR, Log, "Unable to initialize SD.");
         return false;
     }
 
     if (!storage.open()) {
+        logf(LogLevels::ERROR, Log, "Unable to open SD.");
         return false;
     }
 
     if (!fs.mount(files_.descriptors)) {
+        logf(LogLevels::ERROR, Log, "Mount failed, formatting.");
+
         if (!fs.format(files_.descriptors)) {
+            logf(LogLevels::ERROR, Log, "Format failed!");
             return false;
         }
+
         if (!fs.mount(files_.descriptors)) {
+            logf(LogLevels::ERROR, Log, "Mount failed!");
             return false;
         }
     }
+
+    logf(LogLevels::INFO, Log, "Mounted");
 
     auto startup = fs.open(files_.file_log_startup_fd, OpenMode::Write);
     if (!startup) {

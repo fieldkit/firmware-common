@@ -26,7 +26,12 @@ TaskEval FileCopierSample::task() {
     if (!fileReader.isFinished()) {
         auto writer = lws::NullWriter{};
         auto copied = streamCopier.copy(fileReader, writer);
-        trace("Copied: %lu %d / %d", copied, fileReader.tell(), fileReader.size());
+        if (copied != lws::Stream::EOS) {
+            trace("Copied: %lu %d / %d", copied, fileReader.tell(), fileReader.size());
+        }
+        else {
+            trace("Copied: EOF %d / %d", fileReader.tell(), fileReader.size());
+        }
     }
     else {
         return TaskEval::done();
