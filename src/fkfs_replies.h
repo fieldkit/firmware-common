@@ -8,12 +8,15 @@
 
 namespace fk {
 
+class FileSystem;
+
 class FkfsReplies {
 private:
+    FileSystem *fileSystem;
     TaskContainer<DownloadFileTask> downloadFileTask;
 
 public:
-    FkfsReplies();
+    FkfsReplies(FileSystem &fileSystem);
 
 public:
     void queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);

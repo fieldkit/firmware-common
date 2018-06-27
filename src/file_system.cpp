@@ -1,5 +1,4 @@
 #include "file_system.h"
-
 #include "debug.h"
 #include "hardware.h"
 #include "rtc.h"
@@ -44,29 +43,29 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
 
 }
 
-FileSystem::FileSystem(TwoWireBus &bus, Pool &pool) : data_{ bus, files_, pool }, replies_{ } {
+FileSystem::FileSystem(TwoWireBus &bus, Pool &pool) : data_{ bus, files_, pool }, replies_{ *this } {
 }
 
 bool FileSystem::setup() {
-    if (!storage.initialize(g, Hardware::SD_PIN_CS)) {
+    if (!storage_.initialize(g_, Hardware::SD_PIN_CS)) {
         logf(LogLevels::ERROR, Log, "Unable to initialize SD.");
         return false;
     }
 
-    if (!storage.open()) {
+    if (!storage_.open()) {
         logf(LogLevels::ERROR, Log, "Unable to open SD.");
         return false;
     }
 
-    if (!fs.mount(files_.descriptors)) {
+    if (!fs_.mount(files_.descriptors)) {
         logf(LogLevels::ERROR, Log, "Mount failed, formatting.");
 
-        if (!fs.format(files_.descriptors)) {
+        if (!fs_.format(files_.descriptors)) {
             logf(LogLevels::ERROR, Log, "Format failed!");
             return false;
         }
 
-        if (!fs.mount(files_.descriptors)) {
+        if (!fs_.mount(files_.descriptors)) {
             logf(LogLevels::ERROR, Log, "Mount failed!");
             return false;
         }
@@ -74,14 +73,14 @@ bool FileSystem::setup() {
 
     logf(LogLevels::INFO, Log, "Mounted");
 
-    auto startup = fs.open(files_.file_log_startup_fd, OpenMode::Write);
+    auto startup = fs_.open(files_.file_log_startup_fd, OpenMode::Write);
     if (!startup) {
         return false;
     }
 
     logFile = startup;
 
-    dataFile = fs.open(files_.file_data_fk, OpenMode::Write);
+    dataFile = fs_.open(files_.file_data_fk, OpenMode::Write);
     if (!dataFile) {
         return false;
     }
@@ -94,7 +93,7 @@ bool FileSystem::setup() {
 }
 
 bool FileSystem::openData() {
-    files_.opened = fs.open(files_.file_data_fk, OpenMode::Read);
+    files_.opened = fs_.open(files_.file_data_fk, OpenMode::Read);
     if (!files_.opened) {
         return false;
     }

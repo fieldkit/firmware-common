@@ -1,31 +1,32 @@
 #include <new>
 
 #include "fkfs_replies.h"
+#include "file_system.h"
 #include "debug.h"
 #include "utils.h"
 #include "tuning.h"
 
 namespace fk {
 
-FkfsReplies::FkfsReplies() {
+FkfsReplies::FkfsReplies(FileSystem &fileSystem) : fileSystem(&fileSystem) {
 }
 
 void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    /*
-    auto numberOfFiles = fkfs_number_of_files(fs);
-    fkfs_file_info_t fkfsFiles[numberOfFiles];
+    auto &files = fileSystem->files();
+    auto numberOfFiles = files.numberOfFiles();
     fk_app_File replyFiles[numberOfFiles];
 
-    for (auto i = 0; i < numberOfFiles; ++i) {
-        fkfs_get_file(fs, i, &fkfsFiles[i]);
+    for (size_t i = 0; i < numberOfFiles; ++i) {
+        auto &fd = files.file(i);
+        auto size = fileSystem->fs().file_size(fd);
 
         replyFiles[i].id = i;
         replyFiles[i].time = 0;
-        replyFiles[i].size = fkfsFiles[i].size;
-        replyFiles[i].pages = fkfsFiles[i].size / DefaultPageSize;
-        replyFiles[i].version = fkfsFiles[i].version;
+        replyFiles[i].version = 0;
+        replyFiles[i].size = size;
+        replyFiles[i].pages = size / DefaultPageSize;
         replyFiles[i].name.funcs.encode = pb_encode_string;
-        replyFiles[i].name.arg = fkfsFiles[i].name;
+        replyFiles[i].name.arg = fd.name;
     }
 
     pb_array_t filesArray = {
@@ -42,7 +43,6 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     if (!buffer.write(reply)) {
         log("Error writing reply");
     }
-    */
 }
 
 Task *FkfsReplies::downloadFileReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {

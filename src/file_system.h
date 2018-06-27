@@ -11,12 +11,12 @@ namespace fk {
 
 class FileSystem {
 private:
-    phylum::Geometry g{ 0, 4, 4, phylum::SectorSize };
-    phylum::ArduinoSdBackend storage;
-    phylum::FileLayout<5> fs{ storage };
+    phylum::Geometry g_{ 0, 4, 4, phylum::SectorSize };
+    phylum::ArduinoSdBackend storage_;
+    phylum::FileLayout<5> fs_{ storage_ };
 
 private:
-    Files files_{ fs };
+    Files files_{ fs_ };
     FkfsData data_;
     FkfsReplies replies_;
 
@@ -27,6 +27,10 @@ public:
     bool setup();
 
 public:
+    phylum::FileLayout<5> &fs() {
+        return fs_;
+    }
+
     bool openData();
 
     FkfsData &getData() {
