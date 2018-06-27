@@ -33,7 +33,7 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
     }
 
     int32_t bytes = stream.bytes_written;
-    if (logFile.write(buffer, bytes) != bytes) {
+    if (logFile.write(buffer, bytes, true) != bytes) {
         log_uart_get()->println("Unable to append log");
         return 0;
     }

@@ -90,7 +90,7 @@ size_t FkfsData::append(DataRecordMessage &message) {
     }
 
     int32_t bytes = stream.bytes_written;
-    if (files->data().write(buffer, bytes) != bytes) {
+    if (files->data().write(buffer, bytes, true) != bytes) {
         log("Error appending data file.");
         return 0;
     }
