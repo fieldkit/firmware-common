@@ -24,6 +24,7 @@ public:
     FileSystem(TwoWireBus &bus, Pool &pool);
 
 public:
+    bool format();
     bool setup();
 
 public:

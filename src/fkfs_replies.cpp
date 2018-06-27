@@ -1,10 +1,11 @@
 #include <new>
 
-#include "fkfs_replies.h"
-#include "file_system.h"
+#include "tuning.h"
 #include "debug.h"
 #include "utils.h"
-#include "tuning.h"
+#include "fkfs_replies.h"
+#include "file_system.h"
+#include "core_state.h"
 
 namespace fk {
 
@@ -53,8 +54,18 @@ void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply,
     queryFilesReply(query, reply, buffer);
 }
 
-void FkfsReplies::resetAll() {
-    NVIC_SystemReset();
+void FkfsReplies::resetAll(CoreState &state) {
+    if (!fileSystem->format()) {
+        return;
+    }
+
+    if (!fileSystem->setup()) {
+        return;
+    }
+
+    state.started();
+
+    log("Reset done.");
 }
 
 void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {

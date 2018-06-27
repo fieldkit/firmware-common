@@ -222,7 +222,7 @@ TaskEval AppServicer::handle() {
     case fk_app_QueryType_QUERY_RESET: {
         log("Reset");
 
-        fileReplies->resetAll();
+        fileReplies->resetAll(*state);
 
         reply.m().type = fk_app_ReplyType_REPLY_SUCCESS;
 

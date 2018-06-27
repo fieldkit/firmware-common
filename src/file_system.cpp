@@ -46,6 +46,22 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
 FileSystem::FileSystem(TwoWireBus &bus, Pool &pool) : data_{ bus, files_, pool }, replies_{ *this } {
 }
 
+bool FileSystem::format() {
+    if (!fs_.format(files_.descriptors)) {
+        logf(LogLevels::ERROR, Log, "Format failed!");
+        return false;
+    }
+
+    if (!fs_.mount(files_.descriptors)) {
+        logf(LogLevels::ERROR, Log, "Mount failed!");
+        return false;
+    }
+
+    logf(LogLevels::INFO, Log, "Formatted!");
+
+    return true;
+}
+
 bool FileSystem::setup() {
     if (!storage_.initialize(g_, Hardware::SD_PIN_CS)) {
         logf(LogLevels::ERROR, Log, "Unable to initialize SD.");
@@ -58,15 +74,9 @@ bool FileSystem::setup() {
     }
 
     if (!fs_.mount(files_.descriptors)) {
-        logf(LogLevels::ERROR, Log, "Mount failed, formatting.");
+        logf(LogLevels::ERROR, Log, "Mount failed!");
 
-        if (!fs_.format(files_.descriptors)) {
-            logf(LogLevels::ERROR, Log, "Format failed!");
-            return false;
-        }
-
-        if (!fs_.mount(files_.descriptors)) {
-            logf(LogLevels::ERROR, Log, "Mount failed!");
+        if (!format()) {
             return false;
         }
     }
