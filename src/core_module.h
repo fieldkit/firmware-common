@@ -76,10 +76,10 @@ private:
 
     NoopTask noop;
 
-    PeriodicTask periodics[3] {
+    PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
-        fk::PeriodicTask{ 20 * 1000, fileCopier },
+            // fk::PeriodicTask{ 20 * 1000, fileCopier },
     };
     ScheduledTask scheduled[3 ] {
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
