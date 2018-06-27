@@ -116,6 +116,7 @@ public:
 
 public:
     void overrideEmptyNetworkConfigurations(NetworkSettings newSettings);
+    void forceConfiguration(NetworkSettings newSettings);
 
 };
 

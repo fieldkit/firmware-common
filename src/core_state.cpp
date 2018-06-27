@@ -324,4 +324,8 @@ void StartupConfigurer::overrideEmptyNetworkConfigurations(NetworkSettings newSe
     }
 }
 
+void StartupConfigurer::forceConfiguration(NetworkSettings newSettings) {
+    state->configure(newSettings);
+}
+
 }

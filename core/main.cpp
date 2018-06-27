@@ -85,7 +85,12 @@ void setup() {
     coreModule.begin();
     fk::restartWizard.startup();
     auto startupConfig = fk::StartupConfigurer{ coreModule.getState() };
-    startupConfig.overrideEmptyNetworkConfigurations(fk::NetworkSettings{ false, networks });
+    if (false) {
+        startupConfig.overrideEmptyNetworkConfigurations(fk::NetworkSettings{ false, networks });
+    }
+    else {
+        startupConfig.forceConfiguration(fk::NetworkSettings{ false, networks });
+    }
     coreModule.run();
 }
 
