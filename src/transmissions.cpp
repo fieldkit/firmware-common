@@ -13,15 +13,16 @@ void ClearModuleData::reply(ModuleReplyMessage &message) {
     maximumBytes = message.m().data.size;
 }
 
-ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, uint8_t file) : buffer(), streamCopier{ buffer.toBufferPtr() } {
+ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, uint8_t file) : fileSystem(&fileSystem), buffer(), streamCopier{ buffer.toBufferPtr() } {
 }
 
 void ModuleDataTransfer::query(ModuleQueryMessage &message) {
-    // fileReader.open();
+    auto &fileReader = fileSystem->files().reader();
+    fileReader.open();
     bytesCopied = 0;
 
     message.m().type = fk_module_QueryType_QUERY_DATA_APPEND;
-    // message.m().data.size = fileReader.size();
+    message.m().data.size = fileReader.size();
 }
 
 void ModuleDataTransfer::reply(ModuleReplyMessage &message) {
@@ -36,7 +37,7 @@ void ModuleDataTransfer::prepare(ModuleQueryMessage &message, lws::Writer &outgo
 }
 
 void ModuleDataTransfer::tick(lws::Writer &outgoing) {
-    /*
+    auto &fileReader = fileSystem->files().reader();
     auto bytes = streamCopier.copy(fileReader, outgoing);
     if (bytes == lws::Stream::EOS) {
         outgoing.close();
@@ -47,7 +48,6 @@ void ModuleDataTransfer::tick(lws::Writer &outgoing) {
             outgoing.close();
         }
     }
-    */
 }
 
 PrepareTransmissionData::PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, uint8_t file, ModuleCommunications &communications) :
