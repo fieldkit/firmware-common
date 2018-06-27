@@ -115,27 +115,6 @@ TaskEval AppServicer::handle() {
 
         break;
     }
-    case fk_app_QueryType_QUERY_DATA_SET:
-    case fk_app_QueryType_QUERY_DATA_SETS: {
-        log("Query ds");
-
-        fileReplies->dataSetsReply(query, reply, *buffer);
-
-        break;
-    }
-    case fk_app_QueryType_QUERY_DOWNLOAD_DATA_SET: {
-        log("Download ds %lu page=%lu", query.m().downloadDataSet.id, query.m().downloadDataSet.page);
-        auto newTask = fileReplies->downloadDataSetReply(*state, query, reply, *buffer, *connection);
-        active.push(*newTask);
-        return TaskEval::busy();
-    }
-    case fk_app_QueryType_QUERY_ERASE_DATA_SET: {
-        log("Erase ds");
-
-        fileReplies->eraseDataSetReply(query, reply, *buffer);
-
-        break;
-    }
     case fk_app_QueryType_QUERY_LIVE_DATA_POLL: {
         log("Live ds (interval = %lu)", query.m().liveDataPoll.interval);
 

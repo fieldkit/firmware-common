@@ -74,12 +74,6 @@ TaskEval TransmitFileTask::task() {
         outgoing.clear();
         waitingSince = 0;
 
-        if (fileReader.size() > WifiTransmitFileMaximumSize) {
-            log("Skipping, upload too large at %d bytes.", fileReader.size());
-            fileReader.end();
-            return TaskEval::done();
-        }
-
         return openConnection();
     }
 
@@ -102,11 +96,6 @@ TaskEval TransmitFileTask::task() {
             }
             else {
                 log("Success (status = %d)", status);
-
-                if (state->shouldWipeAfterUpload()) {
-                    log("Truncating data!");
-                    fileReader.truncate();
-                }
             }
         }
         else {

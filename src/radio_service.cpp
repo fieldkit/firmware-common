@@ -83,10 +83,6 @@ TaskEval SendDataToLoraGateway::task() {
         return TaskEval::error();
     }
     if (radioService->isSleeping()) {
-        if (RadioTransmitFileTruncateAfter) {
-            log("Truncating data!");
-            fileReader.truncate();
-        }
         return TaskEval::done();
     }
 

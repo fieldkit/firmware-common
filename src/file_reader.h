@@ -25,8 +25,6 @@ public:
 
 public:
     void open();
-    void end();
-    void truncate();
     bool isFinished();
     bool isOpen();
 

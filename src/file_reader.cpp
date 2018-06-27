@@ -17,16 +17,6 @@ bool FileReader::isFinished() {
     return file_ != nullptr && done_;
 }
 
-void FileReader::open() {
-    file_->seek(0);
-    done_ = false;
-    opened_ = true;
-}
-
-void FileReader::end() {
-    file_->seek(UINT64_MAX);
-}
-
 size_t FileReader::size() {
     return file_->size();
 }
@@ -35,12 +25,15 @@ size_t FileReader::tell() {
     return file_->tell();
 }
 
-void FileReader::truncate() {
-}
-
 int32_t FileReader::read() {
     fk_assert(false);
     return EOS;
+}
+
+void FileReader::open() {
+    file_->seek(0);
+    done_ = false;
+    opened_ = true;
 }
 
 int32_t FileReader::read(uint8_t *ptr, size_t size) {

@@ -68,17 +68,6 @@ void FkfsReplies::resetAll(CoreState &state) {
     log("Reset done.");
 }
 
-void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-}
-
-Task *FkfsReplies::downloadDataSetReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer, WifiConnection &connection) {
-    return downloadFileTask.ready(*fileSystem, state, reply, buffer, connection);
-}
-
-void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    dataSetsReply(query, reply, buffer);
-}
-
 void FkfsReplies::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
