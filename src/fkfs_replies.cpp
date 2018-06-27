@@ -45,8 +45,8 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     }
 }
 
-Task *FkfsReplies::downloadFileReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    return downloadFileTask.ready(state, reply, buffer);
+Task *FkfsReplies::downloadFileReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer, WifiConnection &connection) {
+    return downloadFileTask.ready(*fileSystem, state, reply, buffer, connection);
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
@@ -110,13 +110,11 @@ void FkfsReplies::dataSetsReply(AppQueryMessage &query, AppReplyMessage &reply, 
     */
 }
 
-Task *FkfsReplies::downloadDataSetReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    return downloadFileTask.ready(state, reply, buffer);
+Task *FkfsReplies::downloadDataSetReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer, WifiConnection &connection) {
+    return downloadFileTask.ready(*fileSystem, state, reply, buffer, connection);
 }
 
 void FkfsReplies::eraseDataSetReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    // fkfs_file_truncate(fs, dataFileId);
-
     dataSetsReply(query, reply, buffer);
 }
 

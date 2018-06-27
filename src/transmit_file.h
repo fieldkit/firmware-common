@@ -13,7 +13,7 @@ namespace fk {
 
 class TransmitFileTask : public Task {
 private:
-    Files *files;
+    FileSystem *fileSystem;
     CoreState *state;
     Wifi *wifi;
     HttpTransmissionConfig *config;

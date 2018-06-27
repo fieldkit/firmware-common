@@ -93,6 +93,10 @@ public:
         return wcl.available();
     }
 
+    WiFiClient &getClient() {
+        return wcl;
+    }
+
     WifiMessageBuffer &getBuffer() {
         return buffer;
     }

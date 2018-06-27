@@ -9,11 +9,6 @@ FileCopierSample::FileCopierSample(FileSystem &fileSystem, CoreState &state) : T
 }
 
 void FileCopierSample::enqueued() {
-    if (fileSystem->openData()) {
-        auto &fileReader = fileSystem->files().reader();
-        fileReader.open();
-        trace("Opened: %d / %d", fileReader.tell(), fileReader.size());
-    }
 }
 
 TaskEval FileCopierSample::task() {
@@ -41,7 +36,7 @@ TaskEval FileCopierSample::task() {
 }
 
 TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config) :
-    Task("TransmitFileTask"), files(&fileSystem.files()), state(&state), wifi(&wifi), config(&config) {
+    Task("TransmitFileTask"), fileSystem(&fileSystem), state(&state), wifi(&wifi), config(&config) {
 }
 
 void TransmitFileTask::enqueued() {
@@ -51,8 +46,6 @@ void TransmitFileTask::enqueued() {
 }
 
 TaskEval TransmitFileTask::task() {
-    auto &fileReader = files->reader();
-
     if (!wifi->possiblyOnline()) {
         log("Wifi disabled or using local AP");
         return TaskEval::done();
@@ -67,6 +60,14 @@ TaskEval TransmitFileTask::task() {
 
             return TaskEval::busy();
         }
+
+        if (!fileSystem->openData()) {
+            return TaskEval::error();
+        }
+
+        auto &fileReader = fileSystem->files().reader();
+        fileReader.open();
+        trace("Opened: %d / %d", fileReader.tell(), fileReader.size());
 
         fileReader.open();
         streamCopier.restart();
@@ -86,6 +87,8 @@ TaskEval TransmitFileTask::task() {
         auto c = wcl.read();
         parser.write(c);
     }
+
+    auto &fileReader = fileSystem->files().reader();
 
     auto status = parser.getStatusCode();
     if (!wcl.connected() || status > 0) {
@@ -123,7 +126,13 @@ TaskEval TransmitFileTask::task() {
 
     if (!fileReader.isFinished()) {
         auto writer = WifiWriter{ wcl };
-        streamCopier.copy(fileReader, writer);
+        auto copied = streamCopier.copy(fileReader, writer);
+        if (copied != lws::Stream::EOS) {
+            trace("Copied: %lu %d / %d", copied, fileReader.tell(), fileReader.size());
+        }
+        else {
+            trace("Copied: EOF %d / %d", fileReader.tell(), fileReader.size());
+        }
     }
     else {
         if (waitingSince == 0) {
@@ -167,7 +176,7 @@ TaskEval TransmitFileTask::openConnection() {
                 return TaskEval::error();
             }
 
-            auto &fileReader = files->reader();
+            auto &fileReader = fileSystem->files().reader();
             auto bufferSize = stream.bytes_written;
             auto transmitting = fileReader.size() + bufferSize;
 

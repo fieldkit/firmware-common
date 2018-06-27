@@ -27,7 +27,7 @@ private:
     Pool *pool;
 
     TaskContainer<AppModuleQueryTask> appModuleQueryTask;
-    MessageBuffer *buffer{nullptr};
+    MessageBuffer *buffer{ nullptr };
     ChildContainer active;
     uint32_t dieAt{ 0 };
     size_t bytesRead{ 0 };
