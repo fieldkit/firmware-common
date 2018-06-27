@@ -5,31 +5,6 @@
 
 namespace fk {
 
-class FileSystemMonitor : public Task {
-private:
-    Files *files;
-    uint32_t lastStatus{ 0 };
-
-public:
-    FileSystemMonitor(Files &files);
-
-public:
-    TaskEval task() override;
-
-};
-
-FileSystemMonitor::FileSystemMonitor(Files &files) : Task("FS"), files(&files) {
-}
-
-TaskEval FileSystemMonitor::task() {
-    if (millis() - lastStatus > 10000) {
-        trace("Log=%" PRIu32 " Data=%" PRIu32 "", (uint32_t)files->log().tell(), (uint32_t)files->data().tell());
-        lastStatus = millis();
-    }
-
-    return TaskEval::idle();
-}
-
 void CoreModule::begin() {
     pinMode(Hardware::SD_PIN_CS, OUTPUT);
     pinMode(Hardware::WIFI_PIN_CS, OUTPUT);
@@ -95,7 +70,6 @@ void CoreModule::begin() {
 void CoreModule::run() {
     SimpleNTP ntp(clock, wifi);
     Status status{ state, bus, leds };
-    FileSystemMonitor fsMonitor{ fileSystem.files() };
 
     wifi.begin();
 
@@ -117,8 +91,7 @@ void CoreModule::run() {
         &liveData,
         &moduleCommunications,
         &background,
-        &servicing,
-        &fsMonitor
+        &servicing
     );
 
     while (true) {
