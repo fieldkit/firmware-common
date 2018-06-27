@@ -50,7 +50,7 @@ TaskEval RadioService::task() {
 }
 
 SendDataToLoraGateway::SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, uint8_t file) :
-    Task("SendDataToLoraGateway"), radioService(&radioService), fileReader() {
+    Task("SendDataToLoraGateway"), radioService(&radioService), files(&fileSystem.files()) {
 }
 
 void SendDataToLoraGateway::enqueued() {
@@ -59,6 +59,7 @@ void SendDataToLoraGateway::enqueued() {
 }
 
 TaskEval SendDataToLoraGateway::task() {
+    auto &fileReader = files->reader();
     if (!radioService->isAvailable()) {
         log("No radio.");
         return TaskEval::done();

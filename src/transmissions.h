@@ -37,7 +37,6 @@ public:
 
 class ModuleDataTransfer : public ModuleQuery {
 private:
-    FileReader fileReader;
     lws::AlignedStorageBuffer<128> buffer;
     lws::StreamCopier streamCopier;
     uint32_t bytesCopied{ 0 };

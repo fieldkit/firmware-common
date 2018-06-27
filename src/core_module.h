@@ -59,8 +59,10 @@ private:
     HttpTransmissionConfig transmissionConfig = {
         .streamUrl = WifiApiUrlIngestionStream,
     };
-    TransmitAllFilesTask transmitAllFilesTask{background, fileSystem, state, wifi, transmissionConfig};
+    TransmitFileTask transmitFileTask{fileSystem, state, wifi, transmissionConfig};
     PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, 0, moduleCommunications};
+
+    FileCopierSample fileCopier{ fileSystem, state };
 
     SerialPort gpsPort{ Serial1 };
     ReadGps readGps{state, gpsPort};
@@ -74,13 +76,14 @@ private:
 
     NoopTask noop;
 
-    PeriodicTask periodics[2] {
+    PeriodicTask periodics[3] {
         fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
+        fk::PeriodicTask{ 20 * 1000, fileCopier },
     };
     ScheduledTask scheduled[3 ] {
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
-        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllFilesTask },
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitFileTask },
         #ifdef FK_ENABLE_RADIO
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendDataToLoraGateway },
         #else

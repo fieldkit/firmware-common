@@ -13,7 +13,7 @@ namespace fk {
 
 class TransmitFileTask : public Task {
 private:
-    FileReader fileReader;
+    Files *files;
     CoreState *state;
     Wifi *wifi;
     HttpTransmissionConfig *config;
@@ -27,7 +27,7 @@ private:
     lws::CircularStreams<lws::RingBufferN<256>> outgoing;
 
 public:
-    TransmitFileTask(FileSystem &fileSystem, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
+    TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
 
 public:
     void enqueued();
@@ -38,15 +38,18 @@ private:
 
 };
 
-class TransmitAllFilesTask : public Task {
+class FileCopierSample : public Task {
 private:
-    TaskQueue *taskQueue;
-    SimpleQueue<TransmitFileTask, 2, FileSystem&, uint8_t, CoreState&, Wifi&, HttpTransmissionConfig&> queue;
+    FileSystem *fileSystem;
+    CoreState *state;
+    lws::BufferedStreamCopier<256> streamCopier;
+    lws::CircularStreams<lws::RingBufferN<256>> outgoing;
 
 public:
-    TransmitAllFilesTask(TaskQueue &taskQueue, FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
+    FileCopierSample(FileSystem &fileSystem, CoreState &state);
 
 public:
+    void enqueued();
     TaskEval task() override;
 
 };

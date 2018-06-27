@@ -5,19 +5,38 @@
 
 namespace fk {
 
-TransmitAllFilesTask::TransmitAllFilesTask(TaskQueue &taskQueue, FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config)
-    : Task("TransmitAllFilesTask"), taskQueue(&taskQueue),
-      queue{ make_array( std::make_tuple(std::ref(fileSystem), (uint8_t)0, std::ref(state), std::ref(wifi), std::ref(config)),
-                         std::make_tuple(std::ref(fileSystem), (uint8_t)1, std::ref(state), std::ref(wifi), std::ref(config)) ) } {
+FileCopierSample::FileCopierSample(FileSystem &fileSystem, CoreState &state) : Task("FileCopy"), fileSystem(&fileSystem), state(&state) {
 }
 
-TaskEval TransmitAllFilesTask::task() {
-    taskQueue->append(queue);
-    return TaskEval::done();
+void FileCopierSample::enqueued() {
+    if (fileSystem->openData()) {
+        auto &fileReader = fileSystem->files().reader();
+        fileReader.open();
+        trace("Opened: %d / %d", fileReader.tell(), fileReader.size());
+    }
 }
 
-TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, uint8_t file, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config) :
-    Task("TransmitFileTask"), fileReader(), state(&state), wifi(&wifi), config(&config) {
+TaskEval FileCopierSample::task() {
+    auto &fileReader = fileSystem->files().reader();
+
+    if (!fileReader.isOpen()) {
+        return TaskEval::done();
+    }
+
+    if (!fileReader.isFinished()) {
+        auto writer = lws::NullWriter{};
+        auto copied = streamCopier.copy(fileReader, writer);
+        trace("Copied: %lu %d / %d", copied, fileReader.tell(), fileReader.size());
+    }
+    else {
+        return TaskEval::done();
+    }
+
+    return TaskEval::idle();
+}
+
+TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config) :
+    Task("TransmitFileTask"), files(&fileSystem.files()), state(&state), wifi(&wifi), config(&config) {
 }
 
 void TransmitFileTask::enqueued() {
@@ -27,6 +46,8 @@ void TransmitFileTask::enqueued() {
 }
 
 TaskEval TransmitFileTask::task() {
+    auto &fileReader = files->reader();
+
     if (!wifi->possiblyOnline()) {
         log("Wifi disabled or using local AP");
         return TaskEval::done();
@@ -50,7 +71,6 @@ TaskEval TransmitFileTask::task() {
         if (fileReader.size() > WifiTransmitFileMaximumSize) {
             log("Skipping, upload too large at %d bytes.", fileReader.size());
             fileReader.end();
-            // state->saveCursor(fileReader.resumeToken());
             return TaskEval::done();
         }
 
@@ -80,7 +100,6 @@ TaskEval TransmitFileTask::task() {
                     fileReader.truncate();
                 }
             }
-            // state->saveCursor(fileReader.resumeToken());
         }
         else {
             tries++;
@@ -143,6 +162,7 @@ TaskEval TransmitFileTask::openConnection() {
                 return TaskEval::error();
             }
 
+            auto &fileReader = files->reader();
             auto bufferSize = stream.bytes_written;
             auto transmitting = fileReader.size() + bufferSize;
 
@@ -153,7 +173,7 @@ TaskEval TransmitFileTask::openConnection() {
                     firmware_version_get(),
                     firmware_build_get(),
                     deviceId.toString(),
-                    0 // fileReader.fileNumber()
+                    0
             };
             httpWriter.writeHeaders(parsed, headers);
 

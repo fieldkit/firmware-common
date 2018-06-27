@@ -6,16 +6,36 @@ namespace fk {
 FileReader::FileReader() {
 }
 
+FileReader::FileReader(phylum::SimpleFile *file) : file_(file) {
+}
+
+bool FileReader::isOpen() {
+    return file_ != nullptr && opened_;
+}
+
+bool FileReader::isFinished() {
+    return file_ != nullptr && done_;
+}
+
 void FileReader::open() {
-    // iterator.beginning();
+    file_->seek(0);
+    done_ = false;
+    opened_ = true;
 }
 
 void FileReader::end() {
-    // iterator.end();
+    file_->seek(UINT64_MAX);
+}
+
+size_t FileReader::size() {
+    return file_->size();
+}
+
+size_t FileReader::tell() {
+    return file_->tell();
 }
 
 void FileReader::truncate() {
-    // iterator.truncate();
 }
 
 int32_t FileReader::read() {
@@ -24,30 +44,29 @@ int32_t FileReader::read() {
 }
 
 int32_t FileReader::read(uint8_t *ptr, size_t size) {
-    /*
-    if (iterator.isFinished()) {
-        return EOS;
-    }
-
     auto position = 0;
-    auto remaining = size;
-    while (remaining > 0 && !iterator.isFinished()) {
-        auto data = iterator.read(remaining);
-        if (data) {
-            fk_assert(data.size <= size);
-            memcpy(ptr + position, data.ptr, data.size);
-            remaining -= data.size;
-            position += data.size;
-            iterator.moveNext(data);
+    if (file_ != nullptr && !done_) {
+        auto remaining = size;
+        while (remaining > 0) {
+            auto read = file_->read(ptr + position, remaining);
+            if (read == 0) {
+                done_ = true;
+                break;
+            }
+            position += read;
+            remaining -= read;
         }
     }
 
+    if (position == 0) {
+        return EOS;
+    }
+
     return position;
-    */
-    return 0;
 }
 
 void FileReader::close() {
+    opened_ = false;
 }
 
 }

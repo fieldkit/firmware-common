@@ -54,23 +54,23 @@ bool FileSystem::setup() {
         return false;
     }
 
-    if (!fs.mount(descriptors)) {
-        if (!fs.format(descriptors)) {
+    if (!fs.mount(files_.descriptors)) {
+        if (!fs.format(files_.descriptors)) {
             return false;
         }
-        if (!fs.mount(descriptors)) {
+        if (!fs.mount(files_.descriptors)) {
             return false;
         }
     }
 
-    auto startup = fs.open(file_log_startup_fd, OpenMode::Write);
+    auto startup = fs.open(files_.file_log_startup_fd, OpenMode::Write);
     if (!startup) {
         return false;
     }
 
     logFile = startup;
 
-    dataFile = fs.open(file_data_fk, OpenMode::Write);
+    dataFile = fs.open(files_.file_data_fk, OpenMode::Write);
     if (!dataFile) {
         return false;
     }
@@ -78,6 +78,21 @@ bool FileSystem::setup() {
     log_configure_time(millis, log_uptime);
     log_add_hook(debug_write_log, nullptr);
     log_configure_hook(true);
+
+    return true;
+}
+
+bool FileSystem::openData() {
+    files_.opened = fs.open(files_.file_data_fk, OpenMode::Read);
+    if (!files_.opened) {
+        return false;
+    }
+
+    if (!files_.opened.seek(UINT64_MAX)) {
+        return false;
+    }
+
+    files_.reader_ = FileReader{ &files_.opened };
 
     return true;
 }
@@ -91,6 +106,10 @@ phylum::SimpleFile &Files::log() {
 
 phylum::SimpleFile &Files::data() {
     return dataFile;
+}
+
+FileReader &Files::reader() {
+    return reader_;
 }
 
 }
