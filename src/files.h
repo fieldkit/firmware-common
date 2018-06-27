@@ -11,21 +11,24 @@ class Files {
 private:
     static constexpr size_t NumberOfFiles = 5;
 
-    phylum::FileOpener *files;
-    phylum::SimpleFile opened;
-
     phylum::FileDescriptor file_system_area_fd =   { "system",        phylum::WriteStrategy::Append,  100 };
     phylum::FileDescriptor file_log_startup_fd =   { "startup.log",   phylum::WriteStrategy::Append,  100 };
     phylum::FileDescriptor file_log_now_fd =       { "now.log",       phylum::WriteStrategy::Rolling, 100 };
     phylum::FileDescriptor file_log_emergency_fd = { "emergency.log", phylum::WriteStrategy::Append,  100 };
     phylum::FileDescriptor file_data_fk =          { "data.fk",       phylum::WriteStrategy::Append,  0   };
-    phylum::FileDescriptor* descriptors[NumberOfFiles]{
+    phylum::FileDescriptor* descriptors_[NumberOfFiles]{
         &file_system_area_fd,
         &file_log_startup_fd,
         &file_log_now_fd,
         &file_log_emergency_fd,
         &file_data_fk
     };
+
+private:
+    phylum::SimpleFile opened_;
+    phylum::SimpleFile log_;
+    phylum::SimpleFile data_;
+    phylum::FileOpener *files_;
 
     FileReader reader_;
 
@@ -40,7 +43,7 @@ public:
     }
 
     phylum::FileDescriptor &file(size_t number) const {
-        return *descriptors[number];
+        return *descriptors_[number];
     }
 
 public:

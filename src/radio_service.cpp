@@ -50,7 +50,7 @@ TaskEval RadioService::task() {
 }
 
 SendDataToLoraGateway::SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, uint8_t file) :
-    Task("SendDataToLoraGateway"), radioService(&radioService), files(&fileSystem.files()) {
+    Task("SendDataToLoraGateway"), radioService(&radioService), fileSystem(&fileSystem) {
 }
 
 void SendDataToLoraGateway::enqueued() {
@@ -59,15 +59,21 @@ void SendDataToLoraGateway::enqueued() {
 }
 
 TaskEval SendDataToLoraGateway::task() {
-    auto &fileReader = files->reader();
+    auto &fileReader = fileSystem->files().reader();
+
     if (!radioService->isAvailable()) {
         log("No radio.");
         return TaskEval::done();
     }
+
     if (!started) {
         started = true;
         copying = true;
-        fileReader.open();
+        if (!fileSystem->openForReading(4)) {
+            auto &fileReader = fileSystem->files().reader();
+            fileReader.open();
+            trace("Opened: %d / %d", fileReader.tell(), fileReader.size());
+        }
         streamCopier.restart();
         if (fileReader.size() < RadioTransmitFileMaximumSize) {
             radioService->sendToGateway(fileReader.size());

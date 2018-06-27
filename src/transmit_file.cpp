@@ -61,7 +61,7 @@ TaskEval TransmitFileTask::task() {
             return TaskEval::busy();
         }
 
-        if (!fileSystem->openData()) {
+        if (!fileSystem->openForReading(4)) {
             return TaskEval::error();
         }
 

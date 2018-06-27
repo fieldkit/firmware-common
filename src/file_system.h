@@ -32,7 +32,7 @@ public:
         return fs_;
     }
 
-    bool openData();
+    bool openForReading(uint8_t file);
 
     FkfsData &getData() {
         return data_;

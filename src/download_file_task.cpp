@@ -9,7 +9,7 @@ DownloadFileTask::DownloadFileTask(FileSystem &fileSystem, CoreState &state, App
 }
 
 void DownloadFileTask::enqueued() {
-    if (fileSystem->openData()) {
+    if (!fileSystem->openForReading(4)) {
         auto &fileReader = fileSystem->files().reader();
         fileReader.open();
         trace("Opened: %d / %d", fileReader.tell(), fileReader.size());

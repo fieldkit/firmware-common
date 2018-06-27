@@ -7,10 +7,9 @@ using namespace phylum;
 
 namespace fk {
 
-constexpr const char Log[] = "FileSystem";
+static Files *global_files{ nullptr };
 
-static phylum::SimpleFile logFile;
-static phylum::SimpleFile dataFile;
+constexpr const char Log[] = "FileSystem";
 
 extern "C" {
 
@@ -33,7 +32,7 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
     }
 
     int32_t bytes = stream.bytes_written;
-    if (logFile.write(buffer, bytes, true) != bytes) {
+    if (global_files->log().write(buffer, bytes, true) != bytes) {
         log_uart_get()->println("Unable to append log");
         return 0;
     }
@@ -47,12 +46,12 @@ FileSystem::FileSystem(TwoWireBus &bus, Pool &pool) : data_{ bus, files_, pool }
 }
 
 bool FileSystem::format() {
-    if (!fs_.format(files_.descriptors)) {
+    if (!fs_.format(files_.descriptors_)) {
         logf(LogLevels::ERROR, Log, "Format failed!");
         return false;
     }
 
-    if (!fs_.mount(files_.descriptors)) {
+    if (!fs_.mount(files_.descriptors_)) {
         logf(LogLevels::ERROR, Log, "Mount failed!");
         return false;
     }
@@ -73,7 +72,7 @@ bool FileSystem::setup() {
         return false;
     }
 
-    if (!fs_.mount(files_.descriptors)) {
+    if (!fs_.mount(files_.descriptors_)) {
         logf(LogLevels::ERROR, Log, "Mount failed!");
 
         if (!format()) {
@@ -88,10 +87,10 @@ bool FileSystem::setup() {
         return false;
     }
 
-    logFile = startup;
+    files_.log_ = startup;
 
-    dataFile = fs_.open(files_.file_data_fk, OpenMode::Write);
-    if (!dataFile) {
+    files_.data_ = fs_.open(files_.file_data_fk, OpenMode::Write);
+    if (!files_.data_) {
         return false;
     }
 
@@ -102,30 +101,27 @@ bool FileSystem::setup() {
     return true;
 }
 
-bool FileSystem::openData() {
-    files_.opened = fs_.open(files_.file_data_fk, OpenMode::Read);
-    if (!files_.opened) {
+bool FileSystem::openForReading(uint8_t file) {
+    files_.opened_ = fs_.open(files_.file_data_fk, OpenMode::Read);
+    if (!files_.opened_) {
         return false;
     }
 
-    if (!files_.opened.seek(UINT64_MAX)) {
-        return false;
-    }
-
-    files_.reader_ = FileReader{ &files_.opened };
+    files_.reader_ = FileReader{ &files_.opened_ };
 
     return true;
 }
 
-Files::Files(phylum::FileOpener &files) : files(&files) {
+Files::Files(phylum::FileOpener &files) : files_(&files) {
+    global_files = this;
 }
 
 phylum::SimpleFile &Files::log() {
-    return logFile;
+    return log_;
 }
 
 phylum::SimpleFile &Files::data() {
-    return dataFile;
+    return data_;
 }
 
 FileReader &Files::reader() {
