@@ -17,10 +17,15 @@ public:
         }
     }
 
+public:
+    bool collection() override {
+        return true;
+    }
+
     TaskEval task() override {
         for (size_t i = 0; i < Size; ++i) {
             if (tasks[i] != nullptr) {
-                auto status = tasks[i]->task();
+                auto status = callTask(tasks[i]);
                 switch (status.state) {
                 case TaskEvalState::Idle: {
                     break;

@@ -177,7 +177,7 @@ void FileCopyOperation::status() {
     auto elapsed = millis() - started_;
     auto complete = copied_ > 0 ? ((float)copied_ / reader_.size()) * 100.0f : 0.0f;
     auto speed = copied_ > 0 ? copied_ / ((float)elapsed / 1000.0f) : 0.0f;
-    logf(LogLevels::TRACE, "Copy", "%lu/%d %lums %.2f %.2fbps", copied_, reader_.size(), elapsed, complete, speed);
+    logf(LogLevels::TRACE, "Copy", "%lu/%d %lums %.2f %.2fbps (%lu)", copied_, reader_.size(), elapsed, complete, speed, millis() - lastStatus_);
 }
 
 }

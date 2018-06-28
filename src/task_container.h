@@ -95,6 +95,10 @@ public:
     SimpleQueue(std::array<std::tuple<Args...>, Size> queue) : Task("SimpleQueue"), queue(queue) {
     }
 
+    bool collection() override {
+        return true;
+    }
+
     void enqueued() override {
         log("Enqueued");
         target = nullptr;
@@ -102,7 +106,7 @@ public:
     }
 
     TaskEval task() override {
-        auto e = target == nullptr ? TaskEval::done() : target->task();
+        auto e = target == nullptr ? TaskEval::done() : callTask(target);
         if (e.isDone() || e.isError()) {
             if (target != nullptr) {
                 target->~T();

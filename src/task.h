@@ -67,6 +67,9 @@ public:
     Task(const char *name) : name(name) {}
 
 public:
+    virtual bool collection() {
+        return false;
+    }
     virtual void enqueued() { }
     virtual bool tryBegin() {
         return true;
@@ -87,6 +90,8 @@ public:
 
 };
 
+TaskEval callTask(Task *task);
+
 inline bool areSame(const Task &a, const Task &b) {
     return &a == &b;
 }
@@ -102,6 +107,10 @@ public:
     }
 
 public:
+    bool collection() override {
+        return true;
+    }
+
     void enqueued() override {
         for (std::size_t i = 0; i < Size; ++i) {
             if (tasks[i] != nullptr) {
@@ -115,7 +124,7 @@ public:
 
         for (std::size_t i = 0; i < Size; ++i) {
             if (tasks[i] != nullptr) {
-                auto taskStatus = tasks[i]->task();
+                auto taskStatus = callTask(tasks[i]);
                 if (!taskStatus.isDone()) {
                     e = TaskEval::busy();
                     if (sequential) {

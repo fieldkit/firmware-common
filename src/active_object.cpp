@@ -2,6 +2,27 @@
 
 namespace fk {
 
+void callIdle(ActiveObject *task) {
+    auto began = millis();
+    task->idle();
+    auto ended = millis();
+    if (ended - began > 500) {
+        logf(LogLevels::TRACE, "Tasks", "Long idle: %s (%lu)", task->name, ended - began);
+    }
+}
+
+TaskEval callTask(Task *task) {
+    auto began = millis();
+    auto eval = task->task();
+    auto ended = millis();
+    if (!task->collection()) {
+        if (ended - began > 500) {
+            logf(LogLevels::TRACE, "Tasks", "Long task: %s (%lu)", task->name, ended - began);
+        }
+    }
+    return eval;
+}
+
 void Task::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
@@ -71,7 +92,7 @@ TaskEval ActiveObject::task() {
 }
 
 void ActiveObject::service(Task &active) {
-    auto e = active.task();
+    auto e = callTask(&active);
 
     if (e.isDone()) {
         info("%s done", active.toString());
@@ -89,17 +110,10 @@ void ActiveObject::service(Task &active) {
 }
 
 void ActiveObject::tick() {
-    auto began = millis();
-    auto ran = "Idle";
     if (!isIdle()) {
-        ran = tasks->toString();
         service(*tasks);
     } else {
-        idle();
-    }
-    auto ended = millis();
-    if (ended - began > 500) {
-        info("Long tick from %s (%lu) (****)", ran, ended - began);
+        callIdle(this);
     }
 }
 
@@ -145,7 +159,7 @@ TaskEval ChildContainer::task() {
         return TaskEval::idle();
     }
 
-    auto e = child->task();
+    auto e = callTask(child);
     if (e.isDone()) {
         child->done();
         clear();

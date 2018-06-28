@@ -91,6 +91,7 @@ TaskEval SendDataToLoraGateway::task() {
     if (radioService->hasErrorOccured()) {
         return TaskEval::error();
     }
+
     if (radioService->isSleeping()) {
         return TaskEval::done();
     }
