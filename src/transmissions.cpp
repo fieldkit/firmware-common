@@ -39,7 +39,7 @@ void ModuleDataTransfer::prepare(ModuleQueryMessage &message, lws::Writer &outgo
 
 void ModuleDataTransfer::tick(lws::Writer &outgoing) {
     auto &fileCopy = fileSystem->files().fileCopy();
-    if (!fileCopy.tick(outgoing)) {
+    if (!fileCopy.copy(outgoing)) {
         outgoing.close();
     }
     else {

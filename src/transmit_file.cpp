@@ -16,7 +16,9 @@ TaskEval FileCopierSample::task() {
 
     if (!fileCopy.isFinished()) {
         auto writer = lws::NullWriter{};
-        fileCopy.tick(writer);
+        if (!fileCopy.copy(writer)) {
+            return TaskEval::done();
+        }
     }
     else {
         return TaskEval::done();
@@ -114,7 +116,7 @@ TaskEval TransmitFileTask::task() {
 
     if (!fileCopy.isFinished()) {
         auto writer = WifiWriter{ wcl };
-        if (!fileCopy.tick(writer)) {
+        if (!fileCopy.copy(writer)) {
         }
     }
     else {

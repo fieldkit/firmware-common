@@ -44,7 +44,7 @@ public:
         return copied_;
     }
     bool prepare(FileReader reader);
-    bool tick(lws::Writer &writer);
+    bool copy(lws::Writer &writer);
 
 private:
     void status();

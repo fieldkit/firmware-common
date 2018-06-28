@@ -66,6 +66,8 @@ constexpr uint32_t RescanExistingModulesInterval = 5 * 60 * 1000;
 constexpr uint32_t StatusInterval = 10000;
 constexpr float StatusBatteryBlinkThreshold = 60.0f;
 
+constexpr uint32_t FileCopyStatusInterval = 1000;
+
 }
 
 #endif

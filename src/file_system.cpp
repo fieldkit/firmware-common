@@ -148,24 +148,26 @@ bool FileCopyOperation::prepare(FileReader reader) {
     return true;
 }
 
-bool FileCopyOperation::tick(lws::Writer &writer) {
+bool FileCopyOperation::copy(lws::Writer &writer) {
     if (started_ == 0) {
         started_ = millis();
     }
 
     if (reader_.isFinished()) {
+        status();
         return false;
     }
 
     auto bytes = streamCopier_.copy(reader_, writer);
+    if (bytes > 0) {
+        copied_ += bytes;
+    }
     if (bytes == lws::Stream::EOS) {
         status();
         return false;
     }
 
-    copied_ += bytes;
-
-    if (millis() - lastStatus_ > 1000) {
+    if (millis() - lastStatus_ > FileCopyStatusInterval) {
         status();
         lastStatus_ = millis();
     }

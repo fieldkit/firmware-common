@@ -5,7 +5,8 @@ namespace fk {
 
 #ifdef FK_ENABLE_RADIO
 
-RadioService::RadioService() : Task("Radio"), radio{ Hardware::RFM95_PIN_CS, Hardware::RFM95_PIN_D0, Hardware::RFM95_PIN_ENABLE, Hardware::RFM95_PIN_RESET }, protocol{ radio, *this } {
+RadioService::RadioService() : Task("Radio"), radio{ Hardware::RFM95_PIN_CS, Hardware::RFM95_PIN_D0, Hardware::RFM95_PIN_ENABLE, Hardware::RFM95_PIN_RESET },
+                               protocol{ radio, *this } {
 }
 
 bool RadioService::setup(DeviceId &deviceId) {
@@ -99,7 +100,7 @@ TaskEval SendDataToLoraGateway::task() {
     if (copying) {
         auto &fileCopy = fileSystem->files().fileCopy();
         auto &writer = radioService->getWriter();
-        if (!fileCopy.tick(writer)) {
+        if (!fileCopy.copy(writer)) {
             log("Done!");
             writer.close();
             copying = false;
