@@ -71,7 +71,6 @@ TaskEval TransmitFileTask::task() {
 
         fileReader.open();
         streamCopier.restart();
-        outgoing.clear();
         waitingSince = 0;
 
         return openConnection();

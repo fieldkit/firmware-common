@@ -7,6 +7,16 @@
 
 namespace fk {
 
+class FileCopyOperation {
+private:
+    lws::BufferedStreamCopier<256> streamCopier_;
+
+public:
+    FileCopyOperation();
+
+public:
+};
+
 class Files {
 private:
     static constexpr size_t NumberOfFiles = 5;

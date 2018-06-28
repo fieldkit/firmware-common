@@ -128,4 +128,7 @@ FileReader &Files::reader() {
     return reader_;
 }
 
+FileCopyOperation::FileCopyOperation() {
+}
+
 }

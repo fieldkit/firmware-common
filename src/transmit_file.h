@@ -24,7 +24,6 @@ private:
     HttpResponseParser parser;
     CachedDnsResolution cachedDns;
     lws::BufferedStreamCopier<256> streamCopier;
-    lws::CircularStreams<lws::RingBufferN<256>> outgoing;
 
 public:
     TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
@@ -43,7 +42,6 @@ private:
     FileSystem *fileSystem;
     CoreState *state;
     lws::BufferedStreamCopier<256> streamCopier;
-    lws::CircularStreams<lws::RingBufferN<256>> outgoing;
 
 public:
     FileCopierSample(FileSystem &fileSystem, CoreState &state);
