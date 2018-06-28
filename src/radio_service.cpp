@@ -59,8 +59,6 @@ void SendDataToLoraGateway::enqueued() {
 }
 
 TaskEval SendDataToLoraGateway::task() {
-    auto &fileReader = fileSystem->files().reader();
-
     if (!radioService->isAvailable()) {
         log("No radio.");
         return TaskEval::done();
@@ -70,17 +68,22 @@ TaskEval SendDataToLoraGateway::task() {
         started = true;
         copying = true;
         if (!fileSystem->openForReading(4)) {
-            auto &fileReader = fileSystem->files().reader();
-            fileReader.open();
-            trace("Opened: %d / %d", fileReader.tell(), fileReader.size());
+            log("Failed to open file for reading.");
+            return TaskEval::error();
         }
-        streamCopier.restart();
-        if (fileReader.size() < RadioTransmitFileMaximumSize) {
-            radioService->sendToGateway(fileReader.size());
-            log("Beginning, opened file (%d bytes).", fileReader.size());
+
+        auto &fileCopy = fileSystem->files().fileCopy();
+        if (fileCopy.size() == 0) {
+            log("Empty file");
+            return TaskEval::done();
+        }
+
+        if (fileCopy.size() < RadioTransmitFileMaximumSize) {
+            radioService->sendToGateway(fileCopy.size());
+            log("Beginning, opened file (%d bytes).", fileCopy.size());
         }
         else {
-            log("Opened file, too large (%d bytes).", fileReader.size());
+            log("Opened file, too large (%d bytes).", fileCopy.size());
             return TaskEval::done();
         }
     }
@@ -93,18 +96,12 @@ TaskEval SendDataToLoraGateway::task() {
     }
 
     if (copying) {
-        auto& writer = radioService->getWriter();
-        while (true) {
-            auto bytes = streamCopier.copy(fileReader, writer);
-            if (bytes == lws::Stream::EOS) {
-                log("Done!");
-                writer.close();
-                copying = false;
-                break;
-            }
-            if (bytes == 0) {
-                break;
-            }
+        auto &fileCopy = fileSystem->files().fileCopy();
+        auto &writer = radioService->getWriter();
+        if (!fileCopy.tick(writer)) {
+            log("Done!");
+            writer.close();
+            copying = false;
         }
     }
 

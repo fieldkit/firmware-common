@@ -12,21 +12,11 @@ void FileCopierSample::enqueued() {
 }
 
 TaskEval FileCopierSample::task() {
-    auto &fileReader = fileSystem->files().reader();
+    auto &fileCopy = fileSystem->files().fileCopy();
 
-    if (!fileReader.isOpen()) {
-        return TaskEval::done();
-    }
-
-    if (!fileReader.isFinished()) {
+    if (!fileCopy.isFinished()) {
         auto writer = lws::NullWriter{};
-        auto copied = streamCopier.copy(fileReader, writer);
-        if (copied != lws::Stream::EOS) {
-            trace("Copied: %lu %d / %d", copied, fileReader.tell(), fileReader.size());
-        }
-        else {
-            trace("Copied: EOF %d / %d", fileReader.tell(), fileReader.size());
-        }
+        fileCopy.tick(writer);
     }
     else {
         return TaskEval::done();
@@ -65,12 +55,11 @@ TaskEval TransmitFileTask::task() {
             return TaskEval::error();
         }
 
-        auto &fileReader = fileSystem->files().reader();
-        fileReader.open();
-        trace("Opened: %d / %d", fileReader.tell(), fileReader.size());
+        if (fileSystem->files().fileCopy().size() == 0) {
+            log("Empty file.");
+            return TaskEval::done();
+        }
 
-        fileReader.open();
-        streamCopier.restart();
         waitingSince = 0;
 
         return openConnection();
@@ -81,7 +70,7 @@ TaskEval TransmitFileTask::task() {
         parser.write(c);
     }
 
-    auto &fileReader = fileSystem->files().reader();
+    auto &fileCopy = fileSystem->files().fileCopy();
 
     auto status = parser.getStatusCode();
     if (!wcl.connected() || status > 0) {
@@ -90,7 +79,7 @@ TaskEval TransmitFileTask::task() {
         state->setBusy(false);
         wifi->setBusy(false);
         if (status == 200) {
-            if (!fileReader.isFinished()) {
+            if (!fileCopy.isFinished()) {
                 log("Unfinished success (status = %d)", status);
             }
             else {
@@ -112,14 +101,9 @@ TaskEval TransmitFileTask::task() {
         return TaskEval::done();
     }
 
-    if (!fileReader.isFinished()) {
+    if (!fileCopy.isFinished()) {
         auto writer = WifiWriter{ wcl };
-        auto copied = streamCopier.copy(fileReader, writer);
-        if (copied != lws::Stream::EOS) {
-            trace("Copied: %lu %d / %d", copied, fileReader.tell(), fileReader.size());
-        }
-        else {
-            trace("Copied: EOF %d / %d", fileReader.tell(), fileReader.size());
+        if (!fileCopy.tick(writer)) {
         }
     }
     else {
@@ -164,9 +148,9 @@ TaskEval TransmitFileTask::openConnection() {
                 return TaskEval::error();
             }
 
-            auto &fileReader = fileSystem->files().reader();
+            auto &fileCopy = fileSystem->files().fileCopy();
             auto bufferSize = stream.bytes_written;
-            auto transmitting = fileReader.size() + bufferSize;
+            auto transmitting = fileCopy.size() + bufferSize;
 
             HttpResponseWriter httpWriter(wcl);
             OutgoingHttpHeaders headers{
@@ -179,7 +163,7 @@ TaskEval TransmitFileTask::openConnection() {
             };
             httpWriter.writeHeaders(parsed, headers);
 
-            log("Sending %d + %d = %d bytes...", fileReader.size(), bufferSize, transmitting);
+            log("Sending %d + %d = %d bytes...", fileCopy.size(), bufferSize, transmitting);
             connected = true;
             wcl.write(buffer, bufferSize);
         } else {

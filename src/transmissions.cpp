@@ -17,12 +17,13 @@ ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, uint8_t file) : f
 }
 
 void ModuleDataTransfer::query(ModuleQueryMessage &message) {
-    auto &fileReader = fileSystem->files().reader();
-    fileReader.open();
-    bytesCopied = 0;
+    if (!fileSystem->openForReading(4)) {
+    }
+
+    auto &fileCopy = fileSystem->files().fileCopy();
 
     message.m().type = fk_module_QueryType_QUERY_DATA_APPEND;
-    message.m().data.size = fileReader.size();
+    message.m().data.size = fileCopy.size();
 }
 
 void ModuleDataTransfer::reply(ModuleReplyMessage &message) {
@@ -37,14 +38,12 @@ void ModuleDataTransfer::prepare(ModuleQueryMessage &message, lws::Writer &outgo
 }
 
 void ModuleDataTransfer::tick(lws::Writer &outgoing) {
-    auto &fileReader = fileSystem->files().reader();
-    auto bytes = streamCopier.copy(fileReader, outgoing);
-    if (bytes == lws::Stream::EOS) {
+    auto &fileCopy = fileSystem->files().fileCopy();
+    if (!fileCopy.tick(outgoing)) {
         outgoing.close();
     }
     else {
-        bytesCopied += bytes;
-        if (bytesCopied > maximumBytes) {
+        if (fileCopy.copied() > maximumBytes) {
             outgoing.close();
         }
     }

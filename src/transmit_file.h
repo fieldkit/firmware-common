@@ -23,7 +23,6 @@ private:
     WiFiClient wcl;
     HttpResponseParser parser;
     CachedDnsResolution cachedDns;
-    lws::BufferedStreamCopier<256> streamCopier;
 
 public:
     TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
@@ -41,7 +40,6 @@ class FileCopierSample : public Task {
 private:
     FileSystem *fileSystem;
     CoreState *state;
-    lws::BufferedStreamCopier<256> streamCopier;
 
 public:
     FileCopierSample(FileSystem &fileSystem, CoreState &state);

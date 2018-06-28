@@ -18,7 +18,6 @@ private:
     MessageBuffer *buffer;
     WifiConnection *connection;
     uint32_t bytesCopied{ 0 };
-    lws::BufferedStreamCopier<256> streamCopier;
 
 public:
     DownloadFileTask(FileSystem &fileSystem, CoreState &state, AppReplyMessage &reply, MessageBuffer &buffer, WifiConnection &connection);

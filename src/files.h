@@ -7,14 +7,39 @@
 
 namespace fk {
 
+struct FileCopySettings {
+};
+
 class FileCopyOperation {
 private:
-    lws::BufferedStreamCopier<256> streamCopier_;
+    lws::BufferedStreamCopier<512> streamCopier_;
+    uint32_t started_{ 0 };
+    uint32_t lastStatus_{ 0 };
+    uint32_t copied_{ 0 };
+    FileReader reader_;
 
 public:
     FileCopyOperation();
 
 public:
+    bool isFinished() {
+        return reader_.isFinished();
+    }
+    size_t tell() {
+        return reader_.tell();
+    }
+    size_t size() {
+        return reader_.size();
+    }
+    size_t copied() {
+        return copied_;
+    }
+    bool prepare(FileReader reader);
+    bool tick(lws::Writer &writer);
+
+private:
+    void status();
+
 };
 
 class Files {
@@ -39,8 +64,7 @@ private:
     phylum::SimpleFile log_;
     phylum::SimpleFile data_;
     phylum::FileOpener *files_;
-
-    FileReader reader_;
+    FileCopyOperation fileCopy_;
 
 public:
     Files(phylum::FileOpener &files);
@@ -60,7 +84,7 @@ public:
     phylum::SimpleFile &data();
     phylum::SimpleFile &log();
 
-    FileReader &reader();
+    FileCopyOperation &fileCopy();
 
 };
 

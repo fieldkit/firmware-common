@@ -10,15 +10,13 @@ DownloadFileTask::DownloadFileTask(FileSystem &fileSystem, CoreState &state, App
 
 void DownloadFileTask::enqueued() {
     if (!fileSystem->openForReading(4)) {
-        auto &fileReader = fileSystem->files().reader();
-        fileReader.open();
-        trace("Opened: %d / %d", fileReader.tell(), fileReader.size());
+        log("Failed to open file");
     }
     bytesCopied = 0;
 }
 
 TaskEval DownloadFileTask::task() {
-    auto &fileReader = fileSystem->files().reader();
+    auto &fileCopy = fileSystem->files().fileCopy();
 
     if (bytesCopied == 0) {
         StaticPool<128> pool{"DataPool"};
@@ -33,7 +31,7 @@ TaskEval DownloadFileTask::task() {
 
         reply->clear();
         reply->m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
-        reply->m().fileData.size = fileReader.size() + bufferSize;
+        reply->m().fileData.size = fileCopy.size() + bufferSize;
 
         if (!buffer->write(*reply)) {
             log("Error writing reply");
@@ -54,15 +52,9 @@ TaskEval DownloadFileTask::task() {
         bytesCopied += bufferSize;
     }
 
-    if (!fileReader.isFinished()) {
+    if (!fileCopy.isFinished()) {
         auto writer = WifiWriter{ connection->getClient() };
-        auto copied = streamCopier.copy(fileReader, writer);
-        if (copied != lws::Stream::EOS) {
-            trace("Copied: %lu %d / %d", copied, fileReader.tell(), fileReader.size());
-        }
-        else {
-            trace("Copied: EOF %d / %d", fileReader.tell(), fileReader.size());
-        }
+        fileCopy.tick(writer);
     }
     else {
         return TaskEval::done();

@@ -18,7 +18,7 @@ bool FileReader::isFinished() {
 }
 
 size_t FileReader::size() {
-    return file_->size();
+    return size_;
 }
 
 size_t FileReader::tell() {
@@ -32,6 +32,7 @@ int32_t FileReader::read() {
 
 void FileReader::open() {
     file_->seek(0);
+    size_ = file_->size();
     done_ = false;
     opened_ = true;
 }
@@ -39,7 +40,8 @@ void FileReader::open() {
 int32_t FileReader::read(uint8_t *ptr, size_t size) {
     auto position = 0;
     if (file_ != nullptr && !done_) {
-        auto remaining = size;
+        auto left = size_ - tell();
+        auto remaining = std::min(size, left);
         while (remaining > 0) {
             auto read = file_->read(ptr + position, remaining);
             if (read == 0) {
@@ -48,6 +50,9 @@ int32_t FileReader::read(uint8_t *ptr, size_t size) {
             }
             position += read;
             remaining -= read;
+        }
+        if (tell() == size_) {
+            done_ = true;
         }
     }
 

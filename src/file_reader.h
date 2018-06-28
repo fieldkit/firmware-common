@@ -11,6 +11,7 @@ private:
     phylum::SimpleFile *file_{ nullptr };
     bool opened_{ false };
     bool done_{ false };
+    size_t size_{ 0 };
 
 public:
     FileReader();

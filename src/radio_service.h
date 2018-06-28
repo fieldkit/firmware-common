@@ -20,7 +20,6 @@ class SendDataToLoraGateway : public Task {
 private:
     RadioService *radioService;
     FileSystem *fileSystem;
-    lws::BufferedStreamCopier<RadioTransmitFileCopierBufferSize> streamCopier;
     bool started{ false };
     bool copying{ false };
 

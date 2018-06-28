@@ -40,7 +40,6 @@ private:
     FileSystem *fileSystem;
     lws::AlignedStorageBuffer<128> buffer;
     lws::StreamCopier streamCopier;
-    uint32_t bytesCopied{ 0 };
     uint32_t maximumBytes{ 0 };
 
 public:

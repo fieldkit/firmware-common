@@ -107,7 +107,9 @@ bool FileSystem::openForReading(uint8_t file) {
         return false;
     }
 
-    files_.reader_ = FileReader{ &files_.opened_ };
+    if (!files_.fileCopy_.prepare(FileReader{ &files_.opened_ })) {
+        return false;
+    }
 
     return true;
 }
@@ -124,11 +126,54 @@ phylum::SimpleFile &Files::data() {
     return data_;
 }
 
-FileReader &Files::reader() {
-    return reader_;
+FileCopyOperation &Files::fileCopy() {
+    return fileCopy_;
 }
 
 FileCopyOperation::FileCopyOperation() {
+}
+
+bool FileCopyOperation::prepare(FileReader reader) {
+    copied_ = 0;
+    started_ = 0;
+    lastStatus_ = 0;
+    reader_ = reader;
+    streamCopier_.restart();
+    reader_.open();
+
+    return true;
+}
+
+bool FileCopyOperation::tick(lws::Writer &writer) {
+    if (started_ == 0) {
+        started_ = millis();
+    }
+
+    if (reader_.isFinished()) {
+        return false;
+    }
+
+    auto bytes = streamCopier_.copy(reader_, writer);
+    if (bytes == lws::Stream::EOS) {
+        status();
+        return false;
+    }
+
+    copied_ += bytes;
+
+    if (millis() - lastStatus_ > 1000) {
+        status();
+        lastStatus_ = millis();
+    }
+
+    return true;
+}
+
+void FileCopyOperation::status() {
+    auto elapsed = millis() - started_;
+    auto complete = copied_ > 0 ? ((float)copied_ / reader_.size()) * 100.0f : 0.0f;
+    auto speed = copied_ > 0 ? copied_ / ((float)elapsed / 1000.0f) : 0.0f;
+    logf(LogLevels::TRACE, "Copy", "%lu/%d %lums %.2f %.2fbps", copied_, reader_.size(), elapsed, complete, speed);
 }
 
 }
