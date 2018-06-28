@@ -23,6 +23,9 @@ public:
     void close() override;
     size_t size() override;
     size_t tell();
+    bool seek(uint64_t position) {
+        return file_->seek(position);
+    }
 
 public:
     void open();

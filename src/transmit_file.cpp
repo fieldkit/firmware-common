@@ -1,18 +1,23 @@
+#include <functional>
+
 #include "transmit_file.h"
 #include "restart_wizard.h"
-
-#include <functional>
+#include "file_cursors.h"
 
 namespace fk {
 
-FileCopierSample::FileCopierSample(FileSystem &fileSystem, CoreState &state) : Task("FileCopy"), fileSystem(&fileSystem), state(&state) {
+FileCopierSample::FileCopierSample(FileSystem &fileSystem, CoreState &state) : Task("FileCopy"), fileSystem_(&fileSystem), state_(&state) {
 }
 
 void FileCopierSample::enqueued() {
 }
 
 TaskEval FileCopierSample::task() {
-    auto &fileCopy = fileSystem->files().fileCopy();
+    if (state_->isBusy()) {
+        return TaskEval::done();
+    }
+
+    auto &fileCopy = fileSystem_->files().fileCopy();
 
     if (!fileCopy.isFinished()) {
         auto writer = lws::NullWriter{};
@@ -68,7 +73,16 @@ TaskEval TransmitFileTask::task() {
             return TaskEval::error();
         }
 
-        if (fileSystem->files().fileCopy().size() == 0) {
+        auto &fileCopy = fileSystem->files().fileCopy();
+
+        FileCursorManager fcm(*fileSystem);
+        auto position = fcm.lookup(settings.file);
+        if (!fileCopy.seek(position)) {
+            log("Seek failed: %lu", (uint32_t)position);
+            return TaskEval::error();
+        }
+
+        if (fileCopy.remaining() == 0) {
             log("Empty file.");
             return TaskEval::done();
         }
@@ -97,6 +111,11 @@ TaskEval TransmitFileTask::task() {
             }
             else {
                 log("Success (status = %d)", status);
+            }
+
+            FileCursorManager fcm(*fileSystem);
+            if (!fcm.save(settings.file, fileCopy.tell())) {
+                log("Failed to save cursor: %d", sizeof(FileCursors));
             }
         }
         else {
@@ -163,7 +182,8 @@ TaskEval TransmitFileTask::openConnection() {
 
             auto &fileCopy = fileSystem->files().fileCopy();
             auto bufferSize = stream.bytes_written;
-            auto transmitting = fileCopy.size() + bufferSize;
+            auto fileSize = fileCopy.size() - fileCopy.tell();
+            auto transmitting = fileSize + bufferSize;
 
             HttpResponseWriter httpWriter(wcl);
             OutgoingHttpHeaders headers{
@@ -176,7 +196,7 @@ TaskEval TransmitFileTask::openConnection() {
             };
             httpWriter.writeHeaders(parsed, headers);
 
-            log("Sending %d + %d = %d bytes...", fileCopy.size(), bufferSize, transmitting);
+            log("Sending %d + %d = %d bytes...", fileSize, bufferSize, transmitting);
             connected = true;
             wcl.write(buffer, bufferSize);
         } else {

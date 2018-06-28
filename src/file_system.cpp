@@ -1,6 +1,7 @@
-#include "file_system.h"
 #include "debug.h"
 #include "hardware.h"
+#include "file_system.h"
+#include "file_cursors.h"
 #include "rtc.h"
 
 using namespace phylum;
@@ -118,6 +119,10 @@ bool FileSystem::beginFileCopy(FileCopySettings settings) {
     return true;
 }
 
+phylum::SimpleFile FileSystem::openSystem(phylum::OpenMode mode) {
+    return fs_.open(files_.file_system_area_fd, mode);
+}
+
 Files::Files(phylum::FileOpener &files) : files_(&files) {
     global_files = this;
 }
@@ -139,6 +144,7 @@ FileCopyOperation::FileCopyOperation() {
 
 bool FileCopyOperation::prepare(FileReader reader) {
     copied_ = 0;
+    offset_ = 0;
     started_ = 0;
     lastStatus_ = 0;
     reader_ = reader;
@@ -151,25 +157,29 @@ bool FileCopyOperation::prepare(FileReader reader) {
 bool FileCopyOperation::copy(lws::Writer &writer) {
     if (started_ == 0) {
         started_ = millis();
+        offset_ = reader_.tell();
     }
 
-    if (reader_.isFinished()) {
-        status();
-        return false;
-    }
+    auto started = millis();
+    while (millis() - started < FileCopyMaximumElapsed) {
+        if (reader_.isFinished()) {
+            status();
+            return false;
+        }
 
-    auto bytes = streamCopier_.copy(reader_, writer);
-    if (bytes > 0) {
-        copied_ += bytes;
-    }
-    if (bytes == lws::Stream::EOS) {
-        status();
-        return false;
-    }
+        auto bytes = streamCopier_.copy(reader_, writer);
+        if (bytes > 0) {
+            copied_ += bytes;
+        }
+        if (bytes == lws::Stream::EOS || reader_.isFinished()) {
+            status();
+            return false;
+        }
 
-    if (millis() - lastStatus_ > FileCopyStatusInterval) {
-        status();
-        lastStatus_ = millis();
+        if (millis() - lastStatus_ > FileCopyStatusInterval) {
+            status();
+            lastStatus_ = millis();
+        }
     }
 
     return true;
@@ -179,7 +189,8 @@ void FileCopyOperation::status() {
     auto elapsed = millis() - started_;
     auto complete = copied_ > 0 ? ((float)copied_ / reader_.size()) * 100.0f : 0.0f;
     auto speed = copied_ > 0 ? copied_ / ((float)elapsed / 1000.0f) : 0.0f;
-    logf(LogLevels::TRACE, "Copy", "%lu/%d %lums %.2f %.2fbps (%lu)", copied_, reader_.size(), elapsed, complete, speed, millis() - lastStatus_);
+    auto total = reader_.size() - offset_;
+    logf(LogLevels::TRACE, "Copy", "%lu/%lu %lums %.2f %.2fbps (%lu)", copied_, total, elapsed, complete, speed, millis() - lastStatus_);
 }
 
 }

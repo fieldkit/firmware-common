@@ -39,8 +39,8 @@ private:
 
 class FileCopierSample : public Task {
 private:
-    FileSystem *fileSystem;
-    CoreState *state;
+    FileSystem *fileSystem_;
+    CoreState *state_;
 
 public:
     FileCopierSample(FileSystem &fileSystem, CoreState &state);

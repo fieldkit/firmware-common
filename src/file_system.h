@@ -30,6 +30,8 @@ public:
 public:
     bool beginFileCopy(FileCopySettings settings);
 
+    phylum::SimpleFile openSystem(phylum::OpenMode mode);
+
     phylum::FileLayout<5> &fs() {
         return fs_;
     }
