@@ -26,8 +26,10 @@ void Discovery::ping() {
     // Why is this API like this? So weird.
     WiFiUDP udp;
     if (udp.begin(DiscoveryUdpPort)) {
-        auto ipv4 = IpAddress4 { (uint32_t)destination };
-        trace("Ping: %s", ipv4.toString());
+        if (false) {
+            auto ipv4 = IpAddress4 { (uint32_t)destination };
+            trace("Ping: %s", ipv4.toString());
+        }
         udp.beginPacket(destination, DiscoveryUdpPort);
         udp.write(deviceId.toBuffer(), deviceId.length());
         udp.endPacket();
