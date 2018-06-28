@@ -17,6 +17,7 @@ private:
     CoreState *state;
     Wifi *wifi;
     HttpTransmissionConfig *config;
+    FileCopySettings settings;
     uint32_t waitingSince{ 0 };
     bool connected{ false };
     uint8_t tries{ 0 };
@@ -25,7 +26,7 @@ private:
     CachedDnsResolution cachedDns;
 
 public:
-    TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
+    TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, FileCopySettings settings);
 
 public:
     void enqueued();
@@ -46,6 +47,19 @@ public:
 
 public:
     void enqueued();
+    TaskEval task() override;
+
+};
+
+class TransmitAllFilesTask : public Task {
+private:
+    TaskQueue *taskQueue;
+    SimpleQueue<TransmitFileTask, 2, FileSystem&, CoreState&, Wifi&, HttpTransmissionConfig&, FileCopySettings> queue;
+
+public:
+    TransmitAllFilesTask(TaskQueue &taskQueue, FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
+
+public:
     TaskEval task() override;
 
 };

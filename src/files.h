@@ -7,7 +7,16 @@
 
 namespace fk {
 
+enum class FileNumber {
+    System = 0,
+    StartupLog = 1,
+    NowLog = 2,
+    EmergencyLog = 3,
+    Data = 4,
+};
+
 struct FileCopySettings {
+    FileNumber file;
 };
 
 class FileCopyOperation {

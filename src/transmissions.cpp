@@ -13,11 +13,11 @@ void ClearModuleData::reply(ModuleReplyMessage &message) {
     maximumBytes = message.m().data.size;
 }
 
-ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, uint8_t file) : fileSystem(&fileSystem), buffer(), streamCopier{ buffer.toBufferPtr() } {
+ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, FileCopySettings settings) : fileSystem(&fileSystem), settings(settings), streamCopier{ buffer.toBufferPtr() } {
 }
 
 void ModuleDataTransfer::query(ModuleQueryMessage &message) {
-    if (!fileSystem->openForReading(4)) {
+    if (!fileSystem->beginFileCopy(settings)) {
     }
 
     auto &fileCopy = fileSystem->files().fileCopy();
@@ -49,8 +49,8 @@ void ModuleDataTransfer::tick(lws::Writer &outgoing) {
     }
 }
 
-PrepareTransmissionData::PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, uint8_t file, ModuleCommunications &communications) :
-    Task("PrepareTransmissionData"), state(&state), moduleDataTransfer(fileSystem, file), protocol(communications) {
+PrepareTransmissionData::PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, ModuleCommunications &communications, FileCopySettings settings) :
+    Task("PrepareTransmissionData"), state(&state), moduleDataTransfer(fileSystem, settings), protocol(communications) {
 }
 
 void PrepareTransmissionData::enqueued() {

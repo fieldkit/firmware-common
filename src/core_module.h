@@ -59,10 +59,8 @@ private:
     HttpTransmissionConfig transmissionConfig = {
         .streamUrl = WifiApiUrlIngestionStream,
     };
-    TransmitFileTask transmitFileTask{fileSystem, state, wifi, transmissionConfig};
-    PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, 0, moduleCommunications};
-
-    FileCopierSample fileCopier{ fileSystem, state };
+    TransmitAllFilesTask transmitAllFilesTask{background, fileSystem, state, wifi, transmissionConfig};
+    PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, moduleCommunications, { FileNumber::Data }};
 
     SerialPort gpsPort{ Serial1 };
     ReadGps readGps{state, gpsPort};
@@ -71,7 +69,7 @@ private:
 
     #ifdef FK_ENABLE_RADIO
     RadioService radioService;
-    SendDataToLoraGateway sendDataToLoraGateway{ radioService, fileSystem, 0 };
+    SendDataToLoraGateway sendDataToLoraGateway{ radioService, fileSystem, { FileNumber::Data } };
     #endif
 
     NoopTask noop;
@@ -79,11 +77,10 @@ private:
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
-            // fk::PeriodicTask{ 20 * 1000, fileCopier },
     };
     ScheduledTask scheduled[3 ] {
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
-        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitFileTask },
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllFilesTask },
         #ifdef FK_ENABLE_RADIO
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendDataToLoraGateway },
         #else

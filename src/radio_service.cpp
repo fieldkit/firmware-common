@@ -49,8 +49,8 @@ TaskEval RadioService::task() {
     return TaskEval::busy();
 }
 
-SendDataToLoraGateway::SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, uint8_t file) :
-    Task("SendDataToLoraGateway"), radioService(&radioService), fileSystem(&fileSystem) {
+SendDataToLoraGateway::SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, FileCopySettings settings) :
+    Task("SendDataToLoraGateway"), radioService(&radioService), fileSystem(&fileSystem), settings(settings) {
 }
 
 void SendDataToLoraGateway::enqueued() {
@@ -67,7 +67,7 @@ TaskEval SendDataToLoraGateway::task() {
     if (!started) {
         started = true;
         copying = true;
-        if (!fileSystem->openForReading(4)) {
+        if (!fileSystem->beginFileCopy(settings)) {
             log("Failed to open file for reading.");
             return TaskEval::error();
         }

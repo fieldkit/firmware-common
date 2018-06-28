@@ -101,8 +101,12 @@ bool FileSystem::setup() {
     return true;
 }
 
-bool FileSystem::openForReading(uint8_t file) {
-    files_.opened_ = fs_.open(files_.file_data_fk, OpenMode::Read);
+bool FileSystem::beginFileCopy(FileCopySettings settings) {
+    auto fd = files_.descriptors_[(size_t)settings.file];
+
+    logf(LogLevels::INFO, "Copy", "Prepare: %d (%s)", (size_t)settings.file, fd->name);
+
+    files_.opened_ = fs_.open(*fd, OpenMode::Read);
     if (!files_.opened_) {
         return false;
     }

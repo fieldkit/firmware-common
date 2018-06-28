@@ -38,12 +38,13 @@ public:
 class ModuleDataTransfer : public ModuleQuery {
 private:
     FileSystem *fileSystem;
+    FileCopySettings settings;
     lws::AlignedStorageBuffer<128> buffer;
     lws::StreamCopier streamCopier;
     uint32_t maximumBytes{ 0 };
 
 public:
-    ModuleDataTransfer(FileSystem &fileSystem, uint8_t file);
+    ModuleDataTransfer(FileSystem &fileSystem, FileCopySettings settings);
 
 public:
     const char *name() const override {
@@ -73,7 +74,7 @@ private:
     ModuleProtocolHandler protocol;
 
 public:
-    PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, uint8_t file, ModuleCommunications &communications);
+    PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, ModuleCommunications &communications, FileCopySettings settings);
 
 public:
     void enqueued() override;

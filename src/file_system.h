@@ -28,11 +28,11 @@ public:
     bool setup();
 
 public:
+    bool beginFileCopy(FileCopySettings settings);
+
     phylum::FileLayout<5> &fs() {
         return fs_;
     }
-
-    bool openForReading(uint8_t file);
 
     FkfsData &getData() {
         return data_;

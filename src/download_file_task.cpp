@@ -4,15 +4,15 @@
 
 namespace fk {
 
-DownloadFileTask::DownloadFileTask(FileSystem &fileSystem, CoreState &state, AppReplyMessage &reply, MessageBuffer &buffer, WifiConnection &connection) :
-    Task("DownloadFile"), fileSystem(&fileSystem), state(&state), reply(&reply), buffer(&buffer), connection(&connection) {
+DownloadFileTask::DownloadFileTask(FileSystem &fileSystem, CoreState &state, AppReplyMessage &reply,
+                                   MessageBuffer &buffer, WifiConnection &connection, FileCopySettings &settings) :
+    Task("DownloadFile"), fileSystem(&fileSystem), state(&state), reply(&reply), buffer(&buffer), connection(&connection), settings(settings) {
 }
 
 void DownloadFileTask::enqueued() {
-    if (!fileSystem->openForReading(4)) {
+    if (!fileSystem->beginFileCopy(settings)) {
         log("Failed to open file");
     }
-    bytesCopied = 0;
 }
 
 TaskEval DownloadFileTask::task() {

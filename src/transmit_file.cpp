@@ -25,8 +25,19 @@ TaskEval FileCopierSample::task() {
     return TaskEval::idle();
 }
 
-TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config) :
-    Task("TransmitFileTask"), fileSystem(&fileSystem), state(&state), wifi(&wifi), config(&config) {
+TransmitAllFilesTask::TransmitAllFilesTask(TaskQueue &taskQueue, FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config)
+    : Task("TransmitAllFilesTask"), taskQueue(&taskQueue),
+      queue{ make_array( std::make_tuple(std::ref(fileSystem), std::ref(state), std::ref(wifi), std::ref(config), FileCopySettings{ FileNumber::StartupLog }),
+                         std::make_tuple(std::ref(fileSystem), std::ref(state), std::ref(wifi), std::ref(config), FileCopySettings{ FileNumber::Data }) ) } {
+}
+
+TaskEval TransmitAllFilesTask::task() {
+    taskQueue->append(queue);
+    return TaskEval::done();
+}
+
+TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, FileCopySettings settings) :
+    Task("TransmitFileTask"), fileSystem(&fileSystem), state(&state), wifi(&wifi), config(&config), settings(settings) {
 }
 
 void TransmitFileTask::enqueued() {
@@ -51,7 +62,7 @@ TaskEval TransmitFileTask::task() {
             return TaskEval::busy();
         }
 
-        if (!fileSystem->openForReading(4)) {
+        if (!fileSystem->beginFileCopy(settings)) {
             return TaskEval::error();
         }
 

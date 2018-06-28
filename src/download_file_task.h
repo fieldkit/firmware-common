@@ -5,6 +5,7 @@
 #include "message_buffer.h"
 #include "app_messages.h"
 #include "wifi_client.h"
+#include "files.h"
 
 namespace fk {
 
@@ -17,10 +18,11 @@ private:
     AppReplyMessage *reply;
     MessageBuffer *buffer;
     WifiConnection *connection;
+    FileCopySettings settings;
     uint32_t bytesCopied{ 0 };
 
 public:
-    DownloadFileTask(FileSystem &fileSystem, CoreState &state, AppReplyMessage &reply, MessageBuffer &buffer, WifiConnection &connection);
+    DownloadFileTask(FileSystem &fileSystem, CoreState &state, AppReplyMessage &reply, MessageBuffer &buffer, WifiConnection &connection, FileCopySettings &settings);
 
 public:
     void enqueued() override;

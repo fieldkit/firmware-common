@@ -20,11 +20,12 @@ class SendDataToLoraGateway : public Task {
 private:
     RadioService *radioService;
     FileSystem *fileSystem;
+    FileCopySettings settings;
     bool started{ false };
     bool copying{ false };
 
 public:
-    SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, uint8_t file);
+    SendDataToLoraGateway(RadioService &radioService, FileSystem &fileSystem, FileCopySettings settings);
 
 public:
     void enqueued() override;
