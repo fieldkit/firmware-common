@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "file_reader.h"
 #include "debug.h"
 
