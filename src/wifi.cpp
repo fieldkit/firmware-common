@@ -23,6 +23,9 @@ void Wifi::begin() {
         return;
     }
 
+    auto fv = WiFi.firmwareVersion();
+    log("Version: %s", fv);
+
     lastActivityAt = millis();
     disabled = false;
     lastStatusAt = 0;

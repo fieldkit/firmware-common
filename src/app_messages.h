@@ -23,23 +23,7 @@ public:
         message = fk_app_WireMessageQuery_init_default;
     }
 
-    pb_data_t *getDownloadToken() {
-        if (message.downloadFile.token.arg != pool) {
-            return (pb_data_t *)message.downloadFile.token.arg;
-        }
-        if (message.downloadDataSet.token.arg != pool) {
-            return (pb_data_t *)message.downloadDataSet.token.arg;
-        }
-        return nullptr;
-    }
-
     fk_app_WireMessageQuery *forDecode() {
-        message.downloadFile.token.funcs.decode = pb_decode_data;
-        message.downloadFile.token.arg = (void *)pool;
-
-        message.downloadDataSet.token.funcs.decode = pb_decode_data;
-        message.downloadDataSet.token.arg = (void *)pool;
-
         networksArray = {
             .length = 0,
             .itemSize = sizeof(fk_app_NetworkInfo),
@@ -90,12 +74,6 @@ public:
     }
 
     fk_app_WireMessageReply *forEncode() {
-        if (message.fileData.token.arg != nullptr) {
-            message.fileData.token.funcs.encode = pb_encode_data;
-        }
-        if (message.dataSetData.token.arg != nullptr) {
-            message.dataSetData.token.funcs.encode = pb_encode_data;
-        }
         if (message.fileData.data.arg != nullptr) {
             message.fileData.data.funcs.encode = pb_encode_data;
         }

@@ -220,7 +220,7 @@ TaskEval AppServicer::handle() {
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
         if (!state->isReadingInProgress()) {
-            log("Download file (%lu / %lu)", query.m().downloadFile.id, query.m().downloadFile.page);
+            log("Download file (%lu)", query.m().downloadFile.id);
             auto newTask = fileReplies->downloadFileReply(*state, query, reply, *buffer, *connection);
             active.push(*newTask);
             return TaskEval::busy();
