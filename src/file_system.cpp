@@ -168,6 +168,9 @@ bool FileCopyOperation::copy(lws::Writer &writer) {
         }
 
         auto bytes = streamCopier_.copy(reader_, writer);
+        if (bytes == 0) {
+            break;
+        }
         if (bytes > 0) {
             copied_ += bytes;
         }
