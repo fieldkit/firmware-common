@@ -147,6 +147,7 @@ bool FileCopyOperation::prepare(FileReader reader) {
     offset_ = 0;
     started_ = 0;
     lastStatus_ = 0;
+    busy_ = true;
     reader_ = reader;
     streamCopier_.restart();
     reader_.open();
@@ -164,6 +165,7 @@ bool FileCopyOperation::copy(lws::Writer &writer) {
     while (millis() - started < FileCopyMaximumElapsed) {
         if (reader_.isFinished()) {
             status();
+            busy_ = false;
             return false;
         }
 
@@ -176,6 +178,7 @@ bool FileCopyOperation::copy(lws::Writer &writer) {
         }
         if (bytes == lws::Stream::EOS || reader_.isFinished()) {
             status();
+            busy_ = false;
             return false;
         }
 

@@ -28,11 +28,15 @@ private:
     uint32_t offset_{ 0 };
     uint32_t copied_{ 0 };
     FileReader reader_;
+    bool busy_{ false };
 
 public:
     FileCopyOperation();
 
 public:
+    bool busy() const {
+        return busy_;
+    }
     bool isFinished() {
         return reader_.isFinished();
     }
@@ -45,7 +49,7 @@ public:
     size_t remaining() {
         return size() - tell();
     }
-    size_t copied() {
+    size_t copied() const {
         return copied_;
     }
     bool prepare(FileReader reader);
