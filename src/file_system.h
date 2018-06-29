@@ -29,6 +29,7 @@ public:
 
 public:
     bool beginFileCopy(FileCopySettings settings);
+    bool flush();
 
     phylum::SimpleFile openSystem(phylum::OpenMode mode);
 

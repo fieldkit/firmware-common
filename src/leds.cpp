@@ -131,6 +131,10 @@ void Leds::alive() {
     digitalWrite(A3, LOW);
 }
 
+void Leds::restarting() {
+    all(true);
+}
+
 void Leds::fatal() {
     push(BlinkerKind::Fatal);
 }

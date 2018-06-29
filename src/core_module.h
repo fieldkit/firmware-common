@@ -28,6 +28,7 @@
 #include "flash_storage.h"
 #include "transmissions.h"
 #include "radio_service.h"
+#include "user_button.h"
 
 namespace fk {
 
@@ -95,6 +96,7 @@ private:
     AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
     Wifi wifi{state, connection, appServicer, servicing};
     Discovery discovery{ bus, wifi };
+    UserButton button{ leds, fileSystem };
 
 public:
     void begin();

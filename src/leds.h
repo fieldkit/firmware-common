@@ -61,6 +61,7 @@ private:
     void clear(BlinkerKind kind);
 
 public:
+    void restarting();
     void alive();
     void fatal();
     void takingReadings();

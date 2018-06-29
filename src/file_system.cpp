@@ -119,6 +119,18 @@ bool FileSystem::beginFileCopy(FileCopySettings settings) {
     return true;
 }
 
+bool FileSystem::flush() {
+    if (!files_.log_.flush()) {
+        return false;
+    }
+
+    if (!files_.data_.flush()) {
+        return false;
+    }
+
+    return true;
+}
+
 phylum::SimpleFile FileSystem::openSystem(phylum::OpenMode mode) {
     return fs_.open(files_.file_system_area_fd, mode);
 }

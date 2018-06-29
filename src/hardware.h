@@ -58,6 +58,8 @@ public:
     static constexpr uint8_t RFM95_PIN_D0 = 2;
     #endif
 
+    static constexpr uint8_t USER_BUTTON_PIN = 6;
+
     static constexpr uint8_t SD_PIN_CS = 12;
     #ifdef FK_NATURALIST
     static constexpr uint8_t PIN_PERIPH_ENABLE = (25u); // PIN_LED_RXL;

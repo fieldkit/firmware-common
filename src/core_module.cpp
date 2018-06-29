@@ -91,7 +91,8 @@ void CoreModule::run() {
         &liveData,
         &moduleCommunications,
         &background,
-        &servicing
+        &servicing,
+        &button
     );
 
     while (true) {
