@@ -10,6 +10,8 @@ FileCopierSample::FileCopierSample(FileSystem &fileSystem, CoreState &state) : T
 }
 
 void FileCopierSample::enqueued() {
+    if (!fileSystem_->beginFileCopy({ FileNumber::StartupLog })) {
+    }
 }
 
 TaskEval FileCopierSample::task() {
@@ -81,6 +83,8 @@ TaskEval TransmitFileTask::task() {
             log("Seek failed: %lu", (uint32_t)position);
             return TaskEval::error();
         }
+
+        log("Uploading: %d -> %d", fileCopy.tell(), fileCopy.size());
 
         if (fileCopy.remaining() == 0) {
             log("Empty file.");

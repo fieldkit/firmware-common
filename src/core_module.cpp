@@ -63,6 +63,7 @@ void CoreModule::begin() {
 
     FormattedTime nowFormatted{ clock.now() };
     loginfof("Core", "Now: %s", nowFormatted.toString());
+    loginfof("Core", "API: %s", WifiApiUrlIngestionStream);
 
     state.started();
 }
