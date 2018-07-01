@@ -50,9 +50,8 @@ private:
 
     TwoWireBus bus{ Wire };
     FileSystem fileSystem{ bus, dataPool };
-    SerialFlashChip serialFlash;
-    FlashStorage storage{ serialFlash };
-    CoreState state{storage, fileSystem.getData()};
+    FlashStorage<PersistedState> flashStorage;
+    CoreState state{flashStorage, fileSystem.getData()};
     Power power{ state };
 
     ModuleCommunications moduleCommunications{bus, background, modulesPool};

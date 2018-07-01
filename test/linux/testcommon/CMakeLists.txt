@@ -52,6 +52,8 @@ target_link_libraries(testcommon
     libgmock
 )
 
+add_definitions("-DFK_DISABLE_FLASH")
+
 set_target_properties(testcommon PROPERTIES C_STANDARD 11)
 set_target_properties(testcommon PROPERTIES CXX_STANDARD 11)
 

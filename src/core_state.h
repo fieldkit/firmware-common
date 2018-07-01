@@ -17,16 +17,13 @@ enum class CoreStatus {
     FatalError,
 };
 
-struct PersistedState {
+struct PersistedState : phylum::MinimumSuperBlock {
     uint32_t time;
     uint32_t seed;
     DeviceIdentity deviceIdentity;
     NetworkSettings networkSettings;
     DeviceLocation location;
     uint32_t readingNumber{ 0 };
-
-    bool load(FlashStorage &storage);
-    bool save(FlashStorage &storage);
 };
 
 class CoreState {
@@ -38,16 +35,16 @@ private:
     uint32_t readingNumber{ 0 };
 
 private:
+    CoreStatus status{ CoreStatus::Initializing };
     DeviceStatus deviceStatus;
     bool busy{ false };
     bool readingInProgress{ false };
     bool wipeAfterUpload{ true };
-    FlashStorage *storage;
+    FlashStorage<PersistedState> *storage;
     FkfsData *data;
-    CoreStatus status{ CoreStatus::Initializing };
 
 public:
-    CoreState(FlashStorage &storage, FkfsData &data);
+    CoreState(FlashStorage<PersistedState> &storage, FkfsData &data);
 
 public:
     ModuleInfo* attachedModules();

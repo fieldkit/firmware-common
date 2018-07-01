@@ -34,9 +34,7 @@ void CoreModule::begin() {
     #ifdef FK_DISABLE_FLASH
     loginfof("Core", "Flash memory disabled");
     #else
-    fk_assert(serialFlash.begin(Hardware::FLASH_PIN_CS));
-    fk_assert(storage.setup());
-
+    fk_assert(flashStorage.initialize(Hardware::FLASH_PIN_CS));
     delay(100);
     #endif
 

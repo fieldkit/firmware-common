@@ -5,38 +5,21 @@
 
 namespace fk {
 
-bool PersistedState::load(FlashStorage &storage) {
-    #ifndef FK_DISABLE_FLASH
-    return storage.read(this, sizeof(PersistedState)) == sizeof(PersistedState);
-    #else
-    return false;
-    #endif
-}
-
-bool PersistedState::save(FlashStorage &storage) {
-    #ifndef FK_DISABLE_FLASH
-    return storage.write(this, sizeof(PersistedState)) == sizeof(PersistedState);
-    #else
-    return false;
-    #endif
-}
-
-CoreState::CoreState(FlashStorage &storage, FkfsData &data) : storage(&storage), data(&data) {
+CoreState::CoreState(FlashStorage<PersistedState> &storage, FkfsData &data) : storage(&storage), data(&data) {
     for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
         modules[i].address = 0;
     }
 }
 
 void CoreState::started() {
-    PersistedState persisted;
-    if (persisted.load(*storage)) {
-        log("Loaded state.");
-        copyFrom(persisted);
-    }
-    else {
+    auto &persisted = storage->state();
+    if (persisted.time == 0) {
         log("Clean slate!");
         copyTo(persisted);
-        persisted.save(*storage);
+    }
+    else {
+        log("Loaded state.");
+        copyFrom(persisted);
     }
 
     data->appendMetadata(*this);
@@ -236,11 +219,10 @@ void CoreState::updateLocation(DeviceLocation&& fix) {
 }
 
 void CoreState::save() {
-    PersistedState persisted;
+    auto &persisted = storage->state();
     copyTo(persisted);
     persisted.time = clock.getTime();
-    persisted.save(*storage);
-    log("Saved");
+    storage->save();
 }
 
 void CoreState::copyFrom(PersistedState &state) {

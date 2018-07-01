@@ -1,30 +1,84 @@
 #ifndef FK_FLASH_STORAGE_H_INCLUDED
 #define FK_FLASH_STORAGE_H_INCLUDED
 
-#include <Arduino.h>
-#include <SerialFlash.h>
+#include <phylum/super_block.h>
+#include <backends/arduino_serial_flash/arduino_serial_flash.h>
+#include <backends/arduino_serial_flash/serial_flash_allocator.h>
 
 namespace fk {
 
+#ifdef FK_DISABLE_FLASH
+
+template<typename T>
 class FlashStorage {
 private:
-    SerialFlashChip *serialFlash;
-    uint32_t blockSize{ 0 };
-    uint32_t block{ 0 };
+    T state_;
 
 public:
-    FlashStorage(SerialFlashChip &serialFlash);
+    T& state() {
+        return state_;
+    }
 
-public:
-    bool setup();
+    bool save() {
+        return true;
+    }
 
-public:
-    size_t write(void *ptr, size_t size);
-    size_t read(void *ptr, size_t size);
-    size_t write(uint32_t address, void *ptr, size_t size);
-    size_t read(uint32_t address, void *ptr, size_t size);
+    bool initialize(uint8_t cs) {
+        return true;
+    }
 
 };
+
+#else
+
+template<typename T>
+class FlashStorage {
+private:
+    using FlashStateManager = phylum::SerialFlashStateManager<T>;
+    phylum::ArduinoSerialFlashBackend storage_;
+    phylum::SerialFlashAllocator allocator_{ storage_ };
+    FlashStateManager manager_{ storage_, allocator_ };
+
+public:
+    T& state() {
+        return manager_.state();
+    }
+
+    bool save() {
+        if (!manager_.save()) {
+            return false;
+        }
+        log("Saved");
+        return true;
+    }
+
+    bool initialize(uint8_t cs) {
+        if (!storage_.initialize(cs)) {
+            return false;
+        }
+
+        if (!storage_.open()) {
+            return false;
+        }
+
+        if (!manager_.locate()) {
+            if (!manager_.create()) {
+                return false;
+            }
+
+            if (!manager_.locate()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+public:
+
+};
+
+#endif // FK_DISABLE_FLASH
 
 }
 
