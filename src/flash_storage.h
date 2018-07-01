@@ -5,6 +5,8 @@
 #include <backends/arduino_serial_flash/arduino_serial_flash.h>
 #include <backends/arduino_serial_flash/serial_flash_allocator.h>
 
+#include "debug.h"
+
 namespace fk {
 
 #ifdef FK_DISABLE_FLASH
@@ -34,10 +36,9 @@ public:
 template<typename T>
 class FlashStorage {
 private:
-    using FlashStateManager = phylum::SerialFlashStateManager<T>;
     phylum::ArduinoSerialFlashBackend storage_;
     phylum::SerialFlashAllocator allocator_{ storage_ };
-    FlashStateManager manager_{ storage_, allocator_ };
+    phylum::SerialFlashStateManager<T> manager_{ storage_, allocator_ };
 
 public:
     T& state() {
@@ -48,7 +49,9 @@ public:
         if (!manager_.save()) {
             return false;
         }
-        log("Saved");
+
+        auto location = manager_.location();
+        logf(LogLevels::INFO, "CoreState", "Saved (%lu:%d)", location.block, location.sector);
         return true;
     }
 
