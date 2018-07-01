@@ -1,11 +1,10 @@
 #ifndef FK_FLASH_STORAGE_H_INCLUDED
 #define FK_FLASH_STORAGE_H_INCLUDED
 
+#include <alogging/alogging.h>
 #include <phylum/super_block.h>
 #include <backends/arduino_serial_flash/arduino_serial_flash.h>
 #include <backends/arduino_serial_flash/serial_flash_allocator.h>
-
-#include "debug.h"
 
 namespace fk {
 
@@ -25,7 +24,7 @@ public:
         return true;
     }
 
-    bool initialize(uint8_t cs) {
+    bool initialize(uint8_t cs, phylum::sector_index_t sector_size = 512) {
         return true;
     }
 
@@ -41,6 +40,10 @@ private:
     phylum::SerialFlashStateManager<T> manager_{ storage_, allocator_ };
 
 public:
+    FlashStorage() {
+        // static_assert(sizeof(T) <= phylum::SectorSize, "state object should be smaller than SectorSize");
+    }
+
     T& state() {
         return manager_.state();
     }
@@ -55,8 +58,8 @@ public:
         return true;
     }
 
-    bool initialize(uint8_t cs) {
-        if (!storage_.initialize(cs)) {
+    bool initialize(uint8_t cs, phylum::sector_index_t sector_size = 512) {
+        if (!storage_.initialize(cs, sector_size)) {
             return false;
         }
 
