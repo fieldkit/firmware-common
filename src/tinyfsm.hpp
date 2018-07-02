@@ -60,9 +60,13 @@ template<typename F>
 class Fsm {
 public:
     using fsmtype = Fsm<F>;
-    using state_ptr_t = F *;
+    using state_ptr_t = F*;
 
     static state_ptr_t current_state_ptr;
+
+    static state_ptr_t current() {
+        return current_state_ptr;
+    }
 
     // public, leaving ability to access state instance (e.g. on reset)
     template<typename S>
@@ -156,16 +160,22 @@ template<typename... FF>
 struct FsmList;
 
 template<> struct FsmList<> {
-    static void set_initial_state() { }
-    static void reset() { }
-    static void enter() { }
+    static void set_initial_state() {
+    }
+
+    static void reset() {
+    }
+
+    static void enter() {
+    }
+
     template<typename E>
-    static void dispatch(E const &) { }
+    static void dispatch(E const &) {
+    }
 };
 
 template<typename F, typename... FF>
-struct FsmList<F, FF...>
-{
+struct FsmList<F, FF...> {
     using fsmtype = Fsm<F>;
 
     static void set_initial_state() {
@@ -197,7 +207,8 @@ struct FsmList<F, FF...>
 
 template<typename... SS> struct StateList;
 template<> struct StateList<> {
-    static void reset() { }
+    static void reset() {
+    }
 };
 
 template<typename S, typename... SS>
