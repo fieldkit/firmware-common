@@ -1,0 +1,28 @@
+digraph fk {
+  Booting -> Starting -> Idle;
+
+  Idle -> WifiTryNetwork;
+
+  WifiTryNetwork -> WifiConnected;
+  WifiTryNetwork -> WifiTryNetwork;
+  WifiTryNetwork -> WifiCreateAp;
+  WifiCreateAp -> WifiReady;
+
+  WifiConnected -> CheckNtp -> TransmitFiles -> WifiReady;
+
+  WifiReady -> Idle;
+
+  WifiReady -> AwaitingWifiConnections;
+  AwaitingWifiConnections -> ServingWifiConnection;
+  ServingWifiConnection -> AwaitingWifiConnections;
+
+  ServingWifiConnection -> ServeSimpleReply -> AwaitingWifiConnections;
+  ServingWifiConnection -> ServeModuleQuery -> AwaitingWifiConnections;
+  ServingWifiConnection -> ServeFile -> AwaitingWifiConnections;
+  ServingWifiConnection -> ServeLiveData -> AwaitingWifiConnections;
+
+  WifiReady -> CheckGps;
+  Idle -> CheckGps;
+
+  CheckGps -> GatherReadings -> Idle;
+}

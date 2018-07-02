@@ -5,8 +5,7 @@
 #include <cstdint>
 #include <cstdio>
 
-#include <tinyfsm.hpp>
-
+#include "core_fsm.h"
 #include "hardware.h"
 #include "app_servicer.h"
 #include "attached_devices.h"

@@ -6,6 +6,8 @@
 namespace fk {
 
 void CoreModule::begin() {
+    fsm_list::start();
+
     pinMode(Hardware::SD_PIN_CS, OUTPUT);
     pinMode(Hardware::WIFI_PIN_CS, OUTPUT);
     pinMode(Hardware::RFM95_PIN_CS, OUTPUT);
