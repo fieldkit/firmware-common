@@ -15,22 +15,28 @@ FkfsReplies::FkfsReplies(FileSystem &fileSystem) : fileSystem(&fileSystem) {
 void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     auto &files = fileSystem->files();
     auto numberOfFiles = files.numberOfFiles();
+    auto numberOfVisibleFiles = 0;
     fk_app_File replyFiles[numberOfFiles];
 
     for (size_t i = 0; i < numberOfFiles; ++i) {
         auto &fd = files.file(i);
-        auto size = fileSystem->fs().file_size(fd);
 
-        replyFiles[i].id = i;
-        replyFiles[i].time = 0;
-        replyFiles[i].version = 0;
-        replyFiles[i].size = size;
-        replyFiles[i].name.funcs.encode = pb_encode_string;
-        replyFiles[i].name.arg = fd.name;
+        if (!fileSystem->files().isInternal(fd)) {
+            auto size = fileSystem->fs().file_size(fd);
+
+            auto j = numberOfVisibleFiles;
+            replyFiles[j].id = i;
+            replyFiles[j].time = 0;
+            replyFiles[j].version = 0;
+            replyFiles[j].size = size;
+            replyFiles[j].name.funcs.encode = pb_encode_string;
+            replyFiles[j].name.arg = fd.name;
+            numberOfVisibleFiles++;
+        }
     }
 
     pb_array_t filesArray = {
-        .length = numberOfFiles,
+        .length = (size_t)numberOfVisibleFiles,
         .itemSize = sizeof(fk_app_File),
         .buffer = &replyFiles,
         .fields = fk_app_File_fields,

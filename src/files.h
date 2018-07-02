@@ -65,7 +65,7 @@ private:
 
 class Files {
 private:
-    phylum::FileDescriptor file_system_area_fd =   { "system",        phylum::WriteStrategy::Append,  100 };
+    phylum::FileDescriptor file_system_area_fd =   { "system",        phylum::WriteStrategy::Rolling, 100 };
     phylum::FileDescriptor file_log_startup_fd =   { "startup.log",   phylum::WriteStrategy::Append,  100 };
     phylum::FileDescriptor file_log_now_fd =       { "now.log",       phylum::WriteStrategy::Rolling, 100 };
     phylum::FileDescriptor file_log_emergency_fd = { "emergency.log", phylum::WriteStrategy::Append,  100 };
@@ -91,6 +91,10 @@ public:
     friend class FileSystem;
 
 public:
+    bool isInternal(phylum::FileDescriptor &fd) const {
+        return &fd == &file_system_area_fd;
+    }
+
     size_t numberOfFiles() const {
         return FileSystemNumberOfFiles;
     }
