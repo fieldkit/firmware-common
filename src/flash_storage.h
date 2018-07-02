@@ -40,22 +40,8 @@ private:
     phylum::SerialFlashStateManager<T> manager_{ storage_, allocator_ };
 
 public:
-    FlashStorage() {
-        // static_assert(sizeof(T) <= phylum::SectorSize, "state object should be smaller than SectorSize");
-    }
-
     T& state() {
         return manager_.state();
-    }
-
-    bool save() {
-        if (!manager_.save()) {
-            return false;
-        }
-
-        auto location = manager_.location();
-        logf(LogLevels::INFO, "CoreState", "Saved (%lu:%d)", location.block, location.sector);
-        return true;
     }
 
     bool initialize(uint8_t cs, phylum::sector_index_t sector_size = 512) {
@@ -68,19 +54,43 @@ public:
         }
 
         if (!manager_.locate()) {
-            if (!manager_.create()) {
+            if (!erase()) {
                 return false;
             }
+        }
 
-            if (!manager_.locate()) {
-                return false;
-            }
+        if (!allocator_.initialize()) {
+            return false;
         }
 
         return true;
     }
 
-public:
+    bool erase() {
+        if (!storage_.erase()) {
+            return false;
+        }
+
+        if (!manager_.create()) {
+            return false;
+        }
+
+        if (!manager_.locate()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool save() {
+        if (!manager_.save()) {
+            return false;
+        }
+
+        auto location = manager_.location();
+        logf(LogLevels::INFO, "CoreState", "Saved (%lu:%d)", location.block, location.sector);
+        return true;
+    }
 
 };
 
@@ -88,4 +98,4 @@ public:
 
 }
 
-#endif
+#endif // FK_FLASH_STORAGE_H_INCLUDED
