@@ -73,7 +73,8 @@ bool Wifi::isListening() {
 
 void Wifi::traceStatus() {
     IpAddress4 ip{ WiFi.localIP() };
-    trace("Status %s/%s readyToServe=%d isListening=%d busy=%d (%s)", getWifiStatus(WiFi.status()), getWifiStatus(status), readyToServe(), isListening(), busy, ip.toString());
+    auto rssi = WiFi.RSSI();
+    trace("Status %s/%s readyToServe=%d isListening=%d busy=%d (%s) (rssi = %ld)", getWifiStatus(WiFi.status()), getWifiStatus(status), readyToServe(), isListening(), busy, ip.toString(), rssi);
 }
 
 void Wifi::disable() {
