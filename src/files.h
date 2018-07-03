@@ -52,7 +52,7 @@ public:
     size_t copied() const {
         return copied_;
     }
-    bool prepare(FileReader reader);
+    bool prepare(const FileReader &reader);
     bool copy(lws::Writer &writer);
     bool seek(uint64_t position) {
         return reader_.seek(position);

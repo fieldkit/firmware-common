@@ -154,16 +154,16 @@ FileCopyOperation &Files::fileCopy() {
 FileCopyOperation::FileCopyOperation() {
 }
 
-bool FileCopyOperation::prepare(FileReader reader) {
+bool FileCopyOperation::prepare(const FileReader &reader) {
+    reader_ = reader;
+
     copied_ = 0;
     offset_ = 0;
     started_ = 0;
     lastStatus_ = 0;
     busy_ = true;
-    reader_ = reader;
     streamCopier_.restart();
     reader_.open();
-
     return true;
 }
 
@@ -208,7 +208,8 @@ void FileCopyOperation::status() {
     auto total = reader_.size() - offset_;
     auto complete = copied_ > 0 ? ((float)copied_ / total) * 100.0f : 0.0f;
     auto speed = copied_ > 0 ? copied_ / ((float)elapsed / 1000.0f) : 0.0f;
-    logf(LogLevels::TRACE, "Copy", "%lu/%lu %lums %.2f %.2fbps (%lu)", copied_, total, elapsed, complete, speed, millis() - lastStatus_);
+    logf(LogLevels::TRACE, "Copy", "%lu/%lu %lums %.2f %.2fbps (offset=%lu) (%lu)",
+         copied_, total, elapsed, complete, speed, offset_, millis() - lastStatus_);
 }
 
 }
