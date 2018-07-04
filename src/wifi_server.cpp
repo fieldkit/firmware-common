@@ -4,14 +4,14 @@
 namespace fk {
 
 Listen::Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue)
-    : Task("Listen"), server(port), servicer(&servicer), connection(&connection), taskQueue(&taskQueue) {
+    : Task("Listen"), port(port), server(port), servicer(&servicer), connection(&connection), taskQueue(&taskQueue) {
 }
 
 void Listen::begin() {
     if (state == ListenerState::Idle) {
         lastActivity = millis();
         server.begin();
-        log("Server began (possibly failed, though)");
+        log("Server began (possibly failed, though) port=%d", port);
         state = ListenerState::Disconnected;
     }
     else if (state != ListenerState::Disconnected) {

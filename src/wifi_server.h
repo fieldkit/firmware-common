@@ -21,6 +21,7 @@ enum class ListenerState {
 
 class Listen : public Task {
 private:
+    uint16_t port{ 0 };
     uint32_t lastActivity{ 0 };
     ListenerState state{ ListenerState::Idle };
     StaticPool<WifiConnectionMemory> pool{ "WifiService" };
