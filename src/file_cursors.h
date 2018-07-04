@@ -8,7 +8,7 @@ namespace fk {
 struct FileCursor {
     uint32_t time{ 0 };
     uint64_t position{ 0 };
-    uint8_t reserved[80];
+    uint8_t reserved[70];
 
     FileCursor() {
     }
