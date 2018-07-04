@@ -105,7 +105,7 @@ bool FileSystem::setup() {
 bool FileSystem::beginFileCopy(FileCopySettings settings) {
     auto fd = files_.descriptors_[(size_t)settings.file];
 
-    logf(LogLevels::INFO, "Copy", "Prepare: %d (%s)", (size_t)settings.file, fd->name);
+    logf(LogLevels::INFO, "Copy", "Prepare: id=%d (%s)", (size_t)settings.file, fd->name);
 
     files_.opened_ = fs_.open(*fd, OpenMode::Read);
     if (!files_.opened_) {
@@ -164,6 +164,7 @@ bool FileCopyOperation::prepare(const FileReader &reader) {
     busy_ = true;
     streamCopier_.restart();
     reader_.open();
+
     return true;
 }
 

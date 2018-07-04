@@ -33,6 +33,8 @@ int32_t FileReader::read() {
 }
 
 void FileReader::open() {
+    size_ = file_->size();
+
     if (!file_->seek(0)) {
         logf(LogLevels::ERROR, "FileReader", "Failed to seek to beginning!");
         done_ = true;

@@ -79,22 +79,18 @@ TaskEval TransmitFileTask::task() {
 
         FileCursorManager fcm(*fileSystem);
         auto position = fcm.lookup(settings.file);
-        /*
-        if (fileCopy.size() > 100000) {
-            position = fileCopy.size() - 100000;
-        }
-        */
         if (!fileCopy.seek(position)) {
             log("Seek failed: %lu", (uint32_t)position);
             return TaskEval::error();
         }
 
         if (fileCopy.remaining() == 0) {
-            log("Empty file.");
+            log("Empty: (%lu) %d -> %d", (uint32_t)position, fileCopy.tell(), fileCopy.size());
             return TaskEval::done();
         }
-
-        log("Uploading: %d -> %d", fileCopy.tell(), fileCopy.size());
+        else {
+            log("Uploading: %d", fileCopy.remaining());
+        }
 
         waitingSince = 0;
 
