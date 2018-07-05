@@ -47,23 +47,16 @@ public:
 
 class WifiWriter : public lws::Writer {
 private:
-    WiFiClient *wcl;
+    bool closed_{ false };
+    WiFiClient *wcl_;
 
 public:
-    WifiWriter(WiFiClient &wcl) : wcl(&wcl) {
-    }
+    WifiWriter(WiFiClient &wcl);
 
 public:
-    int32_t write(uint8_t *ptr, size_t size) override {
-        return wcl->write(ptr, size);
-    }
-
-    int32_t write(uint8_t byte) override {
-        return wcl->write(byte);
-    }
-
-    void close() override {
-    }
+    int32_t write(uint8_t *ptr, size_t size) override;
+    int32_t write(uint8_t byte) override;
+    void close() override;
 
 };
 

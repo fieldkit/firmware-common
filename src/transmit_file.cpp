@@ -141,6 +141,7 @@ TaskEval TransmitFileTask::task() {
     if (!fileCopy.isFinished()) {
         auto writer = WifiWriter{ wcl };
         if (!fileCopy.copy(writer)) {
+            return TaskEval::error();
         }
     }
     else {

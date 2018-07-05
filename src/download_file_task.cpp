@@ -10,6 +10,8 @@ DownloadFileTask::DownloadFileTask(FileSystem &fileSystem, CoreState &state, App
 }
 
 void DownloadFileTask::enqueued() {
+    log("Enqueue");
+    bytesCopied = 0;
     if (!fileSystem->beginFileCopy(settings)) {
         log("Failed to open file");
     }
@@ -55,10 +57,12 @@ TaskEval DownloadFileTask::task() {
     if (!fileCopy.isFinished()) {
         auto writer = WifiWriter{ connection->getClient() };
         if (!fileCopy.copy(writer)) {
-            return TaskEval::done();
+            log("Error");
+            return TaskEval::error();
         }
     }
     else {
+        log("Done");
         return TaskEval::done();
     }
 

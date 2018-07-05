@@ -179,9 +179,8 @@ bool FileCopyOperation::copy(lws::Writer &writer) {
         if (reader_.isFinished()) {
             status();
             busy_ = false;
-            return false;
+            return true;
         }
-
         auto bytes = streamCopier_.copy(reader_, writer);
         if (bytes == 0) {
             break;
@@ -189,12 +188,11 @@ bool FileCopyOperation::copy(lws::Writer &writer) {
         if (bytes > 0) {
             copied_ += bytes;
         }
-        if (bytes == lws::Stream::EOS || reader_.isFinished()) {
+        if (bytes == lws::Stream::EOS) {
             status();
             busy_ = false;
             return false;
         }
-
         if (millis() - lastStatus_ > FileCopyStatusInterval) {
             status();
             lastStatus_ = millis();
