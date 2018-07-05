@@ -18,6 +18,14 @@ enum class FileNumber {
 
 struct FileCopySettings {
     FileNumber file;
+    uint32_t offset;
+    uint32_t length;
+
+    FileCopySettings(FileNumber file) : file(file), offset(0), length(0) {
+    }
+
+    FileCopySettings(FileNumber file, uint32_t offset, uint32_t length) : file(file), offset(offset), length(length) {
+    }
 };
 
 class FileCopyOperation {
@@ -25,8 +33,8 @@ private:
     lws::BufferedStreamCopier<FileCopyBufferSize> streamCopier_;
     uint32_t started_{ 0 };
     uint32_t lastStatus_{ 0 };
-    uint32_t offset_{ 0 };
     uint32_t copied_{ 0 };
+    uint32_t total_{ 0 };
     FileReader reader_;
     bool busy_{ false };
 
@@ -52,7 +60,7 @@ public:
     size_t copied() const {
         return copied_;
     }
-    bool prepare(const FileReader &reader);
+    bool prepare(const FileReader &reader, const FileCopySettings &settings);
     bool copy(lws::Writer &writer);
     bool seek(uint64_t position) {
         return reader_.seek(position);

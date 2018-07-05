@@ -71,18 +71,14 @@ TaskEval TransmitFileTask::task() {
             return TaskEval::busy();
         }
 
-        if (!fileSystem->beginFileCopy(settings)) {
+        FileCursorManager fcm(*fileSystem);
+        auto position = fcm.lookup(settings.file);
+
+        if (!fileSystem->beginFileCopy(FileCopySettings{ settings.file, (uint32_t)position, 0 })) {
             return TaskEval::error();
         }
 
         auto &fileCopy = fileSystem->files().fileCopy();
-
-        FileCursorManager fcm(*fileSystem);
-        auto position = fcm.lookup(settings.file);
-        if (!fileCopy.seek(position)) {
-            log("Seek failed: %lu", (uint32_t)position);
-            return TaskEval::error();
-        }
 
         if (fileCopy.remaining() == 0) {
             log("Empty: (%lu) %d -> %d", (uint32_t)position, fileCopy.tell(), fileCopy.size());

@@ -33,7 +33,7 @@ TaskEval DownloadFileTask::task() {
 
         reply->clear();
         reply->m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
-        reply->m().fileData.size = fileCopy.size() + bufferSize;
+        reply->m().fileData.size = fileCopy.remaining() + bufferSize;
 
         if (!buffer->write(*reply)) {
             log("Error writing reply");

@@ -53,7 +53,9 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
 
 Task *FkfsReplies::downloadFileReply(CoreState &state, AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer, WifiConnection &connection) {
     FileCopySettings settings{
-        (FileNumber)query.m().downloadFile.id
+        (FileNumber)query.m().downloadFile.id,
+        query.m().downloadFile.offset,
+        query.m().downloadFile.length
     };
     return downloadFileTask.ready(*fileSystem, state, reply, buffer, connection, settings);
 }

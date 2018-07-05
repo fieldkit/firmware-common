@@ -105,14 +105,16 @@ bool FileSystem::setup() {
 bool FileSystem::beginFileCopy(FileCopySettings settings) {
     auto fd = files_.descriptors_[(size_t)settings.file];
 
-    logf(LogLevels::INFO, "Copy", "Prepare: id=%d (%s)", (size_t)settings.file, fd->name);
+    logf(LogLevels::INFO, Log, "Prepare: id=%d name=%s offset=%lu length=%lu",
+         (size_t)settings.file, fd->name, settings.offset, settings.length);
 
     files_.opened_ = fs_.open(*fd, OpenMode::Read);
     if (!files_.opened_) {
         return false;
     }
 
-    if (!files_.fileCopy_.prepare(FileReader{ &files_.opened_ })) {
+    auto newReader = FileReader{ &files_.opened_ };
+    if (!files_.fileCopy_.prepare(newReader, settings)) {
         return false;
     }
 
@@ -154,16 +156,20 @@ FileCopyOperation &Files::fileCopy() {
 FileCopyOperation::FileCopyOperation() {
 }
 
-bool FileCopyOperation::prepare(const FileReader &reader) {
+bool FileCopyOperation::prepare(const FileReader &reader, const FileCopySettings &settings) {
     reader_ = reader;
 
-    copied_ = 0;
-    offset_ = 0;
-    started_ = 0;
-    lastStatus_ = 0;
-    busy_ = true;
     streamCopier_.restart();
-    reader_.open();
+
+    if (!reader_.open(settings.offset, settings.length)) {
+        return false;
+    }
+
+    started_ = 0;
+    busy_ = true;
+    copied_ = 0;
+    lastStatus_ = millis();
+    total_ = reader_.size() - reader_.tell();
 
     return true;
 }
@@ -171,7 +177,6 @@ bool FileCopyOperation::prepare(const FileReader &reader) {
 bool FileCopyOperation::copy(lws::Writer &writer) {
     if (started_ == 0) {
         started_ = millis();
-        offset_ = reader_.tell();
     }
 
     auto started = millis();
@@ -204,11 +209,10 @@ bool FileCopyOperation::copy(lws::Writer &writer) {
 
 void FileCopyOperation::status() {
     auto elapsed = millis() - started_;
-    auto total = reader_.size() - offset_;
-    auto complete = copied_ > 0 ? ((float)copied_ / total) * 100.0f : 0.0f;
+    auto complete = copied_ > 0 ? ((float)copied_ / total_) * 100.0f : 0.0f;
     auto speed = copied_ > 0 ? copied_ / ((float)elapsed / 1000.0f) : 0.0f;
-    logf(LogLevels::TRACE, "Copy", "%lu/%lu %lums %.2f %.2fbps (offset=%lu) (%lu)",
-         copied_, total, elapsed, complete, speed, offset_, millis() - lastStatus_);
+    logf(LogLevels::TRACE, "Copy", "%lu/%lu %lums %.2f %.2fbps (%lu)",
+         copied_, total_, elapsed, complete, speed, millis() - lastStatus_);
 }
 
 }

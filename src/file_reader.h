@@ -9,9 +9,10 @@ namespace fk {
 class FileReader : public lws::SizedReader {
 private:
     phylum::SimpleFile *file_{ nullptr };
+    uint32_t offset_{ 0 };
+    uint32_t length_{ 0 };
     bool opened_{ false };
     bool done_{ false };
-    size_t size_{ 0 };
 
 public:
     FileReader();
@@ -28,7 +29,7 @@ public:
     }
 
 public:
-    void open();
+    bool open(uint32_t offset, uint32_t length);
     bool isFinished();
     bool isOpen();
 
