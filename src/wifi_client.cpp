@@ -7,7 +7,6 @@ WifiWriter::WifiWriter(WiFiClient &wcl) : wcl_(&wcl) {
 
 int32_t WifiWriter::write(uint8_t *ptr, size_t size) {
     if (!wcl_->connected()) {
-        logf(LogLevels::INFO, "Copy", "Write EOS: %d", size);
         return Stream::EOS;
     }
     return wcl_->write(ptr, size);
