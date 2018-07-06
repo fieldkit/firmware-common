@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#ifdef FK_NATURALIST
+#if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
 #define FK_RTC_PCF8523
 // #define FK_WIFI_AP_DISABLE
 #define FK_HARDWARE_SERIAL2_ENABLE
@@ -32,7 +32,7 @@ extern Uart Serial2;
 class Hardware {
 public:
     // TODO: This could be done much better.
-    #ifdef FK_NATURALIST
+    #if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
     static constexpr uint8_t WIFI_PIN_CS = 7;
     static constexpr uint8_t WIFI_PIN_IRQ = 16;
     static constexpr uint8_t WIFI_PIN_RST = 15;
@@ -46,7 +46,7 @@ public:
     static constexpr uint8_t WIFI_PIN_WAKE = 8;
     #endif
 
-    #ifdef FK_NATURALIST
+    #if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
     static constexpr uint8_t RFM95_PIN_CS = 5;
     static constexpr uint8_t RFM95_PIN_RESET = 3;
     static constexpr uint8_t RFM95_PIN_ENABLE = 0;
@@ -61,7 +61,7 @@ public:
     static constexpr uint8_t USER_BUTTON_PIN = 6;
 
     static constexpr uint8_t SD_PIN_CS = 12;
-    #ifdef FK_NATURALIST
+    #if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
     static constexpr uint8_t PIN_PERIPH_ENABLE = (25u); // PIN_LED_RXL;
     static constexpr uint8_t FLASH_PIN_CS = (26u); // PIN_LED_TXL;
     #else

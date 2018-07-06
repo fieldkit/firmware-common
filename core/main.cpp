@@ -33,11 +33,11 @@ void HardFault_Handler(void) {
 void dumpObjectSizes();
 
 void setup() {
-#ifdef DEBUG_MTB_ENABLE
+    #ifdef DEBUG_MTB_ENABLE
     REG_MTB_POSITION = ((uint32_t) (mtb - REG_MTB_BASE)) & 0xFFFFFFF8;
     REG_MTB_FLOW = ((uint32_t) mtb + DEBUG_MTB_SIZE * sizeof(uint32_t)) & 0xFFFFFFF8;
     REG_MTB_MASTER = 0x80000000 + 6;
-#endif
+    #endif
 
     Serial.begin(115200);
 
@@ -45,26 +45,26 @@ void setup() {
         delay(100);
     }
 
-#ifdef DEBUG_UART_FALLBACK
+    #ifdef DEBUG_UART_FALLBACK
     if (!Serial) {
         // The call to end here seems to free up some memory.
         Serial.end();
         Serial5.begin(115200);
         log_uart_set(Serial5);
     }
-#endif
+    #endif
 
     randomSeed(RANDOM_SEED);
     firmware_version_set(FIRMWARE_GIT_HASH);
     firmware_build_set(FIRMWARE_BUILD);
 
     loginfof("Core", "Starting");
-#ifdef DEBUG_UART_FALLBACK
+    #ifdef DEBUG_UART_FALLBACK
     loginfof("Core", "Configured with UART fallback.");
-#endif
-#ifdef DEBUG_MTB_ENABLE
+    #endif
+    #ifdef DEBUG_MTB_ENABLE
     loginfof("Core", "Configured with MTB.");
-#endif
+    #endif
 
     fk::NetworkInfo networks[] = {
         {
@@ -77,9 +77,9 @@ void setup() {
         }
     };
 
-#ifdef DEBUG_DUMP_OBJECT_SIZES
+    #ifdef DEBUG_DUMP_OBJECT_SIZES
     dumpObjectSizes();
-#endif
+    #endif
 
     fk::CoreModule coreModule;
     coreModule.begin();

@@ -52,6 +52,20 @@ if(WIFI_ALWAYS_ON)
   add_definitions(-DFK_WIFI_ALWAYS_ON)
 endif(WIFI_ALWAYS_ON)
 
+option(CORE_GENERATION_1 "Enable Generation 1 Core hardware profile. (see harware.h)")
+if(CORE_GENERATION_1)
+  add_definitions(-DFK_CORE_GENERATION_1)
+else()
+  add_definitions(-DFK_CORE_GENERATION_2)
+endif(CORE_GENERATION_1)
+
+option(CORE_GENERATION_2 "Enable Generation 2 Core hardware profile. (see harware.h)")
+if(CORE_GENERATION_2)
+  add_definitions(-DFK_CORE_GENERATION_2)
+else()
+  add_definitions(-DFK_CORE_GENERATION_1)
+endif(CORE_GENERATION_2)
+
 # Get the current working branch
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD
