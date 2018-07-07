@@ -154,7 +154,7 @@ protected:
 };
 
 template<typename F>
-typename Fsm<F>::state_ptr_t Fsm<F>::current_state_ptr;
+typename Fsm<F>::state_ptr_t Fsm<F>::current_state_ptr{ nullptr };
 
 template<typename... FF>
 struct FsmList;

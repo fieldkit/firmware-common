@@ -83,6 +83,9 @@ enum class ScheduleKind {
 };
 
 class Scheduler : public Task {
+    static constexpr uint32_t CheckInterval = 500;
+    static constexpr uint32_t StatusInterval = 1000;
+
 private:
     CoreState *state;
     ClockType *clock;
@@ -90,6 +93,7 @@ private:
     ScheduledTask *tasks;
     PeriodicTask *periodic;
     uint32_t lastCheckAt{ 0 };
+    uint32_t lastStatusAt{ 0 };
     size_t numberOfTasks;
     size_t numberOfPeriodics;
 
@@ -111,6 +115,14 @@ public:
     ScheduledTask &getTaskSchedule(ScheduleKind kind);
     uint32_t getNextTaskTime(DateTime &after);
     uint32_t getNextTaskTime();
+
+    struct NextTaskInfo {
+        uint32_t now;
+        uint32_t time;
+        uint32_t seconds;
+    };
+
+    NextTaskInfo getNextTask();
 
 };
 

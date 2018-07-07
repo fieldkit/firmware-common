@@ -2,8 +2,6 @@
 
 namespace fk {
 
-constexpr uint32_t CheckInterval = 500;
-
 static bool valid(const TimeSpec &spec) {
     return spec.fixed > -1 || spec.interval > -1;
 }
@@ -95,17 +93,25 @@ TaskEval Scheduler::task() {
     if (elapsed < CheckInterval) {
         return TaskEval::idle();
     }
-    lastCheckAt = millis();
 
     if (clock->isValid()) {
+        lastCheckAt = millis();
         auto now = clock->now();
+
+        if (millis() - lastStatusAt > StatusInterval) {
+            auto nextTask = getNextTask();
+            FormattedTime formatted{ nextTask.time };
+            log("Next Time: %s (%lus)", formatted.toString(), nextTask.seconds);
+            lastStatusAt = millis();
+        }
+
         for (size_t i = 0; i < numberOfTasks; ++i) {
             if (tasks[i].valid() && tasks[i].shouldRun(now)) {
                 auto &task = tasks[i].getTask();
                 DateTime runsAgain{tasks[i]. getNextRunTime(now) };
                 FormattedTime nowFormatted{ now };
                 FormattedTime runsAgainFormatted{ runsAgain };
-                log("Run %s %s (again = %s) (busy = %d)", task.toString(),nowFormatted.toString(), runsAgainFormatted.toString(), state->isBusy());
+                log("Run %s %s (again = %s) (busy = %d)", task.toString(), nowFormatted.toString(), runsAgainFormatted.toString(), state->isBusy());
                 if (!state->isBusy()) {
                     queue->append(task);
                 }
@@ -143,6 +149,13 @@ uint32_t Scheduler::getNextTaskTime(DateTime &after) {
         }
     }
     return winner;
+}
+
+Scheduler::NextTaskInfo Scheduler::getNextTask() {
+    auto now = clock->now();
+    auto nextTask = getNextTaskTime(now);
+    auto seconds = nextTask - now.unixtime();
+    return { now.unixtime(), nextTask, seconds };
 }
 
 }
