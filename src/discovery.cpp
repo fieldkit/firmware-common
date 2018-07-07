@@ -4,12 +4,12 @@
 
 namespace fk {
 
-Discovery::Discovery(Wifi &wifi) : Task("Discovery"), wifi(&wifi) {
+Discovery::Discovery() : Task("Discovery") {
 }
 
 TaskEval Discovery::task() {
     if (pingAt < millis()) {
-        if (wifi->discoveryEnabled()) {
+        if (wifiDiscoveryEnabled()) {
             ping();
         }
         pingAt = millis() + DiscoveryPingInterval;

@@ -51,19 +51,6 @@ public:
 
 };
 
-class TransmitAllFilesTask : public Task {
-private:
-    TaskQueue *taskQueue;
-    SimpleQueue<TransmitFileTask, 2, FileSystem&, CoreState&, Wifi&, HttpTransmissionConfig&, FileCopySettings> queue;
-
-public:
-    TransmitAllFilesTask(TaskQueue &taskQueue, FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config);
-
-public:
-    TaskEval task() override;
-
-};
-
 }
 
 #endif

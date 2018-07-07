@@ -60,6 +60,11 @@ public:
     }
 
     void task() override {
+        if (services().attachedDevices == nullptr) {
+            transit<WifiStartup>();
+            return;
+        }
+
         auto e = services().attachedDevices->task();
         if (e.isDone()) {
             transit<WifiStartup>();
@@ -70,16 +75,35 @@ public:
 void Idle::entry() {
     MainServicesState::entry();
     log("Idle");
+    if (began_ == 0) {
+        began_ = fk_uptime();
+    }
 }
 
 void Idle::task() {
-    if (millis() - checked_ > 500) {
+    services().scheduler->task();
+
+    if (fk_uptime() - checked_ > 500) {
         auto nextTask = services().scheduler->getNextTask();
         if (nextTask.seconds > 10) {
             transit<Sleep>();
         }
-        checked_ = millis();
+        checked_ = fk_uptime();
     }
+
+    if (fk_uptime() - began_ > 60 * 1000) {
+        began_ = 0;
+        transit<WifiStartup>();
+    }
+}
+
+void BeginGatherReadings::entry() {
+    MainServicesState::entry();
+    log("BeginGatherReadings");
+}
+
+void BeginGatherReadings::task() {
+    back();
 }
 
 }

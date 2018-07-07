@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstdio>
 
-#include "core_fsm.h"
 #include "hardware.h"
 #include "app_servicer.h"
 #include "attached_devices.h"
@@ -30,6 +29,7 @@
 #include "transmissions.h"
 #include "radio_service.h"
 #include "user_button.h"
+#include "core_fsm_states.h"
 
 namespace fk {
 
@@ -41,9 +41,6 @@ private:
     StaticPool<384> modulesPool{"ModulesPool"};
     StaticPool<128> dataPool{"DataPool"};
 
-    Supervisor<5> background{ true };
-    Supervisor<5> servicing{ true };
-
     Leds leds;
     Watchdog watchdog{ leds };
 
@@ -53,14 +50,13 @@ private:
     CoreState state{flashStorage, fileSystem.getData()};
     Power power{ state };
 
-    ModuleCommunications moduleCommunications{bus, background, modulesPool};
+    ModuleCommunications moduleCommunications{bus, modulesPool};
 
     AttachedDevices attachedDevices{bus, addresses, state, leds, moduleCommunications};
 
-    HttpTransmissionConfig transmissionConfig = {
+    HttpTransmissionConfig httpConfig = {
         .streamUrl = WifiApiUrlIngestionStream,
     };
-    TransmitAllFilesTask transmitAllFilesTask{background, fileSystem, state, wifi, transmissionConfig};
     PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, moduleCommunications, { FileNumber::Data }};
 
     SerialPort gpsPort{ Serial1 };
@@ -73,42 +69,57 @@ private:
     SendDataToLoraGateway sendDataToLoraGateway{ radioService, fileSystem, { FileNumber::Data } };
     #endif
 
-    NoopTask noop;
-
     #ifdef FK_PROFILE_AMAZON
     PeriodicTask periodics[1] {
-        fk::PeriodicTask{ 60 * 1000, noop },
+    fk::PeriodicTask{ 60 * 1000, { CoreFsm::deferred<IgnoredState>() } },
     };
     #else
     PeriodicTask periodics[2] {
-        fk::PeriodicTask{ 20 * 1000, readGps },
-        fk::PeriodicTask{ 60 * 1000, gatherReadings },
+    fk::PeriodicTask{ 20 * 1000, { CoreFsm::deferred<IgnoredState>() } },
+    fk::PeriodicTask{ 60 * 1000, { CoreFsm::deferred<IgnoredState>() } },
     };
     #endif
-    ScheduledTask scheduled[3 ] {
-        #ifdef FK_PROFILE_AMAZON
-        fk::ScheduledTask{ {  0, -1 }, {  0, -1 }, { -1, -1 }, { -1, -1 }, noop },
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, noop },
-        #else
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
-        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllFilesTask },
-        #endif
-
-        #ifdef FK_ENABLE_RADIO
-        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendDataToLoraGateway },
-        #else
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, noop },
-        #endif
+    ScheduledTask scheduled[1] {
+        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<BeginGatherReadings>() } },
     };
-    Scheduler scheduler{state, clock, background, scheduled, periodics};
+    Scheduler scheduler{clock, scheduled, periodics};
 
     LiveData liveData{gatherReadings, state};
 
     WifiConnection connection;
     AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
-    Wifi wifi{state, connection, appServicer, servicing};
-    Discovery discovery{ wifi };
+    Wifi wifi{connection, appServicer};
+    Discovery discovery;
     UserButton button{ leds, fileSystem };
+    Status status{ state, bus, leds };
+
+    MainServices mainServices{
+        &leds,
+        &watchdog,
+        &power,
+        &state,
+        &fileSystem,
+        &button,
+        &scheduler,
+        &attachedDevices,
+    };
+
+    WifiServices wifiServices{
+        &leds,
+        &watchdog,
+        &power,
+        &state,
+        &fileSystem,
+        &button,
+        &scheduler,
+        &attachedDevices,
+
+        &wifi,
+        &discovery,
+        &httpConfig,
+        &wifi.server(),
+        &appServicer
+    };
 
 public:
     void begin();

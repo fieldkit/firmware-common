@@ -42,10 +42,15 @@ void AppServicer::enqueued() {
 
 TaskEval AppServicer::task() {
     if (active.hasChild()) {
-        return active.task();
+        auto e = active.task();
+        if (e.isDoneOrError()) {
+            flushAndClose();
+        }
+        return e;
     }
 
     if (!readQuery()) {
+        flushAndClose();
         return TaskEval::error();
     }
 
@@ -53,7 +58,11 @@ TaskEval AppServicer::task() {
         return TaskEval::idle();
     }
 
-    return handle();
+    auto e = handle();
+    if (e.isDoneOrError()) {
+        flushAndClose();
+    }
+    return e;
 }
 
 bool AppServicer::readQuery() {

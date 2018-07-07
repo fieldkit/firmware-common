@@ -8,10 +8,14 @@ TaskEval Status::task() {
         IpAddress4 ip{ state->getStatus().ip };
         auto now = clock.now();
         auto percentage = state->getStatus().batteryPercentage;
-        loginfof("Status", "Status %" PRIu32 " (%.2f%% / %.2fmv) (%" PRIu32 " free) (%s) (%s) busy=%d reading=%d", now.unixtime(),
-                 percentage, state->getStatus().batteryVoltage,
-                 fk_free_memory(), ip.toString(), deviceId.toString(),
-                 state->isBusy(), state->isReadingInProgress());
+        auto voltage = state->getStatus().batteryVoltage;
+        FormattedTime nowFormatted{ now };
+
+        loginfof("Status", "%s (%" PRIu32 ") (%.2f%% / %.2fmv) (%" PRIu32 " free) (%s) (%s)",
+                 nowFormatted.toString(), now.unixtime(),
+                 percentage, voltage, fk_free_memory(),
+                 deviceId.toString(), ip.toString());
+
         lastTick = millis();
 
         if (percentage < StatusBatteryBlinkThreshold) {

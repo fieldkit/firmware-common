@@ -3,15 +3,15 @@
 
 namespace fk {
 
-Listen::Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue)
-    : Task("Listen"), port(port), server(port), servicer(&servicer), connection(&connection), taskQueue(&taskQueue) {
+Listen::Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection)
+    : Task("Listen"), port(port), server(port), servicer(&servicer), connection(&connection) {
 }
 
 void Listen::begin() {
     if (state == ListenerState::Idle) {
         lastActivity = millis();
         server.begin();
-        log("Server began (possibly failed, though) port=%d", port);
+        log("Server began (port = %d)", port);
         state = ListenerState::Disconnected;
     }
     else if (state != ListenerState::Disconnected) {
@@ -25,13 +25,6 @@ void Listen::end() {
         log("Ended");
         state = ListenerState::Idle;
     }
-}
-
-bool Listen::inactive() {
-    if (state == ListenerState::Busy) {
-        return false;
-    }
-    return millis() - lastActivity > WifiInactivityTimeout;
 }
 
 TaskEval Listen::task() {
@@ -51,9 +44,8 @@ TaskEval Listen::task() {
             lastActivity = millis();
             log("Accepted!");
             pool.clear();
-            state = ListenerState::Busy;
             connection->setConnection(wcl);
-            taskQueue->append(*servicer);
+            state = ListenerState::Busy;
             return TaskEval::idle();
         }
     }

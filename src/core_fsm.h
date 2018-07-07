@@ -12,9 +12,21 @@ class CoreDevice;
 
 using CoreFsm = tinyfsm::Fsm<CoreDevice>;
 
+struct SchedulerEvent : public tinyfsm::Event {
+    CoreFsm::deferred_t deferred;
+
+    SchedulerEvent(CoreFsm::deferred_t deferred) : deferred(deferred) {
+    }
+};
+
 class CoreDevice : public CoreFsm {
 public:
     virtual void react(tinyfsm::Event const &ignored) {
+        warn("Ignored Event");
+    }
+
+    virtual void react(SchedulerEvent const &ignored) {
+        warn("Ignored Scheduler Event");
     }
 
     virtual void entry() {

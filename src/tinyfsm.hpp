@@ -64,6 +64,7 @@ public:
     using fsmtype = Fsm<F>;
     using state_ptr_t = F*;
 
+    static state_ptr_t previous_state_ptr;
     static state_ptr_t current_state_ptr;
 
     static F& current() {
@@ -84,18 +85,18 @@ public:
     }
 
     struct deferred_t {
-        F* next_state_ptr;
+        state_ptr_t next_state_ptr;
 
-        deferred_t(F* ptr = nullptr) : next_state_ptr(ptr) {
+        deferred_t(state_ptr_t ptr = nullptr) : next_state_ptr(ptr) {
         }
 
-        operator bool() {
+        operator bool() const {
             return next_state_ptr != nullptr;
         }
     };
 
     template<typename S>
-    deferred_t deferred() {
+    static deferred_t deferred() {
         return { &_state_instance<S>::value };
     }
 
@@ -120,26 +121,36 @@ public:
         current_state_ptr->react(event);
     }
 
+    static void back() {
+        auto temp = previous_state_ptr;
+        current_state_ptr->exit();
+        previous_state_ptr = current_state_ptr;
+        current_state_ptr = temp;
+        current_state_ptr->entry();
+    }
+
+private:
+    void transit(state_ptr_t state_ptr) {
+        current_state_ptr->exit();
+        previous_state_ptr = current_state_ptr;
+        current_state_ptr = state_ptr;
+        current_state_ptr->entry();
+    }
+
 protected:
     void transit(deferred_t deferred) {
-        current_state_ptr->exit();
-        current_state_ptr = deferred.next_state_ptr;
-        current_state_ptr->entry();
+        transit(deferred.next_state_ptr);
     }
 
     template<typename S, typename ...Args>
     void transit_into(Args... args) {
-        current_state_ptr->exit();
         _state_instance<S>::value = S{ std::forward<Args>(args)... };
-        current_state_ptr = &_state_instance<S>::value;
-        current_state_ptr->entry();
+        transit(&_state_instance<S>::value);
     }
 
     template<typename S>
     void transit() {
-        current_state_ptr->exit();
-        current_state_ptr = &_state_instance<S>::value;
-        current_state_ptr->entry();
+        transit(&_state_instance<S>::value);
     }
 
     template<typename S, typename ActionFunction
@@ -152,25 +163,31 @@ protected:
              */
     >
     void transit(ActionFunction action_function) {
-        static_assert(std::is_void<typename std::result_of<ActionFunction()>::type >::value, "result type of 'action_function()' is not 'void'");
+        static_assert(std::is_void<typename std::result_of<ActionFunction()>::type >::value,
+                      "result type of 'action_function()' is not 'void'");
 
         current_state_ptr->exit();
         // NOTE: we get into deep trouble if the action_function sends a new event.
         // TODO: implement a mechanism to check for reentrancy
         action_function();
+        previous_state_ptr = current_state_ptr;
         current_state_ptr = &_state_instance<S>::value;
         current_state_ptr->entry();
     }
 
     template<typename S, typename ActionFunction, typename ConditionFunction>
     void transit(ActionFunction action_function, ConditionFunction condition_function) {
-        static_assert(std::is_same<typename std::result_of<ConditionFunction()>::type, bool>::value, "result type of 'condition_function()' is not 'bool'");
+        static_assert(std::is_same<typename std::result_of<ConditionFunction()>::type, bool>::value,
+                      "result type of 'condition_function()' is not 'bool'");
 
         if (condition_function()) {
             transit<S>(action_function);
         }
     }
 };
+
+template<typename F>
+typename Fsm<F>::state_ptr_t Fsm<F>::previous_state_ptr{ nullptr };
 
 template<typename F>
 typename Fsm<F>::state_ptr_t Fsm<F>::current_state_ptr{ nullptr };
@@ -240,11 +257,11 @@ struct StateList<S, SS...> {
 
 }
 
-#define FSM_INITIAL_STATE(_FSM, _STATE)                     \
-    namespace tinyfsm {                                     \
-template<> void Fsm< _FSM >::set_initial_state() {          \
-    current_state_ptr = &_state_instance< _STATE >::value;  \
-}                                                           \
+#define FSM_INITIAL_STATE(_FSM, _STATE)                   \
+    namespace tinyfsm {                                   \
+template<> void Fsm< _FSM >::set_initial_state() {        \
+    current_state_ptr = &_state_instance<_STATE>::value;  \
+}                                                         \
     }
 
 #endif /* TINYFSM_HPP_INCLUDED */

@@ -34,17 +34,6 @@ TaskEval FileCopierSample::task() {
     return TaskEval::idle();
 }
 
-TransmitAllFilesTask::TransmitAllFilesTask(TaskQueue &taskQueue, FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config)
-    : Task("TransmitAllFilesTask"), taskQueue(&taskQueue),
-      queue{ make_array( std::make_tuple(std::ref(fileSystem), std::ref(state), std::ref(wifi), std::ref(config), FileCopySettings{ FileNumber::StartupLog }),
-                         std::make_tuple(std::ref(fileSystem), std::ref(state), std::ref(wifi), std::ref(config), FileCopySettings{ FileNumber::Data }) ) } {
-}
-
-TaskEval TransmitAllFilesTask::task() {
-    taskQueue->append(queue);
-    return TaskEval::done();
-}
-
 TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, FileCopySettings settings) :
     Task("TransmitFileTask"), fileSystem(&fileSystem), state(&state), wifi(&wifi), config(&config), settings(settings) {
 }
@@ -105,7 +94,7 @@ TaskEval TransmitFileTask::task() {
         wcl.flush();
         wcl.stop();
         state->setBusy(false);
-        wifi->setBusy(false);
+        // wifi->setBusy(false);
         if (status == 200) {
             if (!fileCopy.isFinished()) {
                 log("Unfinished success (status = %d)", status);
@@ -161,7 +150,7 @@ TaskEval TransmitFileTask::openConnection() {
     Url parsed(urlCopy);
 
     state->setBusy(true);
-    wifi->setBusy(true);
+    // wifi->setBusy(true);
 
     parser.begin();
 
@@ -178,7 +167,7 @@ TaskEval TransmitFileTask::openConnection() {
                 wcl.flush();
                 wcl.stop();
                 state->setBusy(false);
-                wifi->setBusy(false);
+                // wifi->setBusy(false);
                 return TaskEval::error();
             }
 
@@ -204,12 +193,12 @@ TaskEval TransmitFileTask::openConnection() {
         } else {
             log("Not connected!");
             state->setBusy(false);
-            wifi->setBusy(false);
+            // wifi->setBusy(false);
             return TaskEval::error();
         }
     } else {
         state->setBusy(false);
-        wifi->setBusy(false);
+        // wifi->setBusy(false);
         return TaskEval::error();
     }
 

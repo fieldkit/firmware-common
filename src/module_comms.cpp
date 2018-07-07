@@ -13,8 +13,8 @@ void ModuleQuery::prepare(ModuleQueryMessage &message, lws::Writer &outgoing) {
 void ModuleQuery::tick(lws::Writer &outgoing) {
 }
 
-ModuleCommunications::ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool) :
-    Task("ModuleCommunications"), bus(&bus), queue(&queue), pool(&pool), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, outgoing.getReader(), incoming.getWriter(), 0) {
+ModuleCommunications::ModuleCommunications(TwoWireBus &bus, Pool &pool) :
+    Task("ModuleCommunications"), bus(&bus), pool(&pool), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, outgoing.getReader(), incoming.getWriter(), 0) {
 }
 
 void ModuleCommunications::enqueue(uint8_t destination, ModuleQuery &mq) {
@@ -46,12 +46,13 @@ TaskEval ModuleCommunications::task() {
             pending->prepare(query, outgoing.getWriter());
 
             twoWireTask = TwoWireTask{ pending->name(), *bus, outgoing.getReader(), incoming.getWriter(), address };
-            queue->prepend(twoWireTask);
+            twoWireTask.enqueued();
 
             hasQuery = false;
             hasReply = false;
         }
         else {
+            simple_task_run(twoWireTask);
             pending->tick(outgoing.getWriter());
         }
 
@@ -71,7 +72,8 @@ TaskEval ModuleCommunications::task() {
                         query.clear();
 
                         twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address };
-                        queue->prepend(twoWireTask);
+                        twoWireTask.enqueued();
+
                         return TaskEval::idle();
                     }
                     else {

@@ -22,7 +22,6 @@ public:
 class ModuleCommunications : public Task {
 private:
     TwoWireBus *bus;
-    TaskQueue *queue;
     Pool *pool;
     uint8_t address{ 0 };
     ModuleQuery *pending{ nullptr };
@@ -35,7 +34,7 @@ private:
     lws::CircularStreams<lws::RingBufferN<256>> incoming;
 
 public:
-    ModuleCommunications(TwoWireBus &bus, TaskQueue &queue, Pool &pool);
+    ModuleCommunications(TwoWireBus &bus, Pool &pool);
 
 public:
     TaskEval task() override;

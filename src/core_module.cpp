@@ -2,11 +2,13 @@
 #include "hardware.h"
 #include "device_id.h"
 #include "status.h"
-#include "core_fsm_states.h"
 
 namespace fk {
 
 void CoreModule::begin() {
+    MainServicesState::services(mainServices);
+    WifiServicesState::services(wifiServices);
+
     fsm_list::start();
 
     pinMode(Hardware::SD_PIN_CS, OUTPUT);
@@ -70,47 +72,17 @@ void CoreModule::begin() {
 }
 
 void CoreModule::run() {
-    Status status{ state, bus, leds };
-
-    wifi.begin();
-
     auto tasks = to_parallel_task_collection(
         &status,
         &leds,
         &power,
         &watchdog,
-        // &scheduler,
-        #ifdef FK_ENABLE_RADIO
-        &radioService,
-        #endif
-        // &discovery,
+        &button,
+
+        // TODO: Move into states.
         &liveData,
-        &moduleCommunications,
-        &background,
-        &servicing,
-        &button
+        &moduleCommunications
     );
-
-    MainServices mainServices{
-        &scheduler,
-        &attachedDevices,
-        &state,
-        &watchdog,
-    };
-
-    WifiServices wifiServices{
-        &scheduler,
-        &attachedDevices,
-        &state,
-        &watchdog,
-
-        &wifi,
-        &discovery,
-        &wifi.server(),
-    };
-
-    MainServicesState::services(mainServices);
-    WifiServicesState::services(wifiServices);
 
     while (true) {
         tasks.task();

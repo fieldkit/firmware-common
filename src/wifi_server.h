@@ -28,14 +28,12 @@ private:
     WiFiServer server;
     AppServicer *servicer;
     WifiConnection *connection;
-    TaskQueue *taskQueue;
 
 public:
-    Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection, TaskQueue &taskQueue);
+    Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection);
 
 public:
     void end();
-    bool inactive();
     bool isBusy() const {
         return state == ListenerState::Busy;
     }

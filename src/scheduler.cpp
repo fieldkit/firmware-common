@@ -1,4 +1,5 @@
 #include "scheduler.h"
+#include "core_fsm.h"
 
 namespace fk {
 
@@ -99,24 +100,20 @@ TaskEval Scheduler::task() {
         auto now = clock->now();
         for (size_t i = 0; i < numberOfTasks; ++i) {
             if (tasks[i].valid() && tasks[i].shouldRun(now)) {
-                auto &task = tasks[i].getTask();
-                DateTime runsAgain{tasks[i]. getNextRunTime(now) };
+                auto &event = tasks[i].getEvent();
+                DateTime runsAgain{ tasks[i].getNextRunTime(now) };
                 FormattedTime nowFormatted{ now };
                 FormattedTime runsAgainFormatted{ runsAgain };
-                log("Run %s %s (again = %s) (busy = %d)", task.toString(), nowFormatted.toString(), runsAgainFormatted.toString(), state->isBusy());
-                if (!state->isBusy()) {
-                    queue->append(task);
-                }
+                log("Run (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
+                send_event(event);
             }
         }
     }
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
         if (periodic[i].shouldRun()) {
-            auto &task = periodic[i].getTask();
-            log("Run %s (busy = %d)", task.toString(), state->isBusy());
-            if (!state->isBusy()) {
-                queue->append(task);
-            }
+            auto &event = periodic[i].getEvent();
+            log("Run periodic");
+            send_event(event);
         }
     }
 

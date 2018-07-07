@@ -163,6 +163,20 @@ public:
     virtual bool append(Task &task) = 0;
 };
 
+
+inline bool simple_task_run(Task &task)  {
+    auto e = task.task();
+    if (e.isDone()) {
+        task.done();
+        return false;
+    }
+    if (e.isError()) {
+        task.error();
+        return false;
+    }
+    return true;
+}
+
 }
 
 #endif

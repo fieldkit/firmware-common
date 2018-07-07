@@ -109,8 +109,6 @@ void dumpObjectSizes() {
     FK_DUMP_SIZE(fk::TwoWireMessageBuffer);
     FK_DUMP_SIZE(fk::WifiMessageBuffer);
     FK_DUMP_SIZE(fk::TransmitFileTask);
-    FK_DUMP_SIZE(fk::ScanNetworks);
-    FK_DUMP_SIZE(fk::ConnectToWifiAp);
     FK_DUMP_SIZE(fk::Delay);
     FK_DUMP_SIZE(fk::SimpleNTP);
     FK_DUMP_SIZE(fk::Discovery);

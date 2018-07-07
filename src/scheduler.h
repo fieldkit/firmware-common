@@ -4,6 +4,7 @@
 #include "active_object.h"
 #include "core_state.h"
 #include "rtc.h"
+#include "core_fsm.h"
 
 namespace fk {
 
@@ -13,23 +14,23 @@ struct TimeSpec {
 };
 
 class SchedulerTask {
-public:
 };
 
 class PeriodicTask : public SchedulerTask {
 private:
     uint32_t interval{ 0 };
     uint32_t lastRan{ 0 };
-    Task *task;
+    SchedulerEvent event;
 
 public:
-    PeriodicTask(uint32_t interval, Task &task) : interval(interval), task(&task) {
+    PeriodicTask(uint32_t interval, SchedulerEvent event) : interval(interval), event(event) {
     }
 
 public:
     bool shouldRun();
-    Task &getTask() {
-        return *task;
+
+    SchedulerEvent &getEvent() {
+        return event;
     }
 
 };
@@ -41,11 +42,11 @@ private:
     TimeSpec hour;
     TimeSpec day;
     DateTime lastRan;
-    Task *task;
+    SchedulerEvent event;
 
 public:
-    ScheduledTask(TimeSpec second, TimeSpec minute, TimeSpec hour, TimeSpec day, Task &task) :
-        second(second), minute(minute), hour(hour), day(day), task(&task) {
+    ScheduledTask(TimeSpec second, TimeSpec minute, TimeSpec hour, TimeSpec day, SchedulerEvent event) :
+        second(second), minute(minute), hour(hour), day(day), event(event) {
     }
 
 public:
@@ -68,8 +69,8 @@ public:
 
     uint32_t getNextRunTime(DateTime &after);
 
-    Task &getTask() {
-        return *task;
+    SchedulerEvent &getEvent() {
+        return event;
     }
 
 };
@@ -87,9 +88,7 @@ class Scheduler : public Task {
     static constexpr uint32_t StatusInterval = 1000;
 
 private:
-    CoreState *state;
     ClockType *clock;
-    TaskQueue *queue;
     ScheduledTask *tasks;
     PeriodicTask *periodic;
     uint32_t lastCheckAt{ 0 };
@@ -98,13 +97,13 @@ private:
 
 public:
     template<size_t N, size_t M>
-    Scheduler(CoreState &state, ClockType &clock, TaskQueue &queue, ScheduledTask (&tasks)[N], PeriodicTask (&periodic)[M]) :
-        Task("Scheduler"), state(&state), clock(&clock), queue(&queue), tasks(tasks), periodic(periodic), numberOfTasks(N), numberOfPeriodics(M) {
+    Scheduler(ClockType &clock, ScheduledTask (&tasks)[N], PeriodicTask (&periodic)[M]) :
+        Task("Scheduler"), clock(&clock), tasks(tasks), periodic(periodic), numberOfTasks(N), numberOfPeriodics(M) {
     }
 
     template<size_t M>
-    Scheduler(CoreState &state, ClockType &clock, TaskQueue &queue, PeriodicTask (&periodic)[M]) :
-        Task("Scheduler"), state(&state), clock(&clock), queue(&queue), tasks(nullptr), periodic(periodic), numberOfTasks(0), numberOfPeriodics(M) {
+    Scheduler(ClockType &clock, PeriodicTask (&periodic)[M]) :
+        Task("Scheduler"), clock(&clock), tasks(nullptr), periodic(periodic), numberOfTasks(0), numberOfPeriodics(M) {
     }
 
 public:

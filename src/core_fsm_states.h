@@ -5,35 +5,50 @@
 
 namespace fk {
 
+class Leds;
+class Watchdog;
+class Power;
 class Scheduler;
 class AttachedDevices;
 class CoreState;
-class Watchdog;
+class FileSystem;
+class UserButton;
 
 struct MainServices {
+    Leds *leds;
+    Watchdog *watchdog;
+    Power *power;
+    CoreState *state;
+    FileSystem *fileSystem;
+    UserButton *button;
     Scheduler *scheduler;
     AttachedDevices *attachedDevices;
-    CoreState *state;
-    Watchdog *watchdog;
 
-    MainServices(Scheduler *scheduler, AttachedDevices *attachedDevices, CoreState *state, Watchdog *watchdog) :
-        scheduler(scheduler), attachedDevices(attachedDevices), state(state), watchdog(watchdog) {
+    MainServices(Leds *leds, Watchdog *watchdog, Power *power, CoreState *state, FileSystem *fileSystem,
+                 UserButton *button, Scheduler *scheduler, AttachedDevices *attachedDevices) :
+        leds(leds), watchdog(watchdog), power(power), state(state), fileSystem(fileSystem), button(button), scheduler(scheduler),
+        attachedDevices(attachedDevices) {
     }
 };
 
 class Wifi;
-class Listen;
 class Discovery;
+class HttpTransmissionConfig;
+class Listen;
+class AppServicer;
 
 struct WifiServices : MainServices {
     Wifi *wifi;
     Discovery *discovery;
+    HttpTransmissionConfig *httpConfig;
     Listen *server;
+    AppServicer *appServicer;
 
-    WifiServices(Scheduler *scheduler, AttachedDevices *attachedDevices, CoreState *state, Watchdog *watchdog,
-                 Wifi *wifi, Discovery *discovery, Listen *server) :
-        MainServices(scheduler, attachedDevices, state, watchdog),
-        wifi(wifi), discovery(discovery), server(server) {
+    WifiServices(Leds *leds, Watchdog *watchdog, Power *power, CoreState *state, FileSystem *fileSystem,
+                 UserButton *button, Scheduler *scheduler, AttachedDevices *attachedDevices,
+                 Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer) :
+        MainServices(leds, watchdog, power, state, fileSystem, button, scheduler, attachedDevices),
+        wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer) {
     }
 };
 
@@ -43,6 +58,7 @@ using WifiServicesState = StateWithContext<WifiServices>;
 class Idle : public MainServicesState {
 private:
     uint32_t checked_{ 0 };
+    uint32_t began_{ 0 };
 
 public:
     void entry() override;
@@ -50,6 +66,20 @@ public:
 
 };
 
+class BeginGatherReadings : public MainServicesState {
+public:
+    void entry() override;
+    void task() override;
+
+};
+
+class IgnoredState : public CoreDevice {
+public:
+    void entry() override {
+        back();
+    }
+
+};
 
 }
 

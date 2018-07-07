@@ -7,62 +7,54 @@
 
 #include "active_object.h"
 #include "app_servicer.h"
-#include "wifi_connections.h"
 #include "wifi_server.h"
 #include "core_state.h"
 #include "wifi_client.h"
 
 namespace fk {
 
-class Wifi : public ActiveObject {
+inline bool wifiPossiblyOnline() {
+    return WiFi.status() == WL_CONNECTED;
+}
+
+inline bool wifiDiscoveryEnabled() {
+    return WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_CONNECTED;
+}
+
+class Wifi : public Task {
 private:
-    CoreState *state;
     WifiConnection *connection;
-    uint32_t version{ 0 };
-    uint8_t status{ WL_IDLE_STATUS };
-    uint32_t lastActivityAt{ 0 };
-    uint32_t lastStatusAt{ 0 };
-    ConnectToWifiAp connectToWifiAp;
-    CreateWifiAp createWifiAp;
-    ScanNetworks scanNetworks;
-    Delay delay{ 5000 };
     Listen listen;
     bool disabled{ false };
-    bool busy{ false };
-    bool triedAp{ false };
 
 public:
-    Wifi(CoreState &state, WifiConnection &connection, AppServicer &servicer, TaskQueue &taskQueue);
+    Wifi(WifiConnection &connection, AppServicer &servicer);
 
 public:
-    void disable();
-    void setBusy(bool newBusy) {
-        busy = newBusy;
-        lastActivityAt = millis();
-    }
-    bool isDisabled() {
-        return disabled;
-    }
-    bool possiblyOnline() {
-        return !isDisabled() && (WiFi.status() == WL_CONNECTED);
-    }
-    bool discoveryEnabled() {
-        return !isDisabled() && (WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_CONNECTED);
-    }
     bool begin();
-    void done(Task &task) override;
-    void error(Task &task) override;
-    void idle() override;
+    void disable();
 
-public:
+    bool possiblyOnline() {
+        return !isDisabled() && wifiPossiblyOnline();
+    }
+
+    bool discoveryEnabled() {
+        return !isDisabled() && wifiDiscoveryEnabled();
+    }
+
     Listen &server() {
         return listen;
     }
 
+public:
+    TaskEval task() override {
+        return TaskEval::idle();
+    }
+
 private:
-    bool isListening();
-    bool readyToServe();
-    void traceStatus();
+    bool isDisabled() {
+        return disabled;
+    }
 
 };
 

@@ -10,6 +10,8 @@
 #include "discovery.h"
 #include "watchdog.h"
 
+#include "transmit_file.h"
+
 namespace fk {
 
 #ifdef FK_CORE
@@ -33,7 +35,7 @@ class WifiDisable;
 class WifiListening;
 class WifiCreateAp;
 class WifiSyncTime;
-class WifiTransmit;
+class WifiTransmitFiles;
 class WifiHandlingConnection;
 
 class WifiState : public WifiServicesState {
@@ -108,6 +110,9 @@ public:
 };
 
 class WifiSyncTime : public WifiState {
+private:
+    bool success_{ false };
+
 public:
     void entry() override {
         WifiState::entry();
@@ -115,34 +120,94 @@ public:
     }
 
     void task() override {
-        SimpleNTP ntp(clock, *services().wifi);
+        if (!success_) {
+            SimpleNTP ntp(clock, *services().wifi);
 
-        services().state->updateIp(WiFi.localIP());
+            services().state->updateIp(WiFi.localIP());
 
-        ntp.enqueued();
+            ntp.enqueued();
 
-        while (elapsed() < NtpMaximumWait) {
-            services().watchdog->task();
-            auto e = ntp.task();
-            if (e.isDoneOrError()) {
-                break;
+            while (elapsed() < NtpMaximumWait) {
+                services().watchdog->task();
+                auto e = ntp.task();
+                if (e.isDone()) {
+                    success_ = true;
+                }
+                if (e.isDoneOrError()) {
+                    break;
+                }
             }
         }
-
-        transit<WifiTransmit>();
+        transit<WifiTransmitFiles>();
     }
 
 };
 
-class WifiTransmit :  public WifiState {
+class WifiTransmitFile : public WifiState {
+private:
+    FileCopySettings settings_{ FileNumber::StartupLog };
+
+public:
+    WifiTransmitFile() {
+    }
+
+    WifiTransmitFile(FileCopySettings settings) : settings_(settings) {
+    }
+
 public:
     void entry() override {
         WifiState::entry();
-        log("WifiTransmit");
+        log("WifiTransmitFile");
     }
 
     void task() override {
-        transit<WifiListening>();
+        TransmitFileTask task{
+            *services().fileSystem,
+            *services().state,
+            *services().wifi,
+            *services().httpConfig,
+            settings_
+        };
+
+        while (true) {
+            services().leds->task();
+            services().watchdog->task();
+
+            if (task.task().isDoneOrError()) {
+                break;
+            }
+        }
+
+        back();
+    }
+};
+
+class WifiTransmitFiles :  public WifiState {
+private:
+    size_t index_{ 0 };
+    FileCopySettings transmissions_[2] = {
+        { FileNumber::StartupLog },
+        { FileNumber::Data }
+    };
+
+public:
+    WifiTransmitFiles() {
+    }
+
+public:
+    void entry() override {
+        WifiState::entry();
+        log("WifiTransmitFiles");
+    }
+
+    void task() override {
+        if (index_ == 2) {
+            transit<WifiListening>();
+        }
+        else {
+            transit_into<WifiTransmitFile>(transmissions_[index_]);
+            index_++;
+        }
     }
 };
 
@@ -156,6 +221,8 @@ public:
     void task() override {
         services().state->updateIp(WiFi.localIP());
 
+        services().scheduler->task();
+
         services().discovery->task();
 
         services().server->task();
@@ -164,10 +231,19 @@ public:
             transit<WifiHandlingConnection>();
         }
 
+        // TODO: Right now scheduled tasks reset our elapsed time.
         if (elapsed() > 1000 * 60) {
             transit<WifiDisable>();
         }
     }
+
+    void react(SchedulerEvent const &se) override {
+        if (se.deferred) {
+            warn("Scheduler Event!");
+            transit(se.deferred);
+        }
+    }
+
 };
 
 class WifiHandlingConnection : public WifiState {
@@ -175,12 +251,11 @@ public:
     void entry() override {
         WifiState::entry();
         log("WifiHandlingConnection");
+        services().appServicer->enqueued();
     }
 
     void task() override {
-        services().server->task();
-
-        if (!services().server->isBusy()) {
+        if (services().appServicer->task().isDoneOrError()) {
             transit<WifiListening>();
         }
     }
@@ -192,6 +267,8 @@ public:
         WifiState::entry();
         log("WifiDisable");
         services().wifi->disable();
+        services().state->updateIp(0);
+        transit<Idle>();
     }
 
 };
