@@ -5,7 +5,10 @@
 
 namespace fk {
 
-class WifiStartup : public StateWithContext<MainServices> {
+class WifiStartup : public WifiServicesState {
+private:
+    bool initialized_{ false };
+
 public:
     void entry() override;
     void task() override;

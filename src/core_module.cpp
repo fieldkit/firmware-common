@@ -70,24 +70,20 @@ void CoreModule::begin() {
 }
 
 void CoreModule::run() {
-    SimpleNTP ntp(clock, wifi);
     Status status{ state, bus, leds };
 
     wifi.begin();
-
-    background.append(ntp);
 
     auto tasks = to_parallel_task_collection(
         &status,
         &leds,
         &power,
         &watchdog,
-        &scheduler,
-        &wifi,
+        // &scheduler,
         #ifdef FK_ENABLE_RADIO
         &radioService,
         #endif
-        &discovery,
+        // &discovery,
         &liveData,
         &moduleCommunications,
         &background,
@@ -98,10 +94,23 @@ void CoreModule::run() {
     MainServices mainServices{
         &scheduler,
         &attachedDevices,
-        &wifi,
+        &state,
+        &watchdog,
     };
 
-    StateWithContext<MainServices>::services(mainServices);
+    WifiServices wifiServices{
+        &scheduler,
+        &attachedDevices,
+        &state,
+        &watchdog,
+
+        &wifi,
+        &discovery,
+        &wifi.server(),
+    };
+
+    MainServicesState::services(mainServices);
+    WifiServicesState::services(wifiServices);
 
     while (true) {
         tasks.task();

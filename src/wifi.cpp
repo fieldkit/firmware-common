@@ -13,14 +13,14 @@ Wifi::Wifi(CoreState &state, WifiConnection &connection, AppServicer &servicer, 
     : ActiveObject("Wifi"), state(&state), connection(&connection), connectToWifiAp(state), createWifiAp(state), listen(WifiServerPort, servicer, connection, taskQueue) {
 }
 
-void Wifi::begin() {
+bool Wifi::begin() {
     WiFi.setPins(Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
 
     WiFiSocketClass::allocator = &staticWiFiAllocator;
 
     if (WiFi.status() == WL_NO_SHIELD) {
         log("Error: no wifi (%d, %d, %d, %d)", Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
-        return;
+        return false;
     }
 
     auto fv = WiFi.firmwareVersion();
@@ -30,6 +30,8 @@ void Wifi::begin() {
     disabled = false;
     lastStatusAt = 0;
     version = 0;
+
+    return true;
 }
 
 void Wifi::done(Task &task) {

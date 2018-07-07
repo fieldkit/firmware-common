@@ -8,7 +8,7 @@
 namespace fk {
 
 #ifdef FK_CORE
-void getAccessPointName(char *name, size_t size) {
+static void getAccessPointName(char *name, size_t size) {
     auto length = base64_enc_len(deviceId.length());
     char unique[length + 3];
     unique[0] = 'F';
@@ -19,7 +19,7 @@ void getAccessPointName(char *name, size_t size) {
     strncpy(name, unique, size);
 }
 #else
-void getAccessPointName(char *name, size_t size) {
+static void getAccessPointName(char *name, size_t size) {
     strncpy(name, "FK-UNKONWN", size);
 }
 #endif

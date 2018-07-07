@@ -4,7 +4,7 @@
 
 namespace fk {
 
-Discovery::Discovery(TwoWireBus &bus, Wifi &wifi) : Task("Discovery"), bus(&bus), wifi(&wifi) {
+Discovery::Discovery(Wifi &wifi) : Task("Discovery"), wifi(&wifi) {
 }
 
 TaskEval Discovery::task() {

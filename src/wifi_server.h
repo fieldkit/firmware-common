@@ -36,6 +36,9 @@ public:
 public:
     void end();
     bool inactive();
+    bool isBusy() const {
+        return state == ListenerState::Busy;
+    }
 
 private:
     void begin();

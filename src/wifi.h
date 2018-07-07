@@ -49,10 +49,15 @@ public:
     bool discoveryEnabled() {
         return !isDisabled() && (WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_CONNECTED);
     }
-    void begin();
+    bool begin();
     void done(Task &task) override;
     void error(Task &task) override;
     void idle() override;
+
+public:
+    Listen &server() {
+        return listen;
+    }
 
 private:
     bool isListening();

@@ -8,12 +8,11 @@ namespace fk {
 
 class Discovery : public Task {
 private:
-    TwoWireBus *bus;
     Wifi *wifi;
     uint32_t pingAt{ 0 };
 
 public:
-    Discovery(TwoWireBus &bus, Wifi &wifi);
+    Discovery(Wifi &wifi);
 
 public:
     TaskEval task() override;

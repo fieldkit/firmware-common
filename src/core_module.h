@@ -107,7 +107,7 @@ private:
     WifiConnection connection;
     AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
     Wifi wifi{state, connection, appServicer, servicing};
-    Discovery discovery{ bus, wifi };
+    Discovery discovery{ wifi };
     UserButton button{ leds, fileSystem };
 
 public:

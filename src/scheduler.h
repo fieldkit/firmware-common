@@ -93,7 +93,6 @@ private:
     ScheduledTask *tasks;
     PeriodicTask *periodic;
     uint32_t lastCheckAt{ 0 };
-    uint32_t lastStatusAt{ 0 };
     size_t numberOfTasks;
     size_t numberOfPeriodics;
 

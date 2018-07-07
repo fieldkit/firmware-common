@@ -40,6 +40,10 @@ public:
         return state == TaskEvalState::Error;
     }
 
+    bool isDoneOrError() {
+        return isDone() || isError();
+    }
+
     static TaskEval idle() {
         return TaskEval{ TaskEvalState::Idle };
     }

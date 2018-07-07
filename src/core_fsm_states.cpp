@@ -9,7 +9,9 @@
 namespace fk {
 
 template<>
-MainServices *StateWithContext<MainServices>::services_{ nullptr };
+MainServices *MainServicesState::services_{ nullptr };
+template<>
+WifiServices *WifiServicesState::services_{ nullptr };
 
 class Booting;
 class Initializing;
@@ -19,6 +21,7 @@ class ScanAttachedDevices;
 class Booting : public CoreDevice {
 public:
     void entry() override {
+        CoreDevice::entry();
         transit<Initializing>();
     }
 };
@@ -26,6 +29,7 @@ public:
 class Initializing : public CoreDevice {
 public:
     void entry() override {
+        CoreDevice::entry();
     }
 
     void task() override {
@@ -36,23 +40,22 @@ public:
 class Sleep : public CoreDevice {
 public:
     void entry() override {
+        CoreDevice::entry();
         log("Sleep");
     }
 
     void task() override {
-        if (Serial) {
-            delay(10000);
-        }
-        else {
-            delay(10000);
+        for (auto i = 0; i < 8; ++i) {
+            delay(1000);
         }
         transit<Idle>();
     }
 };
 
-class ScanAttachedDevices : public StateWithContext<MainServices> {
+class ScanAttachedDevices : public MainServicesState {
 public:
     void entry() override {
+        MainServicesState::entry();
         log("ScanAttachedDevices");
     }
 
@@ -65,6 +68,7 @@ public:
 };
 
 void Idle::entry() {
+    MainServicesState::entry();
     log("Idle");
 }
 

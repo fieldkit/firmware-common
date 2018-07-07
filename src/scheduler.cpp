@@ -97,14 +97,6 @@ TaskEval Scheduler::task() {
     if (clock->isValid()) {
         lastCheckAt = millis();
         auto now = clock->now();
-
-        if (millis() - lastStatusAt > StatusInterval) {
-            auto nextTask = getNextTask();
-            FormattedTime formatted{ nextTask.time };
-            log("Next Time: %s (%lus)", formatted.toString(), nextTask.seconds);
-            lastStatusAt = millis();
-        }
-
         for (size_t i = 0; i < numberOfTasks; ++i) {
             if (tasks[i].valid() && tasks[i].shouldRun(now)) {
                 auto &task = tasks[i].getTask();
