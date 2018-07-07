@@ -30,8 +30,8 @@ static void copy(fk_app_Schedule &to, ScheduledTask &from) {
     to.day.offset = 0;
 }
 
-AppServicer::AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
-    : Task("AppServicer"), bus(&bus), query(&pool), reply(&pool), liveData(&liveData), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
+AppServicer::AppServicer(TwoWireBus &bus, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
+    : Task("AppServicer"), bus(&bus), query(&pool), reply(&pool), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
 }
 
 void AppServicer::enqueued() {
@@ -71,7 +71,7 @@ bool AppServicer::readQuery() {
     }
     else if (millis() > dieAt) {
         connection->close();
-        log("Connection timed out.");
+        log("Connection died.");
         return false;
     }
 
@@ -118,6 +118,9 @@ TaskEval AppServicer::handle() {
     buffer->clear();
     reply.clear();
 
+    // TODO: Should this happen after?
+    send_event(AppQueryEvent{ query.m().type });
+
     switch (query.m().type) {
     case fk_app_QueryType_QUERY_CAPABILITIES: {
         capabilitiesReply();
@@ -127,12 +130,9 @@ TaskEval AppServicer::handle() {
     case fk_app_QueryType_QUERY_LIVE_DATA_POLL: {
         log("Live ds (interval = %lu)", query.m().liveDataPoll.interval);
 
-        if (query.m().liveDataPoll.interval > 0) {
-            liveData->start(query.m().liveDataPoll.interval);
-        }
-        else {
-            liveData->stop();
-        }
+        send_event(LiveDataEvent{
+            query.m().liveDataPoll.interval
+        });
 
         auto numberOfReadings = state->numberOfReadings();
         fk_app_LiveDataSample samples[numberOfReadings];

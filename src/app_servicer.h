@@ -4,7 +4,6 @@
 #include "active_object.h"
 #include "app_messages.h"
 #include "core_state.h"
-#include "live_data.h"
 #include "scheduler.h"
 #include "fkfs_replies.h"
 #include "task_container.h"
@@ -18,7 +17,6 @@ private:
     TwoWireBus *bus;
     AppQueryMessage query;
     AppReplyMessage reply;
-    LiveData *liveData;
     CoreState *state;
     Scheduler *scheduler;
     FkfsReplies *fileReplies;
@@ -33,7 +31,7 @@ private:
     size_t bytesRead{ 0 };
 
 public:
-    AppServicer(TwoWireBus &bus, LiveData &liveData, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
+    AppServicer(TwoWireBus &bus, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
 
 public:
     void enqueued() override;

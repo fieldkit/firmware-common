@@ -79,8 +79,7 @@ void CoreModule::run() {
         &watchdog,
         &button,
 
-        // TODO: Move into states.
-        &liveData,
+        // TODO: Move into states?
         &moduleCommunications
     );
 

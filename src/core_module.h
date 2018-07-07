@@ -30,6 +30,7 @@
 #include "radio_service.h"
 #include "user_button.h"
 #include "core_fsm_states.h"
+#include "gather_readings.h"
 
 namespace fk {
 
@@ -84,10 +85,8 @@ private:
     };
     Scheduler scheduler{clock, scheduled, periodics};
 
-    LiveData liveData{gatherReadings, state};
-
     WifiConnection connection;
-    AppServicer appServicer{bus, liveData, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
+    AppServicer appServicer{bus, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
     Wifi wifi{connection, appServicer};
     Discovery discovery;
     UserButton button{ leds, fileSystem };

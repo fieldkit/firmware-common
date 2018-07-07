@@ -102,7 +102,6 @@ void dumpObjectSizes() {
     FK_DUMP_SIZE(fk::Pool);
     FK_DUMP_SIZE(fk::GatherReadings);
     FK_DUMP_SIZE(fk::Scheduler);
-    FK_DUMP_SIZE(fk::LiveData);
     FK_DUMP_SIZE(fk::AppServicer);
     FK_DUMP_SIZE(fk::Wifi);
     FK_DUMP_SIZE(fk::Listen);

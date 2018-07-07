@@ -19,6 +19,20 @@ struct SchedulerEvent : public tinyfsm::Event {
     }
 };
 
+struct LiveDataEvent : public tinyfsm::Event {
+    uint32_t interval;
+
+    LiveDataEvent(uint32_t interval) : interval(interval) {
+    }
+};
+
+struct AppQueryEvent : public tinyfsm::Event {
+    uint8_t type;
+
+    AppQueryEvent(uint8_t type) : type(type) {
+    }
+};
+
 class CoreDevice : public CoreFsm {
 public:
     virtual void react(tinyfsm::Event const &ignored) {
@@ -26,7 +40,15 @@ public:
     }
 
     virtual void react(SchedulerEvent const &ignored) {
-        warn("Ignored Scheduler Event");
+        warn("Ignored SchedulerEvent");
+    }
+
+    virtual void react(LiveDataEvent const &ignored) {
+        warn("Ignored LiveDataEvent");
+    }
+
+    virtual void react(AppQueryEvent const &ignored) {
+        warn("Ignored AppQueryEvent");
     }
 
     virtual void entry() {

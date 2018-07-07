@@ -39,6 +39,16 @@ class WifiTransmitFiles;
 class WifiHandlingConnection;
 
 class WifiState : public WifiServicesState {
+public:
+    void serve() {
+        services().state->updateIp(WiFi.localIP());
+        services().scheduler->task();
+        services().discovery->task();
+        services().server->task();
+        if (services().server->isBusy()) {
+            transit<WifiHandlingConnection>();
+        }
+    }
 };
 
 class WifiTryNetwork : public WifiState {
@@ -169,6 +179,7 @@ public:
             settings_
         };
 
+        // TODO: Maximum time in this state?
         while (true) {
             services().leds->task();
             services().watchdog->task();
@@ -219,21 +230,12 @@ public:
     }
 
     void task() override {
-        services().state->updateIp(WiFi.localIP());
-
-        services().scheduler->task();
-
-        services().discovery->task();
-
-        services().server->task();
-
-        if (services().server->isBusy()) {
-            transit<WifiHandlingConnection>();
-        }
-
         // TODO: Right now scheduled tasks reset our elapsed time.
         if (elapsed() > 1000 * 60) {
             transit<WifiDisable>();
+        }
+        else {
+            serve();
         }
     }
 
@@ -246,8 +248,108 @@ public:
 
 };
 
+class WifiDownloadFile : public WifiState {
+private:
+    FileCopySettings settings_{ FileNumber::StartupLog };
+
+public:
+    WifiDownloadFile() {
+    }
+
+    WifiDownloadFile(FileCopySettings settings) : settings_(settings) {
+    }
+
+public:
+    void entry() override {
+        WifiState::entry();
+        log("WifiDownloadFile");
+    }
+
+    void task() override {
+    }
+};
+
+class WifiModuleQuery : public WifiState {
+public:
+    WifiModuleQuery() {
+    }
+
+public:
+    void entry() override {
+        WifiState::entry();
+        log("WifiModuleQuery");
+    }
+
+    void task() override {
+        transit<WifiListening>();
+    }
+};
+
+class WifiLiveData : public WifiState {
+private:
+    uint32_t interval_{ 0 };
+    uint32_t lastReadings_{ 0 };
+    uint32_t lastPolled_{ 0 };
+
+public:
+    WifiLiveData() {
+    }
+
+    WifiLiveData(uint32_t interval) : interval_(interval) {
+    }
+
+public:
+    void react(LiveDataEvent const &lde) override {
+        interval_ = lde.interval;
+    }
+
+    void react(AppQueryEvent const &aqe) override {
+        if (aqe.type == fk_app_QueryType_QUERY_LIVE_DATA_POLL) {
+            lastPolled_ = fk_uptime();
+        }
+    }
+
+    void entry() override {
+        WifiState::entry();
+        log("WifiLiveData");
+
+        lastReadings_ = 0;
+
+        if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
+            log("No attached modules.");
+            transit<WifiListening>();
+            return;
+        }
+    }
+
+    void task() override {
+        if (interval_ == 0) {
+            log("Cancelled");
+            back();
+            return;
+        }
+
+        if (fk_uptime() - lastPolled_ > LivePollInactivity) {
+            log("Stopped due to inactivity.");
+            transit<WifiListening>();
+            return;
+        }
+
+        if (fk_uptime() - lastReadings_ > interval_) {
+            log("Readings");
+            lastReadings_ = fk_uptime();
+        }
+
+        serve();
+    }
+};
+
 class WifiHandlingConnection : public WifiState {
 public:
+    void react(LiveDataEvent const &lde) override {
+        transit_into<WifiLiveData>(lde.interval);
+    }
+
     void entry() override {
         WifiState::entry();
         log("WifiHandlingConnection");
@@ -256,7 +358,10 @@ public:
 
     void task() override {
         if (services().appServicer->task().isDoneOrError()) {
-            transit<WifiListening>();
+            // HACK: We can transition inside of the AppServicer.
+            if (is_in_state<WifiHandlingConnection>()) {
+                transit<WifiListening>();
+            }
         }
     }
 };
