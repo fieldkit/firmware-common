@@ -56,7 +56,7 @@ uint32_t ScheduledTask::getNextRunTime(DateTime &after) {
         if (minute.fixed >= 0) {
             auto r = minute.fixed - after.minute();
             if (r <= 0) {
-                r += 60;
+                r += 59;
             }
             copy = copy + TimeSpan{ r * 60 };
         } else if (minute.interval >= 0) {
