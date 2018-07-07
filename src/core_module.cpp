@@ -2,6 +2,7 @@
 #include "hardware.h"
 #include "device_id.h"
 #include "status.h"
+#include "core_fsm_states.h"
 
 namespace fk {
 
@@ -76,13 +77,11 @@ void CoreModule::run() {
 
     background.append(ntp);
 
-    // TODO: Can this just take references?
     auto tasks = to_parallel_task_collection(
         &status,
         &leds,
         &power,
         &watchdog,
-        &attachedDevices,
         &scheduler,
         &wifi,
         #ifdef FK_ENABLE_RADIO
@@ -96,8 +95,17 @@ void CoreModule::run() {
         &button
     );
 
+    MainServices mainServices{
+        &scheduler,
+        &attachedDevices,
+        &wifi,
+    };
+
+    StateWithContext<MainServices>::services(mainServices);
+
     while (true) {
         tasks.task();
+        CoreDevice::current().task();
     }
 }
 

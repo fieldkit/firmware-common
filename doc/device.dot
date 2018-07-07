@@ -1,11 +1,12 @@
 digraph fk {
-  Booting -> Starting -> Idle;
+  Booting -> Starting -> ScanAttachedDevices;
 
-  Idle -> WifiTryNetwork;
+  ScanAttachedDevices -> WifiTryNetwork;
 
-  WifiTryNetwork -> WifiConnected;
-  WifiTryNetwork -> WifiTryNetwork;
-  WifiTryNetwork -> WifiCreateAp;
+  Idle -> WifiTryNetworks;
+  WifiTryNetworks -> WifiConnected;
+  WifiTryNetworks -> WifiTryNetworks;
+  WifiTryNetworks -> WifiCreateAp;
   WifiCreateAp -> WifiReady;
 
   WifiConnected -> CheckNtp -> TransmitFiles -> WifiReady;

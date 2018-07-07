@@ -25,6 +25,7 @@ void AttachedDevices::resume() {
         else {
             log("Done scanning.");
             state->doneScanning();
+            scanning = false;
             if (peripherals.twoWire1().isOwner(this)) {
                 peripherals.twoWire1().release(this);
             }
@@ -44,6 +45,7 @@ TaskEval AttachedDevices::task() {
     if (lastScanAt == 0 || millis() - lastScanAt > rescanInterval) {
         log("Starting scan...");
         lastScanAt = millis();
+        scanning = true;
         scan();
     }
 
@@ -57,7 +59,11 @@ TaskEval AttachedDevices::task() {
         }
     }
 
-    return TaskEval::idle();
+    if (scanning) {
+        return TaskEval::busy();
+    }
+
+    return TaskEval::done();
 }
 
 void AttachedDevices::query(uint8_t address) {
@@ -115,6 +121,7 @@ void AttachedDevices::error(ModuleProtocolHandler::Finished &finished) {
         else {
             state->scanFailure();
             retries = 0;
+            scanning = false;
             if (peripherals.twoWire1().isOwner(this)) {
                 peripherals.twoWire1().release(this);
             }

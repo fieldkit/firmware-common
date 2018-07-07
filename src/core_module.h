@@ -75,13 +75,25 @@ private:
 
     NoopTask noop;
 
+    #ifdef FK_PROFILE_AMAZON
+    PeriodicTask periodics[1] {
+        fk::PeriodicTask{ 60 * 1000, noop },
+    };
+    #else
     PeriodicTask periodics[2] {
         fk::PeriodicTask{ 20 * 1000, readGps },
         fk::PeriodicTask{ 60 * 1000, gatherReadings },
     };
+    #endif
     ScheduledTask scheduled[3 ] {
+        #ifdef FK_PROFILE_AMAZON
+        fk::ScheduledTask{ {  0, -1 }, {  0, -1 }, { -1, -1 }, { -1, -1 }, noop },
+        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, noop },
+        #else
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, prepareTransmissionData },
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, transmitAllFilesTask },
+        #endif
+
         #ifdef FK_ENABLE_RADIO
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, sendDataToLoraGateway },
         #else

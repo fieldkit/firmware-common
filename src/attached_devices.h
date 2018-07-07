@@ -78,6 +78,7 @@ private:
     QueryCapabilities queryCapabilities;
     QuerySensorCapabilities querySensorCapabilities;
     uint8_t retries{ 0 };
+    bool scanning{ false };
 
 public:
     AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, ModuleCommunications &communications);

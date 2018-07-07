@@ -66,6 +66,8 @@ else()
   add_definitions(-DFK_CORE_GENERATION_1)
 endif(CORE_GENERATION_2)
 
+add_definitions(-DFK_PROFILE_AMAZON)
+
 # Get the current working branch
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD

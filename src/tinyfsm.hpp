@@ -39,6 +39,8 @@
 #define TINYFSM_HPP_INCLUDED
 
 #include <type_traits>
+#include <cassert>
+#include <utility>
 
 namespace tinyfsm
 {
@@ -64,8 +66,9 @@ public:
 
     static state_ptr_t current_state_ptr;
 
-    static state_ptr_t current() {
-        return current_state_ptr;
+    static F& current() {
+        assert(current_state_ptr != nullptr );
+        return *current_state_ptr;
     }
 
     // public, leaving ability to access state instance (e.g. on reset)
@@ -124,6 +127,14 @@ protected:
         current_state_ptr->entry();
     }
 
+    template<typename S, typename ...Args>
+    void transit_into(Args... args) {
+        current_state_ptr->exit();
+        _state_instance<S>::value = S{ std::forward<Args>(args)... };
+        current_state_ptr = &_state_instance<S>::value;
+        current_state_ptr->entry();
+    }
+
     template<typename S>
     void transit() {
         current_state_ptr->exit();
@@ -131,7 +142,15 @@ protected:
         current_state_ptr->entry();
     }
 
-    template<typename S, typename ActionFunction>
+    template<typename S, typename ActionFunction
+             /*
+             typename = typename std::enable_if<
+                 std::is_function<
+                     typename std::remove_pointer<ActionFunction>::type
+                     >::value
+                 >::type
+             */
+    >
     void transit(ActionFunction action_function) {
         static_assert(std::is_void<typename std::result_of<ActionFunction()>::type >::value, "result type of 'action_function()' is not 'void'");
 
