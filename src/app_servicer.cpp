@@ -1,68 +1,112 @@
-#include <new>
-
 #include <FuelGauge.h>
 
 #include "app_servicer.h"
 #include "utils.h"
 #include "device_id.h"
+#include "download_file_task.h"
+
+#include "wifi_states.h"
+#include "leds.h"
+#include "watchdog.h"
 
 namespace fk {
 
-static void copy(ScheduledTask &to, fk_app_Schedule &from) {
-    to.setSecond(TimeSpec{ (int8_t)from.second.fixed, (int8_t)from.second.interval });
-    to.setMinute(TimeSpec{ (int8_t)from.minute.fixed, (int8_t)from.minute.interval });
-    to.setHour(TimeSpec{ (int8_t)from.hour.fixed, (int8_t)from.hour.interval });
-    to.setDay(TimeSpec{ (int8_t)from.day.fixed, (int8_t)from.day.interval });
-}
+static void copy(ScheduledTask &to, fk_app_Schedule &from);
 
-static void copy(fk_app_Schedule &to, ScheduledTask &from) {
-    to.second.fixed = from.getSecond().fixed;
-    to.second.interval = from.getSecond().interval;
-    to.second.offset = 0;
-    to.minute.fixed = from.getMinute().fixed;
-    to.minute.interval = from.getMinute().interval;
-    to.minute.offset = 0;
-    to.hour.fixed = from.getHour().fixed;
-    to.hour.interval = from.getHour().interval;
-    to.hour.offset = 0;
-    to.day.fixed = from.getDay().fixed;
-    to.day.interval = from.getDay().interval;
-    to.day.offset = 0;
-}
+static void copy(fk_app_Schedule &to, ScheduledTask &from);
+
+class WifiQueryModule : public WifiState {
+private:
+
+public:
+    WifiQueryModule() {
+    }
+
+public:
+    void entry() override {
+        WifiState::entry();
+        log("WifiQueryModule");
+    }
+
+    void task() override {
+        back();
+    }
+};
+
+class WifiDownloadFile : public WifiState {
+private:
+    FileCopySettings settings_{ FileNumber::StartupLog };
+    WifiConnection *connection_{ nullptr };
+
+public:
+    WifiDownloadFile() {
+    }
+
+    WifiDownloadFile(FileCopySettings settings, WifiConnection *connection) : settings_(settings), connection_(connection) {
+    }
+
+public:
+    void entry() override {
+        WifiState::entry();
+        log("WifiDownloadFile");
+    }
+
+    void task() override {
+        StaticPool<384> pool{"WifiDownloadFile"};
+        AppReplyMessage reply(&pool);
+
+        DownloadFileTask task{
+            *services().fileSystem,
+            *services().state,
+            reply,
+            connection_->getBuffer(),
+            *connection_,
+            settings_
+        };
+
+        task.enqueued();
+
+        while (simple_task_run(task)) {
+            services().leds->task();
+            services().watchdog->task();
+        }
+
+        services().appServicer->flushAndClose();
+
+        back();
+    }
+};
 
 AppServicer::AppServicer(TwoWireBus &bus, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
-    : Task("AppServicer"), bus(&bus), query(&pool), reply(&pool), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
+    : bus(&bus), query(&pool), reply(&pool), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
 }
 
 void AppServicer::enqueued() {
-    active.clear();
     bytesRead = 0;
     dieAt = 0;
 }
 
-TaskEval AppServicer::task() {
-    if (active.hasChild()) {
-        auto e = active.task();
-        if (e.isDoneOrError()) {
-            flushAndClose();
-        }
-        return e;
-    }
+void AppServicer::task() {
 
+}
+
+bool AppServicer::service() {
     if (!readQuery()) {
         flushAndClose();
-        return TaskEval::error();
+        return false;
     }
 
     if (bytesRead == 0) {
-        return TaskEval::idle();
+        return false;
     }
 
-    auto e = handle();
-    if (e.isDoneOrError()) {
+    if (handle())  {
         flushAndClose();
     }
-    return e;
+
+    send_event(AppQueryEvent{ query.m().type });
+
+    return false;
 }
 
 bool AppServicer::readQuery() {
@@ -80,7 +124,6 @@ bool AppServicer::readQuery() {
         log("Read %d bytes", read);
         bytesRead += read;
         buffer = &connection->getBuffer();
-        active.clear();
         if (!buffer->read(query)) {
             connection->close();
             log("Error parsing query");
@@ -89,14 +132,6 @@ bool AppServicer::readQuery() {
     }
 
     return true;
-}
-
-void AppServicer::done() {
-    flushAndClose();
-}
-
-void AppServicer::error() {
-    flushAndClose();
 }
 
 bool AppServicer::flushAndClose() {
@@ -113,13 +148,10 @@ bool AppServicer::flushAndClose() {
     return true;
 }
 
-TaskEval AppServicer::handle() {
+bool AppServicer::handle() {
     pool->clear();
     buffer->clear();
     reply.clear();
-
-    // TODO: Should this happen after?
-    send_event(AppQueryEvent{ query.m().type });
 
     switch (query.m().type) {
     case fk_app_QueryType_QUERY_CAPABILITIES: {
@@ -228,20 +260,12 @@ TaskEval AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
-        if (!state->isReadingInProgress()) {
-            log("Download file (%lu)", query.m().downloadFile.id);
-            auto newTask = fileReplies->downloadFileReply(*state, query, reply, *buffer, *connection);
-            active.push(*newTask);
-            return TaskEval::busy();
-        }
-
-        reply.busy("Busy");
-        if (!buffer->write(reply)) {
-            log("Error writing reply");
-        }
-
-        break;
-
+        transit_into<WifiDownloadFile>(FileCopySettings{
+                (FileNumber)query.m().downloadFile.id,
+                query.m().downloadFile.offset,
+                query.m().downloadFile.length,
+            }, connection);
+        return false;
     }
     case fk_app_QueryType_QUERY_ERASE_FILE: {
         log("Erase file (%lu)", query.m().eraseFile.id);
@@ -278,18 +302,9 @@ TaskEval AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_MODULE: {
-        auto task = appModuleQueryTask.ready(*bus, reply, query, *buffer, (uint8_t)query.m().module.address, *communications);
-        if (peripherals.twoWire1().tryAcquire(task)) {
-            active.push(*task);
-            return TaskEval::busy();
-        }
-
-        reply.busy("Busy");
-        if (!buffer->write(reply)) {
-            log("Error writing reply");
-        }
-
-        break;
+        // auto address = (uint8_t)query.m().module.address;
+        transit_into<WifiQueryModule>();
+        return false;
     }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
     default: {
@@ -302,7 +317,7 @@ TaskEval AppServicer::handle() {
     }
     }
 
-    return TaskEval::done();
+    return true;
 }
 
 void AppServicer::capabilitiesReply() {
@@ -459,6 +474,28 @@ void AppServicer::identityReply() {
     if (!buffer->write(reply)) {
         log("Error writing reply");
     }
+}
+
+static void copy(ScheduledTask &to, fk_app_Schedule &from) {
+    to.setSecond(TimeSpec{ (int8_t)from.second.fixed, (int8_t)from.second.interval });
+    to.setMinute(TimeSpec{ (int8_t)from.minute.fixed, (int8_t)from.minute.interval });
+    to.setHour(TimeSpec{ (int8_t)from.hour.fixed, (int8_t)from.hour.interval });
+    to.setDay(TimeSpec{ (int8_t)from.day.fixed, (int8_t)from.day.interval });
+}
+
+static void copy(fk_app_Schedule &to, ScheduledTask &from) {
+    to.second.fixed = from.getSecond().fixed;
+    to.second.interval = from.getSecond().interval;
+    to.second.offset = 0;
+    to.minute.fixed = from.getMinute().fixed;
+    to.minute.interval = from.getMinute().interval;
+    to.minute.offset = 0;
+    to.hour.fixed = from.getHour().fixed;
+    to.hour.interval = from.getHour().interval;
+    to.hour.offset = 0;
+    to.day.fixed = from.getDay().fixed;
+    to.day.interval = from.getDay().interval;
+    to.day.offset = 0;
 }
 
 }

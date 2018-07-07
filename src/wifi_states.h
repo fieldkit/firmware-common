@@ -15,6 +15,12 @@ public:
 
 };
 
+class WifiState : public WifiServicesState {
+public:
+    void serve();
+
+};
+
 }
 
 #endif

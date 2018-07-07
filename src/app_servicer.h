@@ -10,9 +10,11 @@
 #include "app_module_query_task.h"
 #include "wifi_client.h"
 
+#include "core_fsm_states.h"
+
 namespace fk {
 
-class AppServicer : public Task {
+class AppServicer : public MainServicesState {
 private:
     TwoWireBus *bus;
     AppQueryMessage query;
@@ -23,10 +25,7 @@ private:
     WifiConnection *connection;
     ModuleCommunications *communications;
     Pool *pool;
-
-    TaskContainer<AppModuleQueryTask> appModuleQueryTask;
     MessageBuffer *buffer{ nullptr };
-    ChildContainer active;
     uint32_t dieAt{ 0 };
     size_t bytesRead{ 0 };
 
@@ -34,17 +33,14 @@ public:
     AppServicer(TwoWireBus &bus, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
 
 public:
-    void enqueued() override;
-    TaskEval task() override;
-    void done() override;
-    void error() override;
-
-private:
-    TaskEval handle();
+    void enqueued();
+    void task() override;
+    bool service();
+    bool flushAndClose();
 
 private:
     bool readQuery();
-    bool flushAndClose();
+    bool handle();
 
 private:
     void capabilitiesReply();
