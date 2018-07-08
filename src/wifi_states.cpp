@@ -36,7 +36,6 @@ class WifiListening;
 class WifiCreateAp;
 class WifiSyncTime;
 class WifiTransmitFiles;
-class WifiHandlingConnection;
 
 void WifiState::serve() {
     services().state->updateIp(WiFi.localIP());
@@ -45,7 +44,7 @@ void WifiState::serve() {
 
     // Before Scheduler so we service before transitioning to scheduled states.
     if (services().server->isBusy()) {
-        transit<WifiHandlingConnection>();
+        transit(services().appServicer);
         return;
     }
 
@@ -264,96 +263,6 @@ public:
         }
     }
 
-};
-
-class WifiLiveData : public WifiState {
-private:
-    uint32_t interval_{ 0 };
-    uint32_t lastReadings_{ 0 };
-    uint32_t lastPolled_{ 0 };
-
-public:
-    WifiLiveData() {
-    }
-
-    WifiLiveData(uint32_t interval) : interval_(interval) {
-    }
-
-public:
-    const char *name() const override {
-        return "WifiLiveData";
-    }
-
-public:
-    void react(LiveDataEvent const &lde) override {
-        interval_ = lde.interval;
-    }
-
-    void react(AppQueryEvent const &aqe) override {
-        if (aqe.type == fk_app_QueryType_QUERY_LIVE_DATA_POLL) {
-            lastPolled_ = fk_uptime();
-        }
-    }
-
-    void entry() override {
-        WifiState::entry();
-
-        lastReadings_ = 0;
-
-        if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
-            log("No attached modules.");
-            transit_into<WifiListening>();
-            return;
-        }
-    }
-
-    void task() override {
-        if (interval_ == 0) {
-            log("Cancelled");
-            back();
-            return;
-        }
-
-        if (fk_uptime() - lastPolled_ > LivePollInactivity) {
-            log("Stopped due to inactivity.");
-            transit_into<WifiListening>();
-            return;
-        }
-
-        if (fk_uptime() - lastReadings_ > interval_) {
-            log("Readings");
-            lastReadings_ = fk_uptime();
-        }
-
-        serve();
-    }
-};
-
-class WifiHandlingConnection : public WifiState {
-public:
-    const char *name() const override {
-        return "WifiHandlingConnection";
-    }
-
-public:
-    void react(LiveDataEvent const &lde) override {
-        transit_into<WifiLiveData>(lde.interval);
-    }
-
-    void entry() override {
-        WifiState::entry();
-        // TODO: Eventually more of AppServicer will get slurped into this.
-        services().appServicer->enqueued();
-    }
-
-    void task() override {
-        if (!services().appServicer->service()) {
-            // HACK: We can transition inside of the AppServicer.
-            if (is_in_state<WifiHandlingConnection>()) {
-                transit_into<WifiListening>();
-            }
-        }
-    }
 };
 
 class WifiDisable : public WifiState {

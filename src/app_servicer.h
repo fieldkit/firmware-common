@@ -37,7 +37,8 @@ public:
     }
 
 public:
-    void enqueued();
+    void react(LiveDataEvent const &lde) override;
+    void entry() override;
     void task() override;
     bool service();
     bool flushAndClose();

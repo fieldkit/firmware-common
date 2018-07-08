@@ -68,8 +68,6 @@ public:
     virtual void exit() {
     }
 
-    virtual const char *name() const = 0;
-
 public:
     void log(const char *f, ...) const __attribute__((format(printf, 2, 3)));
     void info(const char *f, ...) const __attribute__((format(printf, 2, 3)));

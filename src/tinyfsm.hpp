@@ -88,6 +88,7 @@ public:
     template<typename S>
     static constexpr S &state() {
         static_assert(std::is_same<fsmtype, typename S::fsmtype>::value, "accessing state of different state machine");
+
         return _state_instance<S>::value;
     }
 
@@ -117,7 +118,6 @@ public:
     }
 
 public:
-    // explicitely specialized in FSM_INITIAL_STATE macro
     static void set_initial_state();
 
     static void reset() {
@@ -137,31 +137,27 @@ public:
         current_state_ptr->react(event);
     }
 
-    static void back() {
+    virtual const char *name() const = 0;
+
+protected:
+    void back() {
+        sanity_check_before_transition(previous_state_ptr);
+
         auto temp = previous_state_ptr;
-        // logf(LogLevels::TRACE, "FSM", "Back -> %s", temp->name());
         current_state_ptr->exit();
         previous_state_ptr = current_state_ptr;
         current_state_ptr = temp;
         current_state_ptr->entry();
     }
 
-    static void resume() {
+    void resume() {
+        sanity_check_before_transition(resume_state_ptr);
+
         auto ptr = resume_state_ptr;
-        // logf(LogLevels::TRACE, "FSM", "Resume -> %s", ptr->name());
         resume_state_ptr = nullptr;
         transit(ptr);
     }
 
-private:
-    static void transit(state_ptr_t state_ptr) {
-        current_state_ptr->exit();
-        previous_state_ptr = current_state_ptr;
-        current_state_ptr = state_ptr;
-        current_state_ptr->entry();
-    }
-
-protected:
     void transit(deferred_t deferred) {
         transit(deferred.next_state_ptr);
     }
@@ -190,6 +186,8 @@ protected:
         static_assert(std::is_void<typename std::result_of<ActionFunction()>::type >::value,
                       "result type of 'action_function()' is not 'void'");
 
+        sanity_check_before_transition(&_state_instance<S>::value);
+
         current_state_ptr->exit();
         // NOTE: we get into deep trouble if the action_function sends a new event.
         // TODO: implement a mechanism to check for reentrancy
@@ -206,6 +204,22 @@ protected:
 
         if (condition_function()) {
             transit<S>(action_function);
+        }
+    }
+
+    void transit(state_ptr_t state_ptr) {
+        sanity_check_before_transition(state_ptr);
+
+        current_state_ptr->exit();
+        previous_state_ptr = current_state_ptr;
+        current_state_ptr = state_ptr;
+        current_state_ptr->entry();
+    }
+
+    void sanity_check_before_transition(state_ptr_t state_ptr) {
+        if (transitioned()) {
+            logf(LogLevels::TRACE, "FSM", "%s -> %s from %s",
+                 current_state_ptr->name(), state_ptr->name(), this->name());
         }
     }
 };

@@ -78,17 +78,89 @@ public:
     }
 };
 
+class WifiLiveData : public WifiState {
+private:
+    uint32_t interval_{ 0 };
+    uint32_t lastReadings_{ 0 };
+    uint32_t lastPolled_{ 0 };
+
+public:
+    WifiLiveData() {
+    }
+
+    WifiLiveData(uint32_t interval) : interval_(interval) {
+    }
+
+public:
+    const char *name() const override {
+        return "WifiLiveData";
+    }
+
+public:
+    void react(LiveDataEvent const &lde) override {
+        interval_ = lde.interval;
+    }
+
+    void react(AppQueryEvent const &aqe) override {
+        if (aqe.type == fk_app_QueryType_QUERY_LIVE_DATA_POLL) {
+            lastPolled_ = fk_uptime();
+        }
+    }
+
+    void entry() override {
+        WifiState::entry();
+
+        lastReadings_ = 0;
+
+        if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
+            log("No attached modules.");
+            resume();
+            return;
+        }
+    }
+
+    void task() override {
+        if (interval_ == 0) {
+            log("Cancelled");
+            back();
+            return;
+        }
+
+        if (fk_uptime() - lastPolled_ > LivePollInactivity) {
+            log("Stopped due to inactivity.");
+            resume();
+            return;
+        }
+
+        if (fk_uptime() - lastReadings_ > interval_) {
+            log("Readings");
+            lastReadings_ = fk_uptime();
+        }
+
+        serve();
+    }
+};
+
 AppServicer::AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
     : query(&pool), reply(&pool), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
 }
 
-void AppServicer::enqueued() {
+void AppServicer::react(LiveDataEvent const &lde) {
+    transit_into<WifiLiveData>(lde.interval);
+}
+
+void AppServicer::entry() {
     bytesRead = 0;
     dieAt = 0;
 }
 
 void AppServicer::task() {
-
+    if (!service()) {
+        // Go back unless we transitioned somewhere else.
+        if (!transitioned()) {
+            back();
+        }
+    }
 }
 
 bool AppServicer::service() {
