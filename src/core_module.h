@@ -28,8 +28,9 @@
 #include "transmissions.h"
 #include "radio_service.h"
 #include "user_button.h"
-#include "core_fsm_states.h"
+// #include "core_fsm_states.h"
 #include "gather_readings.h"
+#include "wifi_states.h"
 
 namespace fk {
 
@@ -58,18 +59,13 @@ private:
     GatherReadings gatherReadings{bus, state, leds, moduleCommunications};
 
     // Scheduler stuff.
-    #ifdef FK_PROFILE_AMAZON
-    PeriodicTask periodics[1] {
-    fk::PeriodicTask{ 60 * 1000, { CoreFsm::deferred<IgnoredState>() } },
-    };
-    #else
     PeriodicTask periodics[2] {
-    fk::PeriodicTask{ 20 * 1000, { CoreFsm::deferred<IgnoredState>() } },
-    fk::PeriodicTask{ 60 * 1000, { CoreFsm::deferred<IgnoredState>() } },
+        fk::PeriodicTask{ 1000 * ReadingsInterval,     { CoreFsm::deferred<BeginGatherReadings>() } },
+        fk::PeriodicTask{ 1000 * WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } },
     };
-    #endif
-    ScheduledTask scheduled[1] {
+    ScheduledTask scheduled[2] {
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<BeginGatherReadings>() } },
+        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<WifiStartup>() } },
     };
     Scheduler scheduler{clock, scheduled, periodics};
 

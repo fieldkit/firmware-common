@@ -18,6 +18,9 @@ static bool matches(const TimeSpec &spec, int8_t value) {
 }
 
 bool PeriodicTask::shouldRun() {
+    if (interval == 0) {
+        return false;
+    }
     if (millis() - lastRan > interval) {
         lastRan = millis();
         return true;

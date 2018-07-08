@@ -23,6 +23,8 @@ constexpr uint32_t TwoWireMaximumReplyWait = 3000;
 
 constexpr uint32_t PowerManagementInterval = 5000;
 
+constexpr uint32_t ReadingsInterval = 30;
+
 constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
 constexpr uint32_t GpsStatusInterval = 1 * 500;
 constexpr bool GpsEchoRaw = false;
@@ -37,16 +39,11 @@ constexpr uint32_t ModuleIdleRebootInterval = 1000 * 60 * 10;
 constexpr uint16_t WifiServerPort = 54321;
 constexpr const char WifiApiUrlBase[] = FK_API_BASE;
 constexpr const char WifiApiUrlIngestionStream[] = FK_API_BASE "/messages/ingestion/stream";
-constexpr uint32_t WifiScanDuration = 10 * 1000;
 constexpr uint32_t WifiConnectionMemory = 128;
-constexpr uint32_t WifiAwakenInterval = 1000 * 60 * 1;
-constexpr uint32_t WifiInactivityTimeout = 60 * 1000 * 2;
-constexpr uint32_t WifiTransmitFileMaximumSize = 1024 * 1024;
 constexpr uint32_t WifiConnectionTimeout = 5000;
-constexpr uint32_t WifiStatusInterval = 5000;
 constexpr uint32_t WifiTransmitBusyWaitMax = 10 * 1000;
 constexpr uint32_t WifiTransmitFileMaximumTries = 3;
-constexpr uint32_t WifiApRestartInterval = 60 * 1000;
+constexpr uint32_t WifiTransmitInterval = 5 * 60;
 /**
  * This is copied from SOCKET_BUFFER_SIZE in WiFiSocket.cpp.
  */

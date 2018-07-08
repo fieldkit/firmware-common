@@ -68,6 +68,7 @@ public:
     }
 
 public:
+    void react(SchedulerEvent const &se) override;
     void entry() override;
     void task() override;
 

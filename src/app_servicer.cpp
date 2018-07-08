@@ -107,8 +107,9 @@ bool AppServicer::service() {
         return false;
     }
 
+    // NOTE: We depend on being able to read the query in one go.
     if (bytesRead == 0) {
-        return false;
+        return true;
     }
 
     if (handle())  {

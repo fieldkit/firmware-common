@@ -11,6 +11,7 @@ namespace fk {
 
 template<>
 MainServices *MainServicesState::services_{ nullptr };
+
 template<>
 WifiServices *WifiServicesState::services_{ nullptr };
 
@@ -81,13 +82,6 @@ public:
     }
 
 public:
-    void react(SchedulerEvent const &se) override {
-        if (se.deferred) {
-            warn("Scheduler Event!");
-            transit(se.deferred);
-        }
-    }
-
     void task() override {
         for (auto i = 0; i < 4; ++i) {
             delay(1000);
@@ -98,9 +92,15 @@ public:
 
 void Idle::entry() {
     MainServicesState::entry();
-    log("Idle");
     if (began_ == 0) {
         began_ = fk_uptime();
+    }
+}
+
+void Idle::react(SchedulerEvent const &se) {
+    if (se.deferred) {
+        warn("Scheduler Event!");
+        transit(se.deferred);
     }
 }
 

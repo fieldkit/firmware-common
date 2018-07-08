@@ -4,7 +4,9 @@
 #include <cinttypes>
 
 #include "tinyfsm.hpp"
+
 #include "platform.h"
+#include "debug.h"
 
 namespace fk {
 
@@ -98,6 +100,7 @@ public:
 
 public:
     static T &services() {
+        fk_assert(services_ != nullptr);
         return *services_;
     }
 
