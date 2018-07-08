@@ -3,9 +3,14 @@
 
 #include <cinttypes>
 
+// Arduino
+class Uart;
+
 namespace fk {
 
 uint32_t fk_uptime();
+
+bool fk_console_attached();
 
 }
 

@@ -9,7 +9,8 @@ class Delay : public Task {
     bool startOnEnqueue{ true };
 
 public:
-    Delay(uint32_t duration, bool startOnEnqueue = true) : Task("Delay"), duration(duration), dieAt(millis() + duration), startOnEnqueue(startOnEnqueue) {
+    Delay(uint32_t duration, bool startOnEnqueue = true) :
+        Task("Delay"), duration(duration), dieAt(fk_uptime() + duration), startOnEnqueue(startOnEnqueue) {
     }
 
     void adjust(uint32_t d) {
@@ -25,9 +26,9 @@ public:
 
     TaskEval task() override {
         if (dieAt == 0) {
-            dieAt = millis() + duration;
+            dieAt = fk_uptime() + duration;
         }
-        if (millis() > dieAt) {
+        if (fk_uptime() > dieAt) {
             return TaskEval::done();
         }
         return TaskEval::idle();

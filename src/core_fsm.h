@@ -50,30 +50,14 @@ struct SchedulerEvent : public tinyfsm::Event {
 
 class CoreDevice : public CoreFsm {
 public:
-    virtual void react(tinyfsm::Event const &ignored) {
-        warn("Ignored Event");
-    }
+    virtual void react(tinyfsm::Event const &ignored);
+    virtual void react(SchedulerEvent const &ignored);
+    virtual void react(LiveDataEvent const &ignored);
+    virtual void react(AppQueryEvent const &ignored);
+    virtual void react(UserWakeupEvent const &ignored);
+    virtual void react(UserRebootEvent const &ignored);
 
-    virtual void react(SchedulerEvent const &ignored) {
-        warn("Ignored SchedulerEvent");
-    }
-
-    virtual void react(LiveDataEvent const &ignored) {
-        warn("Ignored LiveDataEvent");
-    }
-
-    virtual void react(AppQueryEvent const &ignored) {
-        warn("Ignored AppQueryEvent");
-    }
-
-    virtual void react(UserWakeupEvent const &ignored) {
-        warn("Ignored UserWakeupEvent");
-    }
-
-    virtual void react(UserRebootEvent const &ignored) {
-        warn("Ignored UserRebootEvent");
-    }
-
+public:
     virtual void entry() {
         log("Entered");
     }

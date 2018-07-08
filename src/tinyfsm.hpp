@@ -77,6 +77,10 @@ public:
         resume_state_ptr = previous_state_ptr;
     }
 
+    bool transitioned() {
+        return current_state_ptr != this;
+    }
+
     // public, leaving ability to access state instance (e.g. on reset)
     template<typename S>
     static constexpr S &state() {

@@ -8,8 +8,7 @@
 #undef round
 #include <array>
 
-#include <Arduino.h>
-
+#include "platform.h"
 #include "debug.h"
 #include "task.h"
 #include "task_container.h"

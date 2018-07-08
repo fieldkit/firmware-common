@@ -73,7 +73,6 @@ public:
     void react(SchedulerEvent const &se) override;
     void entry() override;
     void task() override;
-
 };
 
 class CheckPower : public MainServicesState {
@@ -89,6 +88,16 @@ public:
     void task() override;
 };
 
+class UserWakeup : public MainServicesState {
+public:
+    const char *name() const override {
+        return "UserWakeup";
+    }
+
+public:
+    void task() override;
+};
+
 class RebootDevice : public MainServicesState {
 public:
     const char *name() const override {
@@ -97,31 +106,28 @@ public:
 
 public:
     void task() override;
-
 };
 
 class BeginGatherReadings : public MainServicesState {
-public:
-    void task() override;
-
 public:
     const char *name() const override {
         return "BeginGatherReadings";
     }
 
+public:
+    void task() override;
 };
 
 class IgnoredState : public CoreDevice {
-public:
-    void entry() override {
-        back();
-    }
-
 public:
     const char *name() const override {
         return "IgnoredState";
     }
 
+public:
+    void entry() override {
+        back();
+    }
 };
 
 }

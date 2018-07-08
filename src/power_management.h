@@ -20,8 +20,7 @@ public:
 
 public:
     void setup();
-
-public:
+    float percentage();
     TaskEval task() override;
 
 };

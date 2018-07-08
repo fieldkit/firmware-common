@@ -8,4 +8,8 @@ uint32_t fk_uptime() {
     return millis();
 }
 
+bool fk_console_attached() {
+    return Serial;
+}
+
 }

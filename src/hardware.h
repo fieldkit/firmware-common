@@ -1,7 +1,9 @@
 #ifndef FK_HARDWARE_H_INCLUDED
 #define FK_HARDWARE_H_INCLUDED
 
-#include <Arduino.h>
+#include <cinttypes>
+
+#include "platform.h"
 
 #if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
 

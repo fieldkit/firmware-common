@@ -56,14 +56,30 @@ public:
 
 public:
     void task() override {
-        transit<CheckPower>();
+        transit_into<CheckPower>();
     }
 };
 
-class LowPowerSleep : public MainServicesState {public:
+class LowPowerSleep : public MainServicesState {
 public:
-    void task() {
-        transit<RebootDevice>();
+    const char *name() const override {
+        return "LowPowerSleep";
+    }
+
+public:
+    void task() override {
+        while (true) {
+            services().alive();
+
+            delay(1000);
+
+            auto percentage = services().power->percentage();
+            if (percentage > BatteryLowPowerResumeThreshold) {
+                log("Battery: %f", percentage);
+                transit<RebootDevice>();
+                break;
+            }
+        }
     }
 };
 
@@ -75,6 +91,8 @@ public:
 
 public:
     void task() override {
+        #if !defined(FK_NATURALIST)
+
         uint8_t addresses[4]{ 7, 8, 9, 0 };
 
         AttachedDevices attachedDevices{
@@ -89,6 +107,8 @@ public:
             services().leds->task();
             services().moduleCommunications->task();
         }
+
+        #endif
 
         transit<WifiStartup>();
     }
@@ -113,10 +133,17 @@ public:
 public:
     void task() override {
         log("Maximum: %lu", maximum_);
+
         for (uint32_t i = 0; i < maximum_; ++i) {
             services().alive();
+
+            if (transitioned()) {
+                return;
+            }
+
             delay(1000);
         }
+
         transit<Idle>();
     }
 };
@@ -139,7 +166,7 @@ void Idle::task() {
     if (fk_uptime() - checked_ > 500) {
         auto nextTask = services().scheduler->getNextTask();
         if (nextTask.seconds > 10) {
-            transit_into<Sleep>(nextTask.seconds - 5); // We're greater than 10.
+            transit_into<Sleep>(nextTask.seconds - 5);
             return;
         }
         checked_ = fk_uptime();
@@ -151,6 +178,13 @@ void Idle::task() {
 }
 
 void CheckPower::task() {
+    auto percentage = services().power->percentage();
+    if (percentage < BatteryLowPowerSleepThreshold) {
+        log("Battery: %f", percentage);
+        transit<LowPowerSleep>();
+        return;
+    }
+
     if (visited_) {
         back();
         return;
@@ -158,16 +192,26 @@ void CheckPower::task() {
 
     visited_ = true;
 
-    #if defined(FK_NATURALIST)
-    transit<WifiStartup>();
-    #else
     transit<ScanAttachedDevices>();
-    #endif
+}
+
+void UserWakeup::task() {
+    services().fileSystem->flush();
+
+    transit<WifiStartup>();
 }
 
 void RebootDevice::task() {
+    log("Rebooting!");
+
     services().fileSystem->flush();
-    NVIC_SystemReset();
+
+    if (fk_console_attached()) {
+        transit<Initializing>();
+    }
+    else {
+        NVIC_SystemReset();
+    }
 }
 
 class TakeReadings : public MainServicesState {
@@ -213,6 +257,7 @@ public:
             // TODO: How could we serve here, too?
             services().alive();
         }
+
         transit<TakeReadings>();
     }
 };

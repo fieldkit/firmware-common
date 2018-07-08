@@ -8,9 +8,13 @@ void Power::setup() {
     gauge.powerOn();
 }
 
+float Power::percentage() {
+    return gauge.stateOfCharge();
+}
+
 TaskEval Power::task() {
-    if (millis() > time) {
-        time = millis() + PowerManagementInterval;
+    if (fk_uptime() > time) {
+        time = fk_uptime() + PowerManagementInterval;
         auto percentage = gauge.stateOfCharge();
         auto voltage = gauge.cellVoltage();
         state->updateBattery(percentage, voltage);
