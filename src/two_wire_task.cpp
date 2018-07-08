@@ -19,12 +19,12 @@ void TwoWireTask::enqueued() {
     expectedReplies = 1;
     bytesSent = 0;
     if (outgoing == nullptr) {
-        checkAt = millis() + 200;
+        checkAt = fk_uptime() + 200;
     }
 }
 
 TaskEval TwoWireTask::task() {
-    if (checkAt > 0 && millis() < checkAt) {
+    if (checkAt > 0 && fk_uptime() < checkAt) {
         return TaskEval::idle();
     }
 
@@ -33,13 +33,13 @@ TaskEval TwoWireTask::task() {
             return send();
         }
         else {
-            dieAt = millis() + TwoWireMaximumReplyWait;
-            checkAt = millis() + 100;
+            dieAt = fk_uptime() + TwoWireMaximumReplyWait;
+            checkAt = fk_uptime() + 100;
             return TaskEval::idle();
         }
     }
 
-    if (millis() > dieAt) {
+    if (fk_uptime() > dieAt) {
         log("Error: No reply in time.");
         return TaskEval::error();
     }
@@ -68,9 +68,9 @@ TaskEval TwoWireTask::send() {
         return TaskEval::error();
     }
 
-    dieAt = millis() + TwoWireMaximumReplyWait;
+    dieAt = fk_uptime() + TwoWireMaximumReplyWait;
     // They won't be ready yet, check back soon, though.
-    checkAt = millis() + 100;
+    checkAt = fk_uptime() + 100;
 
     return TaskEval::idle();
 }

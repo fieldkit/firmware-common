@@ -185,9 +185,9 @@ bool AppServicer::service() {
 
 bool AppServicer::readQuery() {
     if (dieAt == 0) {
-        dieAt = millis() + WifiConnectionTimeout;
+        dieAt = fk_uptime() + WifiConnectionTimeout;
     }
-    else if (millis() > dieAt) {
+    else if (fk_uptime() > dieAt) {
         connection->close();
         log("Connection died.");
         return false;
@@ -520,7 +520,7 @@ void AppServicer::statusReply() {
 
     FuelGauge fuelGage;
     reply.m().type = fk_app_ReplyType_REPLY_STATUS;
-    reply.m().status.uptime = millis();
+    reply.m().status.uptime = fk_uptime();
     reply.m().status.batteryPercentage = fuelGage.stateOfCharge();
     reply.m().status.batteryVoltage = fuelGage.cellVoltage();
     reply.m().status.gpsHasFix = false;

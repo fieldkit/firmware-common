@@ -37,7 +37,7 @@ TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wif
 void TransmitFileTask::enqueued() {
     tries = 0;
     connected = false;
-    waitingSince = millis();
+    waitingSince = fk_uptime();
 }
 
 TaskEval TransmitFileTask::task() {
@@ -96,7 +96,7 @@ TaskEval TransmitFileTask::task() {
             }
             else {
                 connected = false;
-                waitingSince = millis();
+                waitingSince = fk_uptime();
                 return TaskEval::busy();
             }
         }
@@ -111,9 +111,9 @@ TaskEval TransmitFileTask::task() {
     }
     else {
         if (waitingSince == 0) {
-            waitingSince = millis();
+            waitingSince = fk_uptime();
         }
-        if (millis() - waitingSince > WifiTransmitBusyWaitMax) {
+        if (fk_uptime() - waitingSince > WifiTransmitBusyWaitMax) {
             log("No response after (%lu).", WifiTransmitBusyWaitMax);
             wcl.flush();
             wcl.stop();

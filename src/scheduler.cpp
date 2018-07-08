@@ -21,8 +21,8 @@ bool PeriodicTask::shouldRun() {
     if (interval == 0) {
         return false;
     }
-    if (millis() - lastRan > interval) {
-        lastRan = millis();
+    if (fk_uptime() - lastRan > interval) {
+        lastRan = fk_uptime();
         return true;
     }
     return false;
@@ -93,13 +93,13 @@ bool ScheduledTask::matches(DateTime now) {
 }
 
 TaskEval Scheduler::task() {
-    auto elapsed = millis() - lastCheckAt;
+    auto elapsed = fk_uptime() - lastCheckAt;
     if (elapsed < CheckInterval) {
         return TaskEval::idle();
     }
 
     if (clock->isValid()) {
-        lastCheckAt = millis();
+        lastCheckAt = fk_uptime();
         auto now = clock->now();
         for (size_t i = 0; i < numberOfTasks; ++i) {
             if (tasks[i].valid() && tasks[i].shouldRun(now)) {
@@ -111,6 +111,7 @@ TaskEval Scheduler::task() {
                 log("Run (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
                 #endif
                 send_event(event);
+                break;
             }
         }
     }
@@ -121,6 +122,7 @@ TaskEval Scheduler::task() {
             log("Run periodic");
             #endif
             send_event(event);
+            break;
         }
     }
 

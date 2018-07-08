@@ -93,7 +93,7 @@ ModuleProtocolHandler::ModuleProtocolHandler(ModuleCommunications &communication
 
 void ModuleProtocolHandler::push(uint8_t address, ModuleQuery &query, uint32_t delay) {
     active = Queued{ };
-    pending = Queued{ address, &query, delay > 0 ? millis() + delay : 0 };
+    pending = Queued{ address, &query, delay > 0 ? fk_uptime() + delay : 0 };
 }
 
 bool ModuleProtocolHandler::isBusy() {
@@ -103,7 +103,7 @@ bool ModuleProtocolHandler::isBusy() {
 ModuleProtocolHandler::Finished ModuleProtocolHandler::handle() {
     if (!communications->busy()) {
         if (pending.query != nullptr) {
-            if (millis() > pending.delay) {
+            if (fk_uptime() > pending.delay) {
                 communications->enqueue(pending.address, *pending.query);
                 active = pending;
                 pending = Queued{};

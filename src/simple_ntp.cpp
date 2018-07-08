@@ -24,10 +24,10 @@ TaskEval SimpleNTP::task() {
         return TaskEval::done();
     }
 
-    if (lastSent == 0 || millis() - lastSent > NtpRetryAfter) {
+    if (lastSent == 0 || fk_uptime() - lastSent > NtpRetryAfter) {
         log("Asking for time...");
         start();
-        lastSent = millis();
+        lastSent = fk_uptime();
     }
 
     if (udp.parsePacket()) {

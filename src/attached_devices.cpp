@@ -38,9 +38,9 @@ void AttachedDevices::resume() {
 
 TaskEval AttachedDevices::task() {
     auto rescanInterval = (state->numberOfModules() == 0 ? RescanExistingModulesInterval : RescanExistingModulesInterval);
-    if (lastScanAt == 0 || millis() - lastScanAt > rescanInterval) {
+    if (lastScanAt == 0 || fk_uptime() - lastScanAt > rescanInterval) {
         log("Starting scan...");
-        lastScanAt = millis();
+        lastScanAt = fk_uptime();
         scanning = true;
         scan();
     }

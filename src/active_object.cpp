@@ -3,18 +3,18 @@
 namespace fk {
 
 void callIdle(ActiveObject *task) {
-    auto began = millis();
+    auto began = fk_uptime();
     task->idle();
-    auto ended = millis();
+    auto ended = fk_uptime();
     if (ended - began > 500) {
         logf(LogLevels::TRACE, "Tasks", "Long idle: %s (%lu)", task->name, ended - began);
     }
 }
 
 TaskEval callTask(Task *task) {
-    auto began = millis();
+    auto began = fk_uptime();
     auto eval = task->task();
-    auto ended = millis();
+    auto ended = fk_uptime();
     if (!task->collection()) {
         if (ended - began > 500) {
             logf(LogLevels::TRACE, "Tasks", "Long task: %s (%lu)", task->name, ended - began);

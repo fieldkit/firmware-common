@@ -74,7 +74,7 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
 
 DataRecordStatusMessage::DataRecordStatusMessage(CoreState &state, Pool &pool) : DataRecordMessage(pool) {
     m().status.time = clock.getTime();
-    m().status.uptime = millis();
+    m().status.uptime = fk_uptime();
     m().status.battery = state.getStatus().batteryPercentage;
     m().status.memory = fk_free_memory();
     m().status.busy = 0;

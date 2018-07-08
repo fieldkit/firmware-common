@@ -27,7 +27,7 @@ public:
 
     T &acquire() {
         fk_assert(available());
-        acquiredAt = millis();
+        acquiredAt = fk_uptime();
         return resource();
     }
 

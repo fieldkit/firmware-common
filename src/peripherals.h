@@ -26,7 +26,7 @@ public:
     // TODO: Specify who?
     void acquire(void *newOwner) {
         fk_assert(available());
-        acquiredAt = millis();
+        acquiredAt = fk_uptime();
         owner = newOwner;
     }
 

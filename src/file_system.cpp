@@ -95,7 +95,7 @@ bool FileSystem::setup() {
         return false;
     }
 
-    log_configure_time(millis, log_uptime);
+    log_configure_time(fk_uptime, log_uptime);
     log_add_hook(debug_write_log, nullptr);
     log_configure_hook(true);
 
@@ -168,7 +168,7 @@ bool FileCopyOperation::prepare(const FileReader &reader, const FileCopySettings
     started_ = 0;
     busy_ = true;
     copied_ = 0;
-    lastStatus_ = millis();
+    lastStatus_ = fk_uptime();
     total_ = reader_.size() - reader_.tell();
 
     return true;
@@ -176,11 +176,11 @@ bool FileCopyOperation::prepare(const FileReader &reader, const FileCopySettings
 
 bool FileCopyOperation::copy(lws::Writer &writer) {
     if (started_ == 0) {
-        started_ = millis();
+        started_ = fk_uptime();
     }
 
-    auto started = millis();
-    while (millis() - started < FileCopyMaximumElapsed) {
+    auto started = fk_uptime();
+    while (fk_uptime() - started < FileCopyMaximumElapsed) {
         if (reader_.isFinished()) {
             status();
             busy_ = false;
@@ -198,9 +198,9 @@ bool FileCopyOperation::copy(lws::Writer &writer) {
             busy_ = false;
             return false;
         }
-        if (millis() - lastStatus_ > FileCopyStatusInterval) {
+        if (fk_uptime() - lastStatus_ > FileCopyStatusInterval) {
             status();
-            lastStatus_ = millis();
+            lastStatus_ = fk_uptime();
         }
     }
 
@@ -208,11 +208,11 @@ bool FileCopyOperation::copy(lws::Writer &writer) {
 }
 
 void FileCopyOperation::status() {
-    auto elapsed = millis() - started_;
+    auto elapsed = fk_uptime() - started_;
     auto complete = copied_ > 0 ? ((float)copied_ / total_) * 100.0f : 0.0f;
     auto speed = copied_ > 0 ? copied_ / ((float)elapsed / 1000.0f) : 0.0f;
     logf(LogLevels::TRACE, "Copy", "%lu/%lu %lums %.2f %.2fbps (%lu)",
-         copied_, total_, elapsed, complete, speed, millis() - lastStatus_);
+         copied_, total_, elapsed, complete, speed, fk_uptime() - lastStatus_);
 }
 
 }

@@ -40,7 +40,7 @@ void Module::resume() {
 
 void Module::receive(size_t bytes) {
     if (bytes > 0) {
-        lastActivity = millis();
+        lastActivity = fk_uptime();
         moduleServicer.read(bytes);
         servicing.append(moduleServicer);
     }
@@ -74,7 +74,7 @@ void Module::tick() {
     watchdog.task();
     servicing.task();
 
-    if (millis() - lastActivity > ModuleIdleRebootInterval) {
+    if (fk_uptime() - lastActivity > ModuleIdleRebootInterval) {
         log("Reboot due to inactivity.");
         NVIC_SystemReset();
     }

@@ -6,6 +6,7 @@
 #include <fk-core.h>
 
 #include "config.h"
+#include "platform.h"
 #include "seed.h"
 #include "device_id.h"
 #include "two_wire.h"
@@ -41,7 +42,7 @@ void setup() {
 
     Serial.begin(115200);
 
-    while (!Serial && millis() < 2000) {
+    while (!Serial && fk::fk_uptime() < 2000) {
         delay(100);
     }
 

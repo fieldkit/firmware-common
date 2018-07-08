@@ -55,7 +55,7 @@ private:
     PeriodicTask periodics[3] {
         fk::PeriodicTask{ 1000 * WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } },
         fk::PeriodicTask{ 1000 * ReadingsInterval,     { CoreFsm::deferred<BeginGatherReadings>() } },
-        // NOTE: Minimum interval is now 5s.
+        // NOTE: This should happen less frequently.
         fk::PeriodicTask{ 1000 * 5,                    { CoreFsm::deferred<CheckPower>() } },
     };
     ScheduledTask scheduled[2] {

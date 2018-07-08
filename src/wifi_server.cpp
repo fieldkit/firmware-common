@@ -9,7 +9,7 @@ Listen::Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection)
 
 void Listen::begin() {
     if (state == ListenerState::Idle) {
-        lastActivity = millis();
+        lastActivity = fk_uptime();
         server.begin();
         log("Server began (port = %d)", port);
         state = ListenerState::Disconnected;
@@ -41,7 +41,7 @@ TaskEval Listen::task() {
     if (state == ListenerState::Disconnected) {
         auto wcl = server.available();
         if (wcl) {
-            lastActivity = millis();
+            lastActivity = fk_uptime();
             log("Accepted!");
             connection->setConnection(wcl);
             state = ListenerState::Busy;

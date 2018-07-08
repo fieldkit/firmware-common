@@ -5,7 +5,7 @@
 namespace fk {
 
 TaskEval Status::task() {
-    if (millis() - lastTick > StatusInterval) {
+    if (fk_uptime() - lastTick > StatusInterval) {
         IpAddress4 ip{ state->getStatus().ip };
         auto now = clock.now();
         auto percentage = state->getStatus().batteryPercentage;
@@ -18,7 +18,7 @@ TaskEval Status::task() {
                  percentage, voltage, fk_free_memory(),
                  deviceId.toString(), ip.toString(), state);
 
-        lastTick = millis();
+        lastTick = fk_uptime();
 
         if (percentage < BatteryStatusBlinkThreshold) {
             auto batteryBlinks = (uint8_t)(percentage / 10.0f);

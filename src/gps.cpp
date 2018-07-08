@@ -84,7 +84,7 @@ void GpsService::read() {
 
     if (started == 0) {
         position = 0;
-        started = millis();
+        started = fk_uptime();
     }
 
     while (serial->available()) {

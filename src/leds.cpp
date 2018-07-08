@@ -5,19 +5,19 @@ namespace fk {
 TaskEval Blinker::task() {
     switch (kind) {
     case BlinkerKind::Fatal:  {
-        if (nextChange < millis()) {
+        if (nextChange < fk_uptime()) {
             auto value = !digitalRead(A1);
             digitalWrite(A3, value);
             digitalWrite(A4, value);
             digitalWrite(A5, value);
-            nextChange = millis() + 100;
+            nextChange = fk_uptime() + 100;
         }
         break;
     }
     case BlinkerKind::NoAttachedModules:  {
-        if (nextChange < millis()) {
+        if (nextChange < fk_uptime()) {
             digitalWrite(A3, !digitalRead(A3));
-            nextChange = millis() + 500;
+            nextChange = fk_uptime() + 500;
         }
         break;
     }
@@ -29,12 +29,12 @@ TaskEval Blinker::task() {
         break;
     }
     case BlinkerKind::Status:  {
-        if (nextChange < millis()) {
+        if (nextChange < fk_uptime()) {
             if (digitalRead(A5)) {
                 digitalWrite(A5, LOW);
                 if (blinksRemaining > 1) {
                     blinksRemaining--;
-                    nextChange = millis() + 200;
+                    nextChange = fk_uptime() + 200;
                 }
                 else {
                     clear();
@@ -42,7 +42,7 @@ TaskEval Blinker::task() {
             }
             else {
                 digitalWrite(A5, HIGH);
-                nextChange = millis() + 200;
+                nextChange = fk_uptime() + 200;
             }
         }
         break;

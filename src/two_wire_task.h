@@ -41,11 +41,11 @@ public:
     TaskEval task() override;
 
     void error() override {
-        doneAt = millis();
+        doneAt = fk_uptime();
     }
 
     void done() override {
-        doneAt = millis();
+        doneAt = fk_uptime();
     }
 
     bool completed() {

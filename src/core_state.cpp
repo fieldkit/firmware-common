@@ -198,7 +198,7 @@ void CoreState::setDeviceId(const char *deviceId) {
 
 void CoreState::configure(NetworkSettings newSettings) {
     networkSettings = newSettings;
-    networkSettings.version = millis();
+    networkSettings.version = fk_uptime();
     save();
 }
 

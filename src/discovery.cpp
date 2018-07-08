@@ -8,11 +8,11 @@ Discovery::Discovery() : Task("Discovery") {
 }
 
 TaskEval Discovery::task() {
-    if (pingAt < millis()) {
+    if (pingAt < fk_uptime()) {
         if (wifiDiscoveryEnabled()) {
             ping();
         }
-        pingAt = millis() + DiscoveryPingInterval;
+        pingAt = fk_uptime() + DiscoveryPingInterval;
     }
 
     return TaskEval::idle();

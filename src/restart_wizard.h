@@ -1,6 +1,7 @@
 #ifndef FK_RESTART_WIZARD_H_INCLUDED
 #define FK_RESTART_WIZARD_H_INCLUDED
 
+#include "platform.h"
 #include "debug.h"
 
 namespace fk {
@@ -64,7 +65,7 @@ public:
     void startup();
     void checkin(Call call);
     void looped() {
-        lastLoop = millis();
+        lastLoop = fk_uptime();
     }
     void dump();
     Call &lastCall() {
