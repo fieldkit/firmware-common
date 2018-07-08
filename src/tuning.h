@@ -67,8 +67,12 @@ constexpr uint32_t FileCopyMaximumElapsed = 8000;
 
 constexpr size_t FileSystemNumberOfFiles = 5;
 
+constexpr uint32_t LedsBlinkButtonWarn = 100;
+
 constexpr uint32_t ButtonTouchHysteresis = 100;
+constexpr uint32_t ButtonShortPressDuration = 50;
 constexpr uint32_t ButtonLongPressDuration = 2000;
+constexpr uint32_t ButtonLedsWarnDuration = 1000;
 
 }
 

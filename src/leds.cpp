@@ -141,6 +141,9 @@ void Leds::fatal() {
     push(BlinkerKind::Fatal);
 }
 
+void Leds::blink(uint32_t duration) {
+}
+
 void Leds::takingReadings() {
     push(BlinkerKind::Reading);
 }

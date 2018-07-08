@@ -90,9 +90,13 @@ public:
     }
 
     struct deferred_t {
-        state_ptr_t next_state_ptr;
+        state_ptr_t next_state_ptr{ nullptr };
+        const char *name{ nullptr };
 
-        deferred_t(state_ptr_t ptr = nullptr) : next_state_ptr(ptr) {
+        deferred_t() {
+        }
+
+        deferred_t(state_ptr_t ptr, const char *name) : next_state_ptr(ptr), name(name) {
         }
 
         operator bool() const {
@@ -102,7 +106,7 @@ public:
 
     template<typename S>
     static deferred_t deferred() {
-        return { &_state_instance<S>::value };
+        return { &_state_instance<S>::value, "" };
     }
 
 public:

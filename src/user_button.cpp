@@ -23,8 +23,11 @@ TaskEval UserButton::task() {
         pressed_ = value;
 
         if (!pressed_) {
+            if (millis() - changedAt_ > ButtonShortPressDuration) {
+                send_event(UserWakeupEvent{ });
+            }
+
             if (millis() - changedAt_ > ButtonLongPressDuration) {
-                log("Restart!");
                 send_event(UserRebootEvent{ });
             }
 
@@ -35,6 +38,10 @@ TaskEval UserButton::task() {
         }
     }
     else if (pressed_) {
+        if (millis() - changedAt_ > ButtonLedsWarnDuration) {
+            leds_->blink(LedsBlinkButtonWarn);
+        }
+
         if (millis() - changedAt_ > ButtonLongPressDuration) {
             leds_->restarting();
         }

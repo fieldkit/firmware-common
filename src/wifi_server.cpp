@@ -43,7 +43,6 @@ TaskEval Listen::task() {
         if (wcl) {
             lastActivity = millis();
             log("Accepted!");
-            pool.clear();
             connection->setConnection(wcl);
             state = ListenerState::Busy;
             return TaskEval::idle();

@@ -31,6 +31,8 @@ struct MainServices {
         leds(leds), watchdog(watchdog), power(power), status(status), state(state), fileSystem(fileSystem), button(button),
         scheduler(scheduler), moduleCommunications(moduleCommunications) {
     }
+
+    void alive();
 };
 
 class Wifi;
@@ -55,12 +57,7 @@ struct WifiServices : MainServices {
 };
 
 using WifiServicesState = StateWithContext<WifiServices>;
-
-class MainServicesState : public StateWithContext<MainServices> {
-public:
-    void alive();
-
-};
+using MainServicesState = StateWithContext<MainServices>;
 
 class Idle : public MainServicesState {
 private:
@@ -80,6 +77,9 @@ public:
 };
 
 class CheckPower : public MainServicesState {
+private:
+    bool visited_{ false };
+
 public:
     const char *name() const override {
         return "CheckPower";

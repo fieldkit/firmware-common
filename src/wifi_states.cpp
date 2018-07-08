@@ -39,6 +39,8 @@ class WifiTransmitFiles;
 class WifiHandlingConnection;
 
 void WifiState::serve() {
+    services().alive();
+
     services().state->updateIp(WiFi.localIP());
     services().scheduler->task();
     services().discovery->task();

@@ -7,6 +7,8 @@
 
 namespace fk {
 
+#define FK_LOGGING_POOL_VERBOSE
+
 Pool::Pool(const char *name, size_t size, void *block) {
     this->name = name;
     this->block = block;
@@ -15,7 +17,10 @@ Pool::Pool(const char *name, size_t size, void *block) {
     this->remaining = size;
 
     #ifdef FK_LOGGING_POOL_VERBOSE
-    debugfpln("Pool", "Create: 0x%x %s size=%d/%d ptr=0x%x (free=%lu)", (unsigned)this, name, size, size, (unsigned)ptr, fk_free_memory());
+    if (size > 0) {
+        logf(LogLevels::TRACE, "Pool", "Create: 0x%p %s size=%d/%d ptr=0x%p (free=%lu)",
+             this, name, size, size, ptr, fk_free_memory());
+    }
     #endif
 }
 
@@ -24,7 +29,7 @@ void Pool::clear() {
     remaining = size;
 
     #ifdef FK_LOGGING_POOL_VERBOSE
-    debugfpln("Pool", "Clear: 0x%x %s", (unsigned)this, name);
+    logf(LogLevels::TRACE, "Pool", "Clear: 0x%p %s", this, name);
     #endif
 }
 
@@ -32,7 +37,8 @@ void *Pool::malloc(size_t size) {
     auto aligned = alignedSize(size);
 
     #ifdef FK_LOGGING_POOL_VERBOSE
-    debugfpln("Pool", "Malloc 0x%x %s size=%d aligned=%d (free=%d)", (unsigned)this, name, size, aligned, remaining - aligned);
+    logf(LogLevels::TRACE, "Pool", "Malloc 0x%p %s size=%d aligned=%d (free=%d)",
+         this, name, size, aligned, remaining - aligned);
     #endif
 
     fk_assert(this->size >= aligned);

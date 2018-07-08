@@ -18,10 +18,18 @@
 namespace fk {
 
 template<>
-MainServices *StateWithContext<MainServices>::services_{ nullptr };
+MainServices *MainServicesState::services_{ nullptr };
 
 template<>
 WifiServices *WifiServicesState::services_{ nullptr };
+
+void MainServices::alive() {
+    leds->task();
+    watchdog->task();
+    button->task();
+    power->task();
+    status->task();
+}
 
 class Booting;
 class Initializing;
@@ -86,7 +94,7 @@ public:
     }
 };
 
-class Sleep : public CoreDevice {
+class Sleep : public MainServicesState {
 private:
     uint32_t maximum_{ 0 };
 
@@ -104,20 +112,14 @@ public:
 
 public:
     void task() override {
-        for (auto i = 0; i < 4; ++i) {
+        log("Maximum: %lu", maximum_);
+        for (uint32_t i = 0; i < maximum_; ++i) {
+            services().alive();
             delay(1000);
         }
         transit<Idle>();
     }
 };
-
-void MainServicesState::alive() {
-    services().leds->task();
-    services().watchdog->task();
-    services().button->task();
-    services().power->task();
-    services().status->task();
-}
 
 void Idle::entry() {
     MainServicesState::entry();
@@ -145,10 +147,17 @@ void Idle::task() {
 
     services().scheduler->task();
 
-    alive();
+    services().alive();
 }
 
 void CheckPower::task() {
+    if (visited_) {
+        back();
+        return;
+    }
+
+    visited_ = true;
+
     #if defined(FK_NATURALIST)
     transit<WifiStartup>();
     #else
@@ -174,6 +183,16 @@ public:
 };
 
 class TakeGpsReading : public MainServicesState {
+private:
+    uint32_t interval_{ GpsFixAttemptInterval };
+
+public:
+    TakeGpsReading() {
+    }
+
+    TakeGpsReading(uint32_t interval) : interval_(interval) {
+    }
+
 public:
     const char *name() const override {
         return "TakeGpsReading";
@@ -186,12 +205,13 @@ public:
 
         gps.enqueued();
 
-        while (elapsed() < GpsFixAttemptInterval) {
+        while (elapsed() < interval_) {
             if (!simple_task_run(gps)) {
                 break;
             }
 
-            alive();
+            // TODO: How could we serve here, too?
+            services().alive();
         }
         transit<TakeReadings>();
     }

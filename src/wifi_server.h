@@ -24,7 +24,6 @@ private:
     uint16_t port{ 0 };
     uint32_t lastActivity{ 0 };
     ListenerState state{ ListenerState::Idle };
-    StaticPool<WifiConnectionMemory> pool{ "WifiService" };
     WiFiServer server;
     AppServicer *servicer;
     WifiConnection *connection;

@@ -64,6 +64,7 @@ public:
     void restarting();
     void alive();
     void fatal();
+    void blink(uint32_t duration);
     void takingReadings();
     void doneTakingReadings();
     void noAttachedModules();

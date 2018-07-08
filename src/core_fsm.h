@@ -31,6 +31,9 @@ struct WifiEvent : public tinyfsm::Event {
     }
 };
 
+struct UserWakeupEvent : public tinyfsm::Event {
+};
+
 struct UserRebootEvent : public tinyfsm::Event {
 };
 
@@ -61,6 +64,10 @@ public:
 
     virtual void react(AppQueryEvent const &ignored) {
         warn("Ignored AppQueryEvent");
+    }
+
+    virtual void react(UserWakeupEvent const &ignored) {
+        warn("Ignored UserWakeupEvent");
     }
 
     virtual void react(UserRebootEvent const &ignored) {
