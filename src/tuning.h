@@ -65,7 +65,7 @@ constexpr float BatteryLowPowerResumeThreshold = 30.0;
 
 constexpr uint32_t FileCopyBufferSize = 256;
 constexpr uint32_t FileCopyStatusInterval = 1000;
-constexpr uint32_t FileCopyMaximumElapsed = 8000;
+constexpr uint32_t FileCopyMaximumElapsed = 4000;
 
 constexpr size_t FileSystemNumberOfFiles = 5;
 

@@ -42,6 +42,8 @@
 #include <cassert>
 #include <utility>
 
+#include "debug.h"
+
 namespace tinyfsm
 {
 
@@ -75,6 +77,7 @@ public:
 
     static void resume_at_back() {
         resume_state_ptr = previous_state_ptr;
+        // logf(LogLevels::TRACE, "FSM", "Will resume: %s", resume_state_ptr->name());
     }
 
     bool transitioned() {
@@ -136,6 +139,7 @@ public:
 
     static void back() {
         auto temp = previous_state_ptr;
+        // logf(LogLevels::TRACE, "FSM", "Back -> %s", temp->name());
         current_state_ptr->exit();
         previous_state_ptr = current_state_ptr;
         current_state_ptr = temp;
@@ -144,6 +148,7 @@ public:
 
     static void resume() {
         auto ptr = resume_state_ptr;
+        // logf(LogLevels::TRACE, "FSM", "Resume -> %s", ptr->name());
         resume_state_ptr = nullptr;
         transit(ptr);
     }

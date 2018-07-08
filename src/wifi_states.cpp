@@ -39,15 +39,20 @@ class WifiTransmitFiles;
 class WifiHandlingConnection;
 
 void WifiState::serve() {
-    services().alive();
-
     services().state->updateIp(WiFi.localIP());
-    services().scheduler->task();
-    services().discovery->task();
+
     services().server->task();
+
+    // Before Scheduler so we service before transitioning to scheduled states.
     if (services().server->isBusy()) {
         transit<WifiHandlingConnection>();
+        return;
     }
+
+    services().alive();
+    services().discovery->task();
+    services().scheduler->task();
+
 }
 
 class WifiTryNetwork : public WifiState {

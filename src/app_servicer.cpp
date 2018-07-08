@@ -28,13 +28,8 @@ public:
     }
 
 public:
-    void entry() override {
-        WifiState::entry();
-        log("WifiQueryModule");
-    }
-
     void task() override {
-        back();
+        resume();
     }
 
 };
@@ -57,11 +52,6 @@ public:
     }
 
 public:
-    void entry() override {
-        WifiState::entry();
-        log("WifiDownloadFile");
-    }
-
     void task() override {
         StaticPool<384> pool{"WifiDownloadFile"};
         AppReplyMessage reply(&pool);
@@ -84,7 +74,7 @@ public:
 
         services().appServicer->flushAndClose();
 
-        back();
+        resume();
     }
 };
 
@@ -276,6 +266,8 @@ bool AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
+        resume_at_back();
+
         transit_into<WifiDownloadFile>(FileCopySettings{
                 (FileNumber)query.m().downloadFile.id,
                 query.m().downloadFile.offset,
@@ -318,6 +310,8 @@ bool AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_MODULE: {
+        resume_at_back();
+
         // auto address = (uint8_t)query.m().module.address;
         transit_into<WifiQueryModule>();
         return false;

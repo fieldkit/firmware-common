@@ -10,7 +10,6 @@ DownloadFileTask::DownloadFileTask(FileSystem &fileSystem, CoreState &state, App
 }
 
 void DownloadFileTask::enqueued() {
-    log("Enqueue");
     bytesCopied = 0;
     if (!fileSystem->beginFileCopy(settings)) {
         log("Failed to open file");
