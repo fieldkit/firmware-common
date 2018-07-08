@@ -25,6 +25,7 @@ void CoreModule::begin() {
     watchdog.setup();
     bus.begin();
     power.setup();
+    button.enqueued();
 
     fk_assert(deviceId.initialize(bus));
 

@@ -10,14 +10,23 @@ class FileSystem;
 
 class UserButton : public Task {
 private:
+    enum class PendingButtonEvent {
+        None,
+        Wakeup,
+        Reboot
+    };
+
     Leds *leds_;
     bool pressed_{ false };
     uint32_t changedAt_{ 0 };
+    uint32_t notified_{ 0 };
+    PendingButtonEvent pending_{ PendingButtonEvent::None };
 
 public:
     UserButton(Leds &leds);
 
 public:
+    void handler();
     void enqueued() override;
     TaskEval task() override;
 

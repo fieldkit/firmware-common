@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #include "leds.h"
 
 namespace fk {
@@ -142,6 +140,9 @@ void Leds::fatal() {
 }
 
 void Leds::blink(uint32_t duration) {
+    all(true);
+    delay(duration);
+    all(false);
 }
 
 void Leds::takingReadings() {
