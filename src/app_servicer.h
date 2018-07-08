@@ -33,6 +33,11 @@ public:
     AppServicer(TwoWireBus &bus, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
 
 public:
+    const char *name() const override {
+        return "AppServicer";
+    }
+
+public:
     void enqueued();
     void task() override;
     bool service();

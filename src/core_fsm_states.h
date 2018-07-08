@@ -61,6 +61,11 @@ private:
     uint32_t began_{ 0 };
 
 public:
+    const char *name() const override {
+        return "Idle";
+    }
+
+public:
     void entry() override;
     void task() override;
 
@@ -68,8 +73,12 @@ public:
 
 class BeginGatherReadings : public MainServicesState {
 public:
-    void entry() override;
     void task() override;
+
+public:
+    const char *name() const override {
+        return "BeginGatherReadings";
+    }
 
 };
 
@@ -77,6 +86,11 @@ class IgnoredState : public CoreDevice {
 public:
     void entry() override {
         back();
+    }
+
+public:
+    const char *name() const override {
+        return "IgnoredState";
     }
 
 };

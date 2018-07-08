@@ -20,18 +20,23 @@ class ScanAttachedDevices;
 
 class Booting : public CoreDevice {
 public:
-    void entry() override {
-        CoreDevice::entry();
+    const char *name() const override {
+        return "Booting";
+    }
+
+public:
+    void task() override {
         transit<Initializing>();
     }
 };
 
 class Initializing : public CoreDevice {
 public:
-    void entry() override {
-        CoreDevice::entry();
+    const char *name() const override {
+        return "Initializing";
     }
 
+public:
     void task() override {
         transit<ScanAttachedDevices>();
     }
@@ -39,11 +44,11 @@ public:
 
 class Sleep : public CoreDevice {
 public:
-    void entry() override {
-        CoreDevice::entry();
-        log("Sleep");
+    const char *name() const override {
+        return "Sleep";
     }
 
+public:
     void task() override {
         for (auto i = 0; i < 8; ++i) {
             delay(1000);
@@ -54,11 +59,11 @@ public:
 
 class ScanAttachedDevices : public MainServicesState {
 public:
-    void entry() override {
-        MainServicesState::entry();
-        log("ScanAttachedDevices");
+    const char *name() const override {
+        return "ScanAttachedDevices";
     }
 
+public:
     void task() override {
         if (services().attachedDevices == nullptr) {
             transit<WifiStartup>();
@@ -95,11 +100,6 @@ void Idle::task() {
         began_ = 0;
         transit<WifiStartup>();
     }
-}
-
-void BeginGatherReadings::entry() {
-    MainServicesState::entry();
-    log("BeginGatherReadings");
 }
 
 void BeginGatherReadings::task() {

@@ -23,6 +23,11 @@ public:
     }
 
 public:
+    const char *name() const override {
+        return "WifiQueryModule";
+    }
+
+public:
     void entry() override {
         WifiState::entry();
         log("WifiQueryModule");
@@ -31,12 +36,18 @@ public:
     void task() override {
         back();
     }
+
 };
 
 class WifiDownloadFile : public WifiState {
 private:
     FileCopySettings settings_{ FileNumber::StartupLog };
     WifiConnection *connection_{ nullptr };
+
+public:
+    const char *name() const override {
+        return "WifiDownloadFile";
+    }
 
 public:
     WifiDownloadFile() {

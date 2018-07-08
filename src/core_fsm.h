@@ -52,6 +52,7 @@ public:
     }
 
     virtual void entry() {
+        log("Entered");
     }
 
     virtual void task() {
@@ -59,6 +60,8 @@ public:
 
     virtual void exit() {
     }
+
+    virtual const char *name() const = 0;
 
 public:
     void log(const char *f, ...) const __attribute__((format(printf, 2, 3)));

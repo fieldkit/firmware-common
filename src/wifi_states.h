@@ -10,7 +10,11 @@ private:
     bool initialized_{ false };
 
 public:
-    void entry() override;
+    const char *name() const override {
+        return "WifiStartup";
+    }
+
+public:
     void task() override;
 
 };

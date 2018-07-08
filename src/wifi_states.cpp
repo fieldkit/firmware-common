@@ -60,11 +60,11 @@ public:
     }
 
 public:
-    void entry() override {
-        WifiState::entry();
-        log("WifiTryNetwork: %d", index_);
+    const char *name() const override {
+        return "WifiTryNetwork";
     }
 
+public:
     void task() override {
         if (index_ >= MaximumRememberedNetworks) {
             log("No more networks (%s)", getWifiStatus());
@@ -95,11 +95,11 @@ public:
 
 class WifiCreateAp : public WifiState {
 public:
-    void entry() override {
-        WifiState::entry();
-        log("WifiCreateAp");
+    const char *name() const override {
+        return "WifiCreateAp";
     }
 
+public:
     void task() override {
         // TODO: If done this before, skip.
         char name[32];
@@ -121,11 +121,11 @@ private:
     bool success_{ false };
 
 public:
-    void entry() override {
-        WifiState::entry();
-        log("WifiSyncTime");
+    const char *name() const override {
+        return "WifiSyncTime";
     }
 
+public:
     void task() override {
         if (!success_) {
             SimpleNTP ntp(clock, *services().wifi);
@@ -162,11 +162,11 @@ public:
     }
 
 public:
-    void entry() override {
-        WifiState::entry();
-        log("WifiTransmitFile");
+    const char *name() const override {
+        return "WifiTransmitFile";
     }
 
+public:
     void task() override {
         TransmitFileTask task{
             *services().fileSystem,
@@ -203,11 +203,11 @@ public:
     }
 
 public:
-    void entry() override {
-        WifiState::entry();
-        log("WifiTransmitFiles");
+    const char *name() const override {
+        return "WifiTransmitFiles";
     }
 
+public:
     void task() override {
         if (index_ == 2) {
             transit<WifiListening>();
@@ -221,11 +221,11 @@ public:
 
 class WifiListening : public WifiState {
 public:
-    void entry() override {
-        WifiState::entry();
-        log("WifiListening");
+    const char *name() const override {
+        return "WifiListening";
     }
 
+public:
     void task() override {
         // TODO: Right now scheduled tasks reset our elapsed time.
         if (elapsed() > 1000 * 60) {
@@ -259,6 +259,11 @@ public:
     }
 
 public:
+    const char *name() const override {
+        return "WifiLiveData";
+    }
+
+public:
     void react(LiveDataEvent const &lde) override {
         interval_ = lde.interval;
     }
@@ -271,7 +276,6 @@ public:
 
     void entry() override {
         WifiState::entry();
-        log("WifiLiveData");
 
         lastReadings_ = 0;
 
@@ -306,13 +310,17 @@ public:
 
 class WifiHandlingConnection : public WifiState {
 public:
+    const char *name() const override {
+        return "WifiHandlingConnection";
+    }
+
+public:
     void react(LiveDataEvent const &lde) override {
         transit_into<WifiLiveData>(lde.interval);
     }
 
     void entry() override {
         WifiState::entry();
-        log("WifiHandlingConnection");
         // TODO: Eventually more of AppServicer will get slurped into this.
         services().appServicer->enqueued();
     }
@@ -329,20 +337,18 @@ public:
 
 class WifiDisable : public WifiState {
 public:
-    void entry() override {
-        WifiState::entry();
-        log("WifiDisable");
+    const char *name() const override {
+        return "WifiDisable";
+    }
+
+public:
+    void task() override {
         services().wifi->disable();
         services().state->updateIp(0);
         transit<Idle>();
     }
 
 };
-
-void WifiStartup::entry() {
-    WifiServicesState::entry();
-    log("WifiStartup");
-}
 
 void WifiStartup::task() {
     if (!initialized_) {
