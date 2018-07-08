@@ -1,5 +1,8 @@
 digraph fk {
-  Booting -> Starting -> ScanAttachedDevices;
+  Booting -> Starting -> CheckPower -> ScanAttachedDevices;
+
+  CheckPower -> Idle
+  CheckPower -> Reboot
 
   ScanAttachedDevices -> WifiTryNetwork;
 
@@ -24,6 +27,7 @@ digraph fk {
 
   WifiReady -> CheckGps;
   Idle -> CheckGps;
+  Idle -> CheckPower
 
   CheckGps -> GatherReadings -> Idle;
 }

@@ -201,10 +201,6 @@ private:
     };
 
 public:
-    WifiTransmitFiles() {
-    }
-
-public:
     const char *name() const override {
         return "WifiTransmitFiles";
     }
@@ -253,7 +249,10 @@ public:
 
     void react(SchedulerEvent const &se) override {
         if (se.deferred) {
-            warn("Scheduler Event!");
+            // TODO: Dead Zone (no scheduler events within an interval of a
+            // request)  and Busy Reply when we're "away" also adjust
+            // GpsFixAttemptInterval if we're interactive.
+            warn("Scheduler Event! TODO");
             transit(se.deferred);
         }
     }

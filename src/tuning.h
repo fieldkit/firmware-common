@@ -32,8 +32,6 @@ constexpr bool GpsEchoRaw = false;
 constexpr uint16_t DiscoveryUdpPort = 54321;
 constexpr uint32_t DiscoveryPingInterval = 2500;
 
-constexpr uint32_t DefaultPageSize = (size_t)(8 * 4096);
-
 constexpr uint32_t ModuleIdleRebootInterval = 1000 * 60 * 10;
 
 constexpr uint16_t WifiServerPort = 54321;

@@ -54,8 +54,13 @@ struct WifiServices : MainServices {
     }
 };
 
-using MainServicesState = StateWithContext<MainServices>;
 using WifiServicesState = StateWithContext<WifiServices>;
+
+class MainServicesState : public StateWithContext<MainServices> {
+public:
+    void alive();
+
+};
 
 class Idle : public MainServicesState {
 private:
@@ -70,6 +75,27 @@ public:
 public:
     void react(SchedulerEvent const &se) override;
     void entry() override;
+    void task() override;
+
+};
+
+class CheckPower : public MainServicesState {
+public:
+    const char *name() const override {
+        return "CheckPower";
+    }
+
+public:
+    void task() override;
+};
+
+class RebootDevice : public MainServicesState {
+public:
+    const char *name() const override {
+        return "RebootDevice";
+    }
+
+public:
     void task() override;
 
 };

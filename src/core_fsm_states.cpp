@@ -5,24 +5,27 @@
 #include "scheduler.h"
 #include "leds.h"
 #include "watchdog.h"
+#include "status.h"
 #include "power_management.h"
 #include "user_button.h"
 
+#include "file_system.h"
 #include "wifi_states.h"
+#include "gps.h"
 
 #include <Arduino.h>
 
 namespace fk {
 
 template<>
-MainServices *MainServicesState::services_{ nullptr };
+MainServices *StateWithContext<MainServices>::services_{ nullptr };
 
 template<>
 WifiServices *WifiServicesState::services_{ nullptr };
 
 class Booting;
 class Initializing;
-class Idle;
+class CheckPower;
 class ScanAttachedDevices;
 
 class Booting : public CoreDevice {
@@ -45,11 +48,14 @@ public:
 
 public:
     void task() override {
-        #if defined(FK_NATURALIST)
-        transit<WifiStartup>();
-        #else
-        transit<ScanAttachedDevices>();
-        #endif
+        transit<CheckPower>();
+    }
+};
+
+class LowPowerSleep : public MainServicesState {public:
+public:
+    void task() {
+        transit<RebootDevice>();
     }
 };
 
@@ -81,6 +87,16 @@ public:
 };
 
 class Sleep : public CoreDevice {
+private:
+    uint32_t maximum_{ 0 };
+
+public:
+    Sleep() {
+    }
+
+    Sleep(uint32_t maximum) : maximum_(maximum) {
+    }
+
 public:
     const char *name() const override {
         return "Sleep";
@@ -94,6 +110,14 @@ public:
         transit<Idle>();
     }
 };
+
+void MainServicesState::alive() {
+    services().leds->task();
+    services().watchdog->task();
+    services().button->task();
+    services().power->task();
+    services().status->task();
+}
 
 void Idle::entry() {
     MainServicesState::entry();
@@ -113,24 +137,28 @@ void Idle::task() {
     if (fk_uptime() - checked_ > 500) {
         auto nextTask = services().scheduler->getNextTask();
         if (nextTask.seconds > 10) {
-            transit<Sleep>();
+            transit_into<Sleep>(nextTask.seconds - 5); // We're greater than 10.
             return;
         }
         checked_ = fk_uptime();
     }
 
     services().scheduler->task();
-    services().watchdog->task();
-    services().leds->task();
-    services().button->task();
 
-    /*
-    if (fk_uptime() - began_ > 60 * 1000) {
-        began_ = 0;
-        transit<WifiStartup>();
-        return;
-    }
-    */
+    alive();
+}
+
+void CheckPower::task() {
+    #if defined(FK_NATURALIST)
+    transit<WifiStartup>();
+    #else
+    transit<ScanAttachedDevices>();
+    #endif
+}
+
+void RebootDevice::task() {
+    services().fileSystem->flush();
+    NVIC_SystemReset();
 }
 
 class TakeReadings : public MainServicesState {
@@ -153,6 +181,18 @@ public:
 
 public:
     void task() override {
+        SerialPort gpsSerial{ Hardware::gpsUart };
+        ReadGps gps{ *services().state, gpsSerial };
+
+        gps.enqueued();
+
+        while (elapsed() < GpsFixAttemptInterval) {
+            if (!simple_task_run(gps)) {
+                break;
+            }
+
+            alive();
+        }
         transit<TakeReadings>();
     }
 };

@@ -11,12 +11,11 @@ class FileSystem;
 class UserButton : public Task {
 private:
     Leds *leds_;
-    FileSystem *fileSystem_;
     bool pressed_{ false };
     uint32_t changedAt_{ 0 };
 
 public:
-    UserButton(Leds &leds, FileSystem &fileSystem);
+    UserButton(Leds &leds);
 
 public:
     void enqueued() override;

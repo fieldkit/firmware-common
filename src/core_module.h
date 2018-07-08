@@ -39,7 +39,7 @@ private:
     Leds leds;
     Watchdog watchdog{ leds };
     Power power{ state };
-    UserButton button{ leds, fileSystem };
+    UserButton button{ leds };
     Status status{ state, bus, leds };
     TwoWireBus bus{ Wire };
     FileSystem fileSystem{ bus, dataPool };
@@ -49,9 +49,13 @@ private:
     PrepareTransmissionData prepareTransmissionData{state, fileSystem, moduleCommunications, { FileNumber::Data }};
 
     // Scheduler stuff.
-    PeriodicTask periodics[2] {
-        fk::PeriodicTask{ 1000 * ReadingsInterval,     { CoreFsm::deferred<BeginGatherReadings>() } },
+    // TODO: When these are checked they should be checked in a descending order
+    // to avoid starvation.
+    PeriodicTask periodics[3] {
         fk::PeriodicTask{ 1000 * WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } },
+        fk::PeriodicTask{ 1000 * ReadingsInterval,     { CoreFsm::deferred<BeginGatherReadings>() } },
+        // NOTE: Minimum interval is now 5s.
+        fk::PeriodicTask{ 1000 * 5,                    { CoreFsm::deferred<CheckPower>() } },
     };
     ScheduledTask scheduled[2] {
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<BeginGatherReadings>() } },

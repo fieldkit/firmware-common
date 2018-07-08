@@ -121,6 +121,7 @@ TaskEval ReadGps::task() {
 
     if (millis() - started > GpsFixAttemptInterval) {
         state->updateLocation(DeviceLocation{});
+        log("No fix");
         return TaskEval::error();
     }
 

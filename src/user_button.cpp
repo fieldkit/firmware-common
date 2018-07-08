@@ -1,5 +1,7 @@
 #include "user_button.h"
 
+#include "core_fsm.h"
+
 #include "tuning.h"
 #include "hardware.h"
 #include "leds.h"
@@ -7,7 +9,7 @@
 
 namespace fk {
 
-UserButton::UserButton(Leds &leds, FileSystem &fileSystem) : Task("Button"), leds_(&leds), fileSystem_(&fileSystem) {
+UserButton::UserButton(Leds &leds) : Task("Button"), leds_(&leds) {
 }
 
 void UserButton::enqueued() {
@@ -23,8 +25,7 @@ TaskEval UserButton::task() {
         if (!pressed_) {
             if (millis() - changedAt_ > ButtonLongPressDuration) {
                 log("Restart!");
-                fileSystem_->flush();
-                NVIC_SystemReset();
+                send_event(UserRebootEvent{ });
             }
 
             changedAt_ = 0;

@@ -31,6 +31,9 @@ struct WifiEvent : public tinyfsm::Event {
     }
 };
 
+struct UserRebootEvent : public tinyfsm::Event {
+};
+
 class CoreDevice;
 
 using CoreFsm = tinyfsm::Fsm<CoreDevice>;
@@ -58,6 +61,10 @@ public:
 
     virtual void react(AppQueryEvent const &ignored) {
         warn("Ignored AppQueryEvent");
+    }
+
+    virtual void react(UserRebootEvent const &ignored) {
+        warn("Ignored UserRebootEvent");
     }
 
     virtual void entry() {
