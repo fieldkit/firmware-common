@@ -241,24 +241,10 @@ void CoreState::copyTo(PersistedState &state) {
 
 void CoreState::takingReadings() {
     readingNumber++;
-    readingInProgress = true;
 }
 
 void CoreState::doneTakingReadings() {
-    readingInProgress = false;
     data->doneTakingReadings();
-}
-
-bool CoreState::isReadingInProgress() {
-    return readingInProgress;
-}
-
-bool CoreState::isBusy() {
-    return busy;
-}
-
-void CoreState::setBusy(bool value) {
-    busy = value;
 }
 
 ModuleInfo* CoreState::attachedModules() {
@@ -283,10 +269,6 @@ NetworkSettings &CoreState::getNetworkSettings() {
 
 bool CoreState::hasModules() {
     return numberOfModules() > 0;
-}
-
-bool CoreState::shouldWipeAfterUpload() {
-    return wipeAfterUpload;
 }
 
 void CoreState::log(const char *f, ...) const {

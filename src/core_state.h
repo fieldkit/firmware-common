@@ -37,9 +37,6 @@ private:
 private:
     CoreStatus status{ CoreStatus::Initializing };
     DeviceStatus deviceStatus;
-    bool busy{ false };
-    bool readingInProgress{ false };
-    bool wipeAfterUpload{ true };
     FlashStorage<PersistedState> *storage;
     FkfsData *data;
 
@@ -67,7 +64,6 @@ public:
     void started();
 
     void takingReadings();
-    bool isReadingInProgress();
     void doneTakingReadings();
     AvailableSensorReading getReading(size_t index);
     void clearReadings();
@@ -85,10 +81,6 @@ public:
     void updateBattery(float percentage, float voltage);
     void updateIp(uint32_t ip);
     void updateLocation(DeviceLocation&& fix);
-
-    bool isBusy();
-    void setBusy(bool value);
-    bool shouldWipeAfterUpload();
 
 private:
     size_t getModuleIndex(uint8_t address);

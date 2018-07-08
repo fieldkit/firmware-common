@@ -15,10 +15,6 @@ void FileCopierSample::enqueued() {
 }
 
 TaskEval FileCopierSample::task() {
-    if (state_->isBusy()) {
-        return TaskEval::done();
-    }
-
     auto &fileCopy = fileSystem_->files().fileCopy();
 
     if (!fileCopy.isFinished()) {
@@ -46,15 +42,6 @@ void TransmitFileTask::enqueued() {
 
 TaskEval TransmitFileTask::task() {
     if (!connected) {
-        if (state->isBusy() || state->isReadingInProgress()) {
-            if (millis() - waitingSince > WifiTransmitBusyWaitMax) {
-                log("We're busy, skipping.");
-                return TaskEval::done();
-            }
-
-            return TaskEval::busy();
-        }
-
         FileCursorManager fcm(*fileSystem);
         auto position = fcm.lookup(settings.file);
 
@@ -88,7 +75,6 @@ TaskEval TransmitFileTask::task() {
     if (!wcl.connected() || status > 0) {
         wcl.flush();
         wcl.stop();
-        state->setBusy(false);
         if (status == 200) {
             if (!fileCopy.isFinished()) {
                 log("Unfinished success (status = %d)", status);
@@ -143,8 +129,6 @@ TaskEval TransmitFileTask::openConnection() {
     strncpy(urlCopy, config->streamUrl, length);
     Url parsed(urlCopy);
 
-    state->setBusy(true);
-
     parser.begin();
 
     if (parsed.server != nullptr && parsed.path != nullptr) {
@@ -159,7 +143,6 @@ TaskEval TransmitFileTask::openConnection() {
                 log("Error encoding data file record (%d bytes)", sizeof(buffer));
                 wcl.flush();
                 wcl.stop();
-                state->setBusy(false);
                 return TaskEval::error();
             }
 
@@ -184,11 +167,9 @@ TaskEval TransmitFileTask::openConnection() {
             wcl.write(buffer, bufferSize);
         } else {
             log("Not connected!");
-            state->setBusy(false);
             return TaskEval::error();
         }
     } else {
-        state->setBusy(false);
         return TaskEval::error();
     }
 

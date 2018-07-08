@@ -37,10 +37,6 @@ void AttachedDevices::resume() {
 }
 
 TaskEval AttachedDevices::task() {
-    if (state->isBusy()) {
-        return TaskEval::idle();
-    }
-
     auto rescanInterval = (state->numberOfModules() == 0 ? RescanExistingModulesInterval : RescanExistingModulesInterval);
     if (lastScanAt == 0 || millis() - lastScanAt > rescanInterval) {
         log("Starting scan...");
