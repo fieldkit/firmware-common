@@ -1,8 +1,12 @@
-#include "hardware.h"
 #include "gps.h"
+#include "hardware.h"
 #include "tuning.h"
 
 namespace fk {
+
+constexpr const char *PGCMD_ANTENNA = "$PGCMD,33,1*6C";
+constexpr const char *PMTK_SET_NMEA_UPDATE_1HZ = "$PMTK220,1000*1F";
+constexpr const char *PMTK_API_SET_FIX_CTL_1HZ = "$PMTK300,1000,0,0,0,0*1C";
 
 struct GpsReading {
     uint8_t satellites;
@@ -59,7 +63,7 @@ struct GpsReading {
     }
 };
 
-void ReadGps::enqueued() {
+void GpsService::enqueued() {
     started = 0;
     // Ensure we have a fresh start and aren't going to re-use an old fix.
     gps = TinyGPS();
@@ -67,31 +71,31 @@ void ReadGps::enqueued() {
     serial->begin(9600);
 }
 
-constexpr const char *PGCMD_ANTENNA = "$PGCMD,33,1*6C";
-constexpr const char *PMTK_SET_NMEA_UPDATE_1HZ = "$PMTK220,1000*1F";
-constexpr const char *PMTK_API_SET_FIX_CTL_1HZ = "$PMTK300,1000,0,0,0,0*1C";
+void GpsService::read() {
+    if (!configured) {
+        enqueued();
 
-TaskEval ReadGps::task() {
+        serial->println(PGCMD_ANTENNA);
+        serial->println(PMTK_SET_NMEA_UPDATE_1HZ);
+        serial->println(PMTK_API_SET_FIX_CTL_1HZ);
+
+        configured = true;
+    }
+
     if (started == 0) {
         position = 0;
         started = millis();
-
-        if (!configured) {
-            serial->println(PGCMD_ANTENNA);
-            serial->println(PMTK_SET_NMEA_UPDATE_1HZ);
-            serial->println(PMTK_API_SET_FIX_CTL_1HZ);
-            configured = true;
-        }
     }
 
     while (serial->available()) {
         auto c = (char)serial->read();
         gps.encode(c);
+
         if (GpsEchoRaw) {
             if (c == '\n' || c == '\r' || position == sizeof(buffer) - 1) {
                 if (position > 0 && buffer[0] == '$') {
                     buffer[position] = 0;
-                    log("GPS: %s", buffer);
+                    trace("GPS: %s", buffer);
                 }
                 position = 0;
             }
@@ -100,12 +104,9 @@ TaskEval ReadGps::task() {
             }
         }
     }
+}
 
-    if (millis() - lastStatus < GpsStatusInterval) {
-        lastStatus = millis();
-        return TaskEval::idle();
-    }
-
+void GpsService::save() {
     auto fix = GpsReading{ gps };
     if (fix.isValid()) {
         auto dateTime = fix.toDateTime();
@@ -114,16 +115,17 @@ TaskEval ReadGps::task() {
         log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);
 
         state->updateLocation(DeviceLocation{ unix, fix.flon, fix.flat, fix.altitude });
+
         clock.setTime(dateTime);
-
-        return TaskEval::done();
     }
-
-    if (millis() - started > GpsFixAttemptInterval) {
+    else {
         state->updateLocation(DeviceLocation{});
         log("No fix");
-        return TaskEval::error();
     }
+}
+
+TaskEval GpsService::task() {
+    read();
 
     return TaskEval::idle();
 }

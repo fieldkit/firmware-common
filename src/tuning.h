@@ -27,7 +27,7 @@ constexpr uint32_t ReadingsInterval = 30;
 
 constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
 constexpr uint32_t GpsStatusInterval = 1 * 500;
-constexpr bool GpsEchoRaw = false;
+constexpr bool     GpsEchoRaw = false;
 
 constexpr uint16_t DiscoveryUdpPort = 54321;
 constexpr uint32_t DiscoveryPingInterval = 2500;

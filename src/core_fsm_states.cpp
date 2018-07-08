@@ -29,6 +29,7 @@ void MainServices::alive() {
     button->task();
     power->task();
     status->task();
+    gps->task();
 }
 
 class Booting;
@@ -244,19 +245,7 @@ public:
 
 public:
     void task() override {
-        SerialPort gpsSerial{ Hardware::gpsUart };
-        ReadGps gps{ *services().state, gpsSerial };
-
-        gps.enqueued();
-
-        while (elapsed() < interval_) {
-            if (!simple_task_run(gps)) {
-                break;
-            }
-
-            // TODO: How could we serve here, too?
-            services().alive();
-        }
+        services().gps->save();
 
         transit<TakeReadings>();
     }

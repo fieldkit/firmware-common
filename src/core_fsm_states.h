@@ -9,11 +9,12 @@ class Leds;
 class Watchdog;
 class Power;
 class Status;
-class Scheduler;
-class ModuleCommunications;
 class CoreState;
 class FileSystem;
 class UserButton;
+class Scheduler;
+class ModuleCommunications;
+class GpsService;
 
 struct MainServices {
     Leds *leds;
@@ -25,11 +26,12 @@ struct MainServices {
     UserButton *button;
     Scheduler *scheduler;
     ModuleCommunications *moduleCommunications;
+    GpsService *gps;
 
     MainServices(Leds *leds, Watchdog *watchdog, Power *power, Status *status, CoreState *state, FileSystem *fileSystem,
-                 UserButton *button, Scheduler *scheduler, ModuleCommunications *moduleCommunications) :
+                 UserButton *button, Scheduler *scheduler, ModuleCommunications *moduleCommunications, GpsService *gps) :
         leds(leds), watchdog(watchdog), power(power), status(status), state(state), fileSystem(fileSystem), button(button),
-        scheduler(scheduler), moduleCommunications(moduleCommunications) {
+        scheduler(scheduler), moduleCommunications(moduleCommunications), gps(gps) {
     }
 
     void alive();
@@ -49,9 +51,9 @@ struct WifiServices : MainServices {
     AppServicer *appServicer;
 
     WifiServices(Leds *leds, Watchdog *watchdog, Power *power, Status *status, CoreState *state, FileSystem *fileSystem,
-                 UserButton *button, Scheduler *scheduler, ModuleCommunications *moduleCommunications,
+                 UserButton *button, Scheduler *scheduler, ModuleCommunications *moduleCommunications, GpsService *gps,
                  Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer) :
-        MainServices(leds, watchdog, power, status,state, fileSystem, button, scheduler, moduleCommunications),
+        MainServices(leds, watchdog, power, status,state, fileSystem, button, scheduler, moduleCommunications, gps),
         wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer) {
     }
 };

@@ -107,7 +107,9 @@ TaskEval Scheduler::task() {
                 DateTime runsAgain{ tasks[i].getNextRunTime(now) };
                 FormattedTime nowFormatted{ now };
                 FormattedTime runsAgainFormatted{ runsAgain };
+                #if FK_LOGGING_VERBOSITY > 2
                 log("Run (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
+                #endif
                 send_event(event);
             }
         }
@@ -115,7 +117,9 @@ TaskEval Scheduler::task() {
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
         if (periodic[i].shouldRun()) {
             auto &event = periodic[i].getEvent();
+            #if FK_LOGGING_VERBOSITY > 2
             log("Run periodic");
+            #endif
             send_event(event);
         }
     }

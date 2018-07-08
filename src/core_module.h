@@ -13,6 +13,7 @@
 #include "leds.h"
 #include "status.h"
 #include "rtc.h"
+#include "gps.h"
 
 #include "app_servicer.h"
 #include "core_state.h"
@@ -78,6 +79,10 @@ private:
     Wifi wifi{connection, appServicer};
     Discovery discovery;
 
+    // GPS stuff
+    SerialPort gpsSerial{ Hardware::gpsUart };
+    GpsService gps{ state, gpsSerial };
+
     // Service collections.
     MainServices mainServices{
         &leds,
@@ -89,6 +94,7 @@ private:
         &button,
         &scheduler,
         &moduleCommunications,
+        &gps
     };
 
     WifiServices wifiServices{
@@ -101,6 +107,7 @@ private:
         &button,
         &scheduler,
         &moduleCommunications,
+        &gps,
 
         &wifi,
         &discovery,

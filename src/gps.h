@@ -9,7 +9,7 @@
 
 namespace fk {
 
-class ReadGps : public Task {
+class GpsService : public Task {
 private:
     CoreState *state;
     SerialPort *serial;
@@ -18,14 +18,16 @@ private:
     uint32_t lastStatus{ 0 };
     uint32_t started{ 0 };
     uint16_t position{ 0 };
-    uint8_t buffer[128];
+    uint8_t buffer[64];
 
 public:
-    ReadGps(CoreState &state, SerialPort &serial) : Task("GPS"), state(&state), serial(&serial) {
+    GpsService(CoreState &state, SerialPort &serial) : Task("GPS"), state(&state), serial(&serial) {
     }
 
 public:
     void enqueued() override;
+    void read();
+    void save();
     TaskEval task() override;
 
 };
