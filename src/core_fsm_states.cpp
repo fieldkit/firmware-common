@@ -3,6 +3,7 @@
 
 #include "attached_devices.h"
 #include "scheduler.h"
+#include "leds.h"
 
 #include <Arduino.h>
 
@@ -38,22 +39,11 @@ public:
 
 public:
     void task() override {
+        #if defined(FK_NATURALIST)
+        transit<WifiStartup>();
+        #else
         transit<ScanAttachedDevices>();
-    }
-};
-
-class Sleep : public CoreDevice {
-public:
-    const char *name() const override {
-        return "Sleep";
-    }
-
-public:
-    void task() override {
-        for (auto i = 0; i < 8; ++i) {
-            delay(1000);
-        }
-        transit<Idle>();
+        #endif
     }
 };
 
@@ -65,15 +55,44 @@ public:
 
 public:
     void task() override {
-        if (services().attachedDevices == nullptr) {
-            transit<WifiStartup>();
-            return;
+        uint8_t addresses[4]{ 7, 8, 9, 0 };
+
+        AttachedDevices attachedDevices{
+            *services().state,
+            *services().leds,
+            *services().moduleCommunications,
+            addresses,
+        };
+
+        while (simple_task_run(attachedDevices)) {
+            // TODO: Should never take so long we need the watchdog.
+            services().leds->task();
+            services().moduleCommunications->task();
         }
 
-        auto e = services().attachedDevices->task();
-        if (e.isDone()) {
-            transit<WifiStartup>();
+        transit<WifiStartup>();
+    }
+};
+
+class Sleep : public CoreDevice {
+public:
+    const char *name() const override {
+        return "Sleep";
+    }
+
+public:
+    void react(SchedulerEvent const &se) override {
+        if (se.deferred) {
+            warn("Scheduler Event!");
+            transit(se.deferred);
         }
+    }
+
+    void task() override {
+        for (auto i = 0; i < 4; ++i) {
+            delay(1000);
+        }
+        transit<Idle>();
     }
 };
 

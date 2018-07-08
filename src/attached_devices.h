@@ -68,20 +68,19 @@ public:
 
 class AttachedDevices : public Task {
 private:
-    TwoWireBus *bus;
-    uint32_t lastScanAt{ 0 };
-    uint8_t *addresses{ nullptr };
-    uint8_t addressIndex{ 0 };
     CoreState *state;
     Leds *leds;
     ModuleProtocolHandler protocol;
+    uint8_t *addresses{ nullptr };
+    uint8_t addressIndex{ 0 };
+    uint32_t lastScanAt{ 0 };
     QueryCapabilities queryCapabilities;
     QuerySensorCapabilities querySensorCapabilities;
     uint8_t retries{ 0 };
     bool scanning{ false };
 
 public:
-    AttachedDevices(TwoWireBus &bus, uint8_t *addresses, CoreState &state, Leds &leds, ModuleCommunications &communications);
+    AttachedDevices(CoreState &state, Leds &leds, ModuleCommunications &communications, uint8_t *addresses);
 
 public:
     TaskEval task() override;

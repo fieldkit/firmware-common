@@ -8,8 +8,9 @@ namespace fk {
 class Leds;
 class Watchdog;
 class Power;
+class Status;
 class Scheduler;
-class AttachedDevices;
+class ModuleCommunications;
 class CoreState;
 class FileSystem;
 class UserButton;
@@ -18,16 +19,17 @@ struct MainServices {
     Leds *leds;
     Watchdog *watchdog;
     Power *power;
+    Status *status;
     CoreState *state;
     FileSystem *fileSystem;
     UserButton *button;
     Scheduler *scheduler;
-    AttachedDevices *attachedDevices;
+    ModuleCommunications *moduleCommunications;
 
-    MainServices(Leds *leds, Watchdog *watchdog, Power *power, CoreState *state, FileSystem *fileSystem,
-                 UserButton *button, Scheduler *scheduler, AttachedDevices *attachedDevices) :
-        leds(leds), watchdog(watchdog), power(power), state(state), fileSystem(fileSystem), button(button), scheduler(scheduler),
-        attachedDevices(attachedDevices) {
+    MainServices(Leds *leds, Watchdog *watchdog, Power *power, Status *status, CoreState *state, FileSystem *fileSystem,
+                 UserButton *button, Scheduler *scheduler, ModuleCommunications *moduleCommunications) :
+        leds(leds), watchdog(watchdog), power(power), status(status), state(state), fileSystem(fileSystem), button(button),
+        scheduler(scheduler), moduleCommunications(moduleCommunications) {
     }
 };
 
@@ -44,10 +46,10 @@ struct WifiServices : MainServices {
     Listen *server;
     AppServicer *appServicer;
 
-    WifiServices(Leds *leds, Watchdog *watchdog, Power *power, CoreState *state, FileSystem *fileSystem,
-                 UserButton *button, Scheduler *scheduler, AttachedDevices *attachedDevices,
+    WifiServices(Leds *leds, Watchdog *watchdog, Power *power, Status *status, CoreState *state, FileSystem *fileSystem,
+                 UserButton *button, Scheduler *scheduler, ModuleCommunications *moduleCommunications,
                  Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer) :
-        MainServices(leds, watchdog, power, state, fileSystem, button, scheduler, attachedDevices),
+        MainServices(leds, watchdog, power, status,state, fileSystem, button, scheduler, moduleCommunications),
         wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer) {
     }
 };

@@ -77,10 +77,6 @@ void setup() {
         }
     };
 
-    #ifdef DEBUG_DUMP_OBJECT_SIZES
-    dumpObjectSizes();
-    #endif
-
     fk::CoreModule coreModule;
     coreModule.begin();
     fk::restartWizard.startup();
@@ -92,40 +88,6 @@ void setup() {
         startupConfig.forceConfiguration(fk::NetworkSettings{ false, networks });
     }
     coreModule.run();
-}
-
-void dumpObjectSizes() {
-#define FK_DUMP_SIZE(K) loginfof("Core", "%s: %d", #K, sizeof(K))
-    FK_DUMP_SIZE(fk::Watchdog);
-    FK_DUMP_SIZE(fk::CoreState);
-    FK_DUMP_SIZE(fk::Clock);
-    FK_DUMP_SIZE(fk::Pool);
-    FK_DUMP_SIZE(fk::GatherReadings);
-    FK_DUMP_SIZE(fk::Scheduler);
-    FK_DUMP_SIZE(fk::AppServicer);
-    FK_DUMP_SIZE(fk::Wifi);
-    FK_DUMP_SIZE(fk::Listen);
-    FK_DUMP_SIZE(fk::TwoWireMessageBuffer);
-    FK_DUMP_SIZE(fk::WifiMessageBuffer);
-    FK_DUMP_SIZE(fk::TransmitFileTask);
-    FK_DUMP_SIZE(fk::Delay);
-    FK_DUMP_SIZE(fk::SimpleNTP);
-    FK_DUMP_SIZE(fk::Discovery);
-    FK_DUMP_SIZE(fk::DataRecordMessage);
-    FK_DUMP_SIZE(fk::AppReplyMessage);
-    FK_DUMP_SIZE(fk::AppQueryMessage);
-    FK_DUMP_SIZE(fk::ModuleReplyMessage);
-    FK_DUMP_SIZE(fk::ModuleQueryMessage);
-    FK_DUMP_SIZE(fk::AppServicer);
-    FK_DUMP_SIZE(fk::AppModuleQueryTask);
-    FK_DUMP_SIZE(fk_module_WireMessageQuery);
-    FK_DUMP_SIZE(fk_module_WireMessageReply);
-    FK_DUMP_SIZE(fk_app_WireMessageQuery);
-    FK_DUMP_SIZE(fk_app_WireMessageReply);
-    FK_DUMP_SIZE(WiFi);
-    FK_DUMP_SIZE(WiFiUDP);
-    FK_DUMP_SIZE(WiFiClient);
-    FK_DUMP_SIZE(WiFiServer);
 }
 
 void loop() {

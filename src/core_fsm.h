@@ -8,17 +8,6 @@
 
 namespace fk {
 
-class CoreDevice;
-
-using CoreFsm = tinyfsm::Fsm<CoreDevice>;
-
-struct SchedulerEvent : public tinyfsm::Event {
-    CoreFsm::deferred_t deferred;
-
-    SchedulerEvent(CoreFsm::deferred_t deferred) : deferred(deferred) {
-    }
-};
-
 struct LiveDataEvent : public tinyfsm::Event {
     uint32_t interval;
 
@@ -30,6 +19,24 @@ struct AppQueryEvent : public tinyfsm::Event {
     uint8_t type;
 
     AppQueryEvent(uint8_t type) : type(type) {
+    }
+};
+
+struct WifiEvent : public tinyfsm::Event {
+    bool enabled;
+
+    WifiEvent(bool enabled) : enabled(enabled) {
+    }
+};
+
+class CoreDevice;
+
+using CoreFsm = tinyfsm::Fsm<CoreDevice>;
+
+struct SchedulerEvent : public tinyfsm::Event {
+    CoreFsm::deferred_t deferred;
+
+    SchedulerEvent(CoreFsm::deferred_t deferred) : deferred(deferred) {
     }
 };
 

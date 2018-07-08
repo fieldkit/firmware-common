@@ -72,14 +72,13 @@ void CoreModule::begin() {
 }
 
 void CoreModule::run() {
+    // This may go away, allow states themselves to decide which to service?
     auto tasks = to_parallel_task_collection(
         &status,
         &leds,
         &power,
         &watchdog,
         &button,
-
-        // TODO: Move into states?
         &moduleCommunications
     );
 

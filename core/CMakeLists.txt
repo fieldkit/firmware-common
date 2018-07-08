@@ -16,11 +16,6 @@ if(DEBUG_UART_FALLBACK)
   add_definitions(-DDEBUG_UART_FALLBACK)
 endif(DEBUG_UART_FALLBACK)
 
-option(DEBUG_DUMP_OBJECT_SIZES "Dump object sizes at startup" OFF)
-if(DEBUG_DUMP_OBJECT_SIZES)
-  add_definitions(-DDEBUG_DUMP_OBJECT_SIZES)
-endif(DEBUG_DUMP_OBJECT_SIZES)
-
 option(DEBUG_MTB_ENABLE "Enable MicroTrace Buffer" OFF)
 if(DEBUG_MTB_ENABLE)
   add_definitions(-DDEBUG_MTB_ENABLE)

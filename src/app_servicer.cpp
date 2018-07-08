@@ -132,7 +132,9 @@ bool AppServicer::readQuery() {
 
     auto read = connection->read();
     if (read > 0) {
+        #if FK_LOGGING_VERBOSITY > 1
         log("Read %d bytes", read);
+        #endif
         bytesRead += read;
         buffer = &connection->getBuffer();
         if (!buffer->read(query)) {
@@ -149,7 +151,9 @@ bool AppServicer::flushAndClose() {
     connection->flush();
 
     if (connection->isConnected()) {
+        #if FK_LOGGING_VERBOSITY > 1
         log("Stop connection");
+        #endif
         connection->close();
     }
     else {

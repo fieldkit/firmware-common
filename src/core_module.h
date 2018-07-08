@@ -6,23 +6,22 @@
 #include <cstdio>
 
 #include "hardware.h"
+#include "pool.h"
+#include "debug.h"
+#include "power_management.h"
+
 #include "app_servicer.h"
 #include "attached_devices.h"
 #include "core_state.h"
-#include "debug.h"
 #include "two_wire.h"
-#include "pool.h"
 #include "wifi.h"
 #include "watchdog.h"
-#include "power_management.h"
 #include "app_servicer.h"
 #include "scheduler.h"
 #include "rtc.h"
-#include "simple_ntp.h"
 #include "discovery.h"
 #include "leds.h"
 #include "file_system.h"
-#include "transmit_file.h"
 #include "gps.h"
 #include "status.h"
 #include "flash_storage.h"
@@ -36,40 +35,29 @@ namespace fk {
 
 class CoreModule {
 private:
-    uint8_t addresses[4]{ 7, 8, 9, 0 };
-
     StaticPool<384> appPool{"AppPool"};
     StaticPool<384> modulesPool{"ModulesPool"};
     StaticPool<128> dataPool{"DataPool"};
 
+    // Main services.
     Leds leds;
     Watchdog watchdog{ leds };
-
+    Power power{ state };
+    UserButton button{ leds, fileSystem };
+    Status status{ state, bus, leds };
     TwoWireBus bus{ Wire };
     FileSystem fileSystem{ bus, dataPool };
     FlashStorage<PersistedState> flashStorage;
     CoreState state{flashStorage, fileSystem.getData()};
-    Power power{ state };
-
     ModuleCommunications moduleCommunications{bus, modulesPool};
-
-    AttachedDevices attachedDevices{bus, addresses, state, leds, moduleCommunications};
-
-    HttpTransmissionConfig httpConfig = {
-        .streamUrl = WifiApiUrlIngestionStream,
-    };
     PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, moduleCommunications, { FileNumber::Data }};
 
+    // Readings stuff.
     SerialPort gpsPort{ Serial1 };
     ReadGps readGps{state, gpsPort};
-
     GatherReadings gatherReadings{bus, state, leds, moduleCommunications};
 
-    #ifdef FK_ENABLE_RADIO
-    RadioService radioService;
-    SendDataToLoraGateway sendDataToLoraGateway{ radioService, fileSystem, { FileNumber::Data } };
-    #endif
-
+    // Scheduler stuff.
     #ifdef FK_PROFILE_AMAZON
     PeriodicTask periodics[1] {
     fk::PeriodicTask{ 60 * 1000, { CoreFsm::deferred<IgnoredState>() } },
@@ -85,33 +73,44 @@ private:
     };
     Scheduler scheduler{clock, scheduled, periodics};
 
+    // Radio stuff.
+    #ifdef FK_ENABLE_RADIO
+    RadioService radioService;
+    SendDataToLoraGateway sendDataToLoraGateway{ radioService, fileSystem, { FileNumber::Data } };
+    #endif
+
+    // Wifi stuff
+    HttpTransmissionConfig httpConfig = {
+        .streamUrl = WifiApiUrlIngestionStream,
+    };
     WifiConnection connection;
     AppServicer appServicer{bus, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
     Wifi wifi{connection, appServicer};
     Discovery discovery;
-    UserButton button{ leds, fileSystem };
-    Status status{ state, bus, leds };
 
+    // Service collections.
     MainServices mainServices{
         &leds,
         &watchdog,
         &power,
+        &status,
         &state,
         &fileSystem,
         &button,
         &scheduler,
-        &attachedDevices,
+        &moduleCommunications,
     };
 
     WifiServices wifiServices{
         &leds,
         &watchdog,
         &power,
+        &status,
         &state,
         &fileSystem,
         &button,
         &scheduler,
-        &attachedDevices,
+        &moduleCommunications,
 
         &wifi,
         &discovery,

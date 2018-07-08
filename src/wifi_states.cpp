@@ -112,7 +112,7 @@ public:
             transit<WifiDisable>();
         }
 
-        transit<WifiListening>();
+        transit_into<WifiListening>();
     }
 };
 
@@ -210,7 +210,7 @@ public:
 public:
     void task() override {
         if (index_ == 2) {
-            transit<WifiListening>();
+            transit_into<WifiListening>();
         }
         else {
             transit_into<WifiTransmitFile>(transmissions_[index_]);
@@ -220,6 +220,13 @@ public:
 };
 
 class WifiListening : public WifiState {
+private:
+    uint32_t began_{ 0 };
+
+public:
+    WifiListening() {
+    }
+
 public:
     const char *name() const override {
         return "WifiListening";
@@ -227,8 +234,13 @@ public:
 
 public:
     void task() override {
+        if (began_ == 0) {
+            log("Began");
+            began_ = fk_uptime();
+        }
+
         // TODO: Right now scheduled tasks reset our elapsed time.
-        if (elapsed() > 1000 * 60) {
+        if (fk_uptime() - began_ > 1000 * 60) {
             transit<WifiDisable>();
         }
         else {
@@ -281,7 +293,7 @@ public:
 
         if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
             log("No attached modules.");
-            transit<WifiListening>();
+            transit_into<WifiListening>();
             return;
         }
     }
@@ -295,7 +307,7 @@ public:
 
         if (fk_uptime() - lastPolled_ > LivePollInactivity) {
             log("Stopped due to inactivity.");
-            transit<WifiListening>();
+            transit_into<WifiListening>();
             return;
         }
 
@@ -329,7 +341,7 @@ public:
         if (!services().appServicer->service()) {
             // HACK: We can transition inside of the AppServicer.
             if (is_in_state<WifiHandlingConnection>()) {
-                transit<WifiListening>();
+                transit_into<WifiListening>();
             }
         }
     }
