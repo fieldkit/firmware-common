@@ -16,7 +16,6 @@ namespace fk {
 
 class AppServicer : public MainServicesState {
 private:
-    TwoWireBus *bus;
     AppQueryMessage query;
     AppReplyMessage reply;
     CoreState *state;
@@ -30,7 +29,7 @@ private:
     size_t bytesRead{ 0 };
 
 public:
-    AppServicer(TwoWireBus &bus, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
+    AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
 
 public:
     const char *name() const override {

@@ -5,21 +5,31 @@
 
 namespace fk {
 
-#ifdef FK_HARDWARE_SERIAL2_ENABLE
+#if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
+
+Uart &Hardware::gpsUart = Serial2;
+
+#else // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
+
+Uart &Hardware::gpsUart = Serial1;
+
+#endif // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
+
+#if defined(FK_HARDWARE_SERIAL2_ENABLE)
 
 Uart Serial2(&sercom1, 11, 10, SERCOM_RX_PAD_0, UART_TX_PAD_2);
 
-#endif
+#endif // defined(FK_HARDWARE_SERIAL2_ENABLE) 
 
 void SerialPort::begin(int32_t baud) {
     uart->begin(baud);
 
-#ifdef FK_HARDWARE_SERIAL2_ENABLE
+#if defined(FK_HARDWARE_SERIAL2_ENABLE)
     if (*uart == Serial2) {
         pinPeripheral(10, PIO_SERCOM);
         pinPeripheral(11, PIO_SERCOM);
     }
-#endif
+#endif // defined(FK_HARDWARE_SERIAL2_ENABLE)
 }
 
 bool SerialPort::available() {
@@ -36,7 +46,7 @@ void SerialPort::println(const char *str) {
 
 }
 
-#ifdef FK_HARDWARE_SERIAL2_ENABLE
+#if defined(FK_HARDWARE_SERIAL2_ENABLE)
 
 extern "C" {
 
@@ -46,4 +56,4 @@ void SERCOM1_Handler() {
 
 }
 
-#endif
+#endif // defined(FK_HARDWARE_SERIAL2_ENABLE)

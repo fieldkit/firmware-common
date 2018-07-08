@@ -74,7 +74,7 @@ private:
     ModuleProtocolHandler protocol;
 
 public:
-    PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, ModuleCommunications &communications, FileCopySettings settings);
+    PrepareTransmissionData(CoreState &state, FileSystem &fileSystem, ModuleCommunications &communications, FileCopySettings settings);
 
 public:
     void enqueued() override;

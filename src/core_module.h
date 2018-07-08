@@ -9,27 +9,22 @@
 #include "pool.h"
 #include "debug.h"
 #include "power_management.h"
+#include "watchdog.h"
+#include "leds.h"
+#include "status.h"
+#include "rtc.h"
 
 #include "app_servicer.h"
-#include "attached_devices.h"
 #include "core_state.h"
-#include "two_wire.h"
 #include "wifi.h"
-#include "watchdog.h"
 #include "app_servicer.h"
 #include "scheduler.h"
-#include "rtc.h"
 #include "discovery.h"
-#include "leds.h"
 #include "file_system.h"
-#include "gps.h"
-#include "status.h"
 #include "flash_storage.h"
 #include "transmissions.h"
 #include "radio_service.h"
 #include "user_button.h"
-// #include "core_fsm_states.h"
-#include "gather_readings.h"
 #include "wifi_states.h"
 
 namespace fk {
@@ -51,12 +46,7 @@ private:
     FlashStorage<PersistedState> flashStorage;
     CoreState state{flashStorage, fileSystem.getData()};
     ModuleCommunications moduleCommunications{bus, modulesPool};
-    PrepareTransmissionData prepareTransmissionData{bus, state, fileSystem, moduleCommunications, { FileNumber::Data }};
-
-    // Readings stuff.
-    SerialPort gpsPort{ Serial1 };
-    ReadGps readGps{state, gpsPort};
-    GatherReadings gatherReadings{bus, state, leds, moduleCommunications};
+    PrepareTransmissionData prepareTransmissionData{state, fileSystem, moduleCommunications, { FileNumber::Data }};
 
     // Scheduler stuff.
     PeriodicTask periodics[2] {
@@ -80,7 +70,7 @@ private:
         .streamUrl = WifiApiUrlIngestionStream,
     };
     WifiConnection connection;
-    AppServicer appServicer{bus, state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
+    AppServicer appServicer{state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
     Wifi wifi{connection, appServicer};
     Discovery discovery;
 

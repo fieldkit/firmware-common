@@ -46,13 +46,17 @@ public:
         return listen;
     }
 
+    bool active() const {
+        return !isDisabled();
+    }
+
 public:
     TaskEval task() override {
         return TaskEval::idle();
     }
 
 private:
-    bool isDisabled() {
+    bool isDisabled() const {
         return disabled;
     }
 

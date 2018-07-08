@@ -49,7 +49,7 @@ void ModuleDataTransfer::tick(lws::Writer &outgoing) {
     }
 }
 
-PrepareTransmissionData::PrepareTransmissionData(TwoWireBus &bus, CoreState &state, FileSystem &fileSystem, ModuleCommunications &communications, FileCopySettings settings) :
+PrepareTransmissionData::PrepareTransmissionData(CoreState &state, FileSystem &fileSystem, ModuleCommunications &communications, FileCopySettings settings) :
     Task("PrepareTransmissionData"), state(&state), moduleDataTransfer(fileSystem, settings), protocol(communications) {
 }
 

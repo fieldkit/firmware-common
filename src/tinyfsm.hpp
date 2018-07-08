@@ -66,10 +66,15 @@ public:
 
     static state_ptr_t previous_state_ptr;
     static state_ptr_t current_state_ptr;
+    static state_ptr_t resume_state_ptr;
 
     static F& current() {
         assert(current_state_ptr != nullptr );
         return *current_state_ptr;
+    }
+
+    static void resume_at_back() {
+        resume_state_ptr = previous_state_ptr;
     }
 
     // public, leaving ability to access state instance (e.g. on reset)
@@ -129,8 +134,14 @@ public:
         current_state_ptr->entry();
     }
 
+    static void resume() {
+        auto ptr = resume_state_ptr;
+        resume_state_ptr = nullptr;
+        transit(ptr);
+    }
+
 private:
-    void transit(state_ptr_t state_ptr) {
+    static void transit(state_ptr_t state_ptr) {
         current_state_ptr->exit();
         previous_state_ptr = current_state_ptr;
         current_state_ptr = state_ptr;
@@ -191,6 +202,9 @@ typename Fsm<F>::state_ptr_t Fsm<F>::previous_state_ptr{ nullptr };
 
 template<typename F>
 typename Fsm<F>::state_ptr_t Fsm<F>::current_state_ptr{ nullptr };
+
+template<typename F>
+typename Fsm<F>::state_ptr_t Fsm<F>::resume_state_ptr{ nullptr };
 
 template<typename... FF>
 struct FsmList;

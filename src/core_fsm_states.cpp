@@ -4,6 +4,11 @@
 #include "attached_devices.h"
 #include "scheduler.h"
 #include "leds.h"
+#include "watchdog.h"
+#include "power_management.h"
+#include "user_button.h"
+
+#include "wifi_states.h"
 
 #include <Arduino.h>
 
@@ -105,24 +110,57 @@ void Idle::react(SchedulerEvent const &se) {
 }
 
 void Idle::task() {
-    services().scheduler->task();
-
     if (fk_uptime() - checked_ > 500) {
         auto nextTask = services().scheduler->getNextTask();
         if (nextTask.seconds > 10) {
             transit<Sleep>();
+            return;
         }
         checked_ = fk_uptime();
     }
 
+    services().scheduler->task();
+    services().watchdog->task();
+    services().leds->task();
+    services().button->task();
+
+    /*
     if (fk_uptime() - began_ > 60 * 1000) {
         began_ = 0;
         transit<WifiStartup>();
+        return;
     }
+    */
 }
 
+class TakeReadings : public MainServicesState {
+public:
+    const char *name() const override {
+        return "TakeReadings";
+    }
+
+public:
+    void task() override {
+        resume();
+    }
+};
+
+class TakeGpsReading : public MainServicesState {
+public:
+    const char *name() const override {
+        return "TakeGpsReading";
+    }
+
+public:
+    void task() override {
+        transit<TakeReadings>();
+    }
+};
+
 void BeginGatherReadings::task() {
-    back();
+    resume_at_back();
+
+    transit<TakeGpsReading>();
 }
 
 }

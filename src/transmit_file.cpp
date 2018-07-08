@@ -45,11 +45,6 @@ void TransmitFileTask::enqueued() {
 }
 
 TaskEval TransmitFileTask::task() {
-    if (!wifi->possiblyOnline()) {
-        log("Wifi disabled or using local AP");
-        return TaskEval::done();
-    }
-
     if (!connected) {
         if (state->isBusy() || state->isReadingInProgress()) {
             if (millis() - waitingSince > WifiTransmitBusyWaitMax) {
@@ -94,7 +89,6 @@ TaskEval TransmitFileTask::task() {
         wcl.flush();
         wcl.stop();
         state->setBusy(false);
-        // wifi->setBusy(false);
         if (status == 200) {
             if (!fileCopy.isFinished()) {
                 log("Unfinished success (status = %d)", status);
@@ -150,7 +144,6 @@ TaskEval TransmitFileTask::openConnection() {
     Url parsed(urlCopy);
 
     state->setBusy(true);
-    // wifi->setBusy(true);
 
     parser.begin();
 
@@ -167,7 +160,6 @@ TaskEval TransmitFileTask::openConnection() {
                 wcl.flush();
                 wcl.stop();
                 state->setBusy(false);
-                // wifi->setBusy(false);
                 return TaskEval::error();
             }
 
@@ -193,12 +185,10 @@ TaskEval TransmitFileTask::openConnection() {
         } else {
             log("Not connected!");
             state->setBusy(false);
-            // wifi->setBusy(false);
             return TaskEval::error();
         }
     } else {
         state->setBusy(false);
-        // wifi->setBusy(false);
         return TaskEval::error();
     }
 

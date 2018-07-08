@@ -16,7 +16,6 @@ class SimpleNTP : public Task {
 
 private:
     ClockType *clock;
-    Wifi *wifi;
     WiFiUDP udp;
     IPAddress addresses[NumberOfAddresses] {
         IPAddress{129, 6, 15, 28},
@@ -25,10 +24,9 @@ private:
     uint8_t addressIndex{ 0 };
     bool initialized{ false };
     uint32_t lastSent{ 0 };
-    uint32_t started{ 0 };
 
 public:
-    SimpleNTP(ClockType &clock, Wifi &wifi);
+    SimpleNTP(ClockType &clock);
     ~SimpleNTP();
 
 public:

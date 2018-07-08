@@ -87,7 +87,10 @@ public:
             return;
         }
 
-        IpAddress4 ip{ WiFi.localIP() };
+        auto localIp = WiFi.localIP();
+        services().state->updateIp(localIp);
+
+        IpAddress4 ip{ localIp };
         log("N[%d] Connected (%s) (%s)", index_, getWifiStatus(), ip.toString());
         transit<WifiSyncTime>();
     }
@@ -101,7 +104,7 @@ public:
 
 public:
     void task() override {
-        // TODO: If done this before, skip.
+        // TODO: If done this before, skip?
         char name[32];
         getAccessPointName(name, sizeof(name));
 
@@ -110,7 +113,11 @@ public:
         auto status = WiFi.beginAP(name, 1, ip);
         if (status != WL_AP_LISTENING) {
             transit<WifiDisable>();
+            services().state->updateIp(0);
+            return;
         }
+
+        services().state->updateIp(WiFi.localIP());
 
         transit_into<WifiListening>();
     }
@@ -128,19 +135,14 @@ public:
 public:
     void task() override {
         if (!success_) {
-            SimpleNTP ntp(clock, *services().wifi);
-
-            services().state->updateIp(WiFi.localIP());
+            SimpleNTP ntp(clock);
 
             ntp.enqueued();
 
             while (elapsed() < NtpMaximumWait) {
                 services().watchdog->task();
-                auto e = ntp.task();
-                if (e.isDone()) {
+                if (!simple_task_run(ntp)) {
                     success_ = true;
-                }
-                if (e.isDoneOrError()) {
                     break;
                 }
             }
@@ -210,6 +212,7 @@ public:
 public:
     void task() override {
         if (index_ == 2) {
+            index_ = 0;
             transit_into<WifiListening>();
         }
         else {

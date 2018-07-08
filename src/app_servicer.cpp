@@ -88,8 +88,8 @@ public:
     }
 };
 
-AppServicer::AppServicer(TwoWireBus &bus, CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
-    : bus(&bus), query(&pool), reply(&pool), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
+AppServicer::AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
+    : query(&pool), reply(&pool), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
 }
 
 void AppServicer::enqueued() {
