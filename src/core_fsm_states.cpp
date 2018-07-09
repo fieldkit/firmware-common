@@ -9,6 +9,8 @@
 #include "power_management.h"
 #include "user_button.h"
 
+#include "gather_readings.h"
+
 #include "file_system.h"
 #include "wifi_states.h"
 #include "gps.h"
@@ -223,6 +225,19 @@ public:
 
 public:
     void task() override {
+        GatherReadings gatherReadings{
+            *services().state,
+            *services().leds,
+            *services().moduleCommunications
+        };
+
+        gatherReadings.enqueued();
+
+        while (simple_task_run(gatherReadings)) {
+            services().alive();
+            services().moduleCommunications->task();
+        }
+
         resume();
     }
 };

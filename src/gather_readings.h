@@ -105,7 +105,7 @@ private:
     uint32_t startedAt{ 0 };
 
 public:
-    GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, ModuleCommunications &communications);
+    GatherReadings(CoreState &state, Leds &leds, ModuleCommunications &communications);
 
 public:
     void enqueued() override;

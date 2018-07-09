@@ -4,7 +4,7 @@
 
 namespace fk {
 
-GatherReadings::GatherReadings(TwoWireBus &bus, CoreState &state, Leds &leds, ModuleCommunications &communications) :
+GatherReadings::GatherReadings(CoreState &state, Leds &leds, ModuleCommunications &communications) :
     Task("GatherReadings"), state(&state), leds(&leds), protocol(communications) {
 }
 
@@ -43,6 +43,7 @@ TaskEval GatherReadings::task() {
             return done(finished);
         }
     }
+
     return TaskEval::idle();
 }
 
