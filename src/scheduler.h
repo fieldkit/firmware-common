@@ -18,47 +18,56 @@ class SchedulerTask {
 
 class PeriodicTask : public SchedulerTask {
 private:
-    uint32_t interval{ 0 };
-    uint32_t lastRan{ 0 };
-    SchedulerEvent event;
+    uint32_t interval_{ 0 };
+    uint32_t lastRan_{ 0 };
+    SchedulerEvent event_;
 
 public:
-    PeriodicTask(uint32_t interval, SchedulerEvent event) : interval(interval), event(event) {
+    uint32_t interval() const {
+        return interval_;
+    }
+
+public:
+    PeriodicTask(uint32_t interval, SchedulerEvent event) : interval_(interval), event_(event) {
     }
 
 public:
     bool shouldRun();
 
-    SchedulerEvent &getEvent() {
-        return event;
+    bool valid() {
+        return interval_ > 0;
+    }
+
+    SchedulerEvent &event() {
+        return event_;
     }
 
 };
 
 class ScheduledTask : public SchedulerTask {
 private:
-    TimeSpec second;
-    TimeSpec minute;
-    TimeSpec hour;
-    TimeSpec day;
-    DateTime lastRan;
-    SchedulerEvent event;
+    TimeSpec second_;
+    TimeSpec minute_;
+    TimeSpec hour_;
+    TimeSpec day_;
+    DateTime lastRan_;
+    SchedulerEvent event_;
 
 public:
     ScheduledTask(TimeSpec second, TimeSpec minute, TimeSpec hour, TimeSpec day, SchedulerEvent event) :
-        second(second), minute(minute), hour(hour), day(day), event(event) {
+        second_(second), minute_(minute), hour_(hour), day_(day), event_(event) {
     }
 
 public:
-    TimeSpec &getSecond() { return second; }
-    TimeSpec &getMinute() { return minute; }
-    TimeSpec &getHour() { return hour; }
-    TimeSpec &getDay() { return day; }
+    TimeSpec &getSecond() { return second_; }
+    TimeSpec &getMinute() { return minute_; }
+    TimeSpec &getHour() { return hour_; }
+    TimeSpec &getDay() { return day_; }
 
-    void setSecond(TimeSpec spec) { second = spec; }
-    void setMinute(TimeSpec spec) { minute = spec; }
-    void setHour(TimeSpec spec) { hour = spec; }
-    void setDay(TimeSpec spec) { day = spec; }
+    void setSecond(TimeSpec spec) { second_ = spec; }
+    void setMinute(TimeSpec spec) { minute_ = spec; }
+    void setHour(TimeSpec spec) { hour_ = spec; }
+    void setDay(TimeSpec spec) { day_ = spec; }
 
 public:
     bool shouldRun(DateTime now);
@@ -69,8 +78,8 @@ public:
 
     uint32_t getNextRunTime(DateTime &after);
 
-    SchedulerEvent &getEvent() {
-        return event;
+    SchedulerEvent &event() {
+        return event_;
     }
 
 };
@@ -107,6 +116,8 @@ public:
     }
 
 public:
+    void setup();
+
     TaskEval task() override;
 
 public:

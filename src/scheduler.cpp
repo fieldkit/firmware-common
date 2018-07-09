@@ -18,11 +18,11 @@ static bool matches(const TimeSpec &spec, int8_t value) {
 }
 
 bool PeriodicTask::shouldRun() {
-    if (interval == 0) {
+    if (interval_ == 0) {
         return false;
     }
-    if (fk_uptime() - lastRan > interval) {
-        lastRan = fk_uptime();
+    if (fk_uptime() - lastRan_ > interval_) {
+        lastRan_ = fk_uptime();
         return true;
     }
     return false;
@@ -30,10 +30,10 @@ bool PeriodicTask::shouldRun() {
 
 bool ScheduledTask::shouldRun(DateTime now) {
     if (matches(now)) {
-        if (lastRan.unixtime() == now.unixtime()) {
+        if (lastRan_.unixtime() == now.unixtime()) {
             return false;
         }
-        lastRan = now;
+        lastRan_ = now;
         return true;
     }
     return false;
@@ -44,27 +44,27 @@ uint32_t ScheduledTask::getNextRunTime(DateTime &after) {
         return UINT32_MAX;
     }
     DateTime copy(after);
-    if (fk::valid(second)) {
-        if (second.fixed >= 0) {
-            auto r = second.fixed - after.second();
+    if (fk::valid(second_)) {
+        if (second_.fixed >= 0) {
+            auto r = second_.fixed - after.second();
             if (r <= 0) {
                 r += 60;
             }
             copy = copy + TimeSpan{ r };
-        } else if (second.interval >= 0) {
-            auto r = second.interval - (copy.second() % second.interval);
+        } else if (second_.interval >= 0) {
+            auto r = second_.interval - (copy.second() % second_.interval);
             copy = copy + TimeSpan{ r };
         }
     }
-    if (fk::valid(minute)) {
-        if (minute.fixed >= 0) {
-            auto r = minute.fixed - after.minute();
+    if (fk::valid(minute_)) {
+        if (minute_.fixed >= 0) {
+            auto r = minute_.fixed - after.minute();
             if (r <= 0) {
                 r += 59;
             }
             copy = copy + TimeSpan{ r * 60 };
-        } else if (minute.interval >= 0) {
-            auto r = minute.interval - (copy.minute() % minute.interval);
+        } else if (minute_.interval >= 0) {
+            auto r = minute_.interval - (copy.minute() % minute_.interval);
             copy = copy + TimeSpan{ r * 60 };
         }
     }
@@ -72,24 +72,50 @@ uint32_t ScheduledTask::getNextRunTime(DateTime &after) {
 }
 
 bool ScheduledTask::valid() {
-    return fk::valid(second) || fk::valid(minute);
+    return fk::valid(second_) || fk::valid(minute_);
 }
 
 bool ScheduledTask::matches(DateTime now) {
-    if (!fk::matches(second, now.second())) {
+    if (!fk::matches(second_, now.second())) {
         return false;
     }
-    if (!fk::matches(minute, now.minute())) {
+    if (!fk::matches(minute_, now.minute())) {
         return false;
     }
-    if (!fk::matches(hour, now.hour())) {
+    if (!fk::matches(hour_, now.hour())) {
         return false;
     }
-    if (!fk::matches(day, now.day())) {
+    if (!fk::matches(day_, now.day())) {
         return false;
     }
 
     return true;
+}
+
+void Scheduler::setup() {
+    if (numberOfPeriodics > 1) {
+        for (size_t i = 0; i < numberOfPeriodics - 1; ++i) {
+            for (size_t j = 0; j < numberOfPeriodics - 1 - i; ++j) {
+                if (periodic[j].interval() < periodic[j + 1].interval()) {
+                    auto temp = periodic[j];
+                    periodic[j] = periodic[j + 1];
+                    periodic[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    for (size_t i = 0; i < numberOfPeriodics; ++i) {
+        if (periodic[i].valid()) {
+            log("Periodic: %lu -> %s", periodic[i].interval(), periodic[i].event().toString());
+        }
+    }
+
+    for (size_t i = 0; i < numberOfTasks; ++i) {
+        if (tasks[i].valid()) {
+            log("Scheduled: %s", tasks[i].event().toString());
+        }
+    }
 }
 
 TaskEval Scheduler::task() {
@@ -103,7 +129,7 @@ TaskEval Scheduler::task() {
         auto now = clock->now();
         for (size_t i = 0; i < numberOfTasks; ++i) {
             if (tasks[i].valid() && tasks[i].shouldRun(now)) {
-                auto &event = tasks[i].getEvent();
+                auto &event = tasks[i].event();
                 DateTime runsAgain{ tasks[i].getNextRunTime(now) };
                 FormattedTime nowFormatted{ now };
                 FormattedTime runsAgainFormatted{ runsAgain };
@@ -117,7 +143,7 @@ TaskEval Scheduler::task() {
     }
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
         if (periodic[i].shouldRun()) {
-            auto &event = periodic[i].getEvent();
+            auto &event = periodic[i].event();
             #if FK_LOGGING_VERBOSITY > 2
             log("Run periodic");
             #endif

@@ -46,6 +46,13 @@ struct SchedulerEvent : public tinyfsm::Event {
 
     SchedulerEvent(CoreFsm::deferred_t deferred) : deferred(deferred) {
     }
+
+    const char *toString() const {
+        if (deferred) {
+            return deferred.name();
+        }
+        return "<none>";
+    }
 };
 
 class CoreDevice : public CoreFsm {
