@@ -28,6 +28,11 @@ struct FileCopySettings {
     }
 };
 
+class FileCopyCallbacks {
+public:
+    virtual void fileCopyTick() = 0;
+};
+
 class FileCopyOperation {
 private:
     lws::BufferedStreamCopier<FileCopyBufferSize> streamCopier_;
@@ -61,7 +66,7 @@ public:
         return copied_;
     }
     bool prepare(const FileReader &reader, const FileCopySettings &settings);
-    bool copy(lws::Writer &writer);
+    bool copy(lws::Writer &writer, FileCopyCallbacks *callbacks = nullptr);
     bool seek(uint64_t position) {
         return reader_.seek(position);
     }

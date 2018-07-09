@@ -37,50 +37,59 @@ TransmitFileTask::TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wif
 void TransmitFileTask::enqueued() {
     tries = 0;
     connected = false;
-    waitingSince = fk_uptime();
+    copyFinishedAt = 0;
 }
 
-TaskEval TransmitFileTask::task() {
-    if (!connected) {
-        FileCursorManager fcm(*fileSystem);
-        auto position = fcm.lookup(settings.file);
-
-        if (!fileSystem->beginFileCopy(FileCopySettings{ settings.file, (uint32_t)position, 0 })) {
-            return TaskEval::error();
-        }
-
-        auto &fileCopy = fileSystem->files().fileCopy();
-
-        if (fileCopy.remaining() == 0) {
-            log("Empty: (%lu) %d -> %d", (uint32_t)position, fileCopy.tell(), fileCopy.size());
-            return TaskEval::done();
-        }
-        else {
-            log("Uploading: %d", fileCopy.remaining());
-        }
-
-        waitingSince = 0;
-
-        return openConnection();
-    }
-
+void TransmitFileTask::fileCopyTick() {
     while (wcl.available()) {
         auto c = wcl.read();
         parser.write(c);
     }
+}
+
+TaskEval TransmitFileTask::task() {
+    if (!connected) {
+        if (!openFile()) {
+            return TaskEval::done();
+        }
+
+        return openConnection();
+    }
+
+    fileCopyTick();
 
     auto &fileCopy = fileSystem->files().fileCopy();
 
+    if (!fileCopy.isFinished()) {
+        auto writer = WifiWriter{ wcl };
+        if (!fileCopy.copy(writer)) {
+            return TaskEval::error();
+        }
+    }
+
+    if (fileCopy.isFinished()) {
+        if (copyFinishedAt == 0) {
+            copyFinishedAt = fk_uptime();
+        }
+        if (fk_uptime() - copyFinishedAt > WifiTransmitBusyWaitMax) {
+            log("No response after (%lu).", WifiTransmitBusyWaitMax);
+            wcl.flush();
+            wcl.stop();
+        }
+    }
+
     auto status = parser.getStatusCode();
     if (!wcl.connected() || status > 0) {
+        auto afterClosed = fk_uptime() - copyFinishedAt;
+
         wcl.flush();
         wcl.stop();
         if (status == 200) {
             if (!fileCopy.isFinished()) {
-                log("Unfinished success (status = %d)", status);
+                log("Unfinished success (status = %d) (%lums)", status, afterClosed);
             }
             else {
-                log("Success (status = %d)", status);
+                log("Success (status = %d) (%lums)", status, afterClosed);
             }
 
             FileCursorManager fcm(*fileSystem);
@@ -96,31 +105,35 @@ TaskEval TransmitFileTask::task() {
             }
             else {
                 connected = false;
-                waitingSince = fk_uptime();
+                copyFinishedAt = 0;
                 return TaskEval::busy();
             }
         }
         return TaskEval::done();
     }
 
-    if (!fileCopy.isFinished()) {
-        auto writer = WifiWriter{ wcl };
-        if (!fileCopy.copy(writer)) {
-            return TaskEval::error();
-        }
-    }
-    else {
-        if (waitingSince == 0) {
-            waitingSince = fk_uptime();
-        }
-        if (fk_uptime() - waitingSince > WifiTransmitBusyWaitMax) {
-            log("No response after (%lu).", WifiTransmitBusyWaitMax);
-            wcl.flush();
-            wcl.stop();
-        }
+    return TaskEval::idle();
+}
+
+bool TransmitFileTask::openFile() {
+    FileCursorManager fcm(*fileSystem);
+    auto position = fcm.lookup(settings.file);
+
+    if (!fileSystem->beginFileCopy(FileCopySettings{ settings.file, (uint32_t)position, 0 })) {
+        log("Error opening file");
+        return false;
     }
 
-    return TaskEval::idle();
+    auto &fileCopy = fileSystem->files().fileCopy();
+
+    if (fileCopy.remaining() == 0) {
+        log("Empty: (%lu) %d -> %d", (uint32_t)position, fileCopy.tell(), fileCopy.size());
+        return false;
+    }
+    else {
+        log("Uploading: %d", fileCopy.remaining());
+    }
+    return true;
 }
 
 TaskEval TransmitFileTask::openConnection() {
@@ -129,42 +142,16 @@ TaskEval TransmitFileTask::openConnection() {
     strncpy(urlCopy, config->streamUrl, length);
     Url parsed(urlCopy);
 
+    copyFinishedAt = 0;
     parser.begin();
 
     if (parsed.server != nullptr && parsed.path != nullptr) {
         log("Connecting: '%s:%d' / '%s'", parsed.server, parsed.port, parsed.path);
 
         if (cachedDns.cached(parsed.server) && wcl.connect(cachedDns.ip(), parsed.port)) {
-            StaticPool<128> pool{"DataPool"};
-            DataRecordMetadataMessage drm{ *state, pool };
-            uint8_t buffer[drm.calculateSize()];
-            auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-            if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
-                log("Error encoding data file record (%d bytes)", sizeof(buffer));
-                wcl.flush();
-                wcl.stop();
+            if (!writeBeginning(parsed)) {
                 return TaskEval::error();
             }
-
-            auto &fileCopy = fileSystem->files().fileCopy();
-            auto bufferSize = stream.bytes_written;
-            auto fileSize = fileCopy.size() - fileCopy.tell();
-            auto transmitting = fileSize + bufferSize;
-
-            HttpResponseWriter httpWriter(wcl);
-            OutgoingHttpHeaders headers{
-                    "application/vnd.fk.data+binary",
-                    transmitting,
-                    firmware_version_get(),
-                    firmware_build_get(),
-                    deviceId.toString(),
-                    0
-            };
-            httpWriter.writeHeaders(parsed, headers);
-
-            log("Sending %d + %d = %d bytes...", fileSize, bufferSize, transmitting);
-            connected = true;
-            wcl.write(buffer, bufferSize);
         } else {
             log("Not connected!");
             return TaskEval::error();
@@ -174,6 +161,41 @@ TaskEval TransmitFileTask::openConnection() {
     }
 
     return TaskEval::idle();
+}
+
+bool TransmitFileTask::writeBeginning(Url &parsed) {
+    StaticPool<128> pool{"DataPool"};
+    DataRecordMetadataMessage drm{ *state, pool };
+    uint8_t buffer[drm.calculateSize()];
+    auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
+        log("Error encoding data file record (%d bytes)", sizeof(buffer));
+        wcl.flush();
+        wcl.stop();
+        return false;
+    }
+
+    auto &fileCopy = fileSystem->files().fileCopy();
+    auto bufferSize = stream.bytes_written;
+    auto fileSize = fileCopy.remaining();
+    auto transmitting = fileSize + bufferSize;
+
+    HttpResponseWriter httpWriter(wcl);
+    OutgoingHttpHeaders headers{
+        "application/vnd.fk.data+binary",
+        transmitting,
+        firmware_version_get(),
+        firmware_build_get(),
+        deviceId.toString(),
+        0
+    };
+    httpWriter.writeHeaders(parsed, headers);
+
+    log("Sending %d + %d = %d bytes...", fileSize, bufferSize, transmitting);
+    connected = true;
+    wcl.write(buffer, bufferSize);
+
+    return true;
 }
 
 }

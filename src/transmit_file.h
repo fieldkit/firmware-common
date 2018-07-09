@@ -11,28 +11,31 @@
 
 namespace fk {
 
-class TransmitFileTask : public Task {
+class TransmitFileTask : public Task, public FileCopyCallbacks {
 private:
     FileSystem *fileSystem;
     CoreState *state;
     Wifi *wifi;
     HttpTransmissionConfig *config;
     FileCopySettings settings;
-    uint32_t waitingSince{ 0 };
-    bool connected{ false };
-    uint8_t tries{ 0 };
     WiFiClient wcl;
     HttpResponseParser parser;
     CachedDnsResolution cachedDns;
+    uint32_t copyFinishedAt{ 0 };
+    bool connected{ false };
+    uint8_t tries{ 0 };
 
 public:
     TransmitFileTask(FileSystem &fileSystem, CoreState &state, Wifi &wifi, HttpTransmissionConfig &config, FileCopySettings settings);
 
 public:
     void enqueued();
+    void fileCopyTick() override;
     TaskEval task() override;
 
 private:
+    bool openFile();
+    bool writeBeginning(Url &parsed);
     TaskEval openConnection();
 
 };

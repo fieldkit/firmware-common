@@ -174,7 +174,7 @@ bool FileCopyOperation::prepare(const FileReader &reader, const FileCopySettings
     return true;
 }
 
-bool FileCopyOperation::copy(lws::Writer &writer) {
+bool FileCopyOperation::copy(lws::Writer &writer, FileCopyCallbacks *callbacks) {
     if (started_ == 0) {
         started_ = fk_uptime();
     }
@@ -186,21 +186,29 @@ bool FileCopyOperation::copy(lws::Writer &writer) {
             busy_ = false;
             return true;
         }
+
         auto bytes = streamCopier_.copy(reader_, writer);
         if (bytes == 0) {
             break;
         }
+
         if (bytes > 0) {
             copied_ += bytes;
         }
+
         if (bytes == lws::Stream::EOS) {
             status();
             busy_ = false;
             return false;
         }
+
         if (fk_uptime() - lastStatus_ > FileCopyStatusInterval) {
             status();
             lastStatus_ = fk_uptime();
+        }
+
+        if (callbacks != nullptr) {
+            callbacks->fileCopyTick();
         }
     }
 
