@@ -19,6 +19,12 @@
 
 namespace fk {
 
+class Booting;
+class Initializing;
+class CheckPower;
+class ScanAttachedDevices;
+class Sleep;
+
 template<>
 MainServices *MainServicesState::services_{ nullptr };
 
@@ -33,11 +39,6 @@ void MainServices::alive() {
     status->task();
     gps->task();
 }
-
-class Booting;
-class Initializing;
-class CheckPower;
-class ScanAttachedDevices;
 
 class Booting : public CoreDevice {
 public:
@@ -71,17 +72,13 @@ public:
 
 public:
     void task() override {
-        while (true) {
-            services().alive();
-
-            delay(1000);
-
-            auto percentage = services().power->percentage();
-            if (percentage > BatteryLowPowerResumeThreshold) {
-                log("Battery: %f", percentage);
-                transit<RebootDevice>();
-                break;
-            }
+        auto percentage = services().power->percentage();
+        if (percentage > BatteryLowPowerResumeThreshold) {
+            log("Battery: %f", percentage);
+            transit_into<RebootDevice>();
+        }
+        else {
+            transit_into<Sleep>((uint32_t)60);
         }
     }
 };
@@ -137,85 +134,40 @@ public:
     void task() override {
         log("Maximum: %lu", maximum_);
 
-        for (uint32_t i = 0; i < maximum_; ++i) {
+        auto started = fk_uptime();
+
+        services().fileSystem->flush();
+
+        while (fk_uptime() - started < maximum_ * 1000) {
+            auto delayed = false;
+
+            if (!fk_console_attached()) {
+                if (fk_uptime() - started > SleepMaximumGranularity) {
+                    services().leds->all(true);
+                    delay(100);
+                    services().leds->all(false);
+
+                    // TODO: Power down peripherals?
+                    services().watchdog->sleep(SleepMaximumGranularity);
+                    delayed = true;
+                }
+            }
+
+            if (!delayed) {
+                delay(1000);
+            }
+
             services().alive();
 
+            // Should never be scheduled events during this.
             if (transitioned()) {
                 return;
             }
-
-            delay(1000);
         }
 
-        transit<Idle>();
+        back();
     }
 };
-
-void Idle::entry() {
-    MainServicesState::entry();
-    if (began_ == 0) {
-        began_ = fk_uptime();
-    }
-}
-
-void Idle::react(SchedulerEvent const &se) {
-    if (se.deferred) {
-        warn("Scheduler Event!");
-        transit(se.deferred);
-    }
-}
-
-void Idle::task() {
-    if (fk_uptime() - checked_ > 500) {
-        auto nextTask = services().scheduler->getNextTask();
-        if (nextTask.seconds > 10) {
-            transit_into<Sleep>(nextTask.seconds - 5);
-            return;
-        }
-        checked_ = fk_uptime();
-    }
-
-    services().scheduler->task();
-
-    services().alive();
-}
-
-void CheckPower::task() {
-    auto percentage = services().power->percentage();
-    if (percentage < BatteryLowPowerSleepThreshold) {
-        log("Battery: %f", percentage);
-        transit<LowPowerSleep>();
-        return;
-    }
-
-    if (visited_) {
-        back();
-        return;
-    }
-
-    visited_ = true;
-
-    transit<ScanAttachedDevices>();
-}
-
-void UserWakeup::task() {
-    services().fileSystem->flush();
-
-    transit<WifiStartup>();
-}
-
-void RebootDevice::task() {
-    log("Rebooting!");
-
-    services().fileSystem->flush();
-
-    if (fk_console_attached()) {
-        transit<Initializing>();
-    }
-    else {
-        NVIC_SystemReset();
-    }
-}
 
 class TakeReadings : public MainServicesState {
 public:
@@ -270,6 +222,73 @@ void BeginGatherReadings::task() {
     resume_at_back();
 
     transit<TakeGpsReading>();
+}
+
+void CheckPower::task() {
+    auto percentage = services().power->percentage();
+    if (percentage < BatteryLowPowerSleepThreshold) {
+        if (!fk_console_attached()) {
+            transit<LowPowerSleep>();
+            return;
+        }
+    }
+
+    if (visited_) {
+        back();
+        return;
+    }
+
+    visited_ = true;
+
+    transit<ScanAttachedDevices>();
+}
+
+void UserWakeup::task() {
+    services().fileSystem->flush();
+
+    transit<WifiStartup>();
+}
+
+void RebootDevice::task() {
+    log("Rebooting!");
+
+    services().fileSystem->flush();
+
+    if (fk_console_attached()) {
+        transit<Initializing>();
+    }
+    else {
+        NVIC_SystemReset();
+    }
+}
+
+void Idle::entry() {
+    MainServicesState::entry();
+    if (began_ == 0) {
+        began_ = fk_uptime();
+    }
+}
+
+void Idle::react(SchedulerEvent const &se) {
+    if (se.deferred) {
+        warn("Scheduler Event!");
+        transit(se.deferred);
+    }
+}
+
+void Idle::task() {
+    if (fk_uptime() - checked_ > 500) {
+        auto nextTask = services().scheduler->getNextTask();
+        if (nextTask.seconds > 10) {
+            transit_into<Sleep>(nextTask.seconds - 5);
+            return;
+        }
+        checked_ = fk_uptime();
+    }
+
+    services().scheduler->task();
+
+    services().alive();
 }
 
 }

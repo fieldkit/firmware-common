@@ -41,4 +41,41 @@ TaskEval Watchdog::task() {
     return TaskEval::idle();
 }
 
+static uint8_t get_period_for_ms(uint16_t ms) {
+    if (ms >= 8192) return WDT_PERIOD_8X;
+    if (ms >= 4096) return WDT_PERIOD_4X;
+    if (ms >= 2048) return WDT_PERIOD_2X;
+    if (ms >= 1024) return WDT_PERIOD_1X;
+    if (ms >=  512) return WDT_PERIOD_1DIV2;
+    return 0;
+}
+
+uint32_t Watchdog::sleep(uint32_t ms) {
+    auto remaining = ms;
+
+    while (remaining > 0) {
+        auto period = get_period_for_ms(remaining);
+        if (period > 0) {
+            auto time = wdt_enable(WDT_PERIOD_8X, false);
+            remaining -= time;
+            if (time > 0) {
+                system_set_sleepmode(SYSTEM_SLEEPMODE_STANDBY);
+                system_sleep();
+
+                fk_uptime_adjust(time);
+            }
+            else {
+                delay(remaining);
+                remaining = 0;
+            }
+        }
+        else {
+            delay(remaining);
+            remaining = 0;
+        }
+    }
+
+    return ms;
+}
+
 }

@@ -56,11 +56,11 @@ public:
     TaskEval task() override;
 
 private:
-    void all(bool value);
     void push(BlinkerKind kind, uint8_t blinksRemaining = 0);
     void clear(BlinkerKind kind);
 
 public:
+    void all(bool value);
     void restarting();
     void alive();
     void fatal();

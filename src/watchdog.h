@@ -22,6 +22,9 @@ public:
 public:
     TaskEval task() override;
 
+public:
+    uint32_t sleep(uint32_t ms);
+
 };
 
 }

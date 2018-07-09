@@ -20,10 +20,6 @@ void SimpleNTP::enqueued() {
 }
 
 TaskEval SimpleNTP::task() {
-    if (clock->isValid()) {
-        return TaskEval::done();
-    }
-
     if (lastSent == 0 || fk_uptime() - lastSent > NtpRetryAfter) {
         log("Asking for time...");
         start();
