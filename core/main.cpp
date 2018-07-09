@@ -67,6 +67,14 @@ void setup() {
     loginfof("Core", "Configured with MTB.");
     #endif
 
+    #if defined(FK_NATURALIST)
+    loginfof("Core", "FK_NATURALIST");
+    #elif defined(FK_CORE_GENERATION_2)
+    loginfof("Core", "FK_CORE_GENERATION_2");
+    #elif defined(FK_CORE_GENERATION_1)
+    loginfof("Core", "FK_CORE_GENERATION_1");
+    #endif
+
     fk::NetworkInfo networks[] = {
         {
             FK_CONFIG_WIFI_1_SSID,
