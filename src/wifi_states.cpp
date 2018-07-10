@@ -2,9 +2,10 @@
 #include <Base64.h>
 #endif
 
+#include "utils.h"
 #include "wifi_states.h"
 #include "wifi.h"
-#include "utils.h"
+#include "app_servicer.h"
 
 #include "simple_ntp.h"
 #include "discovery.h"
@@ -40,10 +41,8 @@ class WifiTransmitFiles;
 void WifiState::serve() {
     services().state->updateIp(WiFi.localIP());
 
-    services().server->task();
-
     // Before Scheduler so we service before transitioning to scheduled states.
-    if (services().server->isBusy()) {
+    if (services().server->listen()) {
         transit(services().appServicer);
         return;
     }

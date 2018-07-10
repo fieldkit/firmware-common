@@ -3,45 +3,28 @@
 
 #include <WiFi101.h>
 #include <WiFiServer.h>
-#include <WiFiUdp.h>
 
-#include "active_object.h"
-#include "app_servicer.h"
-#include "network_settings.h"
 #include "wifi_client.h"
 
 namespace fk {
 
-enum class ListenerState {
-    Idle,
-    Disconnected,
-    Listening,
-    Busy,
-};
-
-class Listen : public Task {
+class Listen {
 private:
-    uint16_t port{ 0 };
-    uint32_t lastActivity{ 0 };
-    ListenerState state{ ListenerState::Idle };
-    WiFiServer server;
-    AppServicer *servicer;
-    WifiConnection *connection;
+    bool initialized_{ false };
+    uint16_t port_{ 0 };
+    WiFiServer server_;
+    WifiConnection *connection_;
 
 public:
-    Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection);
-
-public:
-    void end();
-    bool isBusy() const {
-        return state == ListenerState::Busy;
-    }
+    Listen(uint16_t port, WifiConnection &connection);
 
 private:
     void begin();
 
 public:
-    TaskEval task() override;
+    bool listen();
+
+    void end();
 };
 
 }

@@ -9,8 +9,7 @@ namespace fk {
 
 StaticWiFiAllocator staticWiFiAllocator;
 
-Wifi::Wifi(WifiConnection &connection, AppServicer &servicer)
-    : Task("Wifi"), connection(&connection), listen(WifiServerPort, servicer, connection) {
+Wifi::Wifi(WifiConnection &connection) : Task("Wifi"), listen(WifiServerPort, connection) {
 }
 
 bool Wifi::begin() {

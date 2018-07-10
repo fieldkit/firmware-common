@@ -2,6 +2,8 @@
 #include "device_id.h"
 #include "utils.h"
 
+#include <WiFiUdp.h>
+
 namespace fk {
 
 Discovery::Discovery() : Task("Discovery") {

@@ -3,53 +3,35 @@
 
 namespace fk {
 
-Listen::Listen(uint16_t port, AppServicer &servicer, WifiConnection &connection)
-    : Task("Listen"), port(port), server(port), servicer(&servicer), connection(&connection) {
+Listen::Listen(uint16_t port, WifiConnection &connection) : port_(port), server_(port), connection_(&connection) {
 }
 
 void Listen::begin() {
-    if (state == ListenerState::Idle) {
-        lastActivity = fk_uptime();
-        server.begin();
-        log("Server began (port = %d)", port);
-        state = ListenerState::Disconnected;
-    }
-    else if (state != ListenerState::Disconnected) {
-        log("Disconnected");
-        state = ListenerState::Disconnected;
+    if (!initialized_) {
+        server_.begin();
+        logf(LogLevels::INFO, "Listen", "Server began (port = %d)", port_);
+        initialized_ = true;
     }
 }
 
 void Listen::end() {
-    if (state != ListenerState::Idle) {
-        log("Ended");
-        state = ListenerState::Idle;
+    if (initialized_) {
+        initialized_ = false;
+        logf(LogLevels::INFO, "Listen", "Ended");
     }
 }
 
-TaskEval Listen::task() {
-    if (state == ListenerState::Busy) {
-        if (connection->isConnected()) {
-            return TaskEval::busy();
-        }
-
-        state = ListenerState::Disconnected;
-    }
-
+bool Listen::listen() {
     begin();
 
-    if (state == ListenerState::Disconnected) {
-        auto wcl = server.available();
-        if (wcl) {
-            lastActivity = fk_uptime();
-            log("Accepted!");
-            connection->setConnection(wcl);
-            state = ListenerState::Busy;
-            return TaskEval::idle();
-        }
+    auto wcl = server_.available();
+    if (wcl) {
+        logf(LogLevels::INFO, "Listen", "Accepted!");
+        connection_->setConnection(wcl);
+        return true;
     }
 
-    return TaskEval::idle();
+    return false;
 }
 
 }
