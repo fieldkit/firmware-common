@@ -56,7 +56,7 @@ TaskEval DownloadFileTask::task() {
     if (!fileCopy.isFinished()) {
         auto writer = WifiWriter{ connection->getClient() };
         if (!fileCopy.copy(writer)) {
-            log("Error");
+            log("Error copying");
             return TaskEval::error();
         }
     }
