@@ -29,7 +29,7 @@ public:
 
 public:
     void task() override {
-        resume();
+        transit<WifiConnectionCompleted>();
     }
 
 };
@@ -74,7 +74,7 @@ public:
 
         services().appServicer->flushAndClose();
 
-        resume();
+        transit<WifiConnectionCompleted>();
     }
 };
 
@@ -114,7 +114,7 @@ public:
 
         if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
             log("No attached modules.");
-            resume();
+            transit<WifiConnectionCompleted>();
             return;
         }
     }
@@ -128,7 +128,7 @@ public:
 
         if (fk_uptime() - lastPolled_ > LivePollInactivity) {
             log("Stopped due to inactivity.");
-            resume();
+            transit<WifiConnectionCompleted>();
             return;
         }
 
@@ -158,7 +158,7 @@ void AppServicer::task() {
     if (!service()) {
         // Go back unless we transitioned somewhere else.
         if (!transitioned()) {
-            back();
+            transit<WifiConnectionCompleted>();
         }
     }
 }
@@ -338,8 +338,6 @@ bool AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
-        resume_at_back();
-
         transit_into<WifiDownloadFile>(FileCopySettings{
                 (FileNumber)query.m().downloadFile.id,
                 query.m().downloadFile.offset,
@@ -382,8 +380,6 @@ bool AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_MODULE: {
-        resume_at_back();
-
         // auto address = (uint8_t)query.m().module.address;
         transit_into<WifiQueryModule>();
         return false;

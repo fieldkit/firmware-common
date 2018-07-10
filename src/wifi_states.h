@@ -25,6 +25,16 @@ public:
 
 };
 
+class WifiConnectionCompleted : public WifiState {
+public:
+    const char *name() const override {
+        return "WifiConnectionCompleted";
+    }
+
+public:
+    void task() override;
+};
+
 }
 
 #endif

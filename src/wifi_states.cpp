@@ -224,13 +224,35 @@ public:
     }
 };
 
-class WifiListening : public WifiState {
+class WifiCaptiveListening : public WifiState {
 private:
     uint32_t began_{ 0 };
 
 public:
-    WifiListening() {
+    const char *name() const override {
+        return "WifiCaptiveListening";
     }
+
+public:
+    void entry() override {
+        WifiState::entry();
+        began_ = fk_uptime();
+    }
+
+    void task() override {
+        if (fk_uptime() - began_ > WifiCaptivitiyTimeout) {
+            transit_into<WifiListening>();
+            return;
+        }
+
+        serve();
+    }
+
+};
+
+class WifiListening : public WifiState {
+private:
+    uint32_t began_{ 0 };
 
 public:
     const char *name() const override {
@@ -238,27 +260,26 @@ public:
     }
 
 public:
-    void task() override {
+    void entry() override {
+        WifiState::entry();
         if (began_ == 0) {
-            log("Began");
+            log("Reset");
             began_ = fk_uptime();
         }
+    }
 
-        // TODO: Right now scheduled tasks reset our elapsed time.
-        if (fk_uptime() - began_ > 1000 * 60) {
+    void task() override {
+        if (fk_uptime() - began_ > WifiInactivityTimeout) {
             transit<WifiDisable>();
+            return;
         }
-        else {
-            serve();
-        }
+
+        serve();
     }
 
     void react(SchedulerEvent const &se) override {
         if (se.deferred) {
-            // TODO: Dead Zone (no scheduler events within an interval of a
-            // request)  and Busy Reply when we're "away" also adjust
-            // GpsFixAttemptInterval if we're interactive.
-            warn("Scheduler Event! TODO");
+            warn("Scheduler Event!");
             transit(se.deferred);
         }
     }
@@ -279,6 +300,10 @@ public:
     }
 
 };
+
+void WifiConnectionCompleted::task() {
+    transit<WifiCaptiveListening>();
+}
 
 void WifiStartup::task() {
     if (!initialized_) {

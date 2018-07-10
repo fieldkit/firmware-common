@@ -231,6 +231,9 @@ void CheckPower::task() {
             transit<LowPowerSleep>();
             return;
         }
+        else {
+            log("Console attached, ignoring.");
+        }
     }
 
     if (visited_) {

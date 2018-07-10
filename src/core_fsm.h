@@ -42,9 +42,9 @@ class CoreDevice;
 using CoreFsm = tinyfsm::Fsm<CoreDevice>;
 
 struct SchedulerEvent : public tinyfsm::Event {
-    CoreFsm::deferred_t deferred;
+    CoreFsm::Deferred deferred;
 
-    SchedulerEvent(CoreFsm::deferred_t deferred) : deferred(deferred) {
+    SchedulerEvent(CoreFsm::Deferred deferred) : deferred(deferred) {
     }
 
     const char *toString() const {

@@ -97,13 +97,13 @@ public:
         return current_state_ptr == &_state_instance<S>::value;
     }
 
-    struct deferred_t {
+    struct Deferred {
         state_ptr_t next_state_ptr{ nullptr };
 
-        deferred_t() {
+        Deferred() {
         }
 
-        deferred_t(state_ptr_t ptr) : next_state_ptr(ptr) {
+        Deferred(state_ptr_t ptr) : next_state_ptr(ptr) {
         }
 
         operator bool() const {
@@ -115,8 +115,21 @@ public:
         }
     };
 
+    enum class EntryType {
+        Transit,
+        Back,
+        Resume
+    };
+
+    struct Entered {
+        EntryType type;
+
+        Entered(EntryType type) : type(type) {
+        }
+    };
+
     template<typename S>
-    static deferred_t deferred() {
+    static Deferred deferred() {
         return { &_state_instance<S>::value };
     }
 
@@ -145,23 +158,17 @@ public:
 protected:
     void back() {
         sanity_check_before_transition(previous_state_ptr);
-
-        auto temp = previous_state_ptr;
-        current_state_ptr->exit();
-        previous_state_ptr = current_state_ptr;
-        current_state_ptr = temp;
-        current_state_ptr->entry();
+        transit(previous_state_ptr);
     }
 
     void resume() {
         sanity_check_before_transition(resume_state_ptr);
 
-        auto ptr = resume_state_ptr;
+        transit(resume_state_ptr);
         resume_state_ptr = nullptr;
-        transit(ptr);
     }
 
-    void transit(deferred_t deferred) {
+    void transit(Deferred deferred) {
         transit(deferred.next_state_ptr);
     }
 

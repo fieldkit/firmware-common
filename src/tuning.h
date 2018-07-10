@@ -42,6 +42,9 @@ constexpr uint32_t WifiConnectionTimeout = 5000;
 constexpr uint32_t WifiTransmitBusyWaitMax = 10 * 1000;
 constexpr uint32_t WifiTransmitFileMaximumTries = 3;
 constexpr uint32_t WifiTransmitInterval = 5 * 60;
+constexpr uint32_t WifiInactivityTimeout = 1000 * 60;
+constexpr uint32_t WifiCaptivitiyTimeout = 1000 * 10;
+
 /**
  * This is copied from SOCKET_BUFFER_SIZE in WiFiSocket.cpp.
  */
