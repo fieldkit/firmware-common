@@ -16,6 +16,11 @@ if(DEBUG_UART_FALLBACK)
   add_definitions(-DDEBUG_UART_FALLBACK)
 endif(DEBUG_UART_FALLBACK)
 
+option(DEBUG_UART_REQUIRE_CONSOLE "Wait forever for a console connection" ON)
+if(DEBUG_UART_REQUIRE_CONSOLE)
+  add_definitions(-DDEBUG_UART_REQUIRE_CONSOLE)
+endif(DEBUG_UART_REQUIRE_CONSOLE)
+
 option(DEBUG_MTB_ENABLE "Enable MicroTrace Buffer" OFF)
 if(DEBUG_MTB_ENABLE)
   add_definitions(-DDEBUG_MTB_ENABLE)

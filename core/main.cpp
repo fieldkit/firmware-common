@@ -42,8 +42,14 @@ void setup() {
 
     Serial.begin(115200);
 
-    while (!Serial && fk::fk_uptime() < 2000) {
+    while (!Serial) {
         delay(100);
+
+        #ifndef DEBUG_UART_REQUIRE_CONSOLE
+        if (fk::fk_uptime() > 2000) {
+            break;
+        }
+        #endif
     }
 
     #ifdef DEBUG_UART_FALLBACK
