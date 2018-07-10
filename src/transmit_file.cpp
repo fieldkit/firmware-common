@@ -187,7 +187,7 @@ bool TransmitFileTask::writeBeginning(Url &parsed) {
         firmware_version_get(),
         firmware_build_get(),
         deviceId.toString(),
-        0
+        (uint8_t)settings.file
     };
     httpWriter.writeHeaders(parsed, headers);
 
