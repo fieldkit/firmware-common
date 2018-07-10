@@ -12,21 +12,16 @@
 
 #include "core_fsm_states.h"
 
+#include "api_connection.h"
+
 namespace fk {
 
-class AppServicer : public MainServicesState {
+class AppServicer : public ApiConnection {
 private:
-    AppQueryMessage query;
-    AppReplyMessage reply;
-    CoreState *state;
-    Scheduler *scheduler;
-    FkfsReplies *fileReplies;
-    WifiConnection *connection;
-    ModuleCommunications *communications;
-    Pool *pool;
-    MessageBuffer *buffer{ nullptr };
-    uint32_t dieAt{ 0 };
-    size_t bytesRead{ 0 };
+    CoreState *state_;
+    Scheduler *scheduler_;
+    FkfsReplies *fileReplies_;
+    ModuleCommunications *communications_;
 
 public:
     AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
@@ -38,14 +33,9 @@ public:
 
 public:
     void react(LiveDataEvent const &lde) override;
-    void entry() override;
-    void task() override;
-    bool service();
-    bool flushAndClose();
 
 private:
-    bool readQuery();
-    bool handle();
+    bool handle() override;
 
 private:
     void capabilitiesReply();

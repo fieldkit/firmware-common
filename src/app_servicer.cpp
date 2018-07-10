@@ -1,13 +1,15 @@
+#include <functional>
+
 #include <FuelGauge.h>
 
 #include "app_servicer.h"
 #include "utils.h"
 #include "device_id.h"
-#include "download_file_task.h"
 
-#include "wifi_states.h"
+#include "download_file_task.h"
 #include "leds.h"
 #include "watchdog.h"
+#include "api_states.h"
 
 namespace fk {
 
@@ -15,246 +17,39 @@ static void copy(ScheduledTask &to, fk_app_Schedule &from);
 
 static void copy(fk_app_Schedule &to, ScheduledTask &from);
 
-class WifiQueryModule : public WifiState {
-private:
-
-public:
-    WifiQueryModule() {
-    }
-
-public:
-    const char *name() const override {
-        return "WifiQueryModule";
-    }
-
-public:
-    void task() override {
-        transit<WifiConnectionCompleted>();
-    }
-
-};
-
-class WifiDownloadFile : public WifiState {
-private:
-    FileCopySettings settings_{ FileNumber::StartupLog };
-    WifiConnection *connection_{ nullptr };
-
-public:
-    const char *name() const override {
-        return "WifiDownloadFile";
-    }
-
-public:
-    WifiDownloadFile() {
-    }
-
-    WifiDownloadFile(FileCopySettings settings, WifiConnection *connection) : settings_(settings), connection_(connection) {
-    }
-
-public:
-    void task() override {
-        StaticPool<384> pool{"WifiDownloadFile"};
-        AppReplyMessage reply(&pool);
-
-        DownloadFileTask task{
-            *services().fileSystem,
-            *services().state,
-            reply,
-            connection_->getBuffer(),
-            *connection_,
-            settings_
-        };
-
-        task.enqueued();
-
-        while (simple_task_run(task)) {
-            services().leds->task();
-            services().watchdog->task();
-        }
-
-        services().appServicer->flushAndClose();
-
-        transit<WifiConnectionCompleted>();
-    }
-};
-
-class WifiLiveData : public WifiState {
-private:
-    uint32_t interval_{ 0 };
-    uint32_t lastReadings_{ 0 };
-    uint32_t lastPolled_{ 0 };
-
-public:
-    WifiLiveData() {
-    }
-
-    WifiLiveData(uint32_t interval) : interval_(interval) {
-    }
-
-public:
-    const char *name() const override {
-        return "WifiLiveData";
-    }
-
-public:
-    void react(LiveDataEvent const &lde) override {
-        interval_ = lde.interval;
-    }
-
-    void react(AppQueryEvent const &aqe) override {
-        if (aqe.type == fk_app_QueryType_QUERY_LIVE_DATA_POLL) {
-            lastPolled_ = fk_uptime();
-        }
-    }
-
-    void entry() override {
-        WifiState::entry();
-
-        lastReadings_ = 0;
-
-        if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
-            log("No attached modules.");
-            transit<WifiConnectionCompleted>();
-            return;
-        }
-    }
-
-    void task() override {
-        if (interval_ == 0) {
-            log("Cancelled");
-            back();
-            return;
-        }
-
-        if (fk_uptime() - lastPolled_ > LivePollInactivity) {
-            log("Stopped due to inactivity.");
-            transit<WifiConnectionCompleted>();
-            return;
-        }
-
-        if (fk_uptime() - lastReadings_ > interval_) {
-            log("Readings");
-            lastReadings_ = fk_uptime();
-        }
-
-        serve();
-    }
-};
-
 AppServicer::AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
-    : query(&pool), reply(&pool), state(&state), scheduler(&scheduler), fileReplies(&fileReplies), connection(&connection), communications(&communications), pool(&pool) {
+    : ApiConnection(connection, pool), state_(&state), scheduler_(&scheduler), fileReplies_(&fileReplies), communications_(&communications) {
 }
 
 void AppServicer::react(LiveDataEvent const &lde) {
     transit_into<WifiLiveData>(lde.interval);
 }
 
-void AppServicer::entry() {
-    bytesRead = 0;
-    dieAt = 0;
-}
-
-void AppServicer::task() {
-    if (!service()) {
-        // Go back unless we transitioned somewhere else.
-        if (!transitioned()) {
-            transit<WifiConnectionCompleted>();
-        }
-    }
-}
-
-bool AppServicer::service() {
-    if (!readQuery()) {
-        flushAndClose();
-        return false;
-    }
-
-    // NOTE: We depend on being able to read the query in one go.
-    if (bytesRead == 0) {
-        return true;
-    }
-
-    if (handle())  {
-        flushAndClose();
-    }
-
-    send_event(AppQueryEvent{ query.m().type });
-
-    return false;
-}
-
-bool AppServicer::readQuery() {
-    if (dieAt == 0) {
-        dieAt = fk_uptime() + WifiConnectionTimeout;
-    }
-    else if (fk_uptime() > dieAt) {
-        connection->close();
-        log("Connection died.");
-        return false;
-    }
-
-    auto read = connection->read();
-    if (read > 0) {
-        #if FK_LOGGING_VERBOSITY > 1
-        log("Read %d bytes", read);
-        #endif
-        bytesRead += read;
-        buffer = &connection->getBuffer();
-        if (!buffer->read(query)) {
-            connection->close();
-            log("Error parsing query");
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool AppServicer::flushAndClose() {
-    connection->flush();
-
-    if (connection->isConnected()) {
-        #if FK_LOGGING_VERBOSITY > 1
-        log("Stop connection");
-        #endif
-        connection->close();
-    }
-    else {
-        log("No connection!");
-    }
-
-    return true;
-}
-
 bool AppServicer::handle() {
-    pool->clear();
-    buffer->clear();
-    reply.clear();
-
-    switch (query.m().type) {
+    switch (query_.m().type) {
     case fk_app_QueryType_QUERY_CAPABILITIES: {
         capabilitiesReply();
 
         break;
     }
     case fk_app_QueryType_QUERY_LIVE_DATA_POLL: {
-        log("Live ds (interval = %lu)", query.m().liveDataPoll.interval);
+        log("Live ds (interval = %lu)", query_.m().liveDataPoll.interval);
 
         send_event(LiveDataEvent{
-            query.m().liveDataPoll.interval
+            query_.m().liveDataPoll.interval
         });
 
-        auto numberOfReadings = state->numberOfReadings();
+        auto numberOfReadings = state_->numberOfReadings();
         fk_app_LiveDataSample samples[numberOfReadings];
 
         for (size_t i = 0; i < numberOfReadings; ++i) {
-            auto available = state->getReading(i);
+            auto available = state_->getReading(i);
             samples[i].sensor = available.id;
             samples[i].time = available.reading.time;
             samples[i].value = available.reading.value;
         }
 
-        state->clearReadings();
+        state_->clearReadings();
 
         pb_array_t live_data_array = {
             .length = numberOfReadings,
@@ -263,11 +58,11 @@ bool AppServicer::handle() {
             .fields = fk_app_LiveDataSample_fields,
         };
 
-        reply.m().type = fk_app_ReplyType_REPLY_LIVE_DATA_POLL;
-        reply.m().liveData.samples.funcs.encode = pb_encode_array;
-        reply.m().liveData.samples.arg = (void *)&live_data_array;
+        reply_.m().type = fk_app_ReplyType_REPLY_LIVE_DATA_POLL;
+        reply_.m().liveData.samples.funcs.encode = pb_encode_array;
+        reply_.m().liveData.samples.arg = (void *)&live_data_array;
 
-        if (!buffer->write(reply)) {
+        if (!buffer().write(reply_)) {
             log("Error writing reply");
         }
 
@@ -276,22 +71,22 @@ bool AppServicer::handle() {
     case fk_app_QueryType_QUERY_CONFIGUE_SCHEDULES: {
         log("Configure schedules");
 
-        auto &readings = scheduler->getTaskSchedule(ScheduleKind::Readings);
-        auto &transmission = scheduler->getTaskSchedule(ScheduleKind::Transmission);
-        auto &status = scheduler->getTaskSchedule(ScheduleKind::Status);
-        auto &location = scheduler->getTaskSchedule(ScheduleKind::Location);
+        auto &readings = scheduler_->getTaskSchedule(ScheduleKind::Readings);
+        auto &transmission = scheduler_->getTaskSchedule(ScheduleKind::Transmission);
+        auto &status = scheduler_->getTaskSchedule(ScheduleKind::Status);
+        auto &location = scheduler_->getTaskSchedule(ScheduleKind::Location);
 
-        reply.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
-        copy(readings, reply.m().schedules.readings);
-        copy(transmission, reply.m().schedules.transmission);
-        copy(status, reply.m().schedules.status);
-        copy(location, reply.m().schedules.location);
-        copy(reply.m().schedules.readings, readings);
-        copy(reply.m().schedules.transmission, transmission);
-        copy(reply.m().schedules.status, status);
-        copy(reply.m().schedules.location, location);
+        reply_.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
+        copy(readings, reply_.m().schedules.readings);
+        copy(transmission, reply_.m().schedules.transmission);
+        copy(status, reply_.m().schedules.status);
+        copy(location, reply_.m().schedules.location);
+        copy(reply_.m().schedules.readings, readings);
+        copy(reply_.m().schedules.transmission, transmission);
+        copy(reply_.m().schedules.status, status);
+        copy(reply_.m().schedules.location, location);
 
-        if (!buffer->write(reply)) {
+        if (!buffer().write(reply_)) {
             log("Error writing reply");
         }
 
@@ -300,18 +95,18 @@ bool AppServicer::handle() {
     case fk_app_QueryType_QUERY_SCHEDULES: {
         log("Query schedules");
 
-        auto &readings = scheduler->getTaskSchedule(ScheduleKind::Readings);
-        auto &transmission = scheduler->getTaskSchedule(ScheduleKind::Transmission);
-        auto &status = scheduler->getTaskSchedule(ScheduleKind::Status);
-        auto &location = scheduler->getTaskSchedule(ScheduleKind::Location);
+        auto &readings = scheduler_->getTaskSchedule(ScheduleKind::Readings);
+        auto &transmission = scheduler_->getTaskSchedule(ScheduleKind::Transmission);
+        auto &status = scheduler_->getTaskSchedule(ScheduleKind::Status);
+        auto &location = scheduler_->getTaskSchedule(ScheduleKind::Location);
 
-        reply.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
-        copy(reply.m().schedules.readings, readings);
-        copy(reply.m().schedules.transmission, transmission);
-        copy(reply.m().schedules.status, status);
-        copy(reply.m().schedules.location, location);
+        reply_.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
+        copy(reply_.m().schedules.readings, readings);
+        copy(reply_.m().schedules.transmission, transmission);
+        copy(reply_.m().schedules.status, status);
+        copy(reply_.m().schedules.location, location);
 
-        if (!buffer->write(reply)) {
+        if (!buffer().write(reply_)) {
             log("Error writing reply");
         }
 
@@ -320,11 +115,11 @@ bool AppServicer::handle() {
     case fk_app_QueryType_QUERY_RESET: {
         log("Reset");
 
-        fileReplies->resetAll(*state);
+        fileReplies_->resetAll(*state_);
 
-        reply.m().type = fk_app_ReplyType_REPLY_SUCCESS;
+        reply_.m().type = fk_app_ReplyType_REPLY_SUCCESS;
 
-        if (!buffer->write(reply)) {
+        if (!buffer().write(reply_)) {
             log("Error writing reply");
         }
 
@@ -333,22 +128,22 @@ bool AppServicer::handle() {
     case fk_app_QueryType_QUERY_FILES: {
         log("Query files");
 
-        fileReplies->queryFilesReply(query, reply, *buffer);
+        fileReplies_->queryFilesReply(query_, reply_, buffer());
 
         break;
     }
     case fk_app_QueryType_QUERY_DOWNLOAD_FILE: {
         transit_into<WifiDownloadFile>(FileCopySettings{
-                (FileNumber)query.m().downloadFile.id,
-                query.m().downloadFile.offset,
-                query.m().downloadFile.length,
-            }, connection);
+                (FileNumber)query_.m().downloadFile.id,
+                query_.m().downloadFile.offset,
+                query_.m().downloadFile.length,
+            }, std::ref(connection()));
         return false;
     }
     case fk_app_QueryType_QUERY_ERASE_FILE: {
-        log("Erase file (%lu)", query.m().eraseFile.id);
+        log("Erase file (%lu)", query_.m().eraseFile.id);
 
-        fileReplies->eraseFileReply(query, reply, *buffer);
+        fileReplies_->eraseFileReply(query_, reply_, buffer());
 
         break;
     }
@@ -386,8 +181,8 @@ bool AppServicer::handle() {
     }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
     default: {
-        reply.error("Unknown query");
-        if (!buffer->write(reply)) {
+        reply_.error("Unknown query");
+        if (!buffer().write(reply_)) {
             log("Error writing reply");
         }
 
@@ -401,9 +196,9 @@ bool AppServicer::handle() {
 void AppServicer::capabilitiesReply() {
     log("Query caps");
 
-    auto *attached = state->attachedModules();
-    auto numberOfModules = state->numberOfModules();
-    auto numberOfSensors = state->numberOfSensors();
+    auto *attached = state_->attachedModules();
+    auto numberOfModules = state_->numberOfModules();
+    auto numberOfSensors = state_->numberOfSensors();
     auto sensorIndex = 0;
     fk_app_SensorCapabilities sensors[numberOfSensors];
     fk_app_ModuleCapabilities modules[numberOfModules];
@@ -442,18 +237,18 @@ void AppServicer::capabilitiesReply() {
         .buffer = deviceId.toBuffer(),
     };
 
-    reply.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
-    reply.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
-    reply.m().capabilities.name.funcs.encode = pb_encode_string;
-    reply.m().capabilities.name.arg = (void *)DefaultName;
-    reply.m().capabilities.sensors.funcs.encode = pb_encode_array;
-    reply.m().capabilities.sensors.arg = (void *)&sensorsArray;
-    reply.m().capabilities.modules.funcs.encode = pb_encode_array;
-    reply.m().capabilities.modules.arg = (void *)&modulesArray;
-    reply.m().capabilities.deviceId.funcs.encode = pb_encode_data;
-    reply.m().capabilities.deviceId.arg = &deviceIdData;
+    reply_.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
+    reply_.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
+    reply_.m().capabilities.name.funcs.encode = pb_encode_string;
+    reply_.m().capabilities.name.arg = (void *)DefaultName;
+    reply_.m().capabilities.sensors.funcs.encode = pb_encode_array;
+    reply_.m().capabilities.sensors.arg = (void *)&sensorsArray;
+    reply_.m().capabilities.modules.funcs.encode = pb_encode_array;
+    reply_.m().capabilities.modules.arg = (void *)&modulesArray;
+    reply_.m().capabilities.deviceId.funcs.encode = pb_encode_data;
+    reply_.m().capabilities.deviceId.arg = &deviceIdData;
 
-    if (!buffer->write(reply)) {
+    if (!buffer().write(reply_)) {
         log("Error writing reply");
     }
 }
@@ -461,13 +256,13 @@ void AppServicer::capabilitiesReply() {
 void AppServicer::configureNetworkSettings() {
     log("Configure network settings...");
 
-    auto networksArray = (pb_array_t *)query.m().networkSettings.networks.arg;
+    auto networksArray = (pb_array_t *)query_.m().networkSettings.networks.arg;
     auto newNetworks = (fk_app_NetworkInfo *)networksArray->buffer;
 
     log("Networks: %d", networksArray->length);
 
-    auto settings = state->getNetworkSettings();
-    settings.createAccessPoint = query.m().networkSettings.createAccessPoint;
+    auto settings = state_->getNetworkSettings();
+    settings.createAccessPoint = query_.m().networkSettings.createAccessPoint;
     for (size_t i = 0; i < MaximumRememberedNetworks; ++i) {
         if (i < networksArray->length) {
             settings.networks[i] = NetworkInfo{
@@ -480,13 +275,13 @@ void AppServicer::configureNetworkSettings() {
         }
     }
 
-    state->configure(settings);
+    state_->configure(settings);
 }
 
 void AppServicer::networkSettingsReply() {
     log("Network settings");
 
-    auto currentSettings = state->getNetworkSettings();
+    auto currentSettings = state_->getNetworkSettings();
     fk_app_NetworkInfo networks[MaximumRememberedNetworks];
     for (auto i = 0; i < MaximumRememberedNetworks; ++i) {
         networks[i].ssid.arg = currentSettings.networks[i].ssid;
@@ -502,11 +297,11 @@ void AppServicer::networkSettingsReply() {
         .fields = fk_app_NetworkInfo_fields,
     };
 
-    reply.m().type = fk_app_ReplyType_REPLY_NETWORK_SETTINGS;
-    reply.m().networkSettings.createAccessPoint = currentSettings.createAccessPoint;
-    reply.m().networkSettings.networks.arg = &networksArray;
-    reply.m().networkSettings.networks.funcs.encode = pb_encode_array;
-    if (!buffer->write(reply)) {
+    reply_.m().type = fk_app_ReplyType_REPLY_NETWORK_SETTINGS;
+    reply_.m().networkSettings.createAccessPoint = currentSettings.createAccessPoint;
+    reply_.m().networkSettings.networks.arg = &networksArray;
+    reply_.m().networkSettings.networks.funcs.encode = pb_encode_array;
+    if (!buffer().write(reply_)) {
         log("Error writing reply");
     }
 }
@@ -515,24 +310,24 @@ void AppServicer::statusReply() {
     log("Status");
 
     FuelGauge fuelGage;
-    reply.m().type = fk_app_ReplyType_REPLY_STATUS;
-    reply.m().status.uptime = fk_uptime();
-    reply.m().status.batteryPercentage = fuelGage.stateOfCharge();
-    reply.m().status.batteryVoltage = fuelGage.cellVoltage();
-    reply.m().status.gpsHasFix = false;
-    reply.m().status.gpsSatellites = 0;
-    if (!buffer->write(reply)) {
+    reply_.m().type = fk_app_ReplyType_REPLY_STATUS;
+    reply_.m().status.uptime = fk_uptime();
+    reply_.m().status.batteryPercentage = fuelGage.stateOfCharge();
+    reply_.m().status.batteryVoltage = fuelGage.cellVoltage();
+    reply_.m().status.gpsHasFix = false;
+    reply_.m().status.gpsSatellites = 0;
+    if (!buffer().write(reply_)) {
         log("Error writing reply");
     }
 }
 
 void AppServicer::configureIdentity() {
     DeviceIdentity identity{
-        (const char *)query.m().identity.device.arg,
-        (const char *)query.m().identity.stream.arg,
+        (const char *)query_.m().identity.device.arg,
+        (const char *)query_.m().identity.stream.arg,
     };
 
-    state->configure(identity);
+    state_->configure(identity);
 }
 
 void AppServicer::identityReply() {
@@ -543,13 +338,13 @@ void AppServicer::identityReply() {
         .buffer = deviceId.toBuffer(),
     };
 
-    auto identity = state->getIdentity();
-    reply.m().type = fk_app_ReplyType_REPLY_IDENTITY;
-    reply.m().identity.device.arg = identity.device;
-    reply.m().identity.stream.arg = identity.stream;
-    reply.m().identity.deviceId.funcs.encode = pb_encode_data;
-    reply.m().identity.deviceId.arg = &deviceIdData;
-    if (!buffer->write(reply)) {
+    auto identity = state_->getIdentity();
+    reply_.m().type = fk_app_ReplyType_REPLY_IDENTITY;
+    reply_.m().identity.device.arg = identity.device;
+    reply_.m().identity.stream.arg = identity.stream;
+    reply_.m().identity.deviceId.funcs.encode = pb_encode_data;
+    reply_.m().identity.deviceId.arg = &deviceIdData;
+    if (!buffer().write(reply_)) {
         log("Error writing reply");
     }
 }
