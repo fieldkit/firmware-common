@@ -52,6 +52,9 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+    if (!fileSystem->erase((FileNumber)query.m().eraseFile.id)) {
+    }
+
     queryFilesReply(query, reply, buffer);
 }
 

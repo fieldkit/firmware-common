@@ -102,6 +102,12 @@ bool FileSystem::setup() {
     return true;
 }
 
+bool FileSystem::erase(FileNumber number) {
+    auto fd = files_.descriptors_[(size_t)number];
+
+    return fs_.erase(*fd);
+}
+
 bool FileSystem::beginFileCopy(FileCopySettings settings) {
     auto fd = files_.descriptors_[(size_t)settings.file];
 

@@ -31,6 +31,8 @@ public:
     bool beginFileCopy(FileCopySettings settings);
     bool flush();
 
+    bool erase(FileNumber number);
+
     phylum::SimpleFile openSystem(phylum::OpenMode mode);
 
     phylum::FileLayout<5> &fs() {
