@@ -71,6 +71,9 @@ public:
     void haveAttachedModules();
     void status(uint8_t batteryBlinks);
 
+private:
+    bool disabled();
+
 };
 
 }

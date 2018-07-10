@@ -1,4 +1,5 @@
 #include "leds.h"
+#include "tuning.h"
 
 namespace fk {
 
@@ -99,12 +100,18 @@ TaskEval Leds::task() {
 }
 
 void Leds::all(bool value) {
-    digitalWrite(A3, value);
-    digitalWrite(A4, value);
-    digitalWrite(A5, value);
+    if (!disabled()) {
+        digitalWrite(A3, value);
+        digitalWrite(A4, value);
+        digitalWrite(A5, value);
+    }
 }
 
 void Leds::push(BlinkerKind kind, uint8_t blinksRemaining) {
+    if (disabled()) {
+        return;
+    }
+
     for (auto i = 0; i < MaximumBlinkers; ++i) {
         if (blinkers[i].isIdle()) {
             trace("Blinker #%d is %d", i, kind);
@@ -126,9 +133,11 @@ void Leds::clear(BlinkerKind kind) {
 }
 
 void Leds::alive() {
-    digitalWrite(A3, HIGH);
-    delay(100);
-    digitalWrite(A3, LOW);
+    if (!disabled()) {
+        digitalWrite(A3, HIGH);
+        delay(100);
+        digitalWrite(A3, LOW);
+    }
 }
 
 void Leds::restarting() {
@@ -163,6 +172,13 @@ void Leds::haveAttachedModules() {
 
 void Leds::status(uint8_t batteryBlinks) {
     push(BlinkerKind::Status, batteryBlinks);
+}
+
+bool Leds::disabled() {
+    if (LedsDisableAfter == 0) {
+        return false;
+    }
+    return fk_uptime() > LedsDisableAfter;
 }
 
 }
