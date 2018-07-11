@@ -23,7 +23,15 @@ constexpr uint32_t TwoWireMaximumReplyWait = 3000;
 
 constexpr uint32_t PowerManagementInterval = 5000;
 
+#ifdef PROFILE_AMAZON
+constexpr uint32_t ReadingsInterval = 0;
+#else
 constexpr uint32_t ReadingsInterval = 30;
+#endif
+
+constexpr uint32_t CheckPowerInterval = 60;
+
+constexpr uint32_t WifiTransmitInterval = 5 * 60;
 
 constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
 constexpr uint32_t GpsStatusInterval = 1 * 500;
@@ -34,14 +42,13 @@ constexpr uint32_t DiscoveryPingInterval = 2500;
 
 constexpr uint32_t ModuleIdleRebootInterval = 1000 * 60 * 10;
 
-constexpr uint16_t WifiServerPort = 54321;
 constexpr const char WifiApiUrlBase[] = FK_API_BASE;
 constexpr const char WifiApiUrlIngestionStream[] = FK_API_BASE "/messages/ingestion/stream";
+constexpr uint16_t WifiServerPort = 54321;
 constexpr uint32_t WifiConnectionMemory = 128;
 constexpr uint32_t WifiConnectionTimeout = 5000;
 constexpr uint32_t WifiTransmitBusyWaitMax = 10 * 1000;
 constexpr uint32_t WifiTransmitFileMaximumTries = 3;
-constexpr uint32_t WifiTransmitInterval = 5 * 60;
 constexpr uint32_t WifiInactivityTimeout = 1000 * 60;
 constexpr uint32_t WifiCaptivitiyTimeout = 1000 * 10;
 

@@ -53,10 +53,9 @@ private:
     // TODO: When these are checked they should be checked in a descending order
     // to avoid starvation.
     PeriodicTask periodics[3] {
+        fk::PeriodicTask{ 1000 * CheckPowerInterval,   { CoreFsm::deferred<CheckPower>() } },
         fk::PeriodicTask{ 1000 * WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } },
         fk::PeriodicTask{ 1000 * ReadingsInterval,     { CoreFsm::deferred<BeginGatherReadings>() } },
-        // NOTE: This should happen less frequently.
-        fk::PeriodicTask{ 1000 * 5,                    { CoreFsm::deferred<CheckPower>() } },
     };
     ScheduledTask scheduled[2] {
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<BeginGatherReadings>() } },
