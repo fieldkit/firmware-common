@@ -23,13 +23,12 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
         auto &fd = files.file(i);
 
         if (!fileSystem->files().isInternal(fd)) {
-            auto size = fileSystem->fs().file_size(fd);
-
+            auto stat = fileSystem->fs().stat(fd);
             auto j = numberOfVisibleFiles;
             replyFiles[j].id = i;
             replyFiles[j].time = 0;
-            replyFiles[j].version = 0;
-            replyFiles[j].size = size;
+            replyFiles[j].version = stat.version;
+            replyFiles[j].size = stat.size;
             replyFiles[j].name.funcs.encode = pb_encode_string;
             replyFiles[j].name.arg = fd.name;
             numberOfVisibleFiles++;
@@ -68,11 +67,17 @@ void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply,
 }
 
 void FkfsReplies::resetAll(CoreState &state) {
+    /*
     if (!fileSystem->format()) {
         return;
     }
 
     if (!fileSystem->setup()) {
+        return;
+    }
+    */
+
+    if (!fileSystem->resetAll()) {
         return;
     }
 

@@ -25,6 +25,7 @@ public:
 
 public:
     bool format();
+    bool resetAll();
     bool setup();
 
 public:

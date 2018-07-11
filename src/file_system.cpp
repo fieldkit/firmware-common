@@ -62,6 +62,25 @@ bool FileSystem::format() {
     return true;
 }
 
+bool FileSystem::resetAll() {
+    auto success = true;
+
+    closeSystemFiles();
+
+    for (auto &fd : files_.descriptors_) {
+        if (!fs_.erase(*fd)) {
+            success = false;
+            log("Erase failed");
+        }
+    }
+
+    if (!openSystemFiles()) {
+        return false;
+    }
+
+    return success;
+}
+
 bool FileSystem::setup() {
     if (!storage_.initialize(g_, Hardware::SD_PIN_CS)) {
         logf(LogLevels::ERROR, Log, "Unable to initialize SD.");
@@ -124,10 +143,9 @@ bool FileSystem::openSystemFiles() {
 
 bool FileSystem::erase(FileNumber number) {
     auto fd = files_.descriptors_[(size_t)number];
+    auto success = true;
 
     closeSystemFiles();
-
-    auto success = true;
 
     if (!fs_.erase(*fd)) {
         success = false;
