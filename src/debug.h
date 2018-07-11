@@ -19,4 +19,49 @@ void __fk_assert(const char *msg, const char *file, int lineno) __attribute__ ((
 
 #define fk_memzero(ptr, size) memset(ptr, 0, size)
 
+namespace fk {
+
+// NOTE: This is a C++11 feature.
+template<const char *Name>
+class SimpleLog {
+public:
+    static void log(const char *f, ...) {
+        va_list args;
+        va_start(args, f);
+        vlogf(LogLevels::INFO, Name, f, args);
+        va_end(args);
+    }
+
+    static void info(const char *f, ...) {
+        va_list args;
+        va_start(args, f);
+        vlogf(LogLevels::INFO, Name, f, args);
+        va_end(args);
+    }
+
+    static void trace(const char *f, ...) {
+        va_list args;
+        va_start(args, f);
+        vlogf(LogLevels::TRACE, Name, f, args);
+        va_end(args);
+    }
+
+    static void warn(const char *f, ...) {
+        va_list args;
+        va_start(args, f);
+        vlogf(LogLevels::WARN, Name, f, args);
+        va_end(args);
+    }
+
+    static void error(const char *f, ...) {
+        va_list args;
+        va_start(args, f);
+        vlogf(LogLevels::ERROR, Name, f, args);
+        va_end(args);
+    }
+
+};
+
+}
+
 #endif
