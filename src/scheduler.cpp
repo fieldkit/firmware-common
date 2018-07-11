@@ -17,15 +17,32 @@ static bool matches(const TimeSpec &spec, int8_t value) {
     return true;
 }
 
-bool PeriodicTask::shouldRun() {
+bool PeriodicTask::shouldRun(DateTime now) {
     if (interval_ == 0) {
         return false;
     }
-    if (fk_uptime() - lastRan_ > interval_) {
-        lastRan_ = fk_uptime();
+    if (fk_uptime() - lastRanTick_ > interval_) {
+        lastRanTick_ = fk_uptime();
+        lastRanTime_ = now.unixtime();
         return true;
     }
     return false;
+}
+
+uint32_t PeriodicTask::getNextRunTime(DateTime &after) {
+    auto afterUnix = after.unixtime();
+    auto intervalInSeconds = interval_ / 1000;
+    if (lastRanTime_ == 0) {
+        // NOTE: This isn't totally accurate, but it's good enough.
+        return afterUnix + intervalInSeconds;
+    }
+
+    auto expected = lastRanTime_ + intervalInSeconds;
+    if (expected < afterUnix) {
+        return afterUnix;
+    }
+
+    return expected;
 }
 
 bool ScheduledTask::shouldRun(DateTime now) {
@@ -124,9 +141,10 @@ TaskEval Scheduler::task() {
         return TaskEval::idle();
     }
 
+    auto now = clock->now();
+
     if (clock->isValid()) {
         lastCheckAt = fk_uptime();
-        auto now = clock->now();
         for (size_t i = 0; i < numberOfTasks; ++i) {
             if (tasks[i].valid() && tasks[i].shouldRun(now)) {
                 auto &event = tasks[i].event();
@@ -142,7 +160,7 @@ TaskEval Scheduler::task() {
         }
     }
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
-        if (periodic[i].shouldRun()) {
+        if (periodic[i].shouldRun(now)) {
             auto &event = periodic[i].event();
             #if FK_LOGGING_VERBOSITY > 2
             log("Run periodic");
@@ -168,6 +186,12 @@ uint32_t Scheduler::getNextTaskTime(DateTime &after) {
     auto winner = UINT32_MAX;
     for (size_t i = 0; i < numberOfTasks; ++i) {
         auto next = tasks[i].getNextRunTime(after);
+        if (next < winner) {
+            winner = next;
+        }
+    }
+    for (size_t i = 0; i < numberOfPeriodics; ++i) {
+        auto next = periodic[i].getNextRunTime(after);
         if (next < winner) {
             winner = next;
         }

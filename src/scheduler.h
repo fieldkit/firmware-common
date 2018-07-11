@@ -19,7 +19,8 @@ class SchedulerTask {
 class PeriodicTask : public SchedulerTask {
 private:
     uint32_t interval_{ 0 };
-    uint32_t lastRan_{ 0 };
+    uint32_t lastRanTick_{ 0 };
+    uint32_t lastRanTime_{ 0 };
     SchedulerEvent event_;
 
 public:
@@ -32,11 +33,13 @@ public:
     }
 
 public:
-    bool shouldRun();
+    bool shouldRun(DateTime now);
 
     bool valid() {
         return interval_ > 0;
     }
+
+    uint32_t getNextRunTime(DateTime &after);
 
     SchedulerEvent &event() {
         return event_;
