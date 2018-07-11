@@ -125,7 +125,6 @@ bool TransmitFileTask::openFile() {
     }
 
     auto &fileCopy = fileSystem->files().fileCopy();
-
     if (fileCopy.remaining() == 0) {
         log("Empty: (%lu) %d -> %d", (uint32_t)position, fileCopy.tell(), fileCopy.size());
         return false;

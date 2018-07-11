@@ -6,6 +6,7 @@
 #include "fkfs_replies.h"
 #include "file_system.h"
 #include "core_state.h"
+#include "file_cursors.h"
 
 namespace fk {
 
@@ -52,7 +53,15 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
 }
 
 void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
-    if (!fileSystem->erase((FileNumber)query.m().eraseFile.id)) {
+    auto number = (FileNumber)query.m().eraseFile.id;
+
+    if (!fileSystem->erase(number)) {
+        log("Failed to erase file: %d", number);
+    }
+
+    FileCursorManager fcm(*fileSystem);
+    if (!fcm.save(number, 0)) {
+        log("Failed to save cursor: %d", sizeof(FileCursors));
     }
 
     queryFilesReply(query, reply, buffer);
