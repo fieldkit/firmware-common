@@ -268,12 +268,15 @@ public:
     }
 
     void task() override {
-        #ifndef WIFI_ALWAYS_ON
         if (fk_uptime() - began_ > WifiInactivityTimeout) {
+            #ifdef FK_WIFI_ALWAYS_ON
+            log("FK_WIFI_ALWAYS_ON");
+            transit_into<WifiListening>();
+            #else
             transit<WifiDisable>();
+            #endif
             return;
         }
-        #endif
 
         serve();
     }
