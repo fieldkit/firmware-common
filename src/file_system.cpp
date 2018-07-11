@@ -81,17 +81,9 @@ bool FileSystem::setup() {
         }
     }
 
-    logf(LogLevels::INFO, Log, "Mounted");
+    log("Mounted");
 
-    auto startup = fs_.open(files_.file_log_startup_fd, OpenMode::Write);
-    if (!startup) {
-        return false;
-    }
-
-    files_.log_ = startup;
-
-    files_.data_ = fs_.open(files_.file_data_fk, OpenMode::Write);
-    if (!files_.data_) {
+    if (!openSystemFiles()) {
         return false;
     }
 
@@ -102,16 +94,57 @@ bool FileSystem::setup() {
     return true;
 }
 
+bool FileSystem::closeSystemFiles() {
+    if (files_.log_) {
+        files_.log_.close();
+    }
+    if (files_.data_) {
+        files_.data_.close();
+    }
+    return true;
+}
+
+bool FileSystem::openSystemFiles() {
+    auto startup = fs_.open(files_.file_log_startup_fd, OpenMode::Write);
+    if (!startup) {
+        log("Unable to open startup log file");
+        return false;
+    }
+
+    files_.log_ = startup;
+
+    files_.data_ = fs_.open(files_.file_data_fk, OpenMode::Write);
+    if (!files_.data_) {
+        log("Unable to open data file");
+        return false;
+    }
+
+    return true;
+}
+
 bool FileSystem::erase(FileNumber number) {
     auto fd = files_.descriptors_[(size_t)number];
 
-    return fs_.erase(*fd);
+    closeSystemFiles();
+
+    auto success = true;
+
+    if (!fs_.erase(*fd)) {
+        success = false;
+        log("Erase failed: %d", number);
+    }
+
+    if (!openSystemFiles()) {
+        return false;
+    }
+
+    return success;
 }
 
 bool FileSystem::beginFileCopy(FileCopySettings settings) {
     auto fd = files_.descriptors_[(size_t)settings.file];
 
-    logf(LogLevels::INFO, Log, "Prepare: id=%d name=%s offset=%lu length=%lu",
+    log("Prepare: id=%d name=%s offset=%lu length=%lu",
          (size_t)settings.file, fd->name, settings.offset, settings.length);
 
     files_.opened_ = fs_.open(*fd, OpenMode::Read);
@@ -137,6 +170,13 @@ bool FileSystem::flush() {
     }
 
     return true;
+}
+
+void FileSystem::log(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    vlogf(LogLevels::INFO, Log, f, args);
+    va_end(args);
 }
 
 phylum::SimpleFile FileSystem::openSystem(phylum::OpenMode mode) {

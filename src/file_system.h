@@ -51,6 +51,12 @@ public:
         return files_;
     }
 
+private:
+    bool closeSystemFiles();
+    bool openSystemFiles();
+
+    void log(const char *f, ...) const __attribute__((format(printf, 2, 3)));
+
 };
 
 }
