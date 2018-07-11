@@ -45,6 +45,8 @@ TaskEval DownloadFileTask::task() {
             return TaskEval::error();
         }
 
+        log("Wrote header prefix (%d bytes)", size);
+
         auto &wcl = connection->getClient();
         wcl.write(metadataBuffer, bufferSize);
 
