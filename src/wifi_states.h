@@ -6,9 +6,6 @@
 namespace fk {
 
 class WifiStartup : public WifiServicesState {
-private:
-    bool initialized_{ false };
-
 public:
     const char *name() const override {
         return "WifiStartup";

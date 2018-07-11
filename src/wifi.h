@@ -4,20 +4,16 @@
 #include <WiFi101.h>
 #include <WiFiServer.h>
 
-#include "active_object.h"
 #include "wifi_server.h"
 #include "wifi_client.h"
 
 namespace fk {
 
-inline bool wifiDiscoveryEnabled() {
-    return WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_CONNECTED;
-}
-
-class Wifi : public Task {
+class Wifi {
 private:
-    Listen listen;
-    bool disabled{ false };
+    bool initialized_{ false };
+    bool disabled_{ true };
+    Listen listen_;
 
 public:
     Wifi(WifiConnection &connection);
@@ -28,12 +24,20 @@ public:
 
 public:
     Listen &server() {
-        return listen;
+        return listen_;
     }
 
-protected:
-    TaskEval task() override {
-        return TaskEval::idle();
+    bool disabled() {
+        return !initialized_ || disabled_;
+    }
+
+public:
+    inline static bool hasInternetAccess() {
+        return WiFi.status() == WL_CONNECTED;
+    }
+
+    inline static bool discoveryEnabled() {
+        return WiFi.status() == WL_CONNECTED || WiFi.status() == WL_AP_CONNECTED;
     }
 
 };

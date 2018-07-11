@@ -11,7 +11,7 @@ Discovery::Discovery() : Task("Discovery") {
 
 TaskEval Discovery::task() {
     if (pingAt < fk_uptime()) {
-        if (wifiDiscoveryEnabled()) {
+        if (Wifi::discoveryEnabled()) {
             ping();
         }
         pingAt = fk_uptime() + DiscoveryPingInterval;

@@ -7,34 +7,41 @@
 
 namespace fk {
 
+constexpr const char LogName[] = "Wifi";
+
+using Logger = SimpleLog<LogName>;
+
 StaticWiFiAllocator staticWiFiAllocator;
 
-Wifi::Wifi(WifiConnection &connection) : Task("Wifi"), listen(WifiServerPort, connection) {
+Wifi::Wifi(WifiConnection &connection) : listen_(WifiServerPort, connection) {
 }
 
 bool Wifi::begin() {
-    WiFi.setPins(Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
+    if (!initialized_) {
+        WiFi.setPins(Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
 
-    WiFiSocketClass::allocator = &staticWiFiAllocator;
+        WiFiSocketClass::allocator = &staticWiFiAllocator;
 
-    if (WiFi.status() == WL_NO_SHIELD) {
-        log("Error: no wifi (%d, %d, %d, %d)", Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ,
-            Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
-        return false;
+        if (WiFi.status() == WL_NO_SHIELD) {
+            Logger::log("Error: no wifi (%d, %d, %d, %d)", Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
+            return false;
+        }
+
+        auto fv = WiFi.firmwareVersion();
+        Logger::log("Version: %s", fv);
+
+        initialized_ = true;
     }
 
-    auto fv = WiFi.firmwareVersion();
-    log("Version: %s", fv);
-
-    disabled = false;
+    disabled_ = false;
 
     return true;
 }
 
 void Wifi::disable() {
-    listen.end();
+    listen_.end();
     WiFi.end();
-    disabled = true;
+    disabled_ = true;
 
     // Allow me to explain:
     // I was seeing this very strange problem where after a Disable
@@ -51,8 +58,8 @@ void Wifi::disable() {
     // reset occuring, though just doesn't seem to happen around here.
     SPI.end();
     SPI.begin();
-
-    log("Disabled");
+    Logger::log("Disabled");
 }
 
 }
+

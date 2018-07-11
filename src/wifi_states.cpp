@@ -310,15 +310,21 @@ void WifiConnectionCompleted::task() {
 }
 
 void WifiStartup::task() {
-    if (!initialized_) {
+    if (services().wifi->disabled()) {
         if (!services().wifi->begin()) {
             error("Wifi initialize failed");
-            // TODO: transit_into<Panic>();
         }
-        initialized_ = true;
-    }
 
-    transit_into<WifiTryNetwork>((uint8_t)0);
+        transit_into<WifiTryNetwork>((uint8_t)0);
+    }
+    else {
+        if (services().wifi->hasInternetAccess()) {
+            transit_into<WifiTransmitFiles>();
+        }
+        else {
+            transit_into<WifiListening>();
+        }
+    }
 }
 
 }
