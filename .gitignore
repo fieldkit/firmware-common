@@ -2,6 +2,8 @@ build
 gitdeps
 core/config.h
 core/config.h.conservify
+core/config.h.shah
+core/config.h.jacob
 core/seed.h
 core.log
 module.log
