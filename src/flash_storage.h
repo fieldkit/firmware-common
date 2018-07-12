@@ -6,7 +6,13 @@
 #include <backends/arduino_serial_flash/arduino_serial_flash.h>
 #include <backends/arduino_serial_flash/serial_flash_allocator.h>
 
+#include "debug.h"
+
 namespace fk {
+
+constexpr const char LogName[] = "Flash";
+
+using Logger = SimpleLog<LogName>;
 
 #ifdef FK_DISABLE_FLASH
 
@@ -46,20 +52,28 @@ public:
 
     bool initialize(uint8_t cs, phylum::sector_index_t sector_size = 512) {
         if (!storage_.initialize(cs, sector_size)) {
+            Logger::error("Initialize failed");
             return false;
         }
 
         if (!storage_.open()) {
+            Logger::error("Open failed");
             return false;
         }
 
         if (!manager_.locate()) {
+            Logger::info("Erasing");
             if (!erase()) {
+                Logger::error("Erase failed");
                 return false;
             }
         }
+        else {
+            Logger::info("Located");
+        }
 
         if (!allocator_.initialize()) {
+            Logger::error("Initialize failed");
             return false;
         }
 
@@ -88,7 +102,7 @@ public:
         }
 
         auto location = manager_.location();
-        logf(LogLevels::INFO, "CoreState", "Saved (%lu:%d)", location.block, location.sector);
+        Logger::info("Saved (%lu:%d)", location.block, location.sector);
         return true;
     }
 
