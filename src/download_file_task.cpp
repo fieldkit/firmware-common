@@ -24,6 +24,7 @@ bool DownloadFileTask::writeHeader(uint32_t total) {
     reply->m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
     reply->m().fileData.size = total;
     reply->m().fileData.version = fileCopy.version();
+    reply->m().fileData.id = (uint32_t)settings.file;
 
     // TODO: Is using the buffer here necessary?
     if (!buffer->write(*reply)) {
