@@ -24,9 +24,8 @@ public:
     void close() override;
     size_t size() override;
     size_t tell();
-    bool seek(uint64_t position) {
-        return file_->seek(position);
-    }
+    uint32_t version() const;
+    bool seek(uint64_t position);
 
 public:
     bool open(uint32_t offset, uint32_t length);

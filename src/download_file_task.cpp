@@ -18,9 +18,12 @@ void DownloadFileTask::enqueued() {
 }
 
 bool DownloadFileTask::writeHeader(uint32_t total) {
+    auto &fileCopy = fileSystem->files().fileCopy();
+
     reply->clear();
     reply->m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
     reply->m().fileData.size = total;
+    reply->m().fileData.version = fileCopy.version();
 
     // TODO: Is using the buffer here necessary?
     if (!buffer->write(*reply)) {

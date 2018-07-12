@@ -66,6 +66,9 @@ public:
     size_t copied() const {
         return copied_;
     }
+    uint32_t version() const {
+        return reader_.version();
+    }
     bool prepare(const FileReader &reader, const FileCopySettings &settings);
     bool copy(lws::Writer &writer, FileCopyCallbacks *callbacks = nullptr);
     bool seek(uint64_t position) {

@@ -5,6 +5,10 @@
 
 namespace fk {
 
+constexpr const char LogName[] = "FileReader";
+
+using Logger = SimpleLog<LogName>;
+
 FileReader::FileReader() {
 }
 
@@ -27,6 +31,14 @@ size_t FileReader::tell() {
     return file_->tell();
 }
 
+uint32_t FileReader::version() const {
+    return file_->version();
+}
+
+bool FileReader::seek(uint64_t position) {
+    return file_->seek(position);
+}
+
 int32_t FileReader::read() {
     fk_assert(false);
     return EOS;
@@ -39,7 +51,7 @@ bool FileReader::open(uint32_t offset, uint32_t length) {
     auto fileSize = file_->size();
 
     if (!file_->seek(offset_)) {
-        logf(LogLevels::ERROR, "FileReader", "Failed to seek to %lu", offset_);
+        Logger::error("Failed to seek to %lu", offset_);
         done_ = true;
         opened_ = false;
         return false;
