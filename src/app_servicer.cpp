@@ -18,7 +18,7 @@ static void copy(ScheduledTask &to, fk_app_Schedule &from);
 static void copy(fk_app_Schedule &to, ScheduledTask &from);
 
 AppServicer::AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
-    : ApiConnection(connection, pool), state_(&state), scheduler_(&scheduler), fileReplies_(&fileReplies), communications_(&communications) {
+    : ApiConnection(connection, pool), state_(&state), scheduler_(&scheduler), fileReplies_(&fileReplies), communications_(&communications), pool_(&pool) {
 }
 
 void AppServicer::react(LiveDataEvent const &lde) {
@@ -179,6 +179,11 @@ bool AppServicer::handle() {
         // auto address = (uint8_t)query.m().module.address;
         transit_into<WifiQueryModule>();
         return false;
+    }
+    case fk_app_QueryType_QUERY_METADATA: {
+        metadataReply();
+
+        break;
     }
     case fk_app_QueryType_QUERY_CONFIGURE_SENSOR:
     default: {
@@ -345,6 +350,31 @@ void AppServicer::identityReply() {
     reply_.m().identity.stream.arg = identity.stream;
     reply_.m().identity.deviceId.funcs.encode = pb_encode_data;
     reply_.m().identity.deviceId.arg = &deviceIdData;
+    if (!buffer().write(reply_)) {
+        log("Error writing reply");
+    }
+}
+
+void AppServicer::metadataReply() {
+    log("Metadata");
+
+    DataRecordMetadataMessage drm{ *state_, *pool_ };
+    uint8_t metadataBuffer[drm.calculateSize()];
+    auto stream = pb_ostream_from_buffer(metadataBuffer, sizeof(metadataBuffer));
+    if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {
+        error("Error encoding metadata (%d bytes)", sizeof(metadataBuffer));
+        return;
+    }
+    auto metadataSize = stream.bytes_written;
+
+    pb_data_t metadataData = {
+        .length = metadataSize,
+        .buffer = metadataBuffer,
+    };
+
+    reply_.m().type = fk_app_ReplyType_REPLY_METADATA;
+    reply_.m().fileData.data.funcs.encode = pb_encode_data;
+    reply_.m().fileData.data.arg = &metadataData;
     if (!buffer().write(reply_)) {
         log("Error writing reply");
     }

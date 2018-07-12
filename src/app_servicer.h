@@ -22,6 +22,7 @@ private:
     Scheduler *scheduler_;
     FkfsReplies *fileReplies_;
     ModuleCommunications *communications_;
+    Pool *pool_;
 
 public:
     AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
@@ -47,6 +48,8 @@ private:
 
     void configureIdentity();
     void identityReply();
+
+    void metadataReply();
 };
 
 }
