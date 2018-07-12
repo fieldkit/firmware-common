@@ -137,6 +137,7 @@ bool AppServicer::handle() {
                 (FileNumber)query_.m().downloadFile.id,
                 query_.m().downloadFile.offset,
                 query_.m().downloadFile.length,
+                query_.m().downloadFile.flags
             }, std::ref(connection()));
         return false;
     }

@@ -20,6 +20,7 @@ private:
     WifiConnection *connection;
     FileCopySettings settings;
     uint32_t bytesCopied{ 0 };
+    bool began{ false };
 
 public:
     DownloadFileTask(FileSystem &fileSystem, CoreState &state, AppReplyMessage &reply, MessageBuffer &buffer, WifiConnection &connection, FileCopySettings &settings);
@@ -27,6 +28,10 @@ public:
 public:
     void enqueued() override;
     TaskEval task() override;
+
+private:
+    bool writeHeader(uint32_t size);
+    uint32_t calculateTotalSize(uint32_t metadataSize);
 
 };
 

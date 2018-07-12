@@ -11,15 +11,58 @@ DownloadFileTask::DownloadFileTask(FileSystem &fileSystem, CoreState &state, App
 
 void DownloadFileTask::enqueued() {
     bytesCopied = 0;
+    began = false;
     if (!fileSystem->beginFileCopy(settings)) {
         log("Failed to open file");
     }
 }
 
+bool DownloadFileTask::writeHeader(uint32_t total) {
+    reply->clear();
+    reply->m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
+    reply->m().fileData.size = total;
+
+    // TODO: Is using the buffer here necessary?
+    if (!buffer->write(*reply)) {
+        log("Error writing reply");
+        return false;
+    }
+
+    auto size = buffer->position();
+    if (buffer->write() != size) {
+        log("Error sending buffer");
+        return false;
+    }
+
+    log("Wrote header prefix (%d bytes)", size);
+
+    return true;
+}
+
+uint32_t DownloadFileTask::calculateTotalSize(uint32_t metadataSize) {
+    auto metadataOnly = settings.flags & fk_app_DownloadFlags_DOWNLOAD_FLAG_METADATA_ONLY;
+    auto prependMetadata = settings.flags & fk_app_DownloadFlags_DOWNLOAD_FLAG_METADATA_PREPEND;
+    auto size = 0;
+
+    if (prependMetadata || metadataOnly) {
+        size += metadataSize;
+    }
+
+    if (!metadataOnly) {
+        auto &fileCopy = fileSystem->files().fileCopy();
+        size += fileCopy.remaining();
+    }
+
+    return size;
+}
+
 TaskEval DownloadFileTask::task() {
     auto &fileCopy = fileSystem->files().fileCopy();
 
-    if (bytesCopied == 0) {
+    auto metadataOnly = settings.flags & fk_app_DownloadFlags_DOWNLOAD_FLAG_METADATA_ONLY;
+    auto prependMetadata = settings.flags & fk_app_DownloadFlags_DOWNLOAD_FLAG_METADATA_PREPEND;
+
+    if (!began) {
         StaticPool<128> pool{"DataPool"};
         DataRecordMetadataMessage drm{ *state, pool };
         uint8_t metadataBuffer[drm.calculateSize()];
@@ -28,34 +71,27 @@ TaskEval DownloadFileTask::task() {
             log("Error encoding data file record (%d bytes)", sizeof(metadataBuffer));
             return TaskEval::error();
         }
-        auto bufferSize = stream.bytes_written;
+        auto metadataSize = stream.bytes_written;
 
-        reply->clear();
-        reply->m().type = fk_app_ReplyType_REPLY_DOWNLOAD_FILE;
-        reply->m().fileData.size = fileCopy.remaining() + bufferSize;
-
-        if (!buffer->write(*reply)) {
-            log("Error writing reply");
+        // TODO: Would be nice to be able to skip this if we weren't sending.
+        // Seems like calculateSize always gets us the right value.
+        if (!writeHeader(calculateTotalSize(metadataSize))) {
             return TaskEval::error();
         }
 
-        auto size = buffer->position();
-        if (buffer->write() != size) {
-            log("Error sending buffer");
-            return TaskEval::error();
+        if (prependMetadata || metadataOnly) {
+            auto &wcl = connection->getClient();
+            wcl.write(metadataBuffer, metadataSize);
+
+            log("Wrote metadata prefix (%d bytes)", metadataSize);
+
+            bytesCopied += metadataSize;
         }
 
-        log("Wrote header prefix (%d bytes)", size);
-
-        auto &wcl = connection->getClient();
-        wcl.write(metadataBuffer, bufferSize);
-
-        log("Wrote metadata prefix (%d bytes)", bufferSize);
-
-        bytesCopied += bufferSize;
+        began = true;
     }
 
-    if (!fileCopy.isFinished()) {
+    if (!metadataOnly && !fileCopy.isFinished()) {
         auto writer = WifiWriter{ connection->getClient() };
         if (!fileCopy.copy(writer)) {
             log("Error copying");

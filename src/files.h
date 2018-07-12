@@ -20,11 +20,12 @@ struct FileCopySettings {
     FileNumber file;
     uint32_t offset;
     uint32_t length;
+    uint32_t flags;
 
     FileCopySettings(FileNumber file) : file(file), offset(0), length(0) {
     }
 
-    FileCopySettings(FileNumber file, uint32_t offset, uint32_t length) : file(file), offset(offset), length(length) {
+    FileCopySettings(FileNumber file, uint32_t offset, uint32_t length, uint32_t flags = 0) : file(file), offset(offset), length(length), flags(flags) {
     }
 };
 
