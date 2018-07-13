@@ -23,7 +23,7 @@ private:
     ModuleServicer moduleServicer;
     uint32_t lastActivity{ 0 };
     Leds leds;
-    Watchdog watchdog{ leds };
+    Watchdog watchdog_{ leds };
     ModuleInfo *info;
     lws::AlignedStorageBuffer<256> scratch;
     lws::CircularStreams<lws::RingBufferN<256>> incomingPipe;
@@ -42,6 +42,10 @@ public:
 public:
     TaskQueue &taskQueue() {
         return servicing;
+    }
+
+    Watchdog &watchdog() {
+        return watchdog_;
     }
 
 public:

@@ -28,7 +28,7 @@ void Module::begin() {
     active = this;
 
     leds.setup();
-    watchdog.setup();
+    watchdog_.setup();
     clock.begin();
 
     resume();
@@ -71,7 +71,7 @@ void Module::reply() {
 }
 
 void Module::tick() {
-    watchdog.task();
+    watchdog_.task();
     servicing.task();
 
     if (fk_uptime() - lastActivity > ModuleIdleRebootInterval) {
