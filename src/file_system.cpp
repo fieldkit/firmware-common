@@ -32,10 +32,15 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
         return 0;
     }
 
-    int32_t bytes = stream.bytes_written;
-    if (global_files->log().write(buffer, bytes, true) != bytes) {
-        log_uart_get()->println("Unable to append log");
-        return 0;
+    auto &log = global_files->log();
+    if (log) {
+        int32_t bytes = stream.bytes_written;
+        if (log.write(buffer, bytes, true) != bytes) {
+            log_uart_get()->println("Unable to append log");
+            return 0;
+        }
+
+        global_files->swapLogsIfNecessary();
     }
 
     return 0;
@@ -124,18 +129,36 @@ bool FileSystem::closeSystemFiles() {
 }
 
 bool FileSystem::openSystemFiles() {
-    auto startup = fs_.open(files_.file_log_startup_fd, OpenMode::Write);
-    if (!startup) {
-        log("Unable to open startup log file");
+    auto logs_a = fs_.open(files_.file_logs_a_fd, OpenMode::Write);
+    if (!logs_a) {
         return false;
     }
 
-    files_.log_ = startup;
-
-    files_.data_ = fs_.open(files_.file_data_fk, OpenMode::Write);
-    if (!files_.data_) {
-        log("Unable to open data file");
+    auto logs_b = fs_.open(files_.file_logs_b_fd, OpenMode::Write);
+    if (!logs_b) {
         return false;
+    }
+
+    auto data = fs_.open(files_.file_data_fk, OpenMode::Write);
+    if (!data) {
+        return false;
+    }
+
+    files_.data_ = data;
+
+    if (logs_a.in_final_block()) {
+        files_.log_ = logs_b;
+    }
+    else {
+        files_.log_ = logs_a;
+    }
+
+    for (auto fd : files_.descriptors_) {
+        auto opened = fs_.open(*fd);
+        if (opened) {
+            log("File: %s size = %lu maximum = %lu", fd->name, (uint32_t)opened.size(), (uint32_t)fd->maximum_size);
+            opened.close();
+        }
     }
 
     return true;
@@ -203,6 +226,32 @@ phylum::SimpleFile FileSystem::openSystem(phylum::OpenMode mode) {
 
 Files::Files(phylum::FileOpener &files) : files_(&files) {
     global_files = this;
+}
+
+bool Files::swapLogsIfNecessary() {
+    if (!log_.in_final_block()) {
+        return true;
+    }
+
+    auto new_fd = &file_logs_a_fd;
+    if (&log_.fd() == &file_logs_a_fd) {
+        new_fd = &file_logs_b_fd;
+    }
+
+    if (!files_->erase(*new_fd)) {
+        return false;
+    }
+
+    auto other = files_->open(*new_fd, phylum::OpenMode::Write);
+    if (!other) {
+        return false;
+    }
+
+    log_.close();
+
+    log_ = other;
+
+    return true;
 }
 
 phylum::SimpleFile &Files::log() {
