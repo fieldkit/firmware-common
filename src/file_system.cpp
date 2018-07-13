@@ -183,7 +183,17 @@ bool FileSystem::erase(FileNumber number) {
 }
 
 bool FileSystem::beginFileCopy(FileCopySettings settings) {
-    auto fd = files_.descriptors_[(size_t)settings.file];
+    FileDescriptor *fd{ nullptr };
+
+    switch (settings.file) {
+    case FileNumber::LogsActive: {
+        fd = &files_.log().fd();
+        break;
+    }
+    default:
+        fd = files_.descriptors_[(size_t)settings.file];
+        break;
+    }
 
     log("Prepare: id=%d name=%s offset=%lu length=%lu",
          (size_t)settings.file, fd->name, settings.offset, settings.length);

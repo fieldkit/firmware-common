@@ -159,7 +159,7 @@ public:
 
 class WifiTransmitFile : public WifiState {
 private:
-    FileCopySettings settings_{ FileNumber::StartupLog };
+    FileCopySettings settings_{ FileNumber::Data };
 
 public:
     WifiTransmitFile() {
@@ -201,7 +201,7 @@ class WifiTransmitFiles :  public WifiState {
 private:
     size_t index_{ 0 };
     FileCopySettings transmissions_[2] = {
-        { FileNumber::StartupLog },
+        { FileNumber::LogsActive },
         { FileNumber::Data }
     };
 

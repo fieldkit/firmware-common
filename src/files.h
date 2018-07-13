@@ -10,10 +10,11 @@ namespace fk {
 
 enum class FileNumber {
     System = 0,
-    StartupLog = 1,
-    NowLog = 2,
-    EmergencyLog = 3,
+    EmergencyLog = 1,
+    LogsA = 2,
+    LogsB = 3,
     Data = 4,
+    LogsActive = 5
 };
 
 struct FileCopySettings {

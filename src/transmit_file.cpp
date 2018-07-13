@@ -10,7 +10,7 @@ FileCopierSample::FileCopierSample(FileSystem &fileSystem, CoreState &state) : T
 }
 
 void FileCopierSample::enqueued() {
-    if (!fileSystem_->beginFileCopy({ FileNumber::StartupLog })) {
+    if (!fileSystem_->beginFileCopy({ FileNumber::Data })) {
     }
 }
 

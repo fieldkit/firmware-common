@@ -26,7 +26,7 @@ public:
 
 class WifiDownloadFile : public WifiState {
 private:
-    FileCopySettings settings_{ FileNumber::StartupLog };
+    FileCopySettings settings_{ FileNumber::Data };
     WifiConnection *connection_{ nullptr };
 
 public:
