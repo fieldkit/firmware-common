@@ -7,6 +7,7 @@
 #include <backends/arduino_serial_flash/serial_flash_allocator.h>
 
 #include "debug.h"
+#include "watchdog.h"
 
 namespace fk {
 
@@ -39,11 +40,16 @@ public:
 #else
 
 template<typename T>
-class FlashStorage {
+class FlashStorage : public phylum::StorageBackendCallbacks {
 private:
+    Watchdog *watchdog_;
     phylum::ArduinoSerialFlashBackend storage_;
     phylum::SerialFlashAllocator allocator_{ storage_ };
     phylum::SerialFlashStateManager<T> manager_{ storage_, allocator_ };
+
+public:
+    FlashStorage(Watchdog &watchdog) : watchdog_(&watchdog), storage_(*this) {
+    }
 
 public:
     T& state() {
@@ -62,7 +68,6 @@ public:
         }
 
         if (!manager_.locate()) {
-            Logger::info("Erasing");
             if (!erase()) {
                 Logger::error("Erase failed");
                 return false;
@@ -81,14 +86,17 @@ public:
     }
 
     bool erase() {
+        Logger::info("Erasing");
         if (!storage_.erase()) {
             return false;
         }
 
+        Logger::info("Creating");
         if (!manager_.create()) {
             return false;
         }
 
+        Logger::info("Locating");
         if (!manager_.locate()) {
             return false;
         }
@@ -103,6 +111,13 @@ public:
 
         auto location = manager_.location();
         Logger::info("Saved (%lu:%d)", location.block, location.sector);
+        return true;
+    }
+
+protected:
+    bool busy(uint32_t elapsed) override {
+        watchdog_->task();
+
         return true;
     }
 

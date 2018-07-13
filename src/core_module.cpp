@@ -41,7 +41,6 @@ void CoreModule::begin() {
     loginfof("Core", "Flash memory disabled");
     #else
     fk_assert(flashStorage.initialize(Hardware::FLASH_PIN_CS));
-    delay(100);
     #endif
 
     #ifdef FK_ENABLE_RADIO

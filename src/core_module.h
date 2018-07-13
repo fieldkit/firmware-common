@@ -44,7 +44,7 @@ private:
     Status status{ state, bus, leds };
     TwoWireBus bus{ Wire };
     FileSystem fileSystem{ bus, dataPool };
-    FlashStorage<PersistedState> flashStorage;
+    FlashStorage<PersistedState> flashStorage{ watchdog };
     CoreState state{flashStorage, fileSystem.getData()};
     ModuleCommunications moduleCommunications{bus, modulesPool};
     PrepareTransmissionData prepareTransmissionData{state, fileSystem, moduleCommunications, { FileNumber::Data }};
