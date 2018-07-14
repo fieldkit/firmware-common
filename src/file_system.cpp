@@ -183,17 +183,7 @@ bool FileSystem::erase(FileNumber number) {
 }
 
 bool FileSystem::beginFileCopy(FileCopySettings settings) {
-    FileDescriptor *fd{ nullptr };
-
-    switch (settings.file) {
-    case FileNumber::LogsActive: {
-        fd = &files_.log().fd();
-        break;
-    }
-    default:
-        fd = files_.descriptors_[(size_t)settings.file];
-        break;
-    }
+    auto fd = files_.descriptors_[(size_t)settings.file];
 
     log("Prepare: id=%d name=%s offset=%lu length=%lu",
          (size_t)settings.file, fd->name, settings.offset, settings.length);
@@ -270,6 +260,13 @@ phylum::SimpleFile &Files::log() {
 
 phylum::SimpleFile &Files::data() {
     return data_;
+}
+
+FileNumber Files::logFileNumber() {
+    if (&log_.fd() == &file_logs_a_fd) {
+        return FileNumber::LogsA;
+    }
+    return FileNumber::LogsB;
 }
 
 FileCopyOperation &Files::fileCopy() {

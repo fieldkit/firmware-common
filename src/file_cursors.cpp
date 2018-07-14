@@ -40,6 +40,8 @@ bool FileCursorManager::save(FileCursors cursors) {
 uint64_t FileCursorManager::lookup(FileNumber file) {
     FileCursors cursors;
 
+    fk_assert((size_t)file < FileSystemNumberOfFiles);
+
     if (!lookup(cursors)) {
         return 0;
     }
@@ -49,6 +51,8 @@ uint64_t FileCursorManager::lookup(FileNumber file) {
 
 bool FileCursorManager::save(FileNumber file, uint64_t position) {
     FileCursors cursors;
+
+    fk_assert((size_t)file < FileSystemNumberOfFiles);
 
     if (!lookup(cursors)) {
         return false;

@@ -13,8 +13,7 @@ enum class FileNumber {
     EmergencyLog = 1,
     LogsA = 2,
     LogsB = 3,
-    Data = 4,
-    LogsActive = 5
+    Data = 4
 };
 
 struct FileCopySettings {
@@ -127,6 +126,8 @@ public:
     phylum::SimpleFile &data();
 
     phylum::SimpleFile &log();
+
+    FileNumber logFileNumber();
 
     FileCopyOperation &fileCopy();
 

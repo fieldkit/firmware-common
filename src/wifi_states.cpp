@@ -202,7 +202,7 @@ private:
     size_t index_{ 0 };
     FileCopySettings transmissions_[2] = {
         { FileNumber::Data },
-        { FileNumber::LogsActive }
+        { FileNumber::LogsA }
     };
 
 public:
@@ -211,6 +211,13 @@ public:
     }
 
 public:
+    void entry() override {
+        WifiState::entry();
+        transmissions_[1] = {
+            services().fileSystem->files().logFileNumber()
+        };
+    }
+
     void task() override {
         if (index_ == 2) {
             index_ = 0;
