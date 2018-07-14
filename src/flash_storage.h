@@ -23,6 +23,9 @@ private:
     T state_;
 
 public:
+    FlashStorage(Watchdog &watchdog) {
+    }
+
     T& state() {
         return state_;
     }
