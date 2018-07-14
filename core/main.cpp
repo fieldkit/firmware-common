@@ -15,11 +15,8 @@
 
 extern "C" {
 
-// #define DEBUG_MTB_ENABLE
-// #define DEBUG_DUMP_OBJECT_SIZES
-// #define DEBUG_UART_FALLBACK
+#ifdef FK_DEBUG_MTB_ENABLE
 
-#ifdef DEBUG_MTB_ENABLE
 #define DEBUG_MTB_SIZE 256
 __attribute__((__aligned__(DEBUG_MTB_SIZE * sizeof(uint32_t)))) uint32_t mtb[DEBUG_MTB_SIZE];
 
@@ -29,12 +26,11 @@ void HardFault_Handler(void) {
     while (true) {
     }
 }
+
 #endif
 
-void dumpObjectSizes();
-
 void setup() {
-    #ifdef DEBUG_MTB_ENABLE
+    #ifdef FK_DEBUG_MTB_ENABLE
     REG_MTB_POSITION = ((uint32_t) (mtb - REG_MTB_BASE)) & 0xFFFFFFF8;
     REG_MTB_FLOW = ((uint32_t) mtb + DEBUG_MTB_SIZE * sizeof(uint32_t)) & 0xFFFFFFF8;
     REG_MTB_MASTER = 0x80000000 + 6;
@@ -45,14 +41,14 @@ void setup() {
     while (!Serial) {
         delay(100);
 
-        #ifndef DEBUG_UART_REQUIRE_CONSOLE
+        #ifndef FK_DEBUG_UART_REQUIRE_CONSOLE
         if (fk::fk_uptime() > 2000) {
             break;
         }
         #endif
     }
 
-    #ifdef DEBUG_UART_FALLBACK
+    #ifdef FK_DEBUG_UART_FALLBACK
     if (!Serial) {
         // The call to end here seems to free up some memory.
         Serial.end();
@@ -66,11 +62,15 @@ void setup() {
     firmware_build_set(FIRMWARE_BUILD);
 
     loginfof("Core", "Starting");
-    #ifdef DEBUG_UART_FALLBACK
+
+    #ifdef FK_DEBUG_UART_FALLBACK
     loginfof("Core", "Configured with UART fallback.");
     #endif
-    #ifdef DEBUG_MTB_ENABLE
-    loginfof("Core", "Configured with MTB.");
+
+    #ifdef FK_DEBUG_MTB_ENABLE
+    loginfof("Core", "FK_DEBUG_MTB_ENABLE");
+    #else
+    loginfof("Core", "FK_DEBUG_MTB_DISABLE");
     #endif
 
     #if defined(FK_NATURALIST)

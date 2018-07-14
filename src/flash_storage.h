@@ -11,9 +11,7 @@
 
 namespace fk {
 
-constexpr const char LogName[] = "Flash";
-
-using Logger = SimpleLog<LogName>;
+constexpr const char FlashStorageLogName[] = "Flash";
 
 #ifdef FK_DISABLE_FLASH
 
@@ -49,6 +47,8 @@ private:
     phylum::ArduinoSerialFlashBackend storage_;
     phylum::SerialFlashAllocator allocator_{ storage_ };
     phylum::SerialFlashStateManager<T> manager_{ storage_, allocator_ };
+
+    using Logger = SimpleLog<FlashStorageLogName>;
 
 public:
     FlashStorage(Watchdog &watchdog) : watchdog_(&watchdog), storage_(*this) {
