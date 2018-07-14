@@ -29,6 +29,7 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
             replyFiles[j].time = 0;
             replyFiles[j].version = stat.version;
             replyFiles[j].size = stat.size;
+            replyFiles[j].maximum = fd.maximum_size;
             replyFiles[j].name.funcs.encode = pb_encode_string;
             replyFiles[j].name.arg = fd.name;
             numberOfVisibleFiles++;
