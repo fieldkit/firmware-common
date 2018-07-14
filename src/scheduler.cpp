@@ -109,7 +109,7 @@ bool ScheduledTask::matches(DateTime now) {
     return true;
 }
 
-void Scheduler::setup() {
+void Scheduler::started() {
     if (numberOfPeriodics > 1) {
         for (size_t i = 0; i < numberOfPeriodics - 1; ++i) {
             for (size_t j = 0; j < numberOfPeriodics - 1 - i; ++j) {

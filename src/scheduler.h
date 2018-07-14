@@ -119,7 +119,7 @@ public:
     }
 
 public:
-    void setup();
+    void started();
 
     TaskEval task() override;
 
