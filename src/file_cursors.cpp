@@ -3,6 +3,10 @@
 
 namespace fk {
 
+constexpr const char LogName[] = "FCM";
+
+using Logger = SimpleLog<LogName>;
+
 FileCursorManager::FileCursorManager(FileSystem &fileSystem) : fileSystem_(&fileSystem) {
 }
 
@@ -17,10 +21,12 @@ bool FileCursorManager::lookup(FileCursors &cursors) {
 
     auto position = file.size() - sizeof(FileCursors);
     if (!file.seek(position)) {
+        Logger::warn("Unable to seek");
         return false;
     }
 
     if (file.read((uint8_t *)&cursors, sizeof(FileCursors)) != sizeof(FileCursors)) {
+        Logger::warn("Unable to read");
         return false;
     }
 

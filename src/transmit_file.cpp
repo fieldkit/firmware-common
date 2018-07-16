@@ -85,15 +85,17 @@ TaskEval TransmitFileTask::task() {
         wcl.flush();
         wcl.stop();
         if (status == 200) {
+            auto position = fileCopy.tell();
+
             if (!fileCopy.isFinished()) {
                 log("Unfinished success (status = %d) (%lums)", status, afterClosed);
             }
             else {
-                log("Success (status = %d) (%lums)", status, afterClosed);
+                log("Success (status = %d) (%lums) (position = %d)", status, afterClosed, position);
             }
 
             FileCursorManager fcm(*fileSystem);
-            if (!fcm.save(settings.file, fileCopy.tell())) {
+            if (!fcm.save(settings.file, position)) {
                 log("Failed to save cursor: %d", sizeof(FileCursors));
             }
         }
