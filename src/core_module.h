@@ -52,6 +52,15 @@ private:
     // Scheduler stuff.
     // TODO: When these are checked they should be checked in a descending order
     // to avoid starvation.
+    #ifdef FK_PROFILE_AMAZON
+    PeriodicTask periodics[2] {
+        fk::PeriodicTask{ 1000 * CheckPowerInterval,   { CoreFsm::deferred<CheckPower>() } },
+        fk::PeriodicTask{ 1000 * WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } },
+    };
+    ScheduledTask scheduled[1] {
+        fk::ScheduledTask{ {  0, -1 }, {  0, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<BeginGatherReadings>() } },
+    };
+    #else
     PeriodicTask periodics[3] {
         fk::PeriodicTask{ 1000 * CheckPowerInterval,   { CoreFsm::deferred<CheckPower>() } },
         fk::PeriodicTask{ 1000 * WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } },
@@ -61,6 +70,7 @@ private:
         fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<BeginGatherReadings>() } },
         fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<WifiStartup>() } },
     };
+    #endif
     Scheduler scheduler{clock, scheduled, periodics};
 
     // Radio stuff.

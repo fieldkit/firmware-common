@@ -23,15 +23,9 @@ constexpr uint32_t TwoWireMaximumReplyWait = 3000;
 
 constexpr uint32_t PowerManagementInterval = 5000;
 
-#ifdef PROFILE_AMAZON
-constexpr uint32_t ReadingsInterval = 0;
-#else
 constexpr uint32_t ReadingsInterval = 30;
-#endif
-
-constexpr uint32_t CheckPowerInterval = 60;
-
-constexpr uint32_t WifiTransmitInterval = 5 * 60;
+constexpr uint32_t CheckPowerInterval = 15 * 60;
+constexpr uint32_t WifiTransmitInterval = 15 * 60;
 
 constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
 constexpr uint32_t GpsStatusInterval = 1 * 500;
