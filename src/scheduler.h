@@ -96,9 +96,6 @@ enum class ScheduleKind {
 };
 
 class Scheduler : public Task {
-    static constexpr uint32_t CheckInterval = 500;
-    static constexpr uint32_t StatusInterval = 1000;
-
 private:
     ClockType *clock;
     ScheduledTask *tasks;

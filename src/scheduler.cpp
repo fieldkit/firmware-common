@@ -137,28 +137,27 @@ void Scheduler::started() {
 
 TaskEval Scheduler::task() {
     auto elapsed = fk_uptime() - lastCheckAt;
-    if (elapsed < CheckInterval) {
+    if (elapsed < SchedulerCheckInterval) {
         return TaskEval::idle();
     }
 
     auto now = clock->now();
 
-    if (clock->isValid()) {
-        lastCheckAt = fk_uptime();
-        for (size_t i = 0; i < numberOfTasks; ++i) {
-            if (tasks[i].valid() && tasks[i].shouldRun(now)) {
-                auto &event = tasks[i].event();
-                DateTime runsAgain{ tasks[i].getNextRunTime(now) };
-                FormattedTime nowFormatted{ now };
-                FormattedTime runsAgainFormatted{ runsAgain };
-                #if FK_LOGGING_VERBOSITY > 2
-                log("Run (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
-                #endif
-                send_event(event);
-                break;
-            }
+    lastCheckAt = fk_uptime();
+    for (size_t i = 0; i < numberOfTasks; ++i) {
+        if (tasks[i].valid() && tasks[i].shouldRun(now)) {
+            auto &event = tasks[i].event();
+            DateTime runsAgain{ tasks[i].getNextRunTime(now) };
+            FormattedTime nowFormatted{ now };
+            FormattedTime runsAgainFormatted{ runsAgain };
+            #if FK_LOGGING_VERBOSITY > 2
+            log("Run (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
+            #endif
+            send_event(event);
+            break;
         }
     }
+
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
         if (periodic[i].shouldRun(now)) {
             auto &event = periodic[i].event();
