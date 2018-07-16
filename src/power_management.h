@@ -10,12 +10,13 @@ namespace fk {
 
 class Power : public Task {
 private:
-    CoreState *state;
-    FuelGauge gauge;
-    uint32_t time { 0 };
+    CoreState *state_;
+    FuelGauge gauge_;
+    uint32_t queryTime_{ 0 };
+    uint32_t lastAlert_{ 0 };
 
 public:
-    Power(CoreState &state) : Task("PM"), state(&state) {
+    Power(CoreState &state) : Task("PM"), state_(&state) {
     }
 
 public:

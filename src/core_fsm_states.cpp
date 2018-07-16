@@ -272,6 +272,15 @@ void Idle::entry() {
     }
 }
 
+void Idle::react(LowPowerEvent const &lpe) {
+    if (fk_console_attached()) {
+        log("Console attached, ignoring LowPowerEvent.");
+    }
+    else {
+        transit<LowPowerSleep>();
+    }
+}
+
 void Idle::react(SchedulerEvent const &se) {
     if (se.deferred) {
         warn("Scheduler Event!");

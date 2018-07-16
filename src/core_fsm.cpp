@@ -9,6 +9,10 @@ void CoreDevice::react(tinyfsm::Event const &ignored) {
     warn("Ignored Event");
 }
 
+void CoreDevice::react(LowPowerEvent const &ignored) {
+    warn("Ignored LowPowerEvent");
+}
+
 void CoreDevice::react(SchedulerEvent const &ignored) {
     warn("Ignored SchedulerEvent");
 }

@@ -31,6 +31,9 @@ struct WifiEvent : public tinyfsm::Event {
     }
 };
 
+struct LowPowerEvent : public tinyfsm::Event {
+};
+
 struct UserWakeupEvent : public tinyfsm::Event {
 };
 
@@ -58,6 +61,7 @@ struct SchedulerEvent : public tinyfsm::Event {
 class CoreDevice : public CoreFsm {
 public:
     virtual void react(tinyfsm::Event const &ignored);
+    virtual void react(LowPowerEvent const &ignored);
     virtual void react(SchedulerEvent const &ignored);
     virtual void react(LiveDataEvent const &ignored);
     virtual void react(AppQueryEvent const &ignored);

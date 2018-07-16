@@ -21,7 +21,8 @@ constexpr uint32_t LivePollInactivity = 1000 * 10;
 constexpr uint8_t TwoWireNumberOfRetries = 3;
 constexpr uint32_t TwoWireMaximumReplyWait = 3000;
 
-constexpr uint32_t PowerManagementInterval = 5000;
+constexpr uint32_t PowerManagementQueryInterval = 5000;
+constexpr uint32_t PowerManagementAlertInterval = 60 * 1000;
 
 constexpr uint32_t ReadingsInterval = 30;
 constexpr uint32_t CheckPowerInterval = 15 * 60;
