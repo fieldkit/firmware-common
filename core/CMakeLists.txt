@@ -57,6 +57,11 @@ if(FK_WIFI_ALWAYS_ON)
   add_definitions(-DFK_WIFI_ALWAYS_ON)
 endif(FK_WIFI_ALWAYS_ON)
 
+option(FK_WIFI_STARTUP_ONLY "Only run Wifi on startup" OFF)
+if(FK_WIFI_STARTUP_ONLY)
+  add_definitions(-DFK_WIFI_STARTUP_ONLY)
+endif(FK_WIFI_STARTUP_ONLY)
+
 option(FK_PROFILE_AMAZON "Amazon Profile")
 if(FK_PROFILE_AMAZON)
  add_definitions(-DFK_PROFILE_AMAZON)

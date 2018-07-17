@@ -81,6 +81,18 @@ void setup() {
     loginfof("Core", "FK_CORE_GENERATION_1");
     #endif
 
+    #ifdef FK_WIFI_STARTUP_ONLY
+    loginfof("Core", "FK_WIFI_STARTUP_ONLY");
+    #endif
+
+    #ifdef FK_WIFI_ALWAYS_ON
+    loginfof("Core", "FK_WIFI_ALWAYS_ON");
+    #endif
+
+    #ifdef FK_PROFILE_AMAZON
+    loginfof("Core", "FK_PROFILE_AMAZON");
+    #endif
+
     fk::NetworkInfo networks[] = {
         {
             FK_CONFIG_WIFI_1_SSID,
