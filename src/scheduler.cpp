@@ -122,6 +122,8 @@ void Scheduler::started() {
         }
     }
 
+    auto now = clock->now();
+
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
         if (periodic[i].valid()) {
             log("Periodic: %lu -> %s", periodic[i].interval(), periodic[i].event().toString());
@@ -130,7 +132,9 @@ void Scheduler::started() {
 
     for (size_t i = 0; i < numberOfTasks; ++i) {
         if (tasks[i].valid()) {
-            log("Scheduled: %s", tasks[i].event().toString());
+            DateTime runsAgain{ tasks[i].getNextRunTime(now) };
+            FormattedTime runsAgainFormatted{ runsAgain };
+            log("Scheduled: %s (again = %s)", tasks[i].event().toString(), runsAgainFormatted.toString());
         }
     }
 }
@@ -150,9 +154,7 @@ TaskEval Scheduler::task() {
             DateTime runsAgain{ tasks[i].getNextRunTime(now) };
             FormattedTime nowFormatted{ now };
             FormattedTime runsAgainFormatted{ runsAgain };
-            #if FK_LOGGING_VERBOSITY > 2
-            log("Run (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
-            #endif
+            trace("Run (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
             send_event(event);
             break;
         }
@@ -161,9 +163,7 @@ TaskEval Scheduler::task() {
     for (size_t i = 0; i < numberOfPeriodics; ++i) {
         if (periodic[i].shouldRun(now)) {
             auto &event = periodic[i].event();
-            #if FK_LOGGING_VERBOSITY > 2
-            log("Run periodic");
-            #endif
+            trace("Run periodic");
             send_event(event);
             break;
         }
