@@ -145,14 +145,14 @@ TaskEval Scheduler::task() {
         return TaskEval::idle();
     }
 
-    check();
+    auto now = clock->now();
+
+    check(now);
 
     return TaskEval::idle();
 }
 
-bool Scheduler::check() {
-    auto now = clock->now();
-
+bool Scheduler::check(DateTime now) {
     lastCheckAt = fk_uptime();
     for (size_t i = 0; i < numberOfTasks; ++i) {
         if (tasks[i].valid() && tasks[i].shouldRun(now)) {
@@ -204,11 +204,15 @@ uint32_t Scheduler::getNextTaskTime(DateTime &after) {
     return winner;
 }
 
+Scheduler::NextTaskInfo Scheduler::getNextTask(DateTime &after) {
+    auto nextTask = getNextTaskTime(after);
+    auto seconds = nextTask - after.unixtime();
+    return { after.unixtime(), nextTask, seconds };
+}
+
 Scheduler::NextTaskInfo Scheduler::getNextTask() {
     auto now = clock->now();
-    auto nextTask = getNextTaskTime(now);
-    auto seconds = nextTask - now.unixtime();
-    return { now.unixtime(), nextTask, seconds };
+    return getNextTask(now);
 }
 
 }

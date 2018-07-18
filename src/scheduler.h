@@ -120,7 +120,7 @@ public:
 
     TaskEval task() override;
 
-    bool check();
+    bool check(DateTime now);
 
 public:
     ScheduledTask &getTaskSchedule(ScheduleKind kind);
@@ -133,6 +133,7 @@ public:
         uint32_t seconds;
     };
 
+    NextTaskInfo getNextTask(DateTime &after);
     NextTaskInfo getNextTask();
 
 };

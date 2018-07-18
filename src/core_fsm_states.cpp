@@ -305,14 +305,24 @@ void Idle::task() {
     services().alive();
 
     if (fk_uptime() - checked_ > 500) {
+        auto now = clock.now();
+
         // NOTE: Do this first to avoid a race condition. getNextTask doesn't
         // know that we didn't run a task yet, so it'll immediately return the
         // following task even if we're supposed to have run a sooner one.
-        if (services().scheduler->check()) {
+        if (services().scheduler->check(now)) {
             return;
         }
 
-        auto nextTask = services().scheduler->getNextTask();
+        auto nextTask = services().scheduler->getNextTask(now);
+
+        if (true) {
+            DateTime runsAgain{ nextTask.time };
+            FormattedTime nowFormatted{ now };
+            FormattedTime runsAgainFormatted{ runsAgain };
+            trace("Waiting (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
+        }
+
         if (nextTask.seconds > 10) {
             transit_into<Sleep>(nextTask.seconds - 5);
             return;
