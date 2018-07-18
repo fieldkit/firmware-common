@@ -69,7 +69,10 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
         break;
     }
     case fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS: {
-        log("Begin readings (%lu)", query.m().beginTakeReadings.callerTime);
+        log("Begin readings (%lu) (%lu)",
+            query.m().beginTakeReadings.callerTime,
+            query.m().beginTakeReadings.number
+        );
 
         clock.setTime(query.m().beginTakeReadings.callerTime);
 
@@ -81,6 +84,7 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
             info->readings[i].status = SensorReadingStatus::Busy;
         }
 
+        pending.number = query.m().beginTakeReadings.number;
         pending.elapsed = 0;
         pending.readings = info->readings;
         auto status = callbacks->beginReading(pending);
@@ -93,7 +97,7 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
         break;
     }
     case fk_module_QueryType_QUERY_READING_STATUS: {
-        log("Reading status");
+        log("Reading status (%lu)", query.m().queryReadingStatus.sleep);
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;

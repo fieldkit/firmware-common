@@ -36,6 +36,7 @@ struct SensorReading {
 };
 
 struct PendingSensorReading {
+    uint32_t number;
     uint32_t elapsed;
     SensorReading *readings;
 };

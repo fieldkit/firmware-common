@@ -187,6 +187,7 @@ public:
     void task() override {
         while (remaining_ > 0) {
             GatherReadings gatherReadings{
+                remaining_,
                 *services().state,
                 *services().leds,
                 *services().moduleCommunications

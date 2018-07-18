@@ -12,6 +12,7 @@ class Leds;
 
 class BeginTakeReading : public ModuleQuery {
 private:
+    uint32_t remaining_{ 0 };
     uint32_t backoff{ 0 };
     uint32_t status{ 0 };
 
@@ -24,11 +25,16 @@ public:
         message.m().type = fk_module_QueryType_QUERY_BEGIN_TAKE_READINGS;
         message.m().beginTakeReadings.callerTime = clock.getTime();
         message.m().beginTakeReadings.index = 0;
+        message.m().beginTakeReadings.number = remaining_;
     }
 
     void reply(ModuleReplyMessage &message) override {
         backoff = message.m().readingStatus.backoff;
         status = message.m().readingStatus.state;
+    }
+
+    void remaining(uint32_t value) {
+        remaining_ = value;
     }
 
     uint32_t getBackoff() {
@@ -96,6 +102,7 @@ public:
 
 class GatherReadings : public Task {
 private:
+    uint32_t remaining{ 0 };
     CoreState *state;
     Leds *leds;
     BeginTakeReading beginTakeReading;
@@ -105,7 +112,7 @@ private:
     uint32_t startedAt{ 0 };
 
 public:
-    GatherReadings(CoreState &state, Leds &leds, ModuleCommunications &communications);
+    GatherReadings(uint32_t remaining, CoreState &state, Leds &leds, ModuleCommunications &communications);
 
 public:
     void enqueued() override;

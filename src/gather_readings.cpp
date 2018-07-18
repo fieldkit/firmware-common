@@ -4,8 +4,8 @@
 
 namespace fk {
 
-GatherReadings::GatherReadings(CoreState &state, Leds &leds, ModuleCommunications &communications) :
-    Task("GatherReadings"), state(&state), leds(&leds), protocol(communications) {
+GatherReadings::GatherReadings(uint32_t remaining, CoreState &state, Leds &leds, ModuleCommunications &communications) :
+    Task("GatherReadings"), remaining(remaining), state(&state), leds(&leds), protocol(communications) {
 }
 
 void GatherReadings::enqueued() {
@@ -18,6 +18,8 @@ void GatherReadings::enqueued() {
         log("No attached modules.");
         return;
     }
+
+    beginTakeReading.remaining(remaining);
 
     state->takingReadings();
     leds->takingReadings();
