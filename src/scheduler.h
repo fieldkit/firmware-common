@@ -120,6 +120,8 @@ public:
 
     TaskEval task() override;
 
+    bool check();
+
 public:
     ScheduledTask &getTaskSchedule(ScheduleKind kind);
     uint32_t getNextTaskTime(DateTime &after);

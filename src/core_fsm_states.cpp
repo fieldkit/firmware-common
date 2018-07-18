@@ -301,18 +301,24 @@ void Idle::react(SchedulerEvent const &se) {
 }
 
 void Idle::task() {
+    services().alive();
+
     if (fk_uptime() - checked_ > 500) {
+        // NOTE: Do this first to avoid a race condition. getNextTask doesn't
+        // know that we didn't run a task yet, so it'll immediately return the
+        // following task even if we're supposed to have run a sooner one.
+        if (services().scheduler->check()) {
+            return;
+        }
+
         auto nextTask = services().scheduler->getNextTask();
         if (nextTask.seconds > 10) {
             transit_into<Sleep>(nextTask.seconds - 5);
             return;
         }
+
         checked_ = fk_uptime();
     }
-
-    services().scheduler->task();
-
-    services().alive();
 }
 
 }

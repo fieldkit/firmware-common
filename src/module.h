@@ -55,6 +55,11 @@ public:
     void log(const char *f, ...) const;
 
 public:
+    uint32_t elapsedSinceActivity() const {
+        return fk_uptime() - lastActivity;
+    }
+
+public:
     ModuleReadingStatus beginReading(PendingSensorReading &pending) override;
     ModuleReadingStatus readingStatus(PendingSensorReading &pending) override;
 

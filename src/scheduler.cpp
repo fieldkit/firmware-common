@@ -145,6 +145,12 @@ TaskEval Scheduler::task() {
         return TaskEval::idle();
     }
 
+    check();
+
+    return TaskEval::idle();
+}
+
+bool Scheduler::check() {
     auto now = clock->now();
 
     lastCheckAt = fk_uptime();
@@ -156,7 +162,7 @@ TaskEval Scheduler::task() {
             FormattedTime runsAgainFormatted{ runsAgain };
             trace("Run (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
             send_event(event);
-            break;
+            return true;
         }
     }
 
@@ -165,11 +171,11 @@ TaskEval Scheduler::task() {
             auto &event = periodic[i].event();
             trace("Run periodic");
             send_event(event);
-            break;
+            return true;
         }
     }
 
-    return TaskEval::idle();
+    return false;
 }
 
 ScheduledTask &Scheduler::getTaskSchedule(ScheduleKind kind) {
