@@ -170,24 +170,36 @@ public:
 };
 
 class TakeReadings : public MainServicesState {
+private:
+    uint8_t remaining_{ 1 };
+
 public:
     const char *name() const override {
         return "TakeReadings";
     }
 
 public:
+    void entry() override {
+        MainServicesState::entry();
+        remaining_ = services().state->readingsToTake();
+    }
+
     void task() override {
-        GatherReadings gatherReadings{
-            *services().state,
-            *services().leds,
-            *services().moduleCommunications
-        };
+        while (remaining_ > 0) {
+            GatherReadings gatherReadings{
+                *services().state,
+                *services().leds,
+                *services().moduleCommunications
+            };
 
-        gatherReadings.enqueued();
+            gatherReadings.enqueued();
 
-        while (simple_task_run(gatherReadings)) {
-            services().alive();
-            services().moduleCommunications->task();
+            log("Taking reading %d", remaining_);
+            while (simple_task_run(gatherReadings)) {
+                services().alive();
+                services().moduleCommunications->task();
+            }
+            remaining_--;
         }
 
         resume();

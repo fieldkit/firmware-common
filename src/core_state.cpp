@@ -153,6 +153,17 @@ size_t CoreState::numberOfReadings() const {
     return number;
 }
 
+size_t CoreState::readingsToTake() const {
+    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
+        if (modules[i].address > 0) {
+            if (strcmp(modules[i].name, "Atlas") == 0) {
+                return 10; // TODO: Hack. Make this reported by the module.
+            }
+        }
+    }
+    return 1;
+}
+
 AvailableSensorReading CoreState::getReading(size_t index) {
     size_t number = 0;
     for (uint8_t i = 0; i < MaximumNumberOfModules; ++i) {
