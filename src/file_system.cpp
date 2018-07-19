@@ -146,7 +146,7 @@ bool FileSystem::openSystemFiles() {
 
     files_.data_ = data;
 
-    if (logs_a.in_final_block()) {
+    if (logs_a.size() > logs_b.size()) {
         files_.log_ = logs_b;
     }
     else {
