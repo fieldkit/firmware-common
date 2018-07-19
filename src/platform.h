@@ -14,6 +14,8 @@ uint32_t fk_uptime_adjust(uint32_t by);
 
 bool fk_console_attached();
 
+bool fk_logging_trace_enabled();
+
 }
 
 #endif

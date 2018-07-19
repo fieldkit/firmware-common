@@ -24,4 +24,8 @@ bool fk_console_attached() {
     return console_attached;
 }
 
+bool fk_logging_trace_enabled() {
+    return fk_console_attached();
+}
+
 }
