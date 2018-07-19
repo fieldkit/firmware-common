@@ -2,6 +2,7 @@
 #define FK_API_STATES_H_INCLUDED
 
 #include "wifi_states.h"
+#include "gather_readings.h"
 
 namespace fk {
 
@@ -159,6 +160,21 @@ public:
         }
 
         if (fk_uptime() - lastReadings_ > interval_) {
+            GatherReadings gatherReadings{
+                1,
+                *services().state,
+                *services().leds,
+                *services().moduleCommunications
+            };
+
+            gatherReadings.enqueued();
+
+            while (simple_task_run(gatherReadings)) {
+                services().alive();
+                services().moduleCommunications->task();
+                serve();
+            }
+
             log("Readings");
             lastReadings_ = fk_uptime();
         }

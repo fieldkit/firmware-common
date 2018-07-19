@@ -42,6 +42,7 @@ class Discovery;
 class HttpTransmissionConfig;
 class Listen;
 class AppServicer;
+class LiveDataManager;
 
 struct WifiServices : MainServices {
     Wifi *wifi;
@@ -49,12 +50,14 @@ struct WifiServices : MainServices {
     HttpTransmissionConfig *httpConfig;
     Listen *server;
     AppServicer *appServicer;
+    LiveDataManager *liveData;
 
     WifiServices(Leds *leds, Watchdog *watchdog, Power *power, Status *status, CoreState *state, FileSystem *fileSystem,
                  UserButton *button, Scheduler *scheduler, ModuleCommunications *moduleCommunications, GpsService *gps,
-                 Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer) :
+                 Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer,
+                 LiveDataManager *liveData) :
         MainServices(leds, watchdog, power, status,state, fileSystem, button, scheduler, moduleCommunications, gps),
-        wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer) {
+        wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer), liveData(liveData) {
     }
 };
 

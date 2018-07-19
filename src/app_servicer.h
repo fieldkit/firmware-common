@@ -32,9 +32,6 @@ public:
         return "AppServicer";
     }
 
-public:
-    void react(LiveDataEvent const &lde) override;
-
 private:
     bool handle() override;
 

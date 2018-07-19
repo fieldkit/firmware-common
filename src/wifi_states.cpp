@@ -12,6 +12,8 @@
 #include "watchdog.h"
 
 #include "transmit_file.h"
+#include "live_data.h"
+#include "gather_readings.h"
 
 namespace fk {
 
@@ -37,6 +39,7 @@ class WifiListening;
 class WifiCreateAp;
 class WifiSyncTime;
 class WifiTransmitFiles;
+class LiveDataReading;
 
 void WifiState::serve() {
     services().state->updateIp(WiFi.localIP());
@@ -51,6 +54,9 @@ void WifiState::serve() {
     services().discovery->task();
     services().scheduler->task();
 
+    if (services().liveData->takeReading()) {
+        transit<LiveDataReading>();
+    }
 }
 
 class WifiTryNetwork : public WifiState {
@@ -227,6 +233,34 @@ public:
             transit_into<WifiTransmitFile>(transmissions_[index_]);
             index_++;
         }
+    }
+};
+
+class LiveDataReading : public WifiState {
+public:
+    const char *name() const override {
+        return "LiveDataReading";
+    }
+
+public:
+    void task() override {
+        GatherReadings gatherReadings{
+            1,
+            *services().state,
+            *services().leds,
+            *services().moduleCommunications
+        };
+
+        gatherReadings.enqueued();
+
+        while (simple_task_run(gatherReadings)) {
+            services().alive();
+            services().moduleCommunications->task();
+        }
+
+        services().liveData->completed();
+
+        back();
     }
 };
 

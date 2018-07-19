@@ -10,6 +10,7 @@
 #include "leds.h"
 #include "watchdog.h"
 #include "api_states.h"
+#include "live_data.h"
 
 namespace fk {
 
@@ -19,10 +20,6 @@ static void copy(fk_app_Schedule &to, ScheduledTask &from);
 
 AppServicer::AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
     : ApiConnection(connection, pool), state_(&state), scheduler_(&scheduler), fileReplies_(&fileReplies), communications_(&communications), pool_(&pool) {
-}
-
-void AppServicer::react(LiveDataEvent const &lde) {
-    transit_into<WifiLiveData>(lde.interval);
 }
 
 bool AppServicer::handle() {
@@ -35,9 +32,10 @@ bool AppServicer::handle() {
     case fk_app_QueryType_QUERY_LIVE_DATA_POLL: {
         log("Live ds (interval = %lu)", query_.m().liveDataPoll.interval);
 
-        send_event(LiveDataEvent{
-            query_.m().liveDataPoll.interval
-        });
+        auto interval = query_.m().liveDataPoll.interval;
+        services().liveData->configure(interval);
+
+        send_event(LiveDataEvent{ interval });
 
         auto numberOfReadings = state_->numberOfReadings();
         fk_app_LiveDataSample samples[numberOfReadings];

@@ -38,6 +38,9 @@ void CoreDevice::react(UserRebootEvent const &ignored) {
     transit<RebootDevice>();
 }
 
+void CoreDevice::react(ReadingComplete const &ignored) {
+}
+
 void CoreDevice::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);

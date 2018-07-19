@@ -43,6 +43,9 @@ struct UserWakeupEvent : public tinyfsm::Event {
 struct UserRebootEvent : public tinyfsm::Event {
 };
 
+struct ReadingComplete : public tinyfsm::Event {
+};
+
 class CoreDevice;
 
 using CoreFsm = tinyfsm::Fsm<CoreDevice>;
@@ -71,6 +74,7 @@ public:
     virtual void react(UserButtonEvent const &ignored);
     virtual void react(UserWakeupEvent const &ignored);
     virtual void react(UserRebootEvent const &ignored);
+    virtual void react(ReadingComplete const &ignored);
 
 public:
     virtual void entry() {

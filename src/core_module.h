@@ -27,6 +27,7 @@
 #include "radio_service.h"
 #include "user_button.h"
 #include "wifi_states.h"
+#include "live_data.h"
 
 namespace fk {
 
@@ -94,6 +95,8 @@ private:
     SerialPort gpsSerial{ Hardware::gpsUart };
     GpsService gps{ state, gpsSerial };
 
+    LiveDataManager liveData;
+
     // Service collections.
     MainServices mainServices{
         &leds,
@@ -124,7 +127,8 @@ private:
         &discovery,
         &httpConfig,
         &wifi.server(),
-        &appServicer
+        &appServicer,
+        &liveData
     };
 
 public:
