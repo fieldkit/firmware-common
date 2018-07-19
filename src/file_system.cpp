@@ -129,17 +129,17 @@ bool FileSystem::closeSystemFiles() {
 }
 
 bool FileSystem::openSystemFiles() {
-    auto logs_a = fs_.open(files_.file_logs_a_fd, OpenMode::Write);
+    auto logs_a = fs_.open(files_.file_logs_a_fd, OpenMode::MultipleWrites);
     if (!logs_a) {
         return false;
     }
 
-    auto logs_b = fs_.open(files_.file_logs_b_fd, OpenMode::Write);
+    auto logs_b = fs_.open(files_.file_logs_b_fd, OpenMode::MultipleWrites);
     if (!logs_b) {
         return false;
     }
 
-    auto data = fs_.open(files_.file_data_fk, OpenMode::Write);
+    auto data = fs_.open(files_.file_data_fk, OpenMode::MultipleWrites);
     if (!data) {
         return false;
     }
