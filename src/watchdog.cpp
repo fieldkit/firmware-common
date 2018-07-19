@@ -59,10 +59,12 @@ uint32_t Watchdog::sleep(uint32_t ms) {
             auto time = wdt_enable(WDT_PERIOD_8X, false);
             remaining -= time;
             if (time > 0) {
+                // Adjust before, because IRQs will fire immediately and see
+                // the old time.
+                fk_uptime_adjust(time);
+
                 system_set_sleepmode(SYSTEM_SLEEPMODE_STANDBY);
                 system_sleep();
-
-                fk_uptime_adjust(time);
             }
             else {
                 delay(remaining);

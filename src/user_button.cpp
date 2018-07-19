@@ -69,17 +69,9 @@ TaskEval UserButton::task() {
     }
 
     if (pressed_) {
-        if (fk_uptime() - notified_ > 1000) {
-            if (fk_uptime() - changedAt_ > ButtonLongPressDuration) {
-                log("Restarting");
-                leds_->restarting();
-                notified_ = fk_uptime();
-            }
-            else if (fk_uptime() - changedAt_ > ButtonLedsWarnDuration) {
-                log("Warn");
-                leds_->blink(LedsBlinkButtonWarn);
-                notified_ = fk_uptime();
-            }
+        if (fk_uptime() - notified_ > 250) {
+            send_event(UserButtonEvent{ });
+            notified_ = fk_uptime();
         }
     }
 

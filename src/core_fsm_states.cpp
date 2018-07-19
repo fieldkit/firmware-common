@@ -34,10 +34,10 @@ WifiServices *WifiServicesState::services_{ nullptr };
 void MainServices::alive() {
     leds->task();
     watchdog->task();
-    button->task();
     power->task();
     status->task();
     gps->task();
+    button->task();
 }
 
 class Booting : public CoreDevice {
@@ -78,7 +78,7 @@ public:
             transit_into<RebootDevice>();
         }
         else {
-            transit_into<Sleep>((uint32_t)60);
+            transit_into<Sleep>(LowPowerSleepDurationSeconds);
         }
     }
 };
@@ -149,6 +149,7 @@ public:
 class Sleep : public MainServicesState {
 private:
     uint32_t maximum_{ 0 };
+    uint32_t activity_{ 0 };
 
 public:
     Sleep() {
@@ -163,30 +164,41 @@ public:
     }
 
 public:
+    void entry() override {
+        MainServicesState::entry();
+        activity_ = 0;
+    }
+
+    void react(UserButtonEvent const &ignored) override {
+        activity_ = fk_uptime();
+    }
+
     void task() override {
         log("Maximum: %lu", maximum_);
 
         auto started = fk_uptime();
+        auto stopping = started + (maximum_ * 1000);
 
         services().fileSystem->flush();
 
-        while (fk_uptime() - started < maximum_ * 1000) {
+        while (fk_uptime() < stopping) {
             auto delayed = false;
 
-            if (!fk_console_attached()) {
-                if (fk_uptime() - started > SleepMaximumGranularity) {
-                    services().leds->all(true);
-                    delay(100);
-                    services().leds->all(false);
+            if (activity_ == 0 || fk_uptime() - activity_ > 10000) {
+                if (!fk_console_attached()) {
+                    auto left = stopping - fk_uptime();
+                    if (left > SleepMaximumGranularity) {
+                        services().watchdog->sleep(SleepMaximumGranularity);
+                        delayed = true;
+                    }
+                }
 
-                    // TODO: Power down peripherals?
-                    services().watchdog->sleep(SleepMaximumGranularity);
-                    delayed = true;
+                if (!delayed) {
+                    delay(1000);
                 }
             }
-
-            if (!delayed) {
-                delay(1000);
+            else {
+                delay(10);
             }
 
             services().alive();

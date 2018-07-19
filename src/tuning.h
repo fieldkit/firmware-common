@@ -67,6 +67,7 @@ constexpr uint32_t StatusInterval = 5000;
 constexpr float BatteryStatusBlinkThreshold = 60.0f;
 constexpr float BatteryLowPowerSleepThreshold = 10.0;
 constexpr float BatteryLowPowerResumeThreshold = 30.0;
+constexpr uint32_t LowPowerSleepDurationSeconds = 60 * 10;
 
 constexpr uint32_t SleepMaximumGranularity = 8192;
 
@@ -80,9 +81,8 @@ constexpr uint32_t LedsBlinkButtonWarn = 100;
 constexpr uint32_t LedsDisableAfter = 1000 * 60 * 60;
 
 constexpr uint32_t ButtonTouchHysteresis = 100;
-constexpr uint32_t ButtonShortPressDuration = 50;
-constexpr uint32_t ButtonLongPressDuration = 2000;
-constexpr uint32_t ButtonLedsWarnDuration = 1000;
+constexpr uint32_t ButtonShortPressDuration = 1000;
+constexpr uint32_t ButtonLongPressDuration = 5000;
 
 constexpr uint32_t SchedulerCheckInterval = 500;
 

@@ -34,6 +34,9 @@ struct WifiEvent : public tinyfsm::Event {
 struct LowPowerEvent : public tinyfsm::Event {
 };
 
+struct UserButtonEvent : public tinyfsm::Event {
+};
+
 struct UserWakeupEvent : public tinyfsm::Event {
 };
 
@@ -65,6 +68,7 @@ public:
     virtual void react(SchedulerEvent const &ignored);
     virtual void react(LiveDataEvent const &ignored);
     virtual void react(AppQueryEvent const &ignored);
+    virtual void react(UserButtonEvent const &ignored);
     virtual void react(UserWakeupEvent const &ignored);
     virtual void react(UserRebootEvent const &ignored);
 
