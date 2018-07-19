@@ -235,6 +235,8 @@ public:
             remaining_--;
         }
 
+        services().fileSystem->flush();
+
         resume();
     }
 };
