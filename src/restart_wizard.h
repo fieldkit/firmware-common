@@ -37,16 +37,16 @@ public:
 
     template<typename Func>
     void dump(Func dumpFunc) {
+        auto remaining = Size;
         auto i = (int32_t)head - 1;
-        do {
+        while (remaining > 0) {
             if (0 > i) {
                 i = Size - 1;
             }
             dumpFunc(i, history[i]);
-            if (i == (int32_t)head) break;
             i--;
+            remaining--;
         }
-        while (true);
     }
 
     T &last() {
