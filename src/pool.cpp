@@ -6,8 +6,6 @@
 
 namespace fk {
 
-#define FK_LOGGING_POOL_VERBOSE
-
 Pool::Pool(const char *name, size_t size, void *block) {
     this->name = name;
     this->block = block;

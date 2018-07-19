@@ -2,11 +2,13 @@
 
 namespace fk {
 
-AppModuleQueryTask::AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, ModuleCommunications &communications) :
+AppModuleQueryTask::AppModuleQueryTask(AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, ModuleCommunications &communications) :
     Task("AppModuleQueryTask"), reply(&reply), query(&query), buffer(&buffer), customModuleQuery(reply, query, buffer), protocol(communications) {
 }
 
 void AppModuleQueryTask::enqueued() {
+    fk_assert(peripherals.twoWire1().tryAcquire(this));
+
     protocol.push(8, customModuleQuery);
 }
 

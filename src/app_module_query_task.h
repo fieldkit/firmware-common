@@ -42,7 +42,7 @@ private:
     ModuleProtocolHandler protocol;
 
 public:
-    AppModuleQueryTask(TwoWireBus &bus, AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, ModuleCommunications &communications);
+    AppModuleQueryTask(AppReplyMessage &reply, AppQueryMessage &query, MessageBuffer &buffer, uint8_t address, ModuleCommunications &communications);
 
 public:
     void enqueued() override;

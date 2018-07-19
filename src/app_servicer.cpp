@@ -176,8 +176,7 @@ bool AppServicer::handle() {
         break;
     }
     case fk_app_QueryType_QUERY_MODULE: {
-        // auto address = (uint8_t)query.m().module.address;
-        transit_into<WifiQueryModule>();
+        transit_into<WifiQueryModule>(std::ref(connection()), std::ref(query_), std::ref(reply_));
         return false;
     }
     case fk_app_QueryType_QUERY_METADATA: {
