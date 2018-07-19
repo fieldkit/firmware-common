@@ -83,6 +83,30 @@ public:
     }
 };
 
+class NoModulesThrottle : public MainServicesState {
+private:
+    uint32_t entered_{ 0 };
+
+public:
+    const char *name() const override {
+        return "NoModulesThrottle";
+    }
+
+public:
+    void entry() override {
+        MainServicesState::entry();
+        entered_ = fk_uptime();
+    }
+
+    void task() override {
+        services().alive();
+
+        if (fk_uptime() - entered_ > NoModulesRebootWait) {
+            transit<RebootDevice>();
+        }
+    }
+};
+
 class ScanAttachedDevices : public MainServicesState {
 public:
     const char *name() const override {
@@ -107,6 +131,14 @@ public:
             services().leds->task();
             services().moduleCommunications->task();
         }
+
+        #ifdef FK_CORE_REQUIRE_MODULES
+        if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
+            log("No attached modules.");
+            transit<NoModulesThrottle>();
+            return;
+        }
+        #endif
 
         #endif
 

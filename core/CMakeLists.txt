@@ -67,6 +67,11 @@ if(FK_PROFILE_AMAZON)
  add_definitions(-DFK_PROFILE_AMAZON)
 endif(FK_PROFILE_AMAZON)
 
+option(FK_CORE_REQUIRE_MODULES "Require module, restarting if none are found. " OFF)
+if(FK_CORE_REQUIRE_MODULES)
+ add_definitions(-DFK_CORE_REQUIRE_MODULES)
+endif(FK_CORE_REQUIRE_MODULES)
+
 # Get the current working branch
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD

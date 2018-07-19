@@ -84,7 +84,9 @@ constexpr uint32_t ButtonShortPressDuration = 50;
 constexpr uint32_t ButtonLongPressDuration = 2000;
 constexpr uint32_t ButtonLedsWarnDuration = 1000;
 
-static constexpr uint32_t SchedulerCheckInterval = 500;
+constexpr uint32_t SchedulerCheckInterval = 500;
+
+constexpr uint32_t NoModulesRebootWait = 1000 * 60 * 10;
 
 }
 

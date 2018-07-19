@@ -81,6 +81,10 @@ void setup() {
     loginfof("Core", "FK_CORE_GENERATION_1");
     #endif
 
+    #ifdef FK_CORE_REQUIRE_MODULES
+    loginfof("Core", "FK_CORE_REQUIRE_MODULES");
+    #endif
+
     #ifdef FK_WIFI_STARTUP_ONLY
     loginfof("Core", "FK_WIFI_STARTUP_ONLY");
     #endif
