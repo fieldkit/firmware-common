@@ -242,7 +242,7 @@ bool Files::swapLogsIfNecessary() {
         return false;
     }
 
-    auto other = files_->open(*new_fd, phylum::OpenMode::Write);
+    auto other = files_->open(*new_fd, phylum::OpenMode::MultipleWrites);
     if (!other) {
         return false;
     }
