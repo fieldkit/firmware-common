@@ -350,7 +350,7 @@ void Idle::task() {
 
         auto nextTask = services().scheduler->getNextTask(now);
 
-        if (true) {
+        if (false) {
             DateTime runsAgain{ nextTask.time };
             FormattedTime nowFormatted{ now };
             FormattedTime runsAgainFormatted{ runsAgain };
