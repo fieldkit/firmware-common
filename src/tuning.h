@@ -35,7 +35,7 @@ constexpr bool     GpsEchoRaw = false;
 constexpr uint16_t DiscoveryUdpPort = 54321;
 constexpr uint32_t DiscoveryPingInterval = 2500;
 
-constexpr uint32_t ModuleIdleRebootInterval = 1000 * 60 * 10;
+constexpr uint32_t ModuleIdleRebootInterval = 1000 * 60 * 120;
 
 constexpr const char WifiApiUrlBase[] = FK_API_BASE;
 constexpr const char WifiApiUrlIngestionStream[] = FK_API_BASE "/messages/ingestion/stream";
