@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -xe
+
+rm -rf build
+mkdir -p build
+pushd build
+cmake -DFK_PROFILE_AMAZON=ON -DFK_CORE_GENERATION_2=ON -DFK_WIFI_ALWAYS_ON=OFF -DFK_WIFI_STARTUP_ONLY=ON -DFK_DEBUG_UART_REQUIRE_CONSOLE=OFF -DFK_CORE_REQUIRE_MODULES=ON ../
+make
+popd
