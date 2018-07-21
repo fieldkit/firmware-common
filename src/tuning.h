@@ -26,7 +26,7 @@ constexpr uint32_t PowerManagementAlertInterval = 60 * 1000;
 
 constexpr uint32_t ReadingsInterval = 30;
 constexpr uint32_t CheckPowerInterval = 15 * 60;
-constexpr uint32_t WifiTransmitInterval = 15 * 60;
+constexpr uint32_t WifiTransmitInterval = 0;
 
 constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
 constexpr uint32_t GpsStatusInterval = 1 * 500;
