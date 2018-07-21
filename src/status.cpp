@@ -13,10 +13,16 @@ TaskEval Status::task() {
         auto state = CoreFsm::current().name();
         FormattedTime nowFormatted{ now };
 
-        loginfof("Status", "%s (%" PRIu32 ") (%.2f%% / %.2fmv) (%" PRIu32 " free) (%s) (%s) (%s)",
-                 nowFormatted.toString(), now.unixtime(),
-                 percentage, voltage, fk_free_memory(),
-                 deviceId.toString(), ip.toString(), state);
+        auto level = LogLevels::TRACE;
+        if (fk_uptime() - lastLogged > 60 * 1000) {
+            level = LogLevels::INFO;
+            lastLogged = fk_uptime();
+        }
+
+        logf(level, "Status", "%s (%" PRIu32 ") (%.2f%% / %.2fmv) (%" PRIu32 " free) (%s) (%s) (%s)",
+             nowFormatted.toString(), now.unixtime(),
+             percentage, voltage, fk_free_memory(),
+             deviceId.toString(), ip.toString(), state);
 
         lastTick = fk_uptime();
 

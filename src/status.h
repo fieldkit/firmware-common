@@ -11,6 +11,7 @@ namespace fk {
 
 class Status : public Task {
 private:
+    uint32_t lastLogged{ 0 };
     uint32_t lastTick{ 0 };
     CoreState *state;
     TwoWireBus *bus;
