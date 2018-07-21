@@ -357,7 +357,7 @@ void Idle::react(SchedulerEvent const &se) {
 void Idle::task() {
     services().alive();
 
-    if (fk_uptime() - checked_ > 500) {
+    if (fk_uptime() - checked_ > 250) {
         auto now = clock.now();
 
         // NOTE: Do this first to avoid a race condition. getNextTask doesn't
@@ -367,18 +367,18 @@ void Idle::task() {
             return;
         }
 
-        auto nextTask = services().scheduler->getNextTask(now);
+        if (fk_uptime() - began_ > 60 * 1000) {
+            auto nextTask = services().scheduler->getNextTask(now);
 
-        if (false) {
-            DateTime runsAgain{ nextTask.time };
-            FormattedTime nowFormatted{ now };
-            FormattedTime runsAgainFormatted{ runsAgain };
-            trace("Waiting (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
-        }
+            if (nextTask.seconds > 70) {
+                DateTime runsAgain{ nextTask.time };
+                FormattedTime nowFormatted{ now };
+                FormattedTime runsAgainFormatted{ runsAgain };
+                log("Waiting (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
 
-        if (nextTask.seconds > 10) {
-            transit_into<Sleep>(nextTask.seconds - 5);
-            return;
+                transit_into<Sleep>(nextTask.seconds - 65);
+                return;
+            }
         }
 
         checked_ = fk_uptime();
