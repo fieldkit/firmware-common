@@ -167,6 +167,10 @@ public:
     void entry() override {
         MainServicesState::entry();
         activity_ = 0;
+
+        DateTime wakeTime{ clock.getTime() + maximum_ };
+        FormattedTime wakeFormatted{ wakeTime };
+        log("Sleeping for %lu (%s)", maximum_, wakeFormatted.toString());
     }
 
     void react(UserButtonEvent const &ignored) override {
@@ -174,8 +178,6 @@ public:
     }
 
     void task() override {
-        log("Maximum: %lu", maximum_);
-
         auto started = fk_uptime();
         auto stopping = started + (maximum_ * 1000);
 
@@ -326,9 +328,14 @@ void RebootDevice::task() {
 
 void Idle::entry() {
     MainServicesState::entry();
-    if (began_ == 0) {
-        began_ = fk_uptime();
-    }
+    began_ = fk_uptime();
+
+    auto now = clock.now();
+    auto nextTask = services().scheduler->getNextTask(now);
+    DateTime runsAgain{ nextTask.time };
+    FormattedTime nowFormatted{ now };
+    FormattedTime runsAgainFormatted{ runsAgain };
+    log("Idling (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
 }
 
 void Idle::react(LowPowerEvent const &lpe) {
