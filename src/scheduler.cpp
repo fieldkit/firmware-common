@@ -30,6 +30,10 @@ bool PeriodicTask::shouldRun(DateTime now) {
 }
 
 uint32_t PeriodicTask::getNextRunTime(DateTime &after) {
+    if (interval_ == 0) {
+        return UINT32_MAX;
+    }
+
     auto afterUnix = after.unixtime();
     auto intervalInSeconds = interval_ / 1000;
     if (lastRanTime_ == 0) {
