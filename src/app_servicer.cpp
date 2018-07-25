@@ -14,8 +14,8 @@
 
 namespace fk {
 
-AppServicer::AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
-    : ApiConnection(connection, pool), state_(&state), scheduler_(&scheduler), fileReplies_(&fileReplies), communications_(&communications), pool_(&pool) {
+AppServicer::AppServicer(CoreState &state, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
+    : ApiConnection(connection, pool), state_(&state), fileReplies_(&fileReplies), communications_(&communications), pool_(&pool) {
 }
 
 bool AppServicer::handle() {

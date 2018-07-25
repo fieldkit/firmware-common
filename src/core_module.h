@@ -54,27 +54,24 @@ private:
     // TODO: When these are checked they should be checked in a descending order
     // to avoid starvation.
     #ifdef FK_PROFILE_AMAZON
-    PeriodicTask periodics[1] {
-        fk::PeriodicTask{ 1000 * WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } }
+
+    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0), { CoreFsm::deferred<BeginGatherReadings>() } };
+    #ifdef FK_WIFI_STARTUP_ONLY
+    CronTask wifiStartupTask{ { },                               { CoreFsm::deferred<WifiStartup>() } };
+    #else // FK_WIFI_STARTUP_ONLY
+    CronTask wifiStartupTask{ lwcron::CronSpec::interval(300), { CoreFsm::deferred<WifiStartup>() } };
+    #endif // FK_WIFI_STARTUP_ONLY
+    lwcron::Task *tasks[2] {
+        &gatherReadingsTask,
+        &wifiStartupTask
     };
-    ScheduledTask scheduled[2] {
-        fk::ScheduledTask{ {  0, -1 }, { 58, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<BeginGatherReadings>() } },
-        #ifdef FK_WIFI_STARTUP_ONLY
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<WifiStartup>() } },
-        #else
-        fk::ScheduledTask{ {  0, -1 }, { 30, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<WifiStartup>() } },
-        #endif
+    #else // FK_PROFILE_AMAZON
+    PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
+    lwcron::Task *tasks[1] {
+        &wifiStartupTask
     };
-    #else
-    PeriodicTask periodics[1] {
-        fk::PeriodicTask{ 1000 * WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } },
-    };
-    ScheduledTask scheduled[2] {
-        fk::ScheduledTask{ {  0, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<BeginGatherReadings>() } },
-        fk::ScheduledTask{ { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { CoreFsm::deferred<WifiStartup>() } },
-    };
-    #endif
-    Scheduler scheduler{clock, scheduled, periodics};
+    #endif // FK_PROFILE_AMAZON
+    lwcron::Scheduler scheduler{tasks};
 
     // Radio stuff.
     #ifdef FK_ENABLE_RADIO
@@ -87,7 +84,7 @@ private:
         .streamUrl = WifiApiUrlIngestionStream,
     };
     WifiConnection connection;
-    AppServicer appServicer{state, scheduler, fileSystem.getReplies(), connection, moduleCommunications, appPool};
+    AppServicer appServicer{state, fileSystem.getReplies(), connection, moduleCommunications, appPool};
     Wifi wifi{connection};
     Discovery discovery;
 

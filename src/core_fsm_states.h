@@ -1,6 +1,8 @@
 #ifndef FK_CORE_FSM_STATES_H_INCLUDED
 #define FK_CORE_FSM_STATES_H_INCLUDED
 
+#include <lwcron/lwcron.h>
+
 #include "core_fsm.h"
 
 namespace fk {
@@ -12,7 +14,6 @@ class Status;
 class CoreState;
 class FileSystem;
 class UserButton;
-class Scheduler;
 class ModuleCommunications;
 class GpsService;
 
@@ -24,12 +25,12 @@ struct MainServices {
     CoreState *state;
     FileSystem *fileSystem;
     UserButton *button;
-    Scheduler *scheduler;
+    lwcron::Scheduler *scheduler;
     ModuleCommunications *moduleCommunications;
     GpsService *gps;
 
     MainServices(Leds *leds, Watchdog *watchdog, Power *power, Status *status, CoreState *state, FileSystem *fileSystem,
-                 UserButton *button, Scheduler *scheduler, ModuleCommunications *moduleCommunications, GpsService *gps) :
+                 UserButton *button, lwcron::Scheduler *scheduler, ModuleCommunications *moduleCommunications, GpsService *gps) :
         leds(leds), watchdog(watchdog), power(power), status(status), state(state), fileSystem(fileSystem), button(button),
         scheduler(scheduler), moduleCommunications(moduleCommunications), gps(gps) {
     }
@@ -53,7 +54,7 @@ struct WifiServices : MainServices {
     LiveDataManager *liveData;
 
     WifiServices(Leds *leds, Watchdog *watchdog, Power *power, Status *status, CoreState *state, FileSystem *fileSystem,
-                 UserButton *button, Scheduler *scheduler, ModuleCommunications *moduleCommunications, GpsService *gps,
+                 UserButton *button, lwcron::Scheduler *scheduler, ModuleCommunications *moduleCommunications, GpsService *gps,
                  Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer,
                  LiveDataManager *liveData) :
         MainServices(leds, watchdog, power, status,state, fileSystem, button, scheduler, moduleCommunications, gps),

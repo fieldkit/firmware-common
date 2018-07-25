@@ -73,11 +73,12 @@ void CoreModule::begin() {
     Logger::info("Build(%s)", firmware_build_get());
     Logger::info("API(%s)", WifiApiUrlIngestionStream);
 
+    auto now = clock.now();
     FormattedTime nowFormatted{ clock.now() };
     Logger::info("Now: %s", nowFormatted.toString());
 
     watchdog.started();
-    scheduler.started();
+    scheduler.begin(lwcron::DateTime{ now.unixtime() });
     state.started();
 }
 

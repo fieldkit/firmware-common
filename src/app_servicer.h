@@ -19,13 +19,12 @@ namespace fk {
 class AppServicer : public ApiConnection {
 private:
     CoreState *state_;
-    Scheduler *scheduler_;
     FkfsReplies *fileReplies_;
     ModuleCommunications *communications_;
     Pool *pool_;
 
 public:
-    AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
+    AppServicer(CoreState &state, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
 
 public:
     const char *name() const override {

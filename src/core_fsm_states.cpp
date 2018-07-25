@@ -331,7 +331,7 @@ void Idle::entry() {
     began_ = fk_uptime();
 
     auto now = clock.now();
-    auto nextTask = services().scheduler->getNextTask(now);
+    auto nextTask = services().scheduler->nextTask();
     DateTime runsAgain{ nextTask.time };
     FormattedTime nowFormatted{ now };
     FormattedTime runsAgainFormatted{ runsAgain };
@@ -363,20 +363,23 @@ void Idle::task() {
         // NOTE: Do this first to avoid a race condition. getNextTask doesn't
         // know that we didn't run a task yet, so it'll immediately return the
         // following task even if we're supposed to have run a sooner one.
-        if (services().scheduler->check(now)) {
+        auto triggered = services().scheduler->check(lwcron::DateTime{ now.unixtime() });
+        if (triggered) {
+            triggered.task->run();
             return;
         }
 
         if (fk_uptime() - began_ > 60 * 1000) {
-            auto nextTask = services().scheduler->getNextTask(now);
+            auto nextTask = services().scheduler->nextTask();
+            auto seconds = nextTask.time - now.unixtime();
 
-            if (nextTask.seconds > 70) {
+            if (seconds > 70) {
                 DateTime runsAgain{ nextTask.time };
                 FormattedTime nowFormatted{ now };
                 FormattedTime runsAgainFormatted{ runsAgain };
                 log("Waiting (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
 
-                transit_into<Sleep>(nextTask.seconds - 65);
+                transit_into<Sleep>(seconds - 65);
                 return;
             }
         }
