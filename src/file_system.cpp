@@ -67,7 +67,7 @@ bool FileSystem::format() {
     return true;
 }
 
-bool FileSystem::resetAll() {
+bool FileSystem::eraseAll() {
     auto success = true;
 
     closeSystemFiles();

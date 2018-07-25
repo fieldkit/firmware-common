@@ -25,7 +25,7 @@ public:
 
 public:
     bool format();
-    bool resetAll();
+    bool eraseAll();
     bool setup();
 
 public:

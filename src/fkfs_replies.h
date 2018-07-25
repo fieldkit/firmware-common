@@ -18,7 +18,7 @@ public:
 public:
     void queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
     void eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
-    void resetAll(CoreState &state);
+    void eraseAll(CoreState &state);
 
 private:
     void log(const char *f, ...) const;

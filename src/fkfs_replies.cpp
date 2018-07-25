@@ -67,7 +67,7 @@ void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply,
     queryFilesReply(query, reply, buffer);
 }
 
-void FkfsReplies::resetAll(CoreState &state) {
+void FkfsReplies::eraseAll(CoreState &state) {
     /*
     if (!fileSystem->format()) {
         return;
@@ -78,7 +78,7 @@ void FkfsReplies::resetAll(CoreState &state) {
     }
     */
 
-    if (!fileSystem->resetAll()) {
+    if (!fileSystem->eraseAll()) {
         return;
     }
 

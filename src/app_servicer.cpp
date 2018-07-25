@@ -113,7 +113,20 @@ bool AppServicer::handle() {
     case fk_app_QueryType_QUERY_RESET: {
         log("Reset");
 
-        fileReplies_->resetAll(*state_);
+        fileReplies_->eraseAll(*state_);
+
+        reply_.m().type = fk_app_ReplyType_REPLY_SUCCESS;
+
+        if (!buffer().write(reply_)) {
+            log("Error writing reply");
+        }
+
+        break;
+    }
+    case fk_app_QueryType_QUERY_FORMAT: {
+        log("Reset");
+
+        fileReplies_->eraseAll(*state_);
 
         reply_.m().type = fk_app_ReplyType_REPLY_SUCCESS;
 
