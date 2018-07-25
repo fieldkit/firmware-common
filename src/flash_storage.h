@@ -36,6 +36,10 @@ public:
         return true;
     }
 
+    bool erase() {
+        return true;
+    }
+
 };
 
 #else
