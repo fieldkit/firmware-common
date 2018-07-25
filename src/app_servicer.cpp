@@ -14,10 +14,6 @@
 
 namespace fk {
 
-static void copy(ScheduledTask &to, fk_app_Schedule &from);
-
-static void copy(fk_app_Schedule &to, ScheduledTask &from);
-
 AppServicer::AppServicer(CoreState &state, Scheduler &scheduler, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool)
     : ApiConnection(connection, pool), state_(&state), scheduler_(&scheduler), fileReplies_(&fileReplies), communications_(&communications), pool_(&pool) {
 }
@@ -69,21 +65,6 @@ bool AppServicer::handle() {
     case fk_app_QueryType_QUERY_CONFIGUE_SCHEDULES: {
         log("Configure schedules");
 
-        auto &readings = scheduler_->getTaskSchedule(ScheduleKind::Readings);
-        auto &transmission = scheduler_->getTaskSchedule(ScheduleKind::Transmission);
-        auto &status = scheduler_->getTaskSchedule(ScheduleKind::Status);
-        auto &location = scheduler_->getTaskSchedule(ScheduleKind::Location);
-
-        reply_.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
-        copy(readings, reply_.m().schedules.readings);
-        copy(transmission, reply_.m().schedules.transmission);
-        copy(status, reply_.m().schedules.status);
-        copy(location, reply_.m().schedules.location);
-        copy(reply_.m().schedules.readings, readings);
-        copy(reply_.m().schedules.transmission, transmission);
-        copy(reply_.m().schedules.status, status);
-        copy(reply_.m().schedules.location, location);
-
         if (!buffer().write(reply_)) {
             log("Error writing reply");
         }
@@ -92,17 +73,6 @@ bool AppServicer::handle() {
     }
     case fk_app_QueryType_QUERY_SCHEDULES: {
         log("Query schedules");
-
-        auto &readings = scheduler_->getTaskSchedule(ScheduleKind::Readings);
-        auto &transmission = scheduler_->getTaskSchedule(ScheduleKind::Transmission);
-        auto &status = scheduler_->getTaskSchedule(ScheduleKind::Status);
-        auto &location = scheduler_->getTaskSchedule(ScheduleKind::Location);
-
-        reply_.m().type = fk_app_ReplyType_REPLY_SCHEDULES;
-        copy(reply_.m().schedules.readings, readings);
-        copy(reply_.m().schedules.transmission, transmission);
-        copy(reply_.m().schedules.status, status);
-        copy(reply_.m().schedules.location, location);
 
         if (!buffer().write(reply_)) {
             log("Error writing reply");
@@ -390,28 +360,6 @@ void AppServicer::metadataReply() {
     if (!buffer().write(reply_)) {
         log("Error writing reply");
     }
-}
-
-static void copy(ScheduledTask &to, fk_app_Schedule &from) {
-    to.setSecond(TimeSpec{ (int8_t)from.second.fixed, (int8_t)from.second.interval });
-    to.setMinute(TimeSpec{ (int8_t)from.minute.fixed, (int8_t)from.minute.interval });
-    to.setHour(TimeSpec{ (int8_t)from.hour.fixed, (int8_t)from.hour.interval });
-    to.setDay(TimeSpec{ (int8_t)from.day.fixed, (int8_t)from.day.interval });
-}
-
-static void copy(fk_app_Schedule &to, ScheduledTask &from) {
-    to.second.fixed = from.getSecond().fixed;
-    to.second.interval = from.getSecond().interval;
-    to.second.offset = 0;
-    to.minute.fixed = from.getMinute().fixed;
-    to.minute.interval = from.getMinute().interval;
-    to.minute.offset = 0;
-    to.hour.fixed = from.getHour().fixed;
-    to.hour.interval = from.getHour().interval;
-    to.hour.offset = 0;
-    to.day.fixed = from.getDay().fixed;
-    to.day.interval = from.getDay().interval;
-    to.day.offset = 0;
 }
 
 }
