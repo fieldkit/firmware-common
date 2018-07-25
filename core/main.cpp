@@ -64,7 +64,7 @@ void setup() {
     loginfof("Core", "Starting");
 
     #ifdef FK_DEBUG_UART_FALLBACK
-    loginfof("Core", "Configured with UART fallback.");
+    loginfof("Core", "FK_DEBUG_UART_FALLBACK");
     #endif
 
     #ifdef FK_DEBUG_MTB_ENABLE

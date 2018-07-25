@@ -10,7 +10,7 @@ set(LIBRARIES
 set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/flash_with_bootloader_and_noinit.ld")
 
 option(FK_DEBUG_UART_FALLBACK "On SerialUSB failure use Serial5" ON)
-if(DEBUG_UART_FALLBACK)
+if(FK_DEBUG_UART_FALLBACK)
   add_definitions(-DFK_DEBUG_UART_FALLBACK)
 endif(FK_DEBUG_UART_FALLBACK)
 
