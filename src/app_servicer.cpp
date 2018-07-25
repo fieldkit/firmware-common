@@ -115,6 +115,8 @@ bool AppServicer::handle() {
 
         fileReplies_->eraseAll(*state_);
 
+        state_->formatAll();
+
         reply_.m().type = fk_app_ReplyType_REPLY_SUCCESS;
 
         if (!buffer().write(reply_)) {

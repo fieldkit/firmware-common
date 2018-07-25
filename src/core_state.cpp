@@ -26,6 +26,12 @@ void CoreState::started() {
     data->appendStatus(*this);
 }
 
+void CoreState::formatAll() {
+    if (!storage->erase()) {
+        log("Flash storage erase failed.");
+    }
+}
+
 void CoreState::doneScanning() {
     data->appendMetadata(*this);
     data->appendStatus(*this);

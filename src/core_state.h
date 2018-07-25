@@ -83,6 +83,8 @@ public:
     void updateIp(uint32_t ip);
     void updateLocation(DeviceLocation&& fix);
 
+    void formatAll();
+
 private:
     size_t getModuleIndex(uint8_t address);
     bool appendReading(SensorReading &reading);
