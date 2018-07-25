@@ -70,6 +70,10 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
     m().metadata.sensors.arg = (void *)&sensorsArray;
     m().metadata.modules.funcs.encode = pb_encode_array;
     m().metadata.modules.arg = (void *)&modulesArray;
+    m().metadata.firmware.git.funcs.encode = pb_encode_string;
+    m().metadata.firmware.git.arg = (void *)firmware_version_get();
+    m().metadata.firmware.build.funcs.encode = pb_encode_string;
+    m().metadata.firmware.build.arg = (void *)firmware_build_get();
 }
 
 DataRecordStatusMessage::DataRecordStatusMessage(CoreState &state, Pool &pool) : DataRecordMessage(pool) {

@@ -46,6 +46,10 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().capabilities.type = (fk_module_ModuleType)info->type;
         reply.m().capabilities.name.arg = (void *)info->name;
         reply.m().capabilities.numberOfSensors = info->numberOfSensors;
+        reply.m().capabilities.firmware.git.funcs.encode = pb_encode_string;
+        reply.m().capabilities.firmware.git.arg = (void *)firmware_version_get();
+        reply.m().capabilities.firmware.build.funcs.encode = pb_encode_string;
+        reply.m().capabilities.firmware.build.arg = (void *)firmware_build_get();
 
         outgoing->write(reply);
 

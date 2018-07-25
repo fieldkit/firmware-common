@@ -9,10 +9,16 @@ namespace fk {
 
 class Leds;
 
+struct Firmware {
+    const char *git;
+    const char *build;
+};
+
 class QueryCapabilities : public ModuleQuery {
 private:
-    uint8_t type{ 0 };
-    uint8_t numberOfSensors{ 0 };
+    uint8_t type_{ 0 };
+    uint8_t numberOfSensors_{ 0 };
+    Firmware firmware_{ nullptr, nullptr };
 
 public:
     const char *name() const override {
@@ -24,22 +30,31 @@ public:
     }
 
     void reply(ModuleReplyMessage &message) override {
-        type = message.m().capabilities.type;
-        numberOfSensors = message.m().capabilities.numberOfSensors;
+        type_ = message.m().capabilities.type;
+        numberOfSensors_ = message.m().capabilities.numberOfSensors;
+        firmware_ = {
+            (const char *)message.m().capabilities.firmware.git.arg,
+            (const char *)message.m().capabilities.firmware.build.arg,
+        };
     }
 
 public:
     bool isCommunications() {
-        return type == fk_module_ModuleType_COMMUNICATIONS;
+        return type_ == fk_module_ModuleType_COMMUNICATIONS;
     }
 
     bool isSensor() {
-        return type == fk_module_ModuleType_SENSOR;
+        return type_ == fk_module_ModuleType_SENSOR;
     }
 
     uint8_t getNumberOfSensors() {
-        return numberOfSensors;
+        return numberOfSensors_;
     }
+
+    Firmware &firmware() {
+        return firmware_;
+    }
+
 };
 
 class QuerySensorCapabilities : public ModuleQuery {
@@ -57,8 +72,10 @@ public:
     }
 
     void reply(ModuleReplyMessage &message) override {
+        auto id = message.m().sensorCapabilities.id;
+        auto name = (const char *)message.m().sensorCapabilities.name.arg;
+        loginfof("QuerySensorCapabilities", "Sensor #%" PRIu32 ": '%s'", id, name);
         sensor++;
-        loginfof("QuerySensorCapabilities", "Sensor #%" PRIu32 ": '%s'", message.m().sensorCapabilities.id, (const char *)message.m().sensorCapabilities.name.arg);
     }
 
     uint8_t getSensor() {

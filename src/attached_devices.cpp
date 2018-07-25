@@ -88,6 +88,11 @@ void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
             addressIndex++;
             resume();
         }
+
+        auto &firmware = queryCapabilities.firmware();
+        if (firmware.git != nullptr && firmware.build != nullptr) {
+            log("[0x%d]: Firmware: git=%s build=%s", address, firmware.git, firmware.build);
+        }
     } else if (finished.is(querySensorCapabilities)) {
         state->merge(address, *finished.reply);
         if (querySensorCapabilities.getSensor() < queryCapabilities.getNumberOfSensors()) {
