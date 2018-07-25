@@ -74,12 +74,12 @@ void CoreModule::begin() {
     Logger::info("API(%s)", WifiApiUrlIngestionStream);
 
     auto now = clock.now();
-    FormattedTime nowFormatted{ clock.now() };
+    FormattedTime nowFormatted{ now };
     Logger::info("Now: %s", nowFormatted.toString());
 
     watchdog.started();
-    scheduler.begin(lwcron::DateTime{ now.unixtime() });
     state.started();
+    scheduler.begin(lwcron::DateTime{ now.unixtime() });
 }
 
 void CoreModule::run() {

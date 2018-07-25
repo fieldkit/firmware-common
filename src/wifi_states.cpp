@@ -52,13 +52,7 @@ void WifiState::serve() {
 
     services().alive();
     services().discovery->task();
-
-    auto now = clock.now();
-    auto triggered = services().scheduler->check(lwcron::DateTime{ now.unixtime() });
-    if (triggered) {
-        triggered.task->run();
-        return;
-    }
+    services().scheduledTasks();
 
     if (services().liveData->takeReading()) {
         transit<LiveDataReading>();

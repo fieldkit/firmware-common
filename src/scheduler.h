@@ -3,9 +3,6 @@
 
 #include <lwcron/lwcron.h>
 
-#include "active_object.h"
-#include "core_state.h"
-#include "rtc.h"
 #include "core_fsm.h"
 
 namespace fk {
@@ -20,10 +17,6 @@ public:
     }
 
 public:
-    SchedulerEvent &event() {
-        return event_;
-    }
-
     void run() override {
         send_event(event_);
     }
@@ -40,10 +33,6 @@ public:
     }
 
 public:
-    SchedulerEvent &event() {
-        return event_;
-    }
-
     void run() override {
         send_event(event_);
     }

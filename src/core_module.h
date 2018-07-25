@@ -55,21 +55,26 @@ private:
     // to avoid starvation.
     #ifdef FK_PROFILE_AMAZON
 
-    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0), { CoreFsm::deferred<BeginGatherReadings>() } };
+    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { CoreFsm::deferred<BeginGatherReadings>() } };
+
     #ifdef FK_WIFI_STARTUP_ONLY
-    CronTask wifiStartupTask{ { },                               { CoreFsm::deferred<WifiStartup>() } };
+    CronTask wifiStartupTask{ { },                                 { CoreFsm::deferred<WifiStartup>() } };
     #else // FK_WIFI_STARTUP_ONLY
-    CronTask wifiStartupTask{ lwcron::CronSpec::interval(300), { CoreFsm::deferred<WifiStartup>() } };
+    CronTask wifiStartupTask{ lwcron::CronSpec::specific(0, 10),   { CoreFsm::deferred<WifiStartup>() } };
     #endif // FK_WIFI_STARTUP_ONLY
+
     lwcron::Task *tasks[2] {
         &gatherReadingsTask,
         &wifiStartupTask
     };
+
     #else // FK_PROFILE_AMAZON
+
     PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
     lwcron::Task *tasks[1] {
         &wifiStartupTask
     };
+
     #endif // FK_PROFILE_AMAZON
     lwcron::Scheduler scheduler{tasks};
 

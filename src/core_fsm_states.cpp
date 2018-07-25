@@ -40,6 +40,13 @@ void MainServices::alive() {
     button->task();
 }
 
+DateTime MainServices::scheduledTasks() {
+    auto now = clock.now();
+    auto lwcTime = lwcron::DateTime{ now.unixtime() };
+    scheduler->check(lwcTime);
+    return now;
+}
+
 class Booting : public CoreDevice {
 public:
     const char *name() const override {
@@ -168,8 +175,7 @@ public:
         MainServicesState::entry();
         activity_ = 0;
 
-        DateTime wakeTime{ clock.getTime() + maximum_ };
-        FormattedTime wakeFormatted{ wakeTime };
+        FormattedTime wakeFormatted{ { clock.getTime() + maximum_ } };
         log("Sleeping for %lu (%s)", maximum_, wakeFormatted.toString());
     }
 
@@ -328,13 +334,11 @@ void RebootDevice::task() {
 
 void Idle::entry() {
     MainServicesState::entry();
-    began_ = fk_uptime();
 
     auto now = clock.now();
     auto nextTask = services().scheduler->nextTask();
-    DateTime runsAgain{ nextTask.time };
     FormattedTime nowFormatted{ now };
-    FormattedTime runsAgainFormatted{ runsAgain };
+    FormattedTime runsAgainFormatted{ { nextTask.time } };
     log("Idling (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
 }
 
@@ -357,31 +361,21 @@ void Idle::react(SchedulerEvent const &se) {
 void Idle::task() {
     services().alive();
 
-    if (fk_uptime() - checked_ > 250) {
-        auto now = clock.now();
-
-        // NOTE: Do this first to avoid a race condition. getNextTask doesn't
-        // know that we didn't run a task yet, so it'll immediately return the
-        // following task even if we're supposed to have run a sooner one.
-        auto triggered = services().scheduler->check(lwcron::DateTime{ now.unixtime() });
-        if (triggered) {
-            triggered.task->run();
+    if (fk_uptime() - checked_ > SchedulerCheckInterval) {
+        auto now = services().scheduledTasks();
+        if (transitioned()) {
             return;
         }
 
-        if (fk_uptime() - began_ > 60 * 1000) {
-            auto nextTask = services().scheduler->nextTask();
-            auto seconds = nextTask.time - now.unixtime();
-
-            if (seconds > 70) {
-                DateTime runsAgain{ nextTask.time };
-                FormattedTime nowFormatted{ now };
-                FormattedTime runsAgainFormatted{ runsAgain };
-                log("Waiting (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
-
-                transit_into<Sleep>(seconds - 65);
-                return;
-            }
+        auto nextTask = services().scheduler->nextTask();
+        auto seconds = nextTask.time - now.unixtime();
+        if (seconds > SleepMinimumSeconds) {
+            auto sleepingFor = seconds - SleepLeadingWakeupSeconds;
+            FormattedTime nowFormatted{ now };
+            FormattedTime runsAgainFormatted{ { nextTask.time } };
+            log("Sleeping (now = %s) (again = %s) (%lu)", nowFormatted.toString(), runsAgainFormatted.toString(), sleepingFor);
+            transit_into<Sleep>(sleepingFor);
+            return;
         }
 
         checked_ = fk_uptime();

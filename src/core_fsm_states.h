@@ -4,6 +4,7 @@
 #include <lwcron/lwcron.h>
 
 #include "core_fsm.h"
+#include "rtc.h"
 
 namespace fk {
 
@@ -36,6 +37,7 @@ struct MainServices {
     }
 
     void alive();
+    DateTime scheduledTasks();
 };
 
 class Wifi;
@@ -68,7 +70,6 @@ using MainServicesState = StateWithContext<MainServices>;
 class Idle : public MainServicesState {
 private:
     uint32_t checked_{ 0 };
-    uint32_t began_{ 0 };
 
 public:
     const char *name() const override {

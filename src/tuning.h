@@ -70,6 +70,8 @@ constexpr float BatteryLowPowerResumeThreshold = 30.0;
 constexpr uint32_t LowPowerSleepDurationSeconds = 60 * 10;
 
 constexpr uint32_t SleepMaximumGranularity = 8192;
+constexpr uint32_t SleepMinimumSeconds = 5;
+constexpr uint32_t SleepLeadingWakeupSeconds = 5;
 
 constexpr uint32_t FileCopyBufferSize = 256;
 constexpr uint32_t FileCopyStatusInterval = 1000;
