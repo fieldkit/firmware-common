@@ -7,8 +7,6 @@ set(LIBRARIES
   ../module-protocol
 )
 
-set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/flash_with_bootloader_and_noinit.ld")
-
 option(FK_DEBUG_UART_FALLBACK "On SerialUSB failure use Serial5" ON)
 if(FK_DEBUG_UART_FALLBACK)
   add_definitions(-DFK_DEBUG_UART_FALLBACK)
@@ -93,6 +91,8 @@ add_definitions("-DFIRMWARE_GIT_BRANCH=\"${GIT_BRANCH}\"")
 add_definitions("-DFIRMWARE_BUILD=\"$ENV{BUILD_TAG}\"")
 
 include(ArduinoMinimal)
+
+set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/flash_with_bootloader_and_noinit.ld")
 
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")
 
