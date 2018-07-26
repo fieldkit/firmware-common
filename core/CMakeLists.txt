@@ -92,7 +92,7 @@ add_definitions("-DFIRMWARE_BUILD=\"$ENV{BUILD_TAG}\"")
 
 include(ArduinoMinimal)
 
-set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/flash_with_bootloader_and_noinit.ld")
+set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/samd21x18_bootloader_small.ld")
 
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")
 
