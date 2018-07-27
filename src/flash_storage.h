@@ -81,7 +81,8 @@ public:
             }
         }
         else {
-            Logger::info("Located");
+            auto location = manager_.location();
+            Logger::info("Located (%d.%d)", location.block, location.sector);
         }
 
         if (!allocator_.initialize()) {
