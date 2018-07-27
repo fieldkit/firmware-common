@@ -1,28 +1,41 @@
 #ifndef FK_HTTP_RESPONSE_PARSER_H_INCLUDED
 #define FK_HTTP_RESPONSE_PARSER_H_INCLUDED
 
-#include <WiFi101.h>
+#include <cinttypes>
+#include <cstdlib>
 
 namespace fk {
 
 class HttpResponseParser {
-    static constexpr size_t MaxStatusCodeLength = 4;
-
 private:
-    // This only needs to be big enough to hold a status code.
-    char buffer[MaxStatusCodeLength];
-    uint8_t spacesSeen{ 0 };
-    uint8_t pos{ 0 };
-    uint16_t statusCode{ 0 };
+    static constexpr size_t BufferSize = 32;
+
+    bool reading_header_{ true };
+    uint8_t consecutive_nls_{ 0 };
+    uint8_t previous_{ 0 };
+    uint8_t spaces_seen_{ 0 };
+    uint8_t position_{ 0 };
+    uint8_t buffer_[BufferSize];
+    uint16_t status_code_{ 0 };
+    uint32_t content_length_{ 0 };
+
+public:
+    bool reading_header() {
+        return reading_header_;
+    }
+
+    uint16_t status_code() {
+        return status_code_;
+    }
+
+    uint32_t content_length() {
+        return content_length_;
+    }
 
 public:
     void begin();
-    void write(uint8_t c);
 
-public:
-    uint16_t getStatusCode() {
-        return statusCode;
-    }
+    void write(uint8_t c);
 
 };
 

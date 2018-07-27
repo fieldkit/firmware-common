@@ -1,18 +1,9 @@
+#include <gtest/gtest.h>
+
 #include "status.h"
-#undef min
-#undef max
-#undef round
 
-#include "test_status.h"
-
-StatusSuite::StatusSuite() {
-}
-
-StatusSuite::~StatusSuite() {};
-
-void StatusSuite::SetUp() {};
-
-void StatusSuite::TearDown() {};
+class StatusSuite : public ::testing::Test {
+};
 
 TEST_F(StatusSuite, Nothing) {
 }

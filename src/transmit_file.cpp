@@ -78,7 +78,7 @@ TaskEval TransmitFileTask::task() {
         }
     }
 
-    auto status = parser.getStatusCode();
+    auto status = parser.status_code();
     if (!wcl.connected() || status > 0) {
         auto afterClosed = fk_uptime() - copyFinishedAt;
 

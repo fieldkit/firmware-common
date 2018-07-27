@@ -1,18 +1,9 @@
+#include <gtest/gtest.h>
+
 #include "watchdog.h"
-#undef min
-#undef max
-#undef round
 
-#include "test_watchdog.h"
-
-WatchdogSuite::WatchdogSuite() {
-}
-
-WatchdogSuite::~WatchdogSuite() {};
-
-void WatchdogSuite::SetUp() {};
-
-void WatchdogSuite::TearDown() {};
+class WatchdogSuite : public ::testing::Test {
+};
 
 TEST_F(WatchdogSuite, Nothing) {
 }

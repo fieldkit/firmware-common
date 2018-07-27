@@ -5,6 +5,7 @@ file(GLOB SRCS
   ../../../src/protobuf.cpp
   ../../../src/pool.cpp
   ../../../src/streams.cpp
+  ../../../src/http_response_parser.cpp
 )
 
 add_executable(testcommon ${SRCS})
@@ -47,10 +48,7 @@ endforeach(key)
 
 target_include_directories(testcommon PUBLIC "${LIB_INCLUDES}")
 
-target_link_libraries(testcommon
-    libgtest
-    libgmock
-)
+target_link_libraries(testcommon libgtest libgmock)
 
 add_definitions("-DFK_DISABLE_FLASH")
 
