@@ -138,10 +138,7 @@ bool TransmitFileTask::openFile() {
 }
 
 TaskEval TransmitFileTask::openConnection() {
-    const auto length = strlen(config->streamUrl) + 1;
-    char urlCopy[length];
-    strncpy(urlCopy, config->streamUrl, length);
-    Url parsed(urlCopy);
+    Url parsed(config->streamUrl);
 
     copyFinishedAt = 0;
     parser.begin();
