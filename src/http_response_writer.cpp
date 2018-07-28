@@ -1,66 +1,68 @@
+#include <cstdlib>
+
 #include "http_response_writer.h"
 
 namespace fk {
 
-HttpHeadersWriter::HttpHeadersWriter(WiFiClient &wcl) : wcl(wcl) {
+HttpHeadersWriter::HttpHeadersWriter(Print &stream) : stream(stream) {
 }
 
 void HttpHeadersWriter::writeHeaders(Url &url, const char *method, OutgoingHttpHeaders &headers) {
-    wcl.print(method);
-    wcl.print(" /");
-    wcl.print(url.path);
-    wcl.println(" HTTP/1.1");
+    stream.print(method);
+    stream.print(" /");
+    stream.print(url.path);
+    stream.println(" HTTP/1.1");
 
-    wcl.print("Host: ");
-    wcl.println(url.server);
+    stream.print("Host: ");
+    stream.println(url.server);
 
-    wcl.println("Connection: close");
+    stream.println("Connection: close");
 
     if (headers.contentLength != OutgoingHttpHeaders::InvalidContentLength) {
-        wcl.print("Content-Length: ");
-        wcl.println(headers.contentLength);
+        stream.print("Content-Length: ");
+        stream.println(headers.contentLength);
     }
 
     if (headers.contentType != nullptr) {
-        wcl.print("Content-Type: ");
-        wcl.println(headers.contentType);
+        stream.print("Content-Type: ");
+        stream.println(headers.contentType);
     }
 
     if (headers.etag != nullptr) {
         auto len = strlen(headers.etag);
         auto quote = headers.etag[0] != '"' && headers.etag[len - 1] != '"';
-        wcl.print("If-None-Match: ");
+        stream.print("If-None-Match: ");
         if (quote) {
-            wcl.print('"');
+            stream.print('"');
         }
-        wcl.print(headers.etag);
+        stream.print(headers.etag);
         if (quote) {
-            wcl.print('"');
+            stream.print('"');
         }
-        wcl.println();
+        stream.println();
     }
 
     if (headers.fileId != OutgoingHttpHeaders::InvalidFileId) {
-        wcl.print("Fk-FileId: ");
-        wcl.println(headers.fileId);
+        stream.print("Fk-FileId: ");
+        stream.println(headers.fileId);
     }
 
     if (headers.version != nullptr) {
-        wcl.print("Fk-Version: ");
-        wcl.println(headers.version);
+        stream.print("Fk-Version: ");
+        stream.println(headers.version);
     }
 
     if (headers.build != nullptr) {
-        wcl.print("Fk-Build: ");
-        wcl.println(headers.build);
+        stream.print("Fk-Build: ");
+        stream.println(headers.build);
     }
 
     if (headers.deviceId != nullptr) {
-        wcl.print("Fk-DeviceId: ");
-        wcl.println(headers.deviceId);
+        stream.print("Fk-DeviceId: ");
+        stream.println(headers.deviceId);
     }
 
-    wcl.println();
+    stream.println();
 }
 
 }

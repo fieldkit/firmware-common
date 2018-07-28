@@ -1,7 +1,7 @@
 #ifndef FK_HTTP_RESPONSE_WRITER_H_INCLUDED
 #define FK_HTTP_RESPONSE_WRITER_H_INCLUDED
 
-#include <WiFi101.h>
+#include <Arduino.h>
 
 #include "url_parser.h"
 
@@ -32,10 +32,10 @@ struct OutgoingHttpHeaders {
 
 class HttpHeadersWriter {
 private:
-    WiFiClient &wcl;
+    Print &stream;
 
 public:
-    explicit HttpHeadersWriter(WiFiClient &wcl);
+    explicit HttpHeadersWriter(Print &stream);
 
 public:
     void writeHeaders(Url &url, const char *method, OutgoingHttpHeaders &headers);
