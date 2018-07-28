@@ -2,11 +2,12 @@
 
 namespace fk {
 
-HttpResponseWriter::HttpResponseWriter(WiFiClient &wcl) : wcl(wcl) {
+HttpHeadersWriter::HttpHeadersWriter(WiFiClient &wcl) : wcl(wcl) {
 }
 
-void HttpResponseWriter::writeHeaders(Url &url, OutgoingHttpHeaders &headers) {
-    wcl.print("POST /");
+void HttpHeadersWriter::writeHeaders(Url &url, const char *method, OutgoingHttpHeaders &headers) {
+    wcl.print(method);
+    wcl.print(" /");
     wcl.print(url.path);
     wcl.println(" HTTP/1.1");
 
@@ -15,16 +16,34 @@ void HttpResponseWriter::writeHeaders(Url &url, OutgoingHttpHeaders &headers) {
 
     wcl.println("Connection: close");
 
-    wcl.print("Content-Length: ");
-    wcl.println(headers.contentLength);
+    if (headers.contentLength != OutgoingHttpHeaders::InvalidContentLength) {
+        wcl.print("Content-Length: ");
+        wcl.println(headers.contentLength);
+    }
 
     if (headers.contentType != nullptr) {
         wcl.print("Content-Type: ");
         wcl.println(headers.contentType);
     }
 
-    wcl.print("Fk-FileId: ");
-    wcl.println(headers.fileId);
+    if (headers.etag != nullptr) {
+        auto len = strlen(headers.etag);
+        auto quote = headers.etag[0] != '"' && headers.etag[len - 1] != '"';
+        wcl.print("If-None-Match: ");
+        if (quote) {
+            wcl.print('"');
+        }
+        wcl.print(headers.etag);
+        if (quote) {
+            wcl.print('"');
+        }
+        wcl.println();
+    }
+
+    if (headers.fileId != OutgoingHttpHeaders::InvalidFileId) {
+        wcl.print("Fk-FileId: ");
+        wcl.println(headers.fileId);
+    }
 
     if (headers.version != nullptr) {
         wcl.print("Fk-Version: ");

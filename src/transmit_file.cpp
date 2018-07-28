@@ -181,7 +181,7 @@ bool TransmitFileTask::writeBeginning(Url &parsed) {
     auto fileSize = fileCopy.remaining();
     auto transmitting = fileSize + bufferSize;
 
-    HttpResponseWriter httpWriter(wcl);
+    HttpHeadersWriter httpWriter(wcl);
     OutgoingHttpHeaders headers{
         "application/vnd.fk.data+binary",
         transmitting,
@@ -190,7 +190,7 @@ bool TransmitFileTask::writeBeginning(Url &parsed) {
         deviceId.toString(),
         (uint8_t)settings.file
     };
-    httpWriter.writeHeaders(parsed, headers);
+    httpWriter.writeHeaders(parsed, "POST", headers);
 
     log("Sending %d + %d = %d bytes...", fileSize, bufferSize, transmitting);
     connected = true;

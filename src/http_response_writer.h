@@ -8,23 +8,37 @@
 namespace fk {
 
 struct OutgoingHttpHeaders {
+    static constexpr uint32_t InvalidContentLength = (uint32_t)-1;
+    static constexpr uint8_t InvalidFileId = (uint8_t)-1;
+
     const char *contentType;
-    uint32_t contentLength;
     const char *version;
     const char *build;
     const char *deviceId;
-    uint8_t fileId;
+    const char *etag;
+    uint32_t contentLength{ InvalidContentLength };
+    uint8_t fileId{ InvalidFileId };
+
+    OutgoingHttpHeaders(const char *contentType, uint32_t contentLength, const char *version,
+                        const char *build, const char *deviceId, uint8_t fileId) :
+        contentType(contentType), version(version), build(build), deviceId(deviceId), contentLength(contentLength), fileId(fileId) {
+    }
+
+    OutgoingHttpHeaders(const char *contentType, const char *version, const char *build,
+                        const char *deviceId, const char *etag) :
+        contentType(contentType), version(version), build(build), deviceId(deviceId), etag(etag) {
+    }
 };
 
-class HttpResponseWriter {
+class HttpHeadersWriter {
 private:
     WiFiClient &wcl;
 
 public:
-    explicit HttpResponseWriter(WiFiClient &wcl);
+    explicit HttpHeadersWriter(WiFiClient &wcl);
 
 public:
-    void writeHeaders(Url &url, OutgoingHttpHeaders &headers);
+    void writeHeaders(Url &url, const char *method, OutgoingHttpHeaders &headers);
 
 };
 
