@@ -45,6 +45,7 @@ TEST_F(HttpParsingSuite, Parsing) {
     ASSERT_FALSE(parser_.reading_header());
     ASSERT_EQ(parser_.status_code(), 200);
     ASSERT_EQ(parser_.content_length(), 24260);
+    ASSERT_STREQ((const char *)parser_.etag(), "W/\"5ec4-164dcf9852c\"");
 
     parser_.begin();
 
@@ -53,6 +54,7 @@ TEST_F(HttpParsingSuite, Parsing) {
     ASSERT_TRUE(parser_.reading_header());
     ASSERT_EQ(parser_.status_code(), 200);
     ASSERT_EQ(parser_.content_length(), 24260);
+    ASSERT_STREQ((const char *)parser_.etag(), "W/\"5ec4-164dcf9852c\"");
 
     parser_.begin();
 
