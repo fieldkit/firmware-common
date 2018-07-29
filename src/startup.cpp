@@ -53,7 +53,8 @@ void Booting::task() {
     #endif
 
     #ifdef FK_ENABLE_FLASH
-    fk_assert(services().flash->initialize(Hardware::FLASH_PIN_CS));
+    auto flash = services().flash;
+    fk_assert(flash->initialize(Hardware::FLASH_PIN_CS));
     #else
     log("Flash memory disabled");
     #endif

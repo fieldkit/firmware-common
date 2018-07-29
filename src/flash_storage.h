@@ -69,6 +69,15 @@ public:
             return false;
         }
 
+        auto g = storage_.geometry();
+        auto firmwareArea = 256 * 1024 * 2;
+        auto firmwareBlocks = firmwareArea / g.block_size();
+        g.number_of_blocks -= firmwareBlocks;
+        storage_.geometry(g);
+
+        Logger::info("Flash Geometry: (%d x %lu) (%d for firmware)",
+                     g.number_of_blocks, g.block_size(), firmwareBlocks);
+
         if (!storage_.open()) {
             Logger::error("Open failed");
             return false;
