@@ -13,6 +13,7 @@
 #include "user_button.h"
 #include "power_management.h"
 #include "utils.h"
+#include "radio_service.h"
 
 namespace fk {
 
@@ -28,6 +29,13 @@ void Booting::task() {
     digitalWrite(Hardware::WIFI_PIN_CS, HIGH);
     digitalWrite(Hardware::RFM95_PIN_CS, HIGH);
     digitalWrite(Hardware::FLASH_PIN_CS, HIGH);
+
+    // This only works if I do this before we initialize the WDT, for some
+    // reason. Not a huge priority to fix but I'd like to understand why
+    // eventually.
+    // 44100
+    // NOTE: FkNaturalist Specific
+    // fk_assert(AudioInI2S.begin(8000, 32));
 
     services().leds->setup();
     services().watchdog->setup();
@@ -60,7 +68,7 @@ void Booting::task() {
     #endif
 
     #ifdef FK_ENABLE_RADIO
-    if (!radioService.setup(deviceId)) {
+    if (!services().radio->setup(deviceId)) {
         log("Radio service unavailable");
     }
     else {

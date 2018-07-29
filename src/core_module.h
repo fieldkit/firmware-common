@@ -112,6 +112,11 @@ private:
         &button,
         &scheduler,
         &moduleCommunications,
+        #ifdef FK_ENABLE_RADIO
+        &radioService,
+        #else
+        nullptr,
+        #endif
         &gps
     };
 
@@ -128,6 +133,11 @@ private:
         &button,
         &scheduler,
         &moduleCommunications,
+        #ifdef FK_ENABLE_RADIO
+        &radioService,
+        #else
+        nullptr,
+        #endif
         &gps,
 
         &wifi,

@@ -19,6 +19,7 @@ class Status;
 class FileSystem;
 class UserButton;
 class ModuleCommunications;
+class RadioService;
 class GpsService;
 
 struct MainServices {
@@ -34,13 +35,14 @@ struct MainServices {
     UserButton *button;
     lwcron::Scheduler *scheduler;
     ModuleCommunications *moduleCommunications;
+    RadioService *radio;
     GpsService *gps;
 
     MainServices(Pool *pool, Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
                  FlashStorage<PersistedState> *flash, FileSystem *fileSystem, UserButton *button, lwcron::Scheduler *scheduler,
-                 ModuleCommunications *moduleCommunications, GpsService *gps) :
+                 ModuleCommunications *moduleCommunications, RadioService *radio, GpsService *gps) :
         pool(pool), leds(leds), watchdog(watchdog), bus(bus), power(power), status(status), state(state), flash(flash),
-        fileSystem(fileSystem), button(button), scheduler(scheduler), moduleCommunications(moduleCommunications), gps(gps) {
+        fileSystem(fileSystem), button(button), scheduler(scheduler), moduleCommunications(moduleCommunications), radio(radio), gps(gps) {
     }
 
     void alive();
@@ -65,10 +67,10 @@ struct WifiServices : MainServices {
 
     WifiServices(Pool *pool, Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
                  FlashStorage<PersistedState> *flash, FileSystem *fileSystem, UserButton *button, lwcron::Scheduler *scheduler,
-                 ModuleCommunications *moduleCommunications, GpsService *gps,
+                 ModuleCommunications *moduleCommunications, RadioService *radio, GpsService *gps,
                  Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer,
                  LiveDataManager *liveData) :
-        MainServices(pool, leds, watchdog, bus, power, status, state, flash, fileSystem, button, scheduler, moduleCommunications, gps),
+        MainServices(pool, leds, watchdog, bus, power, status, state, flash, fileSystem, button, scheduler, moduleCommunications, radio, gps),
         wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer), liveData(liveData) {
     }
 };
