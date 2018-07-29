@@ -86,35 +86,6 @@ public:
     void task() override;
 };
 
-class Idle : public MainServicesState {
-private:
-    uint32_t checked_{ 0 };
-
-public:
-    const char *name() const override {
-        return "Idle";
-    }
-
-public:
-    void react(LowPowerEvent const &lpe) override;
-    void react(SchedulerEvent const &se) override;
-    void entry() override;
-    void task() override;
-};
-
-class CheckPower : public MainServicesState {
-private:
-    bool visited_{ false };
-
-public:
-    const char *name() const override {
-        return "CheckPower";
-    }
-
-public:
-    void task() override;
-};
-
 class UserWakeup : public MainServicesState {
 public:
     const char *name() const override {

@@ -11,9 +11,13 @@
 #include "discovery.h"
 #include "watchdog.h"
 
-#include "transmit_file.h"
 #include "live_data.h"
 #include "gather_readings.h"
+#include "idle.h"
+#include "check_firmware.h"
+#include "transmit_files.h"
+#include "wifi_listening.h"
+#include "wifi_disable.h"
 
 namespace fk {
 
@@ -34,12 +38,10 @@ static void getAccessPointName(char *name, size_t size) {
 }
 #endif
 
-class WifiDisable;
-class WifiListening;
 class WifiCreateAp;
 class WifiSyncTime;
-class WifiTransmitFiles;
 class LiveDataReading;
+class CheckFirmware;
 
 void WifiState::serve() {
     services().state->updateIp(WiFi.localIP());
@@ -158,82 +160,9 @@ public:
                 }
             }
         }
-        transit<WifiTransmitFiles>();
+        transit<CheckFirmware>();
     }
 
-};
-
-class WifiTransmitFile : public WifiState {
-private:
-    FileCopySettings settings_{ FileNumber::Data };
-
-public:
-    WifiTransmitFile() {
-    }
-
-    WifiTransmitFile(FileCopySettings settings) : settings_(settings) {
-    }
-
-public:
-    const char *name() const override {
-        return "WifiTransmitFile";
-    }
-
-public:
-    void task() override {
-        TransmitFileTask task{
-            *services().fileSystem,
-            *services().state,
-            *services().wifi,
-            *services().httpConfig,
-            settings_
-        };
-
-        // TODO: Maximum time in this state?
-        while (true) {
-            services().leds->task();
-            services().watchdog->task();
-
-            if (task.task().isDoneOrError()) {
-                break;
-            }
-        }
-
-        back();
-    }
-};
-
-class WifiTransmitFiles :  public WifiState {
-private:
-    size_t index_{ 0 };
-    FileCopySettings transmissions_[2] = {
-        { FileNumber::Data },
-        { FileNumber::LogsA }
-    };
-
-public:
-    const char *name() const override {
-        return "WifiTransmitFiles";
-    }
-
-public:
-    void entry() override {
-        WifiState::entry();
-        transmissions_[1] = {
-            services().fileSystem->files().logFileNumber()
-        };
-    }
-
-    void task() override {
-        if (index_ == 2) {
-            index_ = 0;
-            transit_into<WifiListening>();
-        }
-        else {
-            transit_into<WifiTransmitFile>(transmissions_[index_]);
-            index_++;
-        }
-    }
 };
 
 class LiveDataReading : public WifiState {
@@ -286,62 +215,6 @@ public:
         }
 
         serve();
-    }
-
-};
-
-class WifiListening : public WifiState {
-private:
-    uint32_t began_{ 0 };
-
-public:
-    const char *name() const override {
-        return "WifiListening";
-    }
-
-public:
-    void entry() override {
-        WifiState::entry();
-        if (began_ == 0) {
-            log("Reset");
-            began_ = fk_uptime();
-        }
-    }
-
-    void task() override {
-        if (fk_uptime() - began_ > WifiInactivityTimeout) {
-            #ifdef FK_WIFI_ALWAYS_ON
-            log("FK_WIFI_ALWAYS_ON");
-            transit_into<WifiListening>();
-            #else
-            transit<WifiDisable>();
-            #endif
-            return;
-        }
-
-        serve();
-    }
-
-    void react(SchedulerEvent const &se) override {
-        if (se.deferred) {
-            warn("Scheduler Event!");
-            transit(se.deferred);
-        }
-    }
-
-};
-
-class WifiDisable : public WifiState {
-public:
-    const char *name() const override {
-        return "WifiDisable";
-    }
-
-public:
-    void task() override {
-        services().wifi->disable();
-        services().state->updateIp(0);
-        transit<Idle>();
     }
 
 };
