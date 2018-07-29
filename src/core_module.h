@@ -67,8 +67,10 @@ private:
 
     #else // FK_PROFILE_AMAZON
 
+    PeriodicTask gatherReadingsTask{ ReadingsInterval, { CoreFsm::deferred<BeginGatherReadings>() } };
     PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
-    lwcron::Task *tasks[1] {
+    lwcron::Task *tasks[2] {
+        &gatherReadingsTask,
         &wifiStartupTask
     };
 

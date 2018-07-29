@@ -24,7 +24,7 @@ constexpr uint32_t TwoWireMaximumReplyWait = 3000;
 constexpr uint32_t PowerManagementQueryInterval = 5000;
 constexpr uint32_t PowerManagementAlertInterval = 60 * 1000;
 
-constexpr uint32_t ReadingsInterval = 30;
+constexpr uint32_t ReadingsInterval = 30 * 5;
 constexpr uint32_t CheckPowerInterval = 15 * 60;
 constexpr uint32_t WifiTransmitInterval = 60 * 5;
 
