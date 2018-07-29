@@ -5,29 +5,45 @@
 
 #include <fk-core.h>
 
-#include "config.h"
 #include "platform.h"
-#include "seed.h"
-#include "device_id.h"
-#include "two_wire.h"
-#include "fkfs_data.h"
 #include "restart_wizard.h"
+#include "core_fsm_states.h"
+
+#include "seed.h"
+#include "config.h"
 
 extern "C" {
 
-#ifdef FK_DEBUG_MTB_ENABLE
-
-#define DEBUG_MTB_SIZE 256
-__attribute__((__aligned__(DEBUG_MTB_SIZE * sizeof(uint32_t)))) uint32_t mtb[DEBUG_MTB_SIZE];
-
-void HardFault_Handler(void) {
-    // Turn off the micro trace buffer so we don't fill it up in the infinite loop below.
-    REG_MTB_MASTER = 0x00000000 + 6;
-    while (true) {
+class ConfigureDevice : public fk::MainServicesState {
+public:
+    const char *name() const override {
+        return "ConfigureDevice";
     }
-}
 
-#endif
+public:
+    void entry() override {
+        fk::NetworkInfo networks[2] = {
+            {
+                FK_CONFIG_WIFI_1_SSID,
+                FK_CONFIG_WIFI_1_PASSWORD,
+            },
+            {
+                FK_CONFIG_WIFI_2_SSID,
+                FK_CONFIG_WIFI_2_PASSWORD,
+            }
+        };
+
+        services().state->configure(fk::NetworkSettings{ false, networks });
+
+        log("Configured");
+
+        transit<fk::Initialized>();
+    }
+};
+
+static void setup_serial();
+static void setup_env();
+static void dump_configuration();
 
 void setup() {
     #ifdef FK_DEBUG_MTB_ENABLE
@@ -36,6 +52,17 @@ void setup() {
     REG_MTB_MASTER = 0x80000000 + 6;
     #endif
 
+    setup_serial();
+    setup_env();
+    dump_configuration();
+}
+
+void loop() {
+    fk::CoreModule coreModule;
+    coreModule.run(fk::CoreFsm::deferred<ConfigureDevice>());
+}
+
+static void setup_serial() {
     Serial.begin(115200);
 
     while (!Serial) {
@@ -56,11 +83,15 @@ void setup() {
         log_uart_set(Serial5);
     }
     #endif
+}
 
+static void setup_env() {
     randomSeed(RANDOM_SEED);
     firmware_version_set(FIRMWARE_GIT_HASH);
     firmware_build_set(FIRMWARE_BUILD);
+}
 
+static void dump_configuration() {
     loginfof("Core", "Starting");
 
     #ifdef FK_DEBUG_UART_FALLBACK
@@ -96,32 +127,20 @@ void setup() {
     #ifdef FK_PROFILE_AMAZON
     loginfof("Core", "FK_PROFILE_AMAZON");
     #endif
-
-    fk::NetworkInfo networks[] = {
-        {
-            FK_CONFIG_WIFI_1_SSID,
-            FK_CONFIG_WIFI_1_PASSWORD,
-        },
-        {
-            FK_CONFIG_WIFI_2_SSID,
-            FK_CONFIG_WIFI_2_PASSWORD,
-        }
-    };
-
-    fk::CoreModule coreModule;
-    coreModule.begin();
-    fk::restartWizard.startup();
-    auto startupConfig = fk::StartupConfigurer{ coreModule.getState() };
-    if (false) {
-        startupConfig.overrideEmptyNetworkConfigurations(fk::NetworkSettings{ false, networks });
-    }
-    else {
-        startupConfig.forceConfiguration(fk::NetworkSettings{ false, networks });
-    }
-    coreModule.run();
 }
 
-void loop() {
+#ifdef FK_DEBUG_MTB_ENABLE
+
+#define DEBUG_MTB_SIZE 256
+__attribute__((__aligned__(DEBUG_MTB_SIZE * sizeof(uint32_t)))) uint32_t mtb[DEBUG_MTB_SIZE];
+
+void HardFault_Handler(void) {
+    // Turn off the micro trace buffer so we don't fill it up in the infinite loop below.
+    REG_MTB_MASTER = 0x00000000 + 6;
+    while (true) {
+    }
 }
+
+#endif
 
 }

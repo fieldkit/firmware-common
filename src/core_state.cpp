@@ -295,18 +295,4 @@ void CoreState::log(const char *f, ...) const {
     va_end(args);
 }
 
-StartupConfigurer::StartupConfigurer(CoreState &state) : state(&state) {
-}
-
-void StartupConfigurer::overrideEmptyNetworkConfigurations(NetworkSettings newSettings) {
-    auto existing = state->getNetworkSettings();
-    if (existing.overrideNetworksFrom(newSettings)) {
-        state->configure(existing);
-    }
-}
-
-void StartupConfigurer::forceConfiguration(NetworkSettings newSettings) {
-    state->configure(newSettings);
-}
-
 }

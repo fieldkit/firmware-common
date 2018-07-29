@@ -5,14 +5,16 @@
 
 #include "core_fsm.h"
 #include "rtc.h"
+#include "flash_storage.h"
+#include "core_state.h"
 
 namespace fk {
 
 class Leds;
 class Watchdog;
+class TwoWireBus;
 class Power;
 class Status;
-class CoreState;
 class FileSystem;
 class UserButton;
 class ModuleCommunications;
@@ -21,19 +23,22 @@ class GpsService;
 struct MainServices {
     Leds *leds;
     Watchdog *watchdog;
+    TwoWireBus *bus;
     Power *power;
     Status *status;
     CoreState *state;
+    FlashStorage<PersistedState> *flash;
     FileSystem *fileSystem;
     UserButton *button;
     lwcron::Scheduler *scheduler;
     ModuleCommunications *moduleCommunications;
     GpsService *gps;
 
-    MainServices(Leds *leds, Watchdog *watchdog, Power *power, Status *status, CoreState *state, FileSystem *fileSystem,
-                 UserButton *button, lwcron::Scheduler *scheduler, ModuleCommunications *moduleCommunications, GpsService *gps) :
-        leds(leds), watchdog(watchdog), power(power), status(status), state(state), fileSystem(fileSystem), button(button),
-        scheduler(scheduler), moduleCommunications(moduleCommunications), gps(gps) {
+    MainServices(Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
+                 FlashStorage<PersistedState> *flash, FileSystem *fileSystem, UserButton *button, lwcron::Scheduler *scheduler,
+                 ModuleCommunications *moduleCommunications, GpsService *gps) :
+        leds(leds), watchdog(watchdog), bus(bus), power(power), status(status), state(state), flash(flash),
+        fileSystem(fileSystem), button(button), scheduler(scheduler), moduleCommunications(moduleCommunications), gps(gps) {
     }
 
     void alive();
@@ -55,17 +60,28 @@ struct WifiServices : MainServices {
     AppServicer *appServicer;
     LiveDataManager *liveData;
 
-    WifiServices(Leds *leds, Watchdog *watchdog, Power *power, Status *status, CoreState *state, FileSystem *fileSystem,
-                 UserButton *button, lwcron::Scheduler *scheduler, ModuleCommunications *moduleCommunications, GpsService *gps,
+    WifiServices(Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
+                 FlashStorage<PersistedState> *flash, FileSystem *fileSystem, UserButton *button, lwcron::Scheduler *scheduler,
+                 ModuleCommunications *moduleCommunications, GpsService *gps,
                  Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer,
                  LiveDataManager *liveData) :
-        MainServices(leds, watchdog, power, status,state, fileSystem, button, scheduler, moduleCommunications, gps),
+        MainServices(leds, watchdog, bus, power, status, state, flash, fileSystem, button, scheduler, moduleCommunications, gps),
         wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer), liveData(liveData) {
     }
 };
 
 using WifiServicesState = StateWithContext<WifiServices>;
 using MainServicesState = StateWithContext<MainServices>;
+
+class Initialized : public CoreDevice {
+public:
+    const char *name() const override {
+        return "Initialized";
+    }
+
+public:
+    void task() override;
+};
 
 class Idle : public MainServicesState {
 private:

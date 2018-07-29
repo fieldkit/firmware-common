@@ -19,8 +19,6 @@
 
 namespace fk {
 
-class Booting;
-class Initializing;
 class CheckPower;
 class ScanAttachedDevices;
 class Sleep;
@@ -47,29 +45,9 @@ DateTime MainServices::scheduledTasks() {
     return now;
 }
 
-class Booting : public CoreDevice {
-public:
-    const char *name() const override {
-        return "Booting";
-    }
-
-public:
-    void task() override {
-        transit<Initializing>();
-    }
-};
-
-class Initializing : public CoreDevice {
-public:
-    const char *name() const override {
-        return "Initializing";
-    }
-
-public:
-    void task() override {
-        transit_into<CheckPower>();
-    }
-};
+void Initialized::task() {
+    transit_into<CheckPower>();
+}
 
 class LowPowerSleep : public MainServicesState {
 public:
@@ -325,7 +303,7 @@ void RebootDevice::task() {
     services().fileSystem->flush();
 
     if (fk_console_attached()) {
-        transit<Initializing>();
+        transit<Initialized>();
     }
     else {
         NVIC_SystemReset();
@@ -383,5 +361,3 @@ void Idle::task() {
 }
 
 }
-
-FSM_INITIAL_STATE(fk::CoreDevice, fk::Booting)

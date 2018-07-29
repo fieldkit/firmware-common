@@ -99,19 +99,6 @@ private:
 
 };
 
-class StartupConfigurer {
-private:
-    CoreState *state;
-
-public:
-    StartupConfigurer(CoreState &state);
-
-public:
-    void overrideEmptyNetworkConfigurations(NetworkSettings newSettings);
-    void forceConfiguration(NetworkSettings newSettings);
-
-};
-
 }
 
 #endif

@@ -14,7 +14,6 @@
 #include "status.h"
 #include "rtc.h"
 #include "gps.h"
-
 #include "app_servicer.h"
 #include "core_state.h"
 #include "wifi.h"
@@ -103,9 +102,11 @@ private:
     MainServices mainServices{
         &leds,
         &watchdog,
+        &bus,
         &power,
         &status,
         &state,
+        &flashStorage,
         &fileSystem,
         &button,
         &scheduler,
@@ -116,9 +117,11 @@ private:
     WifiServices wifiServices{
         &leds,
         &watchdog,
+        &bus,
         &power,
         &status,
         &state,
+        &flashStorage,
         &fileSystem,
         &button,
         &scheduler,
@@ -134,13 +137,7 @@ private:
     };
 
 public:
-    void begin();
-    void run();
-
-public:
-    CoreState &getState() {
-        return state;
-    }
+    void run(tinyfsm::Fsm<fk::CoreDevice>::Deferred configureState);
 
 };
 
