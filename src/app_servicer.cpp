@@ -340,7 +340,8 @@ void AppServicer::identityReply() {
 void AppServicer::metadataReply() {
     log("Metadata");
 
-    DataRecordMetadataMessage drm{ *state_, *pool_ };
+    EmptyPool pool;
+    DataRecordMetadataMessage drm{ *state_, pool };
     uint8_t metadataBuffer[drm.calculateSize()];
     auto stream = pb_ostream_from_buffer(metadataBuffer, sizeof(metadataBuffer));
     if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, drm.forEncode())) {

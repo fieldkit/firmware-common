@@ -21,7 +21,7 @@ private:
     FkfsReplies replies_;
 
 public:
-    FileSystem(TwoWireBus &bus, Pool &pool);
+    FileSystem(TwoWireBus &bus);
 
 public:
     bool format();

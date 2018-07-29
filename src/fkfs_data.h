@@ -17,10 +17,9 @@ class FkfsData {
 private:
     TwoWireBus *bus;
     Files *files;
-    Pool *pool;
 
 public:
-    FkfsData(TwoWireBus &bus, Files &files, Pool &pool);
+    FkfsData(TwoWireBus &bus, Files &files);
 
 public:
     bool appendMetadata(CoreState &state);

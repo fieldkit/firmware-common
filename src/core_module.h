@@ -34,7 +34,6 @@ class CoreModule {
 private:
     StaticPool<384> appPool{"AppPool"};
     StaticPool<384> modulesPool{"ModulesPool"};
-    StaticPool<128> dataPool{"DataPool"};
 
     // Main services.
     Leds leds;
@@ -43,7 +42,7 @@ private:
     UserButton button{ leds };
     Status status{ state, bus, leds };
     TwoWireBus bus{ Wire };
-    FileSystem fileSystem{ bus, dataPool };
+    FileSystem fileSystem{ bus };
     FlashStorage<PersistedState> flashStorage{ watchdog };
     CoreState state{flashStorage, fileSystem.getData()};
     ModuleCommunications moduleCommunications{bus, modulesPool};

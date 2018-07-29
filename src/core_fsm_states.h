@@ -7,6 +7,7 @@
 #include "rtc.h"
 #include "flash_storage.h"
 #include "core_state.h"
+#include "pool.h"
 
 namespace fk {
 
@@ -33,6 +34,7 @@ struct MainServices {
     lwcron::Scheduler *scheduler;
     ModuleCommunications *moduleCommunications;
     GpsService *gps;
+    StaticPool<384> pool{"Main"};
 
     MainServices(Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
                  FlashStorage<PersistedState> *flash, FileSystem *fileSystem, UserButton *button, lwcron::Scheduler *scheduler,

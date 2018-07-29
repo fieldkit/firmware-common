@@ -14,11 +14,12 @@ namespace fk {
 
 constexpr const char Log[] = "Data";
 
-FkfsData::FkfsData(TwoWireBus &bus, Files &files, Pool &pool) : bus(&bus), files(&files), pool(&pool) {
+FkfsData::FkfsData(TwoWireBus &bus, Files &files) : bus(&bus), files(&files) {
 }
 
 bool FkfsData::appendMetadata(CoreState &state) {
-    DataRecordMetadataMessage message{ state, *pool };
+    EmptyPool pool;
+    DataRecordMetadataMessage message{ state, pool };
 
     auto size = append(message);
 
@@ -28,7 +29,8 @@ bool FkfsData::appendMetadata(CoreState &state) {
 }
 
 bool FkfsData::appendStatus(CoreState &state) {
-    DataRecordStatusMessage message{ state, *pool };
+    EmptyPool pool;
+    DataRecordStatusMessage message{ state, pool };
 
     auto size = append(message);
 
@@ -38,7 +40,8 @@ bool FkfsData::appendStatus(CoreState &state) {
 }
 
 bool FkfsData::appendLocation(DeviceLocation &location) {
-    DataRecordMessage message{ *pool };
+    EmptyPool pool;
+    DataRecordMessage message{ pool };
 
     message.m().loggedReading.version = 1;
     message.m().loggedReading.location.fix = location.valid;
@@ -55,7 +58,8 @@ bool FkfsData::appendLocation(DeviceLocation &location) {
 }
 
 bool FkfsData::appendReading(DeviceLocation &location, uint32_t readingNumber, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading) {
-    DataRecordMessage message{ *pool };
+    EmptyPool pool;
+    DataRecordMessage message{ pool };
 
     message.m().loggedReading.version = 1;
     message.m().loggedReading.location.fix = location.valid;
