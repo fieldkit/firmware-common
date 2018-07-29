@@ -31,6 +31,15 @@ void CheckFirmware::task() {
         return;
     }
 
+    firmware_header_t bank1;
+    serialFlash.read(FLASH_FIRMWARE_BANK_1_HEADER_ADDRESS, &bank1, sizeof(bank1));
+
+    if (bank1.version != FIRMWARE_VERSION_INVALID) {
+        log("Bank1: version=%lu size=%lu (%s)", bank1.version, bank1.size, bank1.etag);
+    }
+    else {
+        log("Bank1: invalid");
+    }
     log("GET http://%s:%d/%s", parsed.server, parsed.port, parsed.path);
 
     if (wcl.connect(parsed.server, parsed.port)) {
@@ -39,7 +48,7 @@ void CheckFirmware::task() {
             firmware_version_get(),
             firmware_build_get(),
             deviceId.toString(),
-            nullptr
+            bank1.version != FIRMWARE_VERSION_INVALID ? bank1.etag : nullptr,
         };
         HttpHeadersWriter httpWriter(wcl);
         HttpResponseParser httpParser;
@@ -57,7 +66,7 @@ void CheckFirmware::task() {
             delay(10);
 
             if (millis() - started > WifiConnectionTimeout) {
-                log("Fail");
+                error("Failed!");
                 break;
             }
 
@@ -72,6 +81,7 @@ void CheckFirmware::task() {
                     if (bytes > 0) {
                         if (httpParser.status_code() == 200) {
                             if (total == 0) {
+                                log("Erasing");
                                 erase(serialFlash);
                             }
                             serialFlash.write(address, buffer, bytes);
@@ -83,8 +93,6 @@ void CheckFirmware::task() {
             }
         }
 
-        log("Status: %d", httpParser.status_code());
-
         if (total > 0) {
             firmware_header_t header;
             header.version = 1;
@@ -92,6 +100,10 @@ void CheckFirmware::task() {
             header.size = total;
             strncpy(header.etag, httpParser.etag(), sizeof(header.etag));
             serialFlash.write(FLASH_FIRMWARE_BANK_1_HEADER_ADDRESS, &header, sizeof(header));
+            log("Status: %d total=%d etag='%s'", httpParser.status_code(), total, header.etag);
+        }
+        else {
+            log("Status: %d", httpParser.status_code());
         }
 
         wcl.stop();
@@ -99,7 +111,7 @@ void CheckFirmware::task() {
         log("Done! (%d bytes)", total);
     }
     else {
-        log("Connection failed");
+        error("Connection failed!");
     }
 
     transit<WifiTransmitFiles>();
