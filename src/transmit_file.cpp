@@ -162,7 +162,7 @@ TaskEval TransmitFileTask::openConnection() {
 }
 
 bool TransmitFileTask::writeBeginning(Url &parsed) {
-    StaticPool<128> pool{"DataPool"};
+    EmptyPool pool;
     DataRecordMetadataMessage drm{ *state, pool };
     uint8_t buffer[drm.calculateSize()];
     auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));

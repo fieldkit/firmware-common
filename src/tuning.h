@@ -26,7 +26,7 @@ constexpr uint32_t PowerManagementAlertInterval = 60 * 1000;
 
 constexpr uint32_t ReadingsInterval = 30;
 constexpr uint32_t CheckPowerInterval = 15 * 60;
-constexpr uint32_t WifiTransmitInterval = 60;
+constexpr uint32_t WifiTransmitInterval = 60 * 5;
 
 constexpr uint32_t GpsFixAttemptInterval = 10 * 1000;
 constexpr uint32_t GpsStatusInterval = 1 * 500;
@@ -39,6 +39,7 @@ constexpr uint32_t ModuleIdleRebootInterval = 1000 * 60 * 120;
 
 constexpr const char WifiApiUrlBase[] = FK_API_BASE;
 constexpr const char WifiApiUrlIngestionStream[] = FK_API_BASE "/messages/ingestion/stream";
+constexpr const char WifiApiUrlFirmware[] = FK_API_BASE "/devices/%s/firmware";
 constexpr uint16_t WifiServerPort = 54321;
 constexpr uint32_t WifiConnectionMemory = 128;
 constexpr uint32_t WifiConnectionTimeout = 5000;

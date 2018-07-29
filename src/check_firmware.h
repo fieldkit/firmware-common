@@ -6,6 +6,7 @@
 namespace fk {
 
 class CheckFirmware : public WifiState {
+private:
 public:
     const char *name() const override {
         return "CheckFirmware";

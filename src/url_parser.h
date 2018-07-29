@@ -2,6 +2,7 @@
 #define FK_URL_PARSER_H_INCLUDED
 
 #include <cstdint>
+#include <cstdarg>
 
 namespace fk {
 
@@ -11,14 +12,16 @@ private:
     char buffer[BufferSize];
 
 public:
-    const char *url{ nullptr };
     const char *server{ nullptr };
     const char *path{ nullptr };
     uint16_t port{ 80 };
 
 public:
-    Url(const char *url) : url(url) {
-        strncpy(buffer, url, sizeof(buffer));
+    Url(const char *f, ...) {
+        va_list args;
+        va_start(args, f);
+        vsnprintf(buffer, sizeof(buffer), f, args);
+        va_end(args);
 
         for (auto p = buffer; p[0] != 0 && p[1] != 0; ++p) {
             if (server == nullptr && p[0] == '/' && p[1] == '/') {
