@@ -30,7 +30,7 @@ bool ApiConnection::service() {
         return true;
     }
 
-    pool_->clear();
+    // pool_->clear();
     reply_.clear();
     buffer().clear();
 

@@ -45,6 +45,10 @@ DateTime MainServices::scheduledTasks() {
     return now;
 }
 
+void MainServices::clear() {
+    pool->clear();
+}
+
 void Initialized::task() {
     transit_into<CheckPower>();
 }

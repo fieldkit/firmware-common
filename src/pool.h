@@ -31,13 +31,6 @@ public:
 
 };
 
-class EmptyPool : public Pool {
-public:
-    EmptyPool() : Pool("Empty", 0, nullptr) {
-    }
-
-};
-
 template<size_t N>
 class StaticPool : public Pool {
 private:
@@ -45,6 +38,13 @@ private:
 
 public:
     StaticPool(const char *name) : Pool(name, alignedSize(N), (void *)data) {
+    }
+
+};
+
+class EmptyPool : public Pool {
+public:
+    EmptyPool() : Pool("Empty", 0, nullptr) {
     }
 
 };

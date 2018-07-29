@@ -32,8 +32,7 @@ namespace fk {
 
 class CoreModule {
 private:
-    StaticPool<384> appPool{"AppPool"};
-    StaticPool<384> modulesPool{"ModulesPool"};
+    StaticPool<512> pool{"Main"};
 
     // Main services.
     Leds leds;
@@ -45,7 +44,7 @@ private:
     FileSystem fileSystem{ bus };
     FlashStorage<PersistedState> flashStorage{ watchdog };
     CoreState state{flashStorage, fileSystem.getData()};
-    ModuleCommunications moduleCommunications{bus, modulesPool};
+    ModuleCommunications moduleCommunications{bus, pool};
     PrepareTransmissionData prepareTransmissionData{state, fileSystem, moduleCommunications, { FileNumber::Data }};
 
     // Scheduler stuff.
@@ -87,7 +86,7 @@ private:
         .streamUrl = WifiApiUrlIngestionStream,
     };
     WifiConnection connection;
-    AppServicer appServicer{state, fileSystem.getReplies(), connection, moduleCommunications, appPool};
+    AppServicer appServicer{state, fileSystem.getReplies(), connection, moduleCommunications, pool};
     Wifi wifi{connection};
     Discovery discovery;
 
@@ -99,6 +98,7 @@ private:
 
     // Service collections.
     MainServices mainServices{
+        &pool,
         &leds,
         &watchdog,
         &bus,
@@ -114,6 +114,7 @@ private:
     };
 
     WifiServices wifiServices{
+        &pool,
         &leds,
         &watchdog,
         &bus,

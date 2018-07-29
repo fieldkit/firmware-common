@@ -40,7 +40,7 @@ TaskEval ModuleCommunications::task() {
         if (hasQuery) {
             incoming.clear();
             outgoing.clear();
-            pool->clear();
+            // pool->clear();
             query.clear();
 
             pending->prepare(query, outgoing.getWriter());
@@ -68,7 +68,7 @@ TaskEval ModuleCommunications::task() {
                         log("Retry!");
                         incoming.clear();
                         outgoing.clear();
-                        pool->clear();
+                        // pool->clear();
                         query.clear();
 
                         twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address };

@@ -110,6 +110,7 @@ public:
 public:
     void entry() override {
         CoreDevice::entry();
+        services_->clear();
         entered_ = fk_uptime();
     }
 
