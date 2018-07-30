@@ -114,7 +114,6 @@ void Leds::push(BlinkerKind kind, uint8_t blinksRemaining) {
 
     for (auto i = 0; i < MaximumBlinkers; ++i) {
         if (blinkers[i].isIdle()) {
-            trace("Blinker #%d is %d", i, kind);
             blinkers[i] = Blinker{ kind, blinksRemaining };
             return;
         }
@@ -126,7 +125,6 @@ void Leds::push(BlinkerKind kind, uint8_t blinksRemaining) {
 void Leds::clear(BlinkerKind kind) {
     for (auto i = 0; i < MaximumBlinkers; ++i) {
         if (blinkers[i].isOfKind(kind)) {
-            trace("Clearing blinker #%d", i);
             blinkers[i].clear();
         }
     }
