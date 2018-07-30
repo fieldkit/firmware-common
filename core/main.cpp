@@ -140,6 +140,10 @@ static void dump_configuration() {
     loginfof("Core", "FK_ENABLE_FLASH");
     #endif
 
+    #ifdef FK_PROFILE_STANDARD
+    loginfof("Core", "FK_PROFILE_STANDARD");
+    #endif
+
     #ifdef FK_PROFILE_AMAZON
     loginfof("Core", "FK_PROFILE_AMAZON");
     #endif
