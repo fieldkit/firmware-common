@@ -92,14 +92,18 @@ add_definitions("-DFIRMWARE_BUILD=\"$ENV{BUILD_TAG}\"")
 
 include(ArduinoMinimal)
 
-set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/samd21x18_bootloader_large.ld")
+option(FK_BOOTLOADER_LARGE "Require module, restarting if none are found. " ON)
+if(FK_BOOTLOADER_LARGE)
+  set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/samd21x18_bootloader_large.ld")
+  add_definitions(-DFK_BOOTLOADER_LARGE)
+endif(FK_BOOTLOADER_LARGE)
 
 arduino(fk-core "${SOURCE_FILES}" "${LIBRARIES}")
 
-option(INSTRUMENTATION "Enable function instrumentation.")
-if(INSTRUMENTATION)
+option(FK_INSTRUMENTATION "Enable function instrumentation.")
+if(FK_INSTRUMENTATION)
   target_compile_options(arduino_zero_Wire PUBLIC -finstrument-functions)
   target_compile_options(arduino_zero_phylum PUBLIC -finstrument-functions)
   target_compile_options(arduino_zero_WiFi101 PUBLIC -finstrument-functions)
   target_compile_options(fk-core PUBLIC -Wall -Werror -finstrument-functions)
-endif(INSTRUMENTATION)
+endif(FK_INSTRUMENTATION)

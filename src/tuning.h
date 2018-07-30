@@ -39,7 +39,7 @@ constexpr uint32_t ModuleIdleRebootInterval = 1000 * 60 * 120;
 
 constexpr const char WifiApiUrlBase[] = FK_API_BASE;
 constexpr const char WifiApiUrlIngestionStream[] = FK_API_BASE "/messages/ingestion/stream";
-constexpr const char WifiApiUrlFirmware[] = FK_API_BASE "/devices/%s/firmware";
+constexpr const char WifiApiUrlFirmware[] = FK_API_BASE "/devices/%s/%s/firmware";
 constexpr uint16_t WifiServerPort = 54321;
 constexpr uint32_t WifiConnectionMemory = 128;
 constexpr uint32_t WifiConnectionTimeout = 5000;

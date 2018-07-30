@@ -20,7 +20,7 @@ static void erase(SerialFlashChip &serialFlash) {
 }
 
 void CheckFirmware::task() {
-    fk::Url parsed(WifiApiUrlFirmware, deviceId.toString());
+    fk::Url parsed(WifiApiUrlFirmware, deviceId.toString(), "fk-core");
     SerialFlashChip serialFlash;
     HttpResponseParser parser;
     WiFiClient wcl;
