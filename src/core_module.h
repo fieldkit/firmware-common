@@ -28,6 +28,9 @@
 #include "wifi_states.h"
 #include "live_data.h"
 
+#include "begin_gather_readings.h"
+#include "wifi_startup.h"
+
 namespace fk {
 
 class CoreModule {

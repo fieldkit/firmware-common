@@ -1,9 +1,10 @@
 #ifndef FK_LOW_POWER_SLEEP_H_INCLUDED
 #define FK_LOW_POWER_SLEEP_H_INCLUDED
 
-#include "core_fsm_states.h"
+#include "state_services.h"
 #include "power_management.h"
 #include "sleep.h"
+#include "reboot_device.h"
 
 namespace fk {
 

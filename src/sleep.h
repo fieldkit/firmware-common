@@ -1,7 +1,7 @@
 #ifndef FK_SLEEP_H_INCLUDED
 #define FK_SLEEP_H_INCLUDED
 
-#include "core_fsm_states.h"
+#include "state_services.h"
 #include "file_system.h"
 
 namespace fk {

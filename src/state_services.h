@@ -78,58 +78,6 @@ struct WifiServices : MainServices {
 using WifiServicesState = StateWithContext<WifiServices>;
 using MainServicesState = StateWithContext<MainServices>;
 
-class Initialized : public CoreDevice {
-public:
-    const char *name() const override {
-        return "Initialized";
-    }
-
-public:
-    void task() override;
-};
-
-class UserWakeup : public MainServicesState {
-public:
-    const char *name() const override {
-        return "UserWakeup";
-    }
-
-public:
-    void task() override;
-};
-
-class RebootDevice : public MainServicesState {
-public:
-    const char *name() const override {
-        return "RebootDevice";
-    }
-
-public:
-    void task() override;
-};
-
-class BeginGatherReadings : public MainServicesState {
-public:
-    const char *name() const override {
-        return "BeginGatherReadings";
-    }
-
-public:
-    void task() override;
-};
-
-class IgnoredState : public CoreDevice {
-public:
-    const char *name() const override {
-        return "IgnoredState";
-    }
-
-public:
-    void entry() override {
-        back();
-    }
-};
-
 }
 
 #endif

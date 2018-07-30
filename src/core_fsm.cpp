@@ -1,7 +1,7 @@
-#include "core_fsm.h"
-#include "core_fsm_states.h"
-
 #include "debug.h"
+#include "core_fsm.h"
+#include "reboot_device.h"
+#include "user_wakeup.h"
 
 namespace fk {
 

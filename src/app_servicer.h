@@ -10,7 +10,7 @@
 #include "app_module_query_task.h"
 #include "wifi_client.h"
 
-#include "core_fsm_states.h"
+#include "state_services.h"
 
 #include "api_connection.h"
 

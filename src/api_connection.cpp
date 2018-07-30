@@ -1,4 +1,5 @@
 #include "api_connection.h"
+#include "wifi_connection_completed.h"
 
 namespace fk {
 

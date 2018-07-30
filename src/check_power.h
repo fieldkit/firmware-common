@@ -1,7 +1,7 @@
 #ifndef FK_CHECK_POWER_H_INCLUDED
 #define FK_CHECK_POWER_H_INCLUDED
 
-#include "core_fsm_states.h"
+#include "state_services.h"
 
 namespace fk {
 
