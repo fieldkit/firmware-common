@@ -3,6 +3,6 @@ set(LIBRARIES SPI Wire ../module-protocol)
 
 include(ArduinoMinimal)
 
-arduino(fk-module-test "${SOURCE_FILES}" "${LIBRARIES}")
+arduino(fk-module "${SOURCE_FILES}" "${LIBRARIES}")
 
-target_compile_options(fk-module-test PUBLIC -Wall -Werror)
+target_compile_options(fk-module PUBLIC -Wall -Werror)
