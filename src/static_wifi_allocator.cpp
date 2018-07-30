@@ -1,9 +1,11 @@
+#include "asf.h"
+#include "platform.h"
 #include "static_wifi_allocator.h"
 #include "debug.h"
 
 namespace fk {
 
-void *StaticWiFiAllocator::malloc(size_t size) {
+void *StaticWiFiCallbacks::malloc(size_t size) {
     fk_assert(size == WifiSocketBufferSize);
 
     logf(LogLevels::TRACE, "SWA", "Malloc");
@@ -20,7 +22,7 @@ void *StaticWiFiAllocator::malloc(size_t size) {
     return nullptr;
 }
 
-void StaticWiFiAllocator::free(void *ptr) {
+void StaticWiFiCallbacks::free(void *ptr) {
     logf(LogLevels::TRACE, "SWA", "Free");
 
     for (size_t i = 0; i < NumberOfBuffers; ++i) {
@@ -30,6 +32,18 @@ void StaticWiFiAllocator::free(void *ptr) {
             available[i] = true;
         }
     }
+}
+
+bool StaticWiFiCallbacks::busy(uint32_t elapsed) {
+    if (fk_uptime() - ticked > 1000) {
+        ticked = fk_uptime();
+
+        if (wdt_read_early_warning()) {
+            wdt_clear_early_warning();
+            wdt_checkin();
+        }
+    }
+    return true;
 }
 
 }

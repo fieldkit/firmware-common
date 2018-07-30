@@ -11,7 +11,7 @@ constexpr const char LogName[] = "Wifi";
 
 using Logger = SimpleLog<LogName>;
 
-StaticWiFiAllocator staticWiFiAllocator;
+StaticWiFiCallbacks staticWiFiCallbacks;
 
 Wifi::Wifi(WifiConnection &connection) : listen_(WifiServerPort, connection) {
 }
@@ -20,7 +20,7 @@ bool Wifi::begin() {
     if (!initialized_) {
         WiFi.setPins(Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
 
-        WiFiSocketClass::allocator = &staticWiFiAllocator;
+        WiFiSocketClass::callbacks = &staticWiFiCallbacks;
 
         if (WiFi.status() == WL_NO_SHIELD) {
             Logger::log("Error: no wifi (%d, %d, %d, %d)", Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);

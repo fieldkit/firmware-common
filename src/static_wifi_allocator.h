@@ -9,15 +9,17 @@
 
 namespace fk {
 
-class StaticWiFiAllocator : public WiFiAllocator {
+class StaticWiFiCallbacks : public WiFiCallbacks {
 private:
     static constexpr size_t NumberOfBuffers = 2;
     typename std::aligned_storage<sizeof(uint8_t) * WifiSocketBufferSize, alignof(uint8_t)>::type data[NumberOfBuffers];
     bool available[NumberOfBuffers] = { true, true };
+    uint32_t ticked{ 0 };
 
 public:
     void *malloc(size_t size) override;
     void free(void *ptr) override;
+    bool busy(uint32_t elapsed) override;
 
 };
 
