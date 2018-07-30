@@ -8,6 +8,30 @@ namespace fk {
 
 class WifiStartup;
 
+class NoModulesThrottle : public MainServicesState {
+private:
+    uint32_t entered_{ 0 };
+
+public:
+    const char *name() const override {
+        return "NoModulesThrottle";
+    }
+
+public:
+    void entry() override {
+        MainServicesState::entry();
+        entered_ = fk_uptime();
+    }
+
+    void task() override {
+        services().alive();
+
+        if (fk_uptime() - entered_ > NoModulesRebootWait) {
+            transit<RebootDevice>();
+        }
+    }
+};
+
 class ScanAttachedDevices : public MainServicesState {
 public:
     const char *name() const override {
