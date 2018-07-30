@@ -124,6 +124,22 @@ static void dump_configuration() {
     loginfof("Core", "FK_WIFI_ALWAYS_ON");
     #endif
 
+    #ifdef FK_DISABLE_RADIO
+    loginfof("Core", "FK_DISABLE_RADIO");
+    #endif
+
+    #ifdef FK_ENABLE_RADIO
+    loginfof("Core", "FK_ENABLE_RADIO");
+    #endif
+
+    #ifdef FK_DISABLE_FLASH
+    loginfof("Core", "FK_DISABLE_FLASH");
+    #endif
+
+    #ifdef FK_ENABLE_FLASH
+    loginfof("Core", "FK_ENABLE_FLASH");
+    #endif
+
     #ifdef FK_PROFILE_AMAZON
     loginfof("Core", "FK_PROFILE_AMAZON");
     #endif
