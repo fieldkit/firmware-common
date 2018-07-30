@@ -27,7 +27,7 @@ if(FK_API_BASE)
   add_definitions(-DFK_API_BASE="${API_BASE}")
 endif(FK_API_BASE)
 
-option(FK_CORE_GENERATION_2 "Enable Generation 2 Core hardware profile. (see harware.h)")
+option(FK_CORE_GENERATION_2 "Enable Generation 2 Core hardware profile. (see harware.h)" ON)
 if(FK_CORE_GENERATION_2)
   add_definitions(-DFK_CORE)
   add_definitions(-DFK_CORE_GENERATION_2)
@@ -62,12 +62,12 @@ endif(FK_WIFI_STARTUP_ONLY)
 
 option(FK_PROFILE_AMAZON "Amazon Profile")
 if(FK_PROFILE_AMAZON)
- add_definitions(-DFK_PROFILE_AMAZON)
+  add_definitions(-DFK_PROFILE_AMAZON)
 endif(FK_PROFILE_AMAZON)
 
 option(FK_CORE_REQUIRE_MODULES "Require module, restarting if none are found. " OFF)
 if(FK_CORE_REQUIRE_MODULES)
- add_definitions(-DFK_CORE_REQUIRE_MODULES)
+  add_definitions(-DFK_CORE_REQUIRE_MODULES)
 endif(FK_CORE_REQUIRE_MODULES)
 
 # Get the current working branch
