@@ -53,16 +53,16 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
         module->type = reply.m().capabilities.type;
         module->numberOfSensors = reply.m().capabilities.numberOfSensors;
         module->minimumNumberOfReadings = reply.m().capabilities.minimumNumberOfReadings;
-        strncpy(module->name, (const char *)reply.m().capabilities.name.arg, sizeof(module->name));
-        strncpy(module->module, (const char *)reply.m().capabilities.module.arg, sizeof(module->module));
+        module->name = pool_.strdup((const char *)reply.m().capabilities.name.arg);
+        module->module = pool_.strdup((const char *)reply.m().capabilities.module.arg);
         break;
     }
     case fk_module_ReplyType_REPLY_SENSOR_CAPABILITIES: {
         auto module = getModule(address);
         auto sensorIndex = reply.m().sensorCapabilities.id;
         auto& sensor = module->sensors[sensorIndex];
-        strncpy(sensor.name, (const char *)reply.m().sensorCapabilities.name.arg, sizeof(sensor.name));
-        strncpy(sensor.unitOfMeasure, (const char *)reply.m().sensorCapabilities.unitOfMeasure.arg, sizeof(sensor.unitOfMeasure));
+        sensor.name = pool_.strdup((const char *)reply.m().sensorCapabilities.name.arg);
+        sensor.unitOfMeasure = pool_.strdup((const char *)reply.m().sensorCapabilities.unitOfMeasure.arg);
         break;
     }
     case fk_module_ReplyType_REPLY_READING_STATUS: {
@@ -120,6 +120,8 @@ ModuleInfo *CoreState::getOrCreateModule(uint8_t address, uint8_t numberOfSensor
 
     auto module = (ModuleInfo *)pool_.malloc(sizeof(ModuleInfo));
     memset(module, 0, sizeof(ModuleInfo));
+    module->sensors = (SensorInfo *)pool_.malloc(sizeof(SensorInfo) * numberOfSensors);
+    module->readings = (SensorReading *)pool_.malloc(sizeof(SensorReading) * numberOfSensors);
     if (tail == nullptr) {
         modules_ = module;
     }

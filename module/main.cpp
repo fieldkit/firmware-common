@@ -12,6 +12,14 @@ void setup() {
 
     loginfof("Module", "Starting (%lu free)", fk_free_memory());
 
+    fk::SensorInfo sensors[3] = {
+      { "depth", "m" },
+      { "temperature", "°C" },
+      { "conductivity", "µS/cm" }
+    };
+
+    fk::SensorReading readings[3];
+
     fk::ModuleInfo info = {
         fk_module_ModuleType_SENSOR,
         8,
@@ -19,23 +27,18 @@ void setup() {
         1,
         "Example Module",
         "module",
-        { { "depth", "m" },
-          { "temperature", "°C" },
-          { "conductivity", "µS/cm" }
-        },
-        { { 0, 0, fk::SensorReadingStatus::Idle },
-          { 0, 0, fk::SensorReadingStatus::Idle },
-          { 0, 0, fk::SensorReadingStatus::Idle } },
+        sensors,
+        readings
     };
 
-    example::Sensors sensors;
-    example::ExampleModule module(info, sensors);
+    example::Sensors exampleSensors;
+    example::ExampleModule module(info, exampleSensors);
 
     module.begin();
 
     while (true) {
         module.tick();
-        sensors.tick();
+        exampleSensors.tick();
         delay(10);
     }
 }
