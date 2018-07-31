@@ -29,6 +29,9 @@ public:
     void *malloc(size_t size);
     void *copy(void *ptr, size_t size);
     char *strdup(const char *str);
+    size_t allocated() const {
+        return size - remaining;
+    }
 
 };
 

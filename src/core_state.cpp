@@ -34,6 +34,8 @@ void CoreState::formatAll() {
 }
 
 void CoreState::doneScanning() {
+    log("Scan done (%d bytes)", pool_.allocated());
+
     data_->appendMetadata(*this);
     data_->appendStatus(*this);
 }
