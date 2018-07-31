@@ -49,7 +49,7 @@ public:
 template<size_t N>
 class StaticPool : public Pool {
 private:
-    typename std::aligned_storage<sizeof(uint8_t), alignof(uint8_t)>::type data[alignedSize(N)];
+    alignas(sizeof(uint32_t)) typename std::aligned_storage<sizeof(uint8_t), alignof(uint8_t)>::type data[alignedSize(N)];
 
 public:
     StaticPool(const char *name) : Pool(name, alignedSize(N), (void *)data) {
