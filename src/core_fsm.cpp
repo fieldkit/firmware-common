@@ -22,7 +22,6 @@ void CoreDevice::react(LiveDataEvent const &ignored) {
 }
 
 void CoreDevice::react(AppQueryEvent const &ignored) {
-    warn("Ignored AppQueryEvent");
 }
 
 void CoreDevice::react(UserButtonEvent const &ignored) {

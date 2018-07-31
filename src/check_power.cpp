@@ -1,7 +1,7 @@
 #include "check_power.h"
 #include "power_management.h"
 #include "low_power_sleep.h"
-#include "scan_attached_deviecs.h"
+#include "scan_attached_devices.h"
 
 namespace fk {
 

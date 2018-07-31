@@ -1,4 +1,4 @@
-#include "scan_attached_deviecs.h"
+#include "scan_attached_devices.h"
 #include "reboot_device.h"
 #include "wifi_startup.h"
 

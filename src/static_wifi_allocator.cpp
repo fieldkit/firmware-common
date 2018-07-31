@@ -8,7 +8,7 @@ namespace fk {
 void *StaticWiFiCallbacks::malloc(size_t size) {
     fk_assert(size == WifiSocketBufferSize);
 
-    logf(LogLevels::TRACE, "SWA", "Malloc");
+    // logf(LogLevels::TRACE, "SWA", "Malloc");
 
     for (size_t i = 0; i < NumberOfBuffers; ++i) {
         if (available[i]) {
@@ -23,7 +23,7 @@ void *StaticWiFiCallbacks::malloc(size_t size) {
 }
 
 void StaticWiFiCallbacks::free(void *ptr) {
-    logf(LogLevels::TRACE, "SWA", "Free");
+    // logf(LogLevels::TRACE, "SWA", "Free");
 
     for (size_t i = 0; i < NumberOfBuffers; ++i) {
         void *mem = (void *)&data[i];
