@@ -28,6 +28,7 @@ public:
     void clear();
     void *malloc(size_t size);
     void *copy(void *ptr, size_t size);
+    char *strdup(const char *str);
 
 };
 
