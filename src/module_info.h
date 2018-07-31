@@ -95,8 +95,8 @@ struct DeviceLocation {
 
 struct AvailableSensorReading {
     uint8_t id;
-    SensorInfo &sensor;
-    SensorReading &reading;
+    SensorInfo sensor;
+    SensorReading reading;
 };
 
 struct HttpTransmissionConfig {

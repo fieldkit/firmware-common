@@ -5,18 +5,15 @@
 
 namespace fk {
 
-CoreState::CoreState(FlashStorage<PersistedState> &storage, FkfsData &data) : storage(&storage), data(&data) {
-    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        modules[i].address = 0;
-    }
-    modulesHead_ = nullptr;
+CoreState::CoreState(FlashStorage<PersistedState> &storage, FkfsData &data) : storage_(&storage), data_(&data) {
+    modules_ = nullptr;
 }
 
 void CoreState::started() {
-    // modulesHead_ = nullptr;
-    // Free
+    pool_.clear();
+    modules_ = nullptr;
 
-    auto &persisted = storage->state();
+    auto &persisted = storage_->state();
     if (persisted.time == 0) {
         log("Clean slate!");
         copyTo(persisted);
@@ -26,58 +23,55 @@ void CoreState::started() {
         copyFrom(persisted);
     }
 
-    data->appendMetadata(*this);
-    data->appendStatus(*this);
+    data_->appendMetadata(*this);
+    data_->appendStatus(*this);
 }
 
 void CoreState::formatAll() {
-    if (!storage->erase()) {
+    if (!storage_->erase()) {
         log("Flash storage erase failed.");
     }
 }
 
 void CoreState::doneScanning() {
-    data->appendMetadata(*this);
-    data->appendStatus(*this);
-    status = CoreStatus::Ready;
+    data_->appendMetadata(*this);
+    data_->appendStatus(*this);
 }
 
 void CoreState::scanFailure() {
-    fk_memzero(modules, sizeof(modules));
-    // modulesHead_ = nullptr;
-    // Free
+    pool_.clear();
+    modules_ = nullptr;
 }
 
 void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
     switch (reply.m().type) {
     case fk_module_ReplyType_REPLY_CAPABILITIES: {
-        log("Caps");
-        auto& module = getOrCreateModule(address, reply.m().capabilities.numberOfSensors);
-        module.address = address;
-        module.type = reply.m().capabilities.type;
-        module.numberOfSensors = reply.m().capabilities.numberOfSensors;
-        module.minimumNumberOfReadings = reply.m().capabilities.minimumNumberOfReadings;
-        strncpy(module.name, (const char *)reply.m().capabilities.name.arg, sizeof(module.name));
-        strncpy(module.module, (const char *)reply.m().capabilities.module.arg, sizeof(module.module));
+        auto module = getOrCreateModule(address, reply.m().capabilities.numberOfSensors);
+        module->address = address;
+        module->type = reply.m().capabilities.type;
+        module->numberOfSensors = reply.m().capabilities.numberOfSensors;
+        module->minimumNumberOfReadings = reply.m().capabilities.minimumNumberOfReadings;
+        strncpy(module->name, (const char *)reply.m().capabilities.name.arg, sizeof(module->name));
+        strncpy(module->module, (const char *)reply.m().capabilities.module.arg, sizeof(module->module));
         break;
     }
     case fk_module_ReplyType_REPLY_SENSOR_CAPABILITIES: {
-        auto& module = getModule(address);
+        auto module = getModule(address);
         auto sensorIndex = reply.m().sensorCapabilities.id;
-        auto& sensor = module.sensors[sensorIndex];
+        auto& sensor = module->sensors[sensorIndex];
         strncpy(sensor.name, (const char *)reply.m().sensorCapabilities.name.arg, sizeof(sensor.name));
         strncpy(sensor.unitOfMeasure, (const char *)reply.m().sensorCapabilities.unitOfMeasure.arg, sizeof(sensor.unitOfMeasure));
         break;
     }
     case fk_module_ReplyType_REPLY_READING_STATUS: {
-        auto& module = getModule(address);
+        auto module = getModule(address);
         if (reply.m().readingStatus.state == fk_module_ReadingState_DONE) {
             IncomingSensorReading reading{
                 (uint8_t)reply.m().sensorReading.sensor,
                 reply.m().sensorReading.time,
                 reply.m().sensorReading.value,
             };
-            merge(module, reading);
+            merge(*module, reading);
         }
         break;
     }
@@ -100,7 +94,7 @@ void CoreState::merge(ModuleInfo &module, IncomingSensorReading &incoming) {
         reading.time = now;
     }
 
-    data->appendReading(location, readingNumber, incoming.sensor, sensor, reading);
+    data_->appendReading(location_, readingNumber_, incoming.sensor, sensor, reading);
 }
 
 bool CoreState::hasModuleWithAddress(uint8_t address) {
@@ -112,36 +106,36 @@ bool CoreState::hasModuleWithAddress(uint8_t address) {
     return false;
 }
 
-ModuleInfo &CoreState::getOrCreateModule(uint8_t address, uint8_t numberOfSensors) {
-    return getModule(address);
-}
-
-ModuleInfo &CoreState::getModule(uint8_t address) {
-    auto tail = (ModuleInfo *)nullptr;
+ModuleInfo *CoreState::getOrCreateModule(uint8_t address, uint8_t numberOfSensors) {
+    ModuleInfo *tail = nullptr;
 
     for (auto m = attachedModules(); m != nullptr; m = m->np) {
         if (m->address == address) {
-            return *m;
+            return m;
         }
         tail = m;
     }
 
-    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        if (modules[i].address == 0) {
-            if (tail == nullptr) {
-                modulesHead_ = &modules[i];
-            }
-            else {
-                tail->np = &modules[i];
-            }
-            modules[i].np = nullptr;
-            return modules[i];
-        }
+    auto module = (ModuleInfo *)pool_.malloc(sizeof(ModuleInfo));
+    memset(module, 0, sizeof(ModuleInfo));
+    if (tail == nullptr) {
+        modules_ = module;
+    }
+    else {
+        tail->np = module;
     }
 
-    fk_assert(false);
+    return module;
+}
 
-    return modules[0]; // TODO: Remove
+ModuleInfo *CoreState::getModule(uint8_t address) {
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        if (m->address == address) {
+            return m;
+        }
+    }
+    fk_assert(false);
+    return nullptr;
 }
 
 size_t CoreState::numberOfModules() const {
@@ -207,11 +201,7 @@ AvailableSensorReading CoreState::getReading(size_t index) {
 
     fk_assert(false);
 
-    return AvailableSensorReading {
-        0,
-        modules[0].sensors[0],
-        modules[0].readings[0]
-    };
+    return AvailableSensorReading { };
 }
 
 void CoreState::clearReadings() {
@@ -223,85 +213,85 @@ void CoreState::clearReadings() {
 }
 
 void CoreState::configure(DeviceIdentity newIdentity) {
-    deviceIdentity = newIdentity;
+    deviceIdentity_ = newIdentity;
     save();
 }
 
 void CoreState::setDeviceId(const char *deviceId) {
-    if (deviceIdentity.device[0] == 0) {
-        strncpy(deviceIdentity.device, deviceId, MaximumDeviceLength);
+    if (deviceIdentity_.device[0] == 0) {
+        strncpy(deviceIdentity_.device, deviceId, MaximumDeviceLength);
     }
 }
 
 void CoreState::configure(NetworkSettings newSettings) {
-    networkSettings = newSettings;
-    networkSettings.version = fk_uptime();
+    networkSettings_ = newSettings;
+    networkSettings_.version = fk_uptime();
     save();
 }
 
 void CoreState::updateBattery(float percentage, float voltage) {
-    deviceStatus.batteryPercentage = percentage;
-    deviceStatus.batteryVoltage = voltage;
+    deviceStatus_.batteryPercentage = percentage;
+    deviceStatus_.batteryVoltage = voltage;
 }
 
 void CoreState::updateIp(uint32_t ip) {
-    deviceStatus.ip = ip;
+    deviceStatus_.ip = ip;
 }
 
 void CoreState::updateLocation(DeviceLocation&& fix) {
-    location = fix;
-    data->appendLocation(location);
-    data->appendStatus(*this);
+    location_ = fix;
+    data_->appendLocation(location_);
+    data_->appendStatus(*this);
     save();
 }
 
 void CoreState::save() {
-    auto &persisted = storage->state();
+    auto &persisted = storage_->state();
     copyTo(persisted);
     persisted.time = clock.getTime();
-    storage->save();
+    storage_->save();
 }
 
 void CoreState::copyFrom(PersistedState &state) {
-    deviceIdentity = state.deviceIdentity;
-    networkSettings = state.networkSettings;
-    location = state.location;
-    readingNumber = state.readingNumber;
+    deviceIdentity_ = state.deviceIdentity;
+    networkSettings_ = state.networkSettings;
+    location_ = state.location;
+    readingNumber_ = state.readingNumber;
 }
 
 void CoreState::copyTo(PersistedState &state) {
-    state.deviceIdentity = deviceIdentity;
-    state.networkSettings = networkSettings;
-    state.location = location;
-    state.readingNumber = readingNumber;
+    state.deviceIdentity = deviceIdentity_;
+    state.networkSettings = networkSettings_;
+    state.location = location_;
+    state.readingNumber = readingNumber_;
 }
 
 void CoreState::takingReadings() {
-    readingNumber++;
+    readingNumber_++;
 }
 
 void CoreState::doneTakingReadings() {
-    data->doneTakingReadings();
+    data_->doneTakingReadings();
 }
 
 ModuleInfo* CoreState::attachedModules() const {
-    return modulesHead_;
+    return modules_;
 }
 
 DeviceLocation &CoreState::getLocation() {
-    return location;
+    return location_;
 }
 
 DeviceIdentity &CoreState::getIdentity() {
-    return deviceIdentity;
+    return deviceIdentity_;
 }
 
 DeviceStatus &CoreState::getStatus() {
-    return deviceStatus;
+    return deviceStatus_;
 }
 
 NetworkSettings &CoreState::getNetworkSettings() {
-    return networkSettings;
+    return networkSettings_;
 }
 
 bool CoreState::hasModules() {

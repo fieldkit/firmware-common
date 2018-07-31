@@ -11,12 +11,6 @@
 
 namespace fk {
 
-enum class CoreStatus {
-    Initializing,
-    Ready,
-    FatalError,
-};
-
 struct PersistedState : phylum::MinimumSuperBlock {
     uint32_t time;
     uint32_t seed;
@@ -28,18 +22,17 @@ struct PersistedState : phylum::MinimumSuperBlock {
 
 class CoreState {
 private:
-    ModuleInfo modules[MaximumNumberOfModules];
-    ModuleInfo *modulesHead_{ nullptr };
-    DeviceIdentity deviceIdentity;
-    NetworkSettings networkSettings;
-    DeviceLocation location;
-    uint32_t readingNumber{ 0 };
+    StaticPool<2048> pool_{ "CoreState" };
+    ModuleInfo *modules_{ nullptr };
+    DeviceIdentity deviceIdentity_;
+    NetworkSettings networkSettings_;
+    DeviceLocation location_;
+    uint32_t readingNumber_{ 0 };
 
 private:
-    CoreStatus status{ CoreStatus::Initializing };
-    DeviceStatus deviceStatus;
-    FlashStorage<PersistedState> *storage;
-    FkfsData *data;
+    DeviceStatus deviceStatus_;
+    FlashStorage<PersistedState> *storage_;
+    FkfsData *data_;
 
 public:
     CoreState(FlashStorage<PersistedState> &storage, FkfsData &data);
@@ -51,9 +44,9 @@ public:
     size_t numberOfSensors() const;
     size_t numberOfReadings() const;
     size_t readingsToTake() const;
+    ModuleInfo *getModule(uint8_t address);
     bool hasModules();
     bool hasModuleWithAddress(uint8_t address);
-    ModuleInfo &getModule(uint8_t address);
     void merge(ModuleInfo &module, IncomingSensorReading &reading);
 
     DeviceLocation& getLocation();
@@ -62,9 +55,6 @@ public:
     NetworkSettings& getNetworkSettings();
 
 public:
-    bool isReady() {
-        return status == CoreStatus::Ready;
-    }
     void started();
 
     void takingReadings();
@@ -88,7 +78,7 @@ public:
     void formatAll();
 
 private:
-    ModuleInfo &getOrCreateModule(uint8_t address, uint8_t numberOfSensors);
+    ModuleInfo *getOrCreateModule(uint8_t address, uint8_t numberOfSensors);
     bool appendReading(SensorReading &reading);
 
 private:
