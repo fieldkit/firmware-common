@@ -50,6 +50,7 @@ struct ModuleInfo {
     char module[MaximumModuleNameLength];
     SensorInfo sensors[MaximumNumberOfSensors];
     SensorReading readings[MaximumNumberOfSensors];
+    ModuleInfo *np;
 };
 
 constexpr size_t MaximumCoordinates = 3;

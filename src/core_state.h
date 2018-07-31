@@ -29,6 +29,7 @@ struct PersistedState : phylum::MinimumSuperBlock {
 class CoreState {
 private:
     ModuleInfo modules[MaximumNumberOfModules];
+    ModuleInfo *modulesHead_{ nullptr };
     DeviceIdentity deviceIdentity;
     NetworkSettings networkSettings;
     DeviceLocation location;
@@ -44,7 +45,7 @@ public:
     CoreState(FlashStorage<PersistedState> &storage, FkfsData &data);
 
 public:
-    ModuleInfo* attachedModules();
+    ModuleInfo* attachedModules() const;
     size_t numberOfModules() const;
     size_t numberOfModules(fk_module_ModuleType type) const;
     size_t numberOfSensors() const;
@@ -77,7 +78,6 @@ public:
     void configure(NetworkSettings newSettings);
 
     void merge(uint8_t address, ModuleReplyMessage &reply);
-    void merge(uint8_t moduleIndex, IncomingSensorReading &reading);
 
     void updateBattery(float percentage, float voltage);
     void updateIp(uint32_t ip);
@@ -86,7 +86,9 @@ public:
     void formatAll();
 
 private:
-    size_t getModuleIndex(uint8_t address);
+    void merge(ModuleInfo &module, IncomingSensorReading &reading);
+    ModuleInfo &getModule(uint8_t address);
+    ModuleInfo &getOrCreateModule(uint8_t address, uint8_t numberOfSensors);
     bool appendReading(SensorReading &reading);
 
 private:

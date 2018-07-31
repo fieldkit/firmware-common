@@ -9,9 +9,13 @@ CoreState::CoreState(FlashStorage<PersistedState> &storage, FkfsData &data) : st
     for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
         modules[i].address = 0;
     }
+    modulesHead_ = nullptr;
 }
 
 void CoreState::started() {
+    // modulesHead_ = nullptr;
+    // Free
+
     auto &persisted = storage->state();
     if (persisted.time == 0) {
         log("Clean slate!");
@@ -22,8 +26,12 @@ void CoreState::started() {
         copyFrom(persisted);
     }
 
+    log("Metadata");
     data->appendMetadata(*this);
+    log("Status");
     data->appendStatus(*this);
+
+    log("Started");
 }
 
 void CoreState::formatAll() {
@@ -40,14 +48,15 @@ void CoreState::doneScanning() {
 
 void CoreState::scanFailure() {
     fk_memzero(modules, sizeof(modules));
+    // modulesHead_ = nullptr;
+    // Free
 }
 
 void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
-    auto index = getModuleIndex(address);
-    auto& module = modules[index];
-
     switch (reply.m().type) {
     case fk_module_ReplyType_REPLY_CAPABILITIES: {
+        log("Caps");
+        auto& module = getOrCreateModule(address, reply.m().capabilities.numberOfSensors);
         module.address = address;
         module.type = reply.m().capabilities.type;
         module.numberOfSensors = reply.m().capabilities.numberOfSensors;
@@ -57,6 +66,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
         break;
     }
     case fk_module_ReplyType_REPLY_SENSOR_CAPABILITIES: {
+        auto& module = getModule(address);
         auto sensorIndex = reply.m().sensorCapabilities.id;
         auto& sensor = module.sensors[sensorIndex];
         strncpy(sensor.name, (const char *)reply.m().sensorCapabilities.name.arg, sizeof(sensor.name));
@@ -64,13 +74,14 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
         break;
     }
     case fk_module_ReplyType_REPLY_READING_STATUS: {
+        auto& module = getModule(address);
         if (reply.m().readingStatus.state == fk_module_ReadingState_DONE) {
             IncomingSensorReading reading{
                 (uint8_t)reply.m().sensorReading.sensor,
                 reply.m().sensorReading.time,
                 reply.m().sensorReading.value,
             };
-            merge(index, reading);
+            merge(module, reading);
         }
         break;
     }
@@ -79,8 +90,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
     }
 }
 
-void CoreState::merge(uint8_t moduleIndex, IncomingSensorReading &incoming) {
-    auto& module = modules[moduleIndex];
+void CoreState::merge(ModuleInfo &module, IncomingSensorReading &incoming) {
     auto& reading = module.readings[incoming.sensor];
     auto& sensor = module.sensors[incoming.sensor];
     reading.time = incoming.time;
@@ -98,39 +108,58 @@ void CoreState::merge(uint8_t moduleIndex, IncomingSensorReading &incoming) {
 }
 
 bool CoreState::hasModuleWithAddress(uint8_t address) {
-    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        if (modules[i].address == address) {
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        if (m->address == address) {
             return true;
         }
     }
     return false;
 }
 
-size_t CoreState::getModuleIndex(uint8_t address) {
+ModuleInfo &CoreState::getOrCreateModule(uint8_t address, uint8_t numberOfSensors) {
+    return getModule(address);
+}
+
+ModuleInfo &CoreState::getModule(uint8_t address) {
+    auto tail = (ModuleInfo *)nullptr;
+
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        if (m->address == address) {
+            return *m;
+        }
+        tail = m;
+    }
+
     for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        if (modules[i].address == 0 || modules[i].address == address) {
-            return i;
+        if (modules[i].address == 0) {
+            if (tail == nullptr) {
+                modulesHead_ = &modules[i];
+            }
+            else {
+                tail->np = &modules[i];
+            }
+            modules[i].np = nullptr;
+            return modules[i];
         }
     }
 
     fk_assert(false);
 
-    return 0;
+    return modules[0]; // TODO: Remove
 }
 
 size_t CoreState::numberOfModules() const {
-    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        if (modules[i].address == 0) {
-            return i;
-        }
+    size_t number = 0;
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        number++;
     }
-    return MaximumNumberOfModules;
+    return number;
 }
 
 size_t CoreState::numberOfModules(fk_module_ModuleType type) const {
     size_t number = 0;
-    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        if (modules[i].address > 0 && modules[i].type == type) {
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        if (m->type == type) {
             number++;
         }
     }
@@ -139,22 +168,18 @@ size_t CoreState::numberOfModules(fk_module_ModuleType type) const {
 
 size_t CoreState::numberOfSensors() const {
     size_t number = 0;
-    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        if (modules[i].address > 0) {
-            number += modules[i].numberOfSensors;
-        }
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        number += m->numberOfSensors;
     }
     return number;
 }
 
 size_t CoreState::numberOfReadings() const {
     size_t number = 0;
-    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        if (modules[i].address > 0) {
-            for (size_t j = 0; j < modules[i].numberOfSensors; ++j) {
-                if (modules[i].readings[j].status == SensorReadingStatus::Done) {
-                    number++;
-                }
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        for (size_t j = 0; j < m->numberOfSensors; ++j) {
+            if (m->readings[j].status == SensorReadingStatus::Done) {
+                number++;
             }
         }
     }
@@ -162,9 +187,10 @@ size_t CoreState::numberOfReadings() const {
 }
 
 size_t CoreState::readingsToTake() const {
-    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        if (modules[i].address > 0) {
-            return modules[i].minimumNumberOfReadings;
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        if (m->type == fk_module_ModuleType_SENSOR) {
+            // NOTE: We only support one sensor module right now.
+            return m->minimumNumberOfReadings;
         }
     }
     return 1;
@@ -172,15 +198,13 @@ size_t CoreState::readingsToTake() const {
 
 AvailableSensorReading CoreState::getReading(size_t index) {
     size_t number = 0;
-    for (uint8_t i = 0; i < MaximumNumberOfModules; ++i) {
-        if (modules[i].address > 0) {
-            for (uint8_t j = 0; j < modules[i].numberOfSensors; ++j) {
-                if (modules[i].readings[j].status == SensorReadingStatus::Done) {
-                    if (number == index) {
-                        return AvailableSensorReading { j, modules[i].sensors[j], modules[i].readings[j] };
-                    }
-                    number++;
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        for (uint8_t j = 0; j < m->numberOfSensors; ++j) {
+            if (m->readings[j].status == SensorReadingStatus::Done) {
+                if (number == index) {
+                    return AvailableSensorReading { j, m->sensors[j], m->readings[j] };
                 }
+                number++;
             }
         }
     }
@@ -195,9 +219,9 @@ AvailableSensorReading CoreState::getReading(size_t index) {
 }
 
 void CoreState::clearReadings() {
-    for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
-        for (size_t j = 0; j < MaximumNumberOfSensors; ++j) {
-            modules[i].readings[j].status = SensorReadingStatus::Idle;
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        for (size_t j = 0; j < m->numberOfSensors; ++j) {
+            m->readings[j].status = SensorReadingStatus::Idle;
         }
     }
 }
@@ -264,8 +288,8 @@ void CoreState::doneTakingReadings() {
     data->doneTakingReadings();
 }
 
-ModuleInfo* CoreState::attachedModules() {
-    return modules;
+ModuleInfo* CoreState::attachedModules() const {
+    return modulesHead_;
 }
 
 DeviceLocation &CoreState::getLocation() {

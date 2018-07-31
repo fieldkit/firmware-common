@@ -16,25 +16,24 @@ size_t DataRecordMessage::calculateSize() {
 }
 
 DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &pool) : DataRecordMessage(pool) {
-    auto *attached = state.attachedModules();
     auto numberOfSensors = state.numberOfSensors();
     auto sensorIndex = 0;
     auto numberOfModules = 0;
-    for (size_t moduleIndex = 0; attached[moduleIndex].address > 0; ++moduleIndex) {
-        for (size_t i = 0; i < attached[moduleIndex].numberOfSensors; ++i) {
+    for (auto m = state.attachedModules(); m != nullptr; m = m->np) {
+        for (size_t i = 0; i < m->numberOfSensors; ++i) {
             sensors[sensorIndex].sensor = i;
             sensors[sensorIndex].name.funcs.encode = pb_encode_string;
-            sensors[sensorIndex].name.arg = (void *)attached[moduleIndex].sensors[i].name;
+            sensors[sensorIndex].name.arg = (void *)m->sensors[i].name;
             sensors[sensorIndex].unitOfMeasure.funcs.encode = pb_encode_string;
-            sensors[sensorIndex].unitOfMeasure.arg = (void *)attached[moduleIndex].sensors[i].unitOfMeasure;
+            sensors[sensorIndex].unitOfMeasure.arg = (void *)m->sensors[i].unitOfMeasure;
 
             sensorIndex++;
         }
 
         modules[numberOfModules].id = numberOfModules;
-        modules[numberOfModules].address = attached[moduleIndex].address;
+        modules[numberOfModules].address = m->address;
         modules[numberOfModules].name.funcs.encode = pb_encode_string;
-        modules[numberOfModules].name.arg = (void *)attached[moduleIndex].name;
+        modules[numberOfModules].name.arg = (void *)m->name;
 
         numberOfModules++;
     }

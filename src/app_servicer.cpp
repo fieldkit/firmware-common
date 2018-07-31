@@ -187,26 +187,28 @@ bool AppServicer::handle() {
 void AppServicer::capabilitiesReply() {
     log("Query caps");
 
-    auto *attached = state_->attachedModules();
     auto numberOfModules = state_->numberOfModules();
     auto numberOfSensors = state_->numberOfSensors();
     auto sensorIndex = 0;
+    auto moduleIndex = 0;
     fk_app_SensorCapabilities sensors[numberOfSensors];
     fk_app_ModuleCapabilities modules[numberOfModules];
-    for (size_t moduleIndex = 0; attached[moduleIndex].address > 0; ++moduleIndex) {
-        for (size_t i = 0; i < attached[moduleIndex].numberOfSensors; ++i) {
+    for (auto m = state_->attachedModules(); m != nullptr; m = m->np) {
+        for (size_t i = 0; i < m->numberOfSensors; ++i) {
             sensors[sensorIndex].id = i;
             sensors[sensorIndex].name.funcs.encode = pb_encode_string;
-            sensors[sensorIndex].name.arg = (void *)attached[moduleIndex].sensors[i].name;
+            sensors[sensorIndex].name.arg = (void *)m->sensors[i].name;
             sensors[sensorIndex].unitOfMeasure.funcs.encode = pb_encode_string;
-            sensors[sensorIndex].unitOfMeasure.arg = (void *)attached[moduleIndex].sensors[i].unitOfMeasure;
+            sensors[sensorIndex].unitOfMeasure.arg = (void *)m->sensors[i].unitOfMeasure;
             sensors[sensorIndex].frequency = 60;
             sensors[sensorIndex].module = moduleIndex;
             sensorIndex++;
         }
         modules[moduleIndex].id = moduleIndex;
         modules[moduleIndex].name.funcs.encode = pb_encode_string;
-        modules[moduleIndex].name.arg = (void *)attached[moduleIndex].name;
+        modules[moduleIndex].name.arg = (void *)m->name;
+
+        moduleIndex++;
     }
 
     pb_array_t modulesArray = {
