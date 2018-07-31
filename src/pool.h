@@ -9,29 +9,40 @@ namespace fk {
 
 constexpr size_t AlignedOn = 4;
 
-constexpr size_t alignedSize(size_t size) {
-    return size + (AlignedOn - (size % AlignedOn));
+constexpr size_t alignedSize(const size_t size) {
+    return (size % AlignedOn != 0) ? (size + (AlignedOn - (size % AlignedOn))) : size;
 }
 
 class Pool {
 private:
-    const char *name;
-    void *block;
-    void *ptr;
-    size_t remaining;
-    size_t size;
+    const char *name_;
+    void *block_;
+    void *ptr_;
+    size_t remaining_;
+    size_t size_;
+    bool frozen_{ false };
 
 public:
     Pool(const char *name, size_t size, void *block);
 
 public:
+    size_t allocated() const {
+        return size_ - remaining_;
+    }
+
+    size_t size() const {
+        return size_;
+    }
+
+    bool frozen() const {
+        return frozen_;
+    }
+
     void clear();
     void *malloc(size_t size);
     void *copy(void *ptr, size_t size);
     char *strdup(const char *str);
-    size_t allocated() const {
-        return size - remaining;
-    }
+    Pool freeze(const char *name);
 
 };
 

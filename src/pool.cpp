@@ -7,43 +7,46 @@
 namespace fk {
 
 Pool::Pool(const char *name, size_t size, void *block) {
-    this->name = name;
-    this->block = block;
-    this->ptr = block;
-    this->size = size;
-    this->remaining = size;
+    name_ = name;
+    block_ = block;
+    ptr_ = block;
+    size_ = size;
+    remaining_ = size;
 
     #ifdef FK_LOGGING_POOL_VERBOSE
-    if (size > 0) {
+    if (size_ > 0) {
         logf(LogLevels::TRACE, "Pool", "Create: 0x%p %s size=%d/%d ptr=0x%p (free=%lu)",
-             this, name, size, size, ptr, fk_free_memory());
+             this, name_, size_, size_, ptr_, fk_free_memory());
     }
     #endif
 }
 
 void Pool::clear() {
-    ptr = block;
-    remaining = size;
+    ptr_ = block_;
+    remaining_ = size_;
+    frozen_ = false;
 
     #ifdef FK_LOGGING_POOL_VERBOSE
-    logf(LogLevels::TRACE, "Pool", "Clear: 0x%p %s", this, name);
+    logf(LogLevels::TRACE, "Pool", "Clear: 0x%p %s", this, name_);
     #endif
 }
 
 void *Pool::malloc(size_t size) {
+    fk_assert(!frozen_);
+
     auto aligned = alignedSize(size);
 
     #ifdef FK_LOGGING_POOL_VERBOSE
     logf(LogLevels::TRACE, "Pool", "Malloc 0x%p %s size=%d aligned=%d (free=%d)",
-         this, name, size, aligned, remaining - aligned);
+         this, name_, size_, aligned, remaining_ - aligned);
     #endif
 
-    fk_assert(this->size >= aligned);
-    fk_assert(this->remaining >= aligned);
+    fk_assert(size_ >= aligned);
+    fk_assert(remaining_ >= aligned);
 
-    auto *p = ptr;
-    ptr = ((uint8_t *)ptr) + aligned;
-    remaining -= aligned;
+    auto *p = ptr_;
+    ptr_ = ((uint8_t *)ptr_) + aligned;
+    remaining_ -= aligned;
 
     return (void *)p;
 }
@@ -59,6 +62,13 @@ char *Pool::strdup(const char *str) {
     auto ptr = (char *)malloc(length);
     strncpy(ptr, str, length);
     return ptr;
+}
+
+Pool Pool::freeze(const char *name) {
+    // TODO: Ideally this would keep track of children and warn about
+    // allocations on them when we unfreeze.
+    frozen_ = true;
+    return Pool{ name, remaining_, ptr_ };
 }
 
 }
