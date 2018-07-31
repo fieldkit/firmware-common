@@ -23,7 +23,9 @@
 
 #else // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
 
+#ifndef FK_HARDWARE_WIRE11AND13_ENABLE
 #define FK_HARDWARE_WIRE11AND13_ENABLE
+#endif
 
 #endif // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
 
