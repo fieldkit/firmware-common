@@ -51,7 +51,9 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
         module.address = address;
         module.type = reply.m().capabilities.type;
         module.numberOfSensors = reply.m().capabilities.numberOfSensors;
+        module.minimumNumberOfReadings = reply.m().capabilities.minimumNumberOfReadings;
         strncpy(module.name, (const char *)reply.m().capabilities.name.arg, sizeof(module.name));
+        strncpy(module.module, (const char *)reply.m().capabilities.module.arg, sizeof(module.module));
         break;
     }
     case fk_module_ReplyType_REPLY_SENSOR_CAPABILITIES: {
@@ -162,9 +164,7 @@ size_t CoreState::numberOfReadings() const {
 size_t CoreState::readingsToTake() const {
     for (size_t i = 0; i < MaximumNumberOfModules; ++i) {
         if (modules[i].address > 0) {
-            if (strcmp(modules[i].name, "Atlas") == 0) {
-                return 10; // TODO: Hack. Make this reported by the module.
-            }
+            return modules[i].minimumNumberOfReadings;
         }
     }
     return 1;

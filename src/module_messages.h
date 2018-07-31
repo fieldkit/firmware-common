@@ -56,6 +56,8 @@ public:
         message.error.message.arg = pool;
         message.capabilities.name.funcs.decode = pb_decode_string;
         message.capabilities.name.arg = pool;
+        message.capabilities.module.funcs.decode = pb_decode_string;
+        message.capabilities.module.arg = pool;
         message.capabilities.firmware.git.funcs.decode = pb_decode_string;
         message.capabilities.firmware.git.arg = pool;
         message.capabilities.firmware.build.funcs.decode = pb_decode_string;
@@ -72,6 +74,7 @@ public:
     fk_module_WireMessageReply *forEncode() {
         message.error.message.funcs.encode = pb_encode_string;
         message.capabilities.name.funcs.encode = pb_encode_string;
+        message.capabilities.module.funcs.encode = pb_encode_string;
         message.capabilities.firmware.git.funcs.encode = pb_encode_string;
         message.capabilities.firmware.build.funcs.encode = pb_encode_string;
         message.sensorCapabilities.name.funcs.encode = pb_encode_string;

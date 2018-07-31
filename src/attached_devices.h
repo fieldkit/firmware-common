@@ -18,6 +18,7 @@ class QueryCapabilities : public ModuleQuery {
 private:
     uint8_t type_{ 0 };
     uint8_t numberOfSensors_{ 0 };
+    uint8_t minimumNumberOfReadings_{ 0 };
     Firmware firmware_{ nullptr, nullptr };
 
 public:
@@ -32,6 +33,7 @@ public:
     void reply(ModuleReplyMessage &message) override {
         type_ = message.m().capabilities.type;
         numberOfSensors_ = message.m().capabilities.numberOfSensors;
+        minimumNumberOfReadings_ = message.m().capabilities.minimumNumberOfReadings;
         firmware_ = {
             (const char *)message.m().capabilities.firmware.git.arg,
             (const char *)message.m().capabilities.firmware.build.arg,

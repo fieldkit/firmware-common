@@ -45,7 +45,9 @@ struct ModuleInfo {
     uint8_t type;
     uint8_t address;
     uint8_t numberOfSensors;
+    uint8_t minimumNumberOfReadings;
     char name[MaximumModuleNameLength];
+    char module[MaximumModuleNameLength];
     SensorInfo sensors[MaximumNumberOfSensors];
     SensorReading readings[MaximumNumberOfSensors];
 };
