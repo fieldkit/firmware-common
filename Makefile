@@ -11,7 +11,7 @@ all: $(BUILD)/Makefile
 
 $(BUILD)/Makefile: gitdeps core/config.h seed
 	mkdir -p $(BUILD)
-	cd $(BUILD) && cmake ../ -DDEBUG_UART_FALLBACK=ON -DDISABLE_RADIO=ON
+	cd $(BUILD) && cmake ../
 
 doc: $(BUILD)/Makefile
 	cd $(BUILD) && make doc
