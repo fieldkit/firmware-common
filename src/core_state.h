@@ -53,6 +53,8 @@ public:
     size_t readingsToTake() const;
     bool hasModules();
     bool hasModuleWithAddress(uint8_t address);
+    ModuleInfo &getModule(uint8_t address);
+    void merge(ModuleInfo &module, IncomingSensorReading &reading);
 
     DeviceLocation& getLocation();
     DeviceIdentity& getIdentity();
@@ -86,8 +88,6 @@ public:
     void formatAll();
 
 private:
-    void merge(ModuleInfo &module, IncomingSensorReading &reading);
-    ModuleInfo &getModule(uint8_t address);
     ModuleInfo &getOrCreateModule(uint8_t address, uint8_t numberOfSensors);
     bool appendReading(SensorReading &reading);
 
