@@ -83,7 +83,7 @@ bool TwoWireBus::send(uint8_t address, const void *ptr, size_t size) {
 }
 
 size_t TwoWireBus::receive(uint8_t address, uint8_t *ptr, size_t size) {
-    bus->requestFrom(address, FK_MODULE_PROTOCOL_MAX_MESSAGE);
+    bus->requestFrom(address, size);
 
     size_t bytes = 0;
     while (bus->available()) {
