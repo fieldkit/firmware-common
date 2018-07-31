@@ -26,12 +26,8 @@ void CoreState::started() {
         copyFrom(persisted);
     }
 
-    log("Metadata");
     data->appendMetadata(*this);
-    log("Status");
     data->appendStatus(*this);
-
-    log("Started");
 }
 
 void CoreState::formatAll() {

@@ -73,10 +73,17 @@ void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
     auto address = addresses[addressIndex];
     if (finished.is(queryCapabilities)) {
         state->merge(address, *finished.reply);
+
         if (queryCapabilities.isSensor()) {
-            log("[0x%d]: Sensor module", address);
-            querySensorCapabilities = QuerySensorCapabilities();
-            protocol.push(address, querySensorCapabilities);
+            log("[0x%d]: Sensor module (%d)", address, queryCapabilities.getNumberOfSensors());
+            if (queryCapabilities.getNumberOfSensors() > 0) {
+                querySensorCapabilities = QuerySensorCapabilities();
+                protocol.push(address, querySensorCapabilities);
+            }
+            else {
+                addressIndex++;
+                resume();
+            }
         }
         else if (queryCapabilities.isCommunications()) {
             log("[0x%d]: Communications module", address);
