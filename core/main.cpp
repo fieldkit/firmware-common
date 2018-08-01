@@ -140,6 +140,22 @@ static void dump_configuration() {
     loginfof("Core", "FK_ENABLE_FLASH");
     #endif
 
+    #ifdef FK_ENABLE_LOW_POWER_SLEEP
+    loginfof("Core", "FK_ENABLE_LOW_POWER_SLEEP");
+    #endif
+
+    #ifdef FK_ENABLE_DEEP_SLEEP
+    loginfof("Core", "FK_ENABLE_DEEP_SLEEP");
+    #endif
+
+    #ifdef FK_DISABLE_LOW_POWER_SLEEP
+    loginfof("Core", "FK_DISABLE_LOW_POWER_SLEEP");
+    #endif
+
+    #ifdef FK_DISABLE_DEEP_SLEEP
+    loginfof("Core", "FK_DISABLE_DEEP_SLEEP");
+    #endif
+
     #ifdef FK_PROFILE_STANDARD
     loginfof("Core", "FK_PROFILE_STANDARD");
     #endif

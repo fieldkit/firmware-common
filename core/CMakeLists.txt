@@ -74,6 +74,13 @@ else()
   target_compile_options(fk-core PUBLIC -DFK_DISABLE_LOW_POWER_SLEEP)
 endif(FK_ENABLE_LOW_POWER_SLEEP)
 
+option(FK_ENABLE_DEEP_SLEEP "Enable deep sleep." ON)
+if(FK_ENABLE_DEEP_SLEEP)
+  target_compile_options(fk-core PUBLIC -DFK_ENABLE_DEEP_SLEEP)
+else()
+  target_compile_options(fk-core PUBLIC -DFK_DISABLE_DEEP_SLEEP)
+endif(FK_ENABLE_DEEP_SLEEP)
+
 option(FK_ENABLE_RADIO "Enable/disable LoRa radio." OFF)
 if(FK_ENABLE_RADIO)
   target_compile_options(fk-core PUBLIC -DFK_DISABLE_RADIO)
