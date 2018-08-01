@@ -27,7 +27,7 @@ public:
 
 class ExampleModule : public fk::Module {
 private:
-    fk::TwoWireBus bus{ Wire };
+    fk::TwoWireBus bus{ fk::Wire4and3 };
     fk::Delay fiveSeconds{ 5000 };
     TakeFakeReadings takeFakeReadings;
     Sensors &sensors;
