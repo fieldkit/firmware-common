@@ -59,8 +59,8 @@ void *Pool::copy(void *ptr, size_t size) {
 
 char *Pool::strdup(const char *str) {
     auto length = strlen(str);
-    auto ptr = (char *)malloc(length);
-    strncpy(ptr, str, length);
+    auto ptr = (char *)malloc(length + 1);
+    strncpy(ptr, str, length + 1);
     return ptr;
 }
 
