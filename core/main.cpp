@@ -55,6 +55,8 @@ void setup() {
     setup_serial();
     setup_env();
     dump_configuration();
+
+    fk::restartWizard.startup();
 }
 
 void loop() {
@@ -162,6 +164,10 @@ static void dump_configuration() {
 
     #ifdef FK_PROFILE_AMAZON
     loginfof("Core", "FK_PROFILE_AMAZON");
+    #endif
+
+    #ifdef FK_DEBUG_INSTRUMENTATION
+    loginfof("Core", "FK_DEBUG_INSTRUMENTATION");
     #endif
 }
 
