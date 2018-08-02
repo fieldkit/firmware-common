@@ -8,3 +8,4 @@ core/seed.h
 core.log
 module.log
 .gdb_history
+dependencies.cmake

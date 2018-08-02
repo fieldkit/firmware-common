@@ -1,6 +1,6 @@
 set(SOURCE_FILES ${COMMON_SOURCE_FILES} main.cpp)
 
-set(LIBRARIES Wire SD SPI ../module-protocol)
+set(LIBRARIES Wire SD SPI)
 
 include(ArduinoMinimal)
 
