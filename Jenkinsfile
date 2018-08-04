@@ -1,7 +1,12 @@
 @Library('conservify') _
 
+properties([
+    [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', numToKeepStr: '5']],
+    pipelineTriggers([[$class: 'GitHubPushTrigger']]),
+])
+
 timestamps {
     node () {
-        conservifyBuild(name: 'firmware-common', repository: 'https://github.com/fieldkit/firmware-common.git')
+        conservifyBuild(name: 'firmware-common')
     }
 }
