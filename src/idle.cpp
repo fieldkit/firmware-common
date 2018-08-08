@@ -39,13 +39,20 @@ void Idle::task() {
         }
 
         auto nextTask = services().scheduler->nextTask();
-        auto seconds = nextTask.time - now.unixtime();
-        if (seconds > SleepMinimumSeconds) {
-            auto sleepingFor = seconds - SleepLeadingWakeupSeconds;
-            FormattedTime nowFormatted{ now };
-            FormattedTime runsAgainFormatted{ { nextTask.time } };
-            log("Sleeping (now = %s) (again = %s) (%lu)", nowFormatted.toString(), runsAgainFormatted.toString(), sleepingFor);
-            transit_into<Sleep>(sleepingFor);
+        if (nextTask) {
+            auto seconds = nextTask.time - now.unixtime();
+            if (seconds > SleepMinimumSeconds) {
+                auto sleepingFor = seconds - SleepLeadingWakeupSeconds;
+                FormattedTime nowFormatted{ now };
+                FormattedTime runsAgainFormatted{ { nextTask.time } };
+                log("Sleeping (now = %s) (again = %s) (%lu)", nowFormatted.toString(), runsAgainFormatted.toString(), sleepingFor);
+                transit_into<Sleep>(sleepingFor);
+                return;
+            }
+        }
+        else {
+            log("No next task. Possible configuration/firmware issue?");
+            transit_into<Sleep>(300);
             return;
         }
 
