@@ -62,9 +62,6 @@ void ModuleDataTransfer::tick(lws::Writer &outgoing) {
         }
         */
     }
-    else {
-        Logger::info("No reply");
-    }
 }
 
 PrepareTransmissionData::PrepareTransmissionData(CoreState &state, FileSystem &fileSystem, ModuleCommunications &communications, FileCopySettings settings) :

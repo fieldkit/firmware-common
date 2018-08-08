@@ -1,8 +1,5 @@
 #include "module_fsm.h"
-
-#include "leds.h"
-#include "watchdog.h"
-#include "module_servicer.h"
+#include "module_idle.h"
 
 namespace fk {
 
@@ -19,14 +16,20 @@ public:
 
 };
 
-void ModuleIdle::task() {
-    services().watchdog->task();
-    services().moduleServicer->task();
-    delay(10);
-}
-
 template<>
 ModuleServices *ModuleServicesState::services_{ nullptr };
+
+void ModuleServices::clear() {
+    pool->clear();
+}
+
+void ModuleState::react(tinyfsm::Event const &ignored) {
+    warn("Ignored Event");
+}
+
+void ModuleState::react(ModuleQueryEvent const &ignored) {
+    warn("Ignored ModuleQueryEvent");
+}
 
 void ModuleState::log(const char *f, ...) const {
     va_list args;

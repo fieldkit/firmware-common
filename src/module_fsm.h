@@ -1,22 +1,38 @@
 #ifndef FK_MODULE_FSM_H_INCLUDED
 #define FK_MODULE_FSM_H_INCLUDED
 
+#include <lwstreams/lwstreams.h>
+
+#include "pool.h"
+
 #include "tinyfsm.hpp"
 #include "state_with_context.h"
 
 namespace fk {
 
+struct ModuleQueryEvent : public tinyfsm::Event {
+};
+
+class Pool;
+class ModuleInfo;
 class Leds;
 class Watchdog;
-class ModuleServicer;
+class TwoWireBus;
+class ModuleCallbacks;
+class TwoWireMessageBuffer;
 
 struct ModuleServices {
+    Pool *pool;
+    ModuleInfo *info;
     Leds *leds;
     Watchdog *watchdog;
-    ModuleServicer *moduleServicer;
+    TwoWireBus *bus;
+    ModuleCallbacks *callbacks;
+    TwoWireMessageBuffer *outgoing;
+    TwoWireMessageBuffer *incoming;
+    lws::Writer *writer;
 
-    void clear() {
-    }
+    void clear();
 };
 
 class ModuleState;
@@ -24,6 +40,10 @@ class ModuleState;
 using ModuleFsm = tinyfsm::Fsm<ModuleState>;
 
 class ModuleState : public ModuleFsm {
+public:
+    virtual void react(tinyfsm::Event const &ignored);
+    virtual void react(ModuleQueryEvent const &ignored);
+
 public:
     virtual void entry() {
         log("Entered");
@@ -44,17 +64,6 @@ public:
 };
 
 using ModuleServicesState = StateWithContext<ModuleServices, ModuleState>;
-
-class ModuleIdle : public ModuleServicesState {
-public:
-    const char *name() const override {
-        return "ModuleIdle";
-    }
-
-public:
-    void task() override;
-
-};
 
 }
 

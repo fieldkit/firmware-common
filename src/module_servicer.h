@@ -5,9 +5,9 @@
 #include <lwstreams/lwstreams.h>
 
 #include "active_object.h"
-#include "message_buffer.h"
 #include "module_info.h"
 #include "module_messages.h"
+#include "module_fsm.h"
 
 namespace fk {
 
@@ -31,26 +31,20 @@ public:
 
 };
 
-class ModuleServicer : public Task {
+class ModuleServicer : public ModuleServicesState {
 private:
-    TwoWireBus *bus;
-    ModuleInfo *info;
-    ModuleCallbacks *callbacks;
     PendingSensorReading pending;
-    TwoWireMessageBuffer *outgoing;
-    TwoWireMessageBuffer *incoming;
-    lws::Writer *writer;
-    Pool *pool;
 
 public:
-    ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, lws::Writer &writer, Pool &pool);
+    const char *name() const override {
+        return "ModuleServicer";
+    }
 
 public:
-    TaskEval task() override;
+    void task() override;
 
-    void read(size_t bytes);
-
-    TaskEval handle(ModuleQueryMessage &query);
+private:
+    void handle(ModuleQueryMessage &query);
 
 };
 

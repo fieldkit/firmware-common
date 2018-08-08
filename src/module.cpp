@@ -19,7 +19,7 @@ static void module_receive_callback(int bytes) {
 }
 
 Module::Module(TwoWireBus &bus, ModuleInfo &info) : bus(&bus),
-      outgoing{ bus }, incoming{ bus }, moduleServicer{ bus, info, *this, outgoing, incoming, incomingPipe.getWriter(), replyPool }, info(&info) {
+      outgoing{ bus }, incoming{ bus }, info(&info) {
 }
 
 void Module::begin() {
@@ -45,7 +45,9 @@ void Module::resume() {
 void Module::receive(size_t bytes) {
     if (bytes > 0) {
         lastActivity = fk_uptime();
-        moduleServicer.read(bytes);
+        incoming.readIncoming(bytes);
+        incomingPipe.getWriter().write(incoming.ptr(), incoming.position());
+        send_event(ModuleQueryEvent{ });
     }
 }
 
@@ -83,10 +85,10 @@ void Module::tick() {
 
     auto block = blockReader.read();
     if (block.eos()) {
-        log("End of stream.");
+        log("stream: End");
     }
     if (block) {
-        log("Read %ld bytes", block.blockSize);
+        log("stream: Read %ld bytes", block.blockSize);
     }
 }
 

@@ -1,26 +1,22 @@
 #include "module_servicer.h"
 #include "module.h"
 #include "rtc.h"
+#include "module_idle.h"
 
 namespace fk {
 
-ModuleServicer::ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallbacks &callbacks, TwoWireMessageBuffer &o, TwoWireMessageBuffer &i, lws::Writer &writer, Pool &pool)
-    : Task("ModuleServicer"), bus(&bus), info(&info), callbacks(&callbacks), outgoing(&o), incoming(&i), writer(&writer), pool(&pool) {
-}
+void ModuleServicer::task() {
+    auto incoming = services().incoming;
+    auto outgoing = services().outgoing;
 
-void ModuleServicer::read(size_t bytes) {
-    incoming->readIncoming(bytes);
-    writer->write(incoming->ptr(), incoming->position());
-}
-
-TaskEval ModuleServicer::task() {
     if (!incoming->empty()) {
-        ModuleQueryMessage query(*pool);
+        ModuleQueryMessage query(*services().pool);
         auto status = incoming->read(query);
         incoming->clear();
         if (!status) {
             log("Malformed message");
-            return TaskEval::error();
+            transit<ModuleIdle>();
+            return;
         }
 
         if (!outgoing->empty()) {
@@ -28,13 +24,20 @@ TaskEval ModuleServicer::task() {
             outgoing->clear();
         }
 
-        return handle(query);
-    }
+        handle(query);
 
-    return TaskEval::idle();
+        if (!transitioned()) {
+            transit<ModuleIdle>();
+        }
+    }
 }
 
-TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
+void ModuleServicer::handle(ModuleQueryMessage &query) {
+    auto pool = services().pool;
+    auto info = services().info;
+    auto outgoing = services().outgoing;
+    auto callbacks = services().callbacks;
+
     switch (query.m().type) {
     case fk_module_QueryType_QUERY_CAPABILITIES: {
         log("Module info (%lu)", query.m().beginTakeReadings.callerTime);
@@ -158,6 +161,8 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
 
         outgoing->write(reply);
 
+        // transit<ModuleReceiveData>();
+
         break;
     }
     case fk_module_QueryType_QUERY_DATA_APPEND: {
@@ -214,8 +219,6 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
         break;
     }
     }
-
-    return TaskEval::done();
 }
 
 }

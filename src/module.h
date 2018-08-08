@@ -5,6 +5,7 @@
 #include <lwstreams/lwstreams.h>
 
 #include "active_object.h"
+#include "message_buffer.h"
 #include "module_messages.h"
 #include "module_servicer.h"
 #include "watchdog.h"
@@ -21,7 +22,6 @@ private:
     StaticPool<128> replyPool{ "Reply" };
     TwoWireMessageBuffer outgoing;
     TwoWireMessageBuffer incoming;
-    ModuleServicer moduleServicer;
     uint32_t lastActivity{ 0 };
     Leds leds;
     Watchdog watchdog_{ leds };
@@ -30,9 +30,15 @@ private:
     lws::CircularStreams<lws::RingBufferN<256>> incomingPipe;
     lws::VarintEncodedStream blockReader{ incomingPipe.getReader(), scratch.toBufferPtr() };
     ModuleServices moduleServices{
+        &replyPool,
+        info,
         &leds,
         &watchdog_,
-        &moduleServicer
+        bus,
+        this,
+        &outgoing,
+        &incoming,
+        &incomingPipe.getWriter(),
     };
 
 public:
