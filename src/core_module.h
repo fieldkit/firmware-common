@@ -5,31 +5,28 @@
 #include <cstdint>
 #include <cstdio>
 
-#include "hardware.h"
 #include "pool.h"
-#include "debug.h"
-#include "power_management.h"
-#include "watchdog.h"
 #include "leds.h"
+#include "watchdog.h"
+#include "power_management.h"
+#include "user_button.h"
 #include "status.h"
-#include "rtc.h"
-#include "gps.h"
-#include "app_servicer.h"
-#include "core_state.h"
-#include "wifi.h"
-#include "app_servicer.h"
-#include "scheduler.h"
-#include "discovery.h"
 #include "file_system.h"
 #include "flash_storage.h"
-#include "transmissions.h"
-#include "radio_service.h"
-#include "user_button.h"
-#include "wifi_states.h"
+#include "core_state.h"
+#include "module_comms.h"
+#include "scheduler.h"
+#include "wifi.h"
+#include "discovery.h"
+
+#include "app_servicer.h"
+#include "gps.h"
 #include "live_data.h"
+#include "radio_service.h"
 
 #include "begin_gather_readings.h"
 #include "wifi_startup.h"
+#include "copy_module_data.h"
 
 namespace fk {
 

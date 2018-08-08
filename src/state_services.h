@@ -4,6 +4,7 @@
 #include <lwcron/lwcron.h>
 
 #include "core_fsm.h"
+#include "state_with_context.h"
 #include "rtc.h"
 #include "flash_storage.h"
 #include "core_state.h"
@@ -75,8 +76,8 @@ struct WifiServices : MainServices {
     }
 };
 
-using WifiServicesState = StateWithContext<WifiServices>;
-using MainServicesState = StateWithContext<MainServices>;
+using MainServicesState = StateWithContext<MainServices, CoreDevice>;
+using WifiServicesState = StateWithContext<WifiServices, CoreDevice>;
 
 }
 

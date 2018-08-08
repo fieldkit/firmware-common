@@ -96,36 +96,6 @@ public:
 
 };
 
-template<typename T>
-class StateWithContext : public CoreDevice {
-private:
-    static T *services_;
-    uint32_t entered_{ 0 };
-
-public:
-    uint32_t elapsed() {
-        return fk_uptime() - entered_;
-    }
-
-public:
-    void entry() override {
-        CoreDevice::entry();
-        services_->clear();
-        entered_ = fk_uptime();
-    }
-
-public:
-    static T &services() {
-        fk_assert(services_ != nullptr);
-        return *services_;
-    }
-
-    static void services(T &newServices) {
-        services_ = &newServices;
-    }
-
-};
-
 using fsm_list = tinyfsm::FsmList<CoreDevice>;
 
 template<typename E>
