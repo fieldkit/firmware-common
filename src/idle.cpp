@@ -52,7 +52,7 @@ void Idle::task() {
         }
         else {
             log("No next task. Possible configuration/firmware issue?");
-            transit_into<Sleep>(300);
+            transit_into<Sleep>((uint32_t)300);
             return;
         }
 
