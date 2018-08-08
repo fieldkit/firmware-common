@@ -72,6 +72,7 @@ public:
 public:
     ModuleReadingStatus beginReading(PendingSensorReading &pending) override;
     ModuleReadingStatus readingStatus(PendingSensorReading &pending) override;
+    DeferredModuleState beginReadingState() override;
 
 };
 

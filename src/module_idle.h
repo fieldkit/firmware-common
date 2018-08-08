@@ -12,7 +12,6 @@ public:
     }
 
 public:
-    void react(ModuleQueryEvent const &mqe) override;
     void task() override;
 };
 

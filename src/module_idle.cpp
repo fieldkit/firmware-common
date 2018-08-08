@@ -3,16 +3,18 @@
 #include "leds.h"
 #include "watchdog.h"
 #include "module_servicer.h"
+#include "message_buffer.h"
 
 namespace fk {
 
-void ModuleIdle::react(ModuleQueryEvent const &mqe) {
-    transit<ModuleServicer>();
-}
-
 void ModuleIdle::task() {
-    services().watchdog->task();
-    delay(10);
+    if (!services().incoming->empty()) {
+        transit<ModuleServicer>();
+    }
+    else {
+        services().watchdog->task();
+        delay(10);
+    }
 }
 
 }

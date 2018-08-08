@@ -29,6 +29,9 @@ public:
         return TaskEval::done();
     }
 
+public:
+    virtual DeferredModuleState beginReadingState() = 0;
+
 };
 
 class ModuleServicer : public ModuleServicesState {

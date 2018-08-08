@@ -10,8 +10,11 @@
 
 namespace fk {
 
-struct ModuleQueryEvent : public tinyfsm::Event {
-};
+class ModuleState;
+
+using ModuleFsm = tinyfsm::Fsm<ModuleState>;
+
+using DeferredModuleState = ModuleFsm::Deferred;
 
 class Pool;
 class ModuleInfo;
@@ -32,17 +35,13 @@ struct ModuleServices {
     TwoWireMessageBuffer *incoming;
     lws::Writer *writer;
 
+    void alive();
     void clear();
 };
 
-class ModuleState;
-
-using ModuleFsm = tinyfsm::Fsm<ModuleState>;
-
 class ModuleState : public ModuleFsm {
 public:
-    virtual void react(tinyfsm::Event const &ignored);
-    virtual void react(ModuleQueryEvent const &ignored);
+    virtual void react(tinyfsm::Event const &e);
 
 public:
     virtual void entry() {

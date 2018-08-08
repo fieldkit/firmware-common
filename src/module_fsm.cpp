@@ -1,5 +1,6 @@
 #include "module_fsm.h"
 #include "module_idle.h"
+#include "watchdog.h"
 
 namespace fk {
 
@@ -19,16 +20,16 @@ public:
 template<>
 ModuleServices *ModuleServicesState::services_{ nullptr };
 
+void ModuleServices::alive() {
+    watchdog->task();
+}
+
 void ModuleServices::clear() {
     pool->clear();
 }
 
-void ModuleState::react(tinyfsm::Event const &ignored) {
+void ModuleState::react(tinyfsm::Event const &e) {
     warn("Ignored Event");
-}
-
-void ModuleState::react(ModuleQueryEvent const &ignored) {
-    warn("Ignored ModuleQueryEvent");
 }
 
 void ModuleState::log(const char *f, ...) const {

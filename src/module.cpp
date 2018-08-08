@@ -47,7 +47,6 @@ void Module::receive(size_t bytes) {
         lastActivity = fk_uptime();
         incoming.readIncoming(bytes);
         incomingPipe.getWriter().write(incoming.ptr(), incoming.position());
-        send_event(ModuleQueryEvent{ });
     }
 }
 
@@ -101,6 +100,10 @@ void Module::log(const char *f, ...) const {
 
 ModuleReadingStatus Module::beginReading(PendingSensorReading &pending) {
     return ModuleReadingStatus();
+}
+
+DeferredModuleState Module::beginReadingState() {
+    return DeferredModuleState{ };
 }
 
 ModuleReadingStatus Module::readingStatus(PendingSensorReading &pending) {

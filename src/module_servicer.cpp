@@ -102,6 +102,11 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             reply.m().readingStatus.backoff = status.backoff;
         }
 
+        auto deferred = callbacks->beginReadingState();
+        if (deferred) {
+            transit(deferred);
+        }
+
         outgoing->write(reply);
 
         break;
