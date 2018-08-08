@@ -11,13 +11,14 @@
 #include "leds.h"
 #include "two_wire.h"
 
+#include "module_fsm.h"
+
 namespace fk {
 
 class Module : public ModuleCallbacks {
 private:
     TwoWireBus *bus;
     StaticPool<128> replyPool{ "Reply" };
-    Supervisor<5> servicing{ true };
     TwoWireMessageBuffer outgoing;
     TwoWireMessageBuffer incoming;
     ModuleServicer moduleServicer;
@@ -28,6 +29,11 @@ private:
     lws::AlignedStorageBuffer<256> scratch;
     lws::CircularStreams<lws::RingBufferN<256>> incomingPipe;
     lws::VarintEncodedStream blockReader{ incomingPipe.getReader(), scratch.toBufferPtr() };
+    ModuleServices moduleServices{
+        &leds,
+        &watchdog_,
+        &moduleServicer
+    };
 
 public:
     static Module *active;
@@ -39,11 +45,9 @@ public:
     virtual void begin();
     virtual void tick();
 
-public:
-    TaskQueue &taskQueue() {
-        return servicing;
-    }
+    void run();
 
+public:
     Watchdog &watchdog() {
         return watchdog_;
     }
@@ -64,6 +68,13 @@ public:
     ModuleReadingStatus readingStatus(PendingSensorReading &pending) override;
 
 };
+
+using fsm_list = tinyfsm::FsmList<ModuleState>;
+
+template<typename E>
+void send_event(E const & event) {
+    fsm_list::template dispatch<E>(event);
+}
 
 }
 

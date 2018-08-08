@@ -27,6 +27,10 @@ void Module::begin() {
 
     active = this;
 
+    ModuleServicesState::services(moduleServices);
+
+    fsm_list::start();
+
     leds.setup();
     watchdog_.setup();
     clock.begin();
@@ -42,7 +46,6 @@ void Module::receive(size_t bytes) {
     if (bytes > 0) {
         lastActivity = fk_uptime();
         moduleServicer.read(bytes);
-        servicing.append(moduleServicer);
     }
 }
 
@@ -71,8 +74,7 @@ void Module::reply() {
 }
 
 void Module::tick() {
-    watchdog_.task();
-    servicing.task();
+    ModuleState::current().task();
 
     if (elapsedSinceActivity() > ModuleIdleRebootInterval) {
         log("Reboot due to inactivity.");

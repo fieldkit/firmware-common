@@ -10,27 +10,28 @@ ModuleServicer::ModuleServicer(TwoWireBus &bus, ModuleInfo &info, ModuleCallback
 
 void ModuleServicer::read(size_t bytes) {
     incoming->readIncoming(bytes);
-    auto wrote = writer->write(incoming->ptr(), incoming->position());
-    if (false) {
-        log("Read %d bytes (%ld)", bytes, wrote);
-    }
+    writer->write(incoming->ptr(), incoming->position());
 }
 
 TaskEval ModuleServicer::task() {
-    ModuleQueryMessage query(*pool);
-    auto status = incoming->read(query);
-    incoming->clear();
-    if (!status) {
-        log("Malformed message");
-        return TaskEval::error();
+    if (!incoming->empty()) {
+        ModuleQueryMessage query(*pool);
+        auto status = incoming->read(query);
+        incoming->clear();
+        if (!status) {
+            log("Malformed message");
+            return TaskEval::error();
+        }
+
+        if (!outgoing->empty()) {
+            log("Orphaned reply! QueryType=%d ReplySize=%d", outgoing->position(), query.m().type);
+            outgoing->clear();
+        }
+
+        return handle(query);
     }
 
-    if (!outgoing->empty()) {
-        log("Orphaned reply! QueryType=%d ReplySize=%d", outgoing->position(), query.m().type);
-        outgoing->clear();
-    }
-
-    return handle(query);
+    return TaskEval::idle();
 }
 
 TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {

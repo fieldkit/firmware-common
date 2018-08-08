@@ -1,6 +1,8 @@
 #ifndef FK_STATE_WITH_CONTEXT_H_INCLUDED
 #define FK_STATE_WITH_CONTEXT_H_INCLUDED
 
+#include "platform.h"
+
 namespace fk {
 
 template<typename T, typename B>
