@@ -12,7 +12,7 @@ TakeFakeReadings &TakeFakeReadings::into(fk::SensorReading *r) {
 
 fk::TaskEval TakeFakeReadings::task() {
     for (size_t i = 0; i < 3; ++i) {
-        readings[i].time = millis();
+        readings[i].time = fk::clock.getTime();
         readings[i].value = random(10, 20);
         readings[i].status = fk::SensorReadingStatus::Done;
     }
