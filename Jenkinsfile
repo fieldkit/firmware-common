@@ -8,5 +8,7 @@ properties([
 timestamps {
     node () {
         conservifyBuild(name: 'firmware-common')
+
+        build job: "distribution", parameters: []
     }
 }
