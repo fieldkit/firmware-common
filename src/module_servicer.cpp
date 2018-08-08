@@ -150,6 +150,16 @@ TaskEval ModuleServicer::handle(ModuleQueryMessage &query) {
 
         break;
     }
+    case fk_module_QueryType_QUERY_DATA_PREPARE: {
+        log("Data (%lu / %lu)", query.m().data.size, query.m().data.kind);
+
+        ModuleReplyMessage reply(*pool);
+        reply.m().type = fk_module_ReplyType_REPLY_DATA;
+
+        outgoing->write(reply);
+
+        break;
+    }
     case fk_module_QueryType_QUERY_DATA_APPEND: {
         log("Data (%lu)", query.m().data.size);
 

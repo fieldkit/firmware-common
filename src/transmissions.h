@@ -42,6 +42,7 @@ private:
     lws::AlignedStorageBuffer<128> buffer;
     lws::StreamCopier streamCopier;
     uint32_t maximumBytes{ 0 };
+    bool receivedReply{ false };
 
 public:
     ModuleDataTransfer(FileSystem &fileSystem, FileCopySettings settings);

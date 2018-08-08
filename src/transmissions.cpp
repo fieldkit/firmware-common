@@ -2,6 +2,10 @@
 
 namespace fk {
 
+constexpr const char LogName[] = "ModuleData";
+
+using Logger = SimpleLog<LogName>;
+
 ClearModuleData::ClearModuleData() {
 }
 
@@ -18,6 +22,7 @@ ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, FileCopySettings 
 
 void ModuleDataTransfer::query(ModuleQueryMessage &message) {
     if (!fileSystem->beginFileCopy(settings)) {
+        Logger::error("Failed to begin file copy.");
     }
 
     auto &fileCopy = fileSystem->files().fileCopy();
@@ -27,25 +32,38 @@ void ModuleDataTransfer::query(ModuleQueryMessage &message) {
 }
 
 void ModuleDataTransfer::reply(ModuleReplyMessage &message) {
+    Logger::info("Reply: %d", message.m().data.size);
     maximumBytes = message.m().data.size;
+    receivedReply = true;
 }
 
 void ModuleDataTransfer::prepare(ModuleQueryMessage &message, lws::Writer &outgoing) {
+    ModuleQuery::prepare(message, outgoing);
+    /* 
     query(message);
 
     auto protoWriter = lws::ProtoBufMessageWriter{ outgoing };
     protoWriter.write(fk_module_WireMessageQuery_fields, &message.m());
+    */
 }
 
 void ModuleDataTransfer::tick(lws::Writer &outgoing) {
-    auto &fileCopy = fileSystem->files().fileCopy();
-    if (!fileCopy.copy(outgoing)) {
-        outgoing.close();
-    }
-    else {
-        if (fileCopy.copied() > maximumBytes) {
+    if (receivedReply) {
+        Logger::info("Done");
+        /*
+        auto &fileCopy = fileSystem->files().fileCopy();
+        if (!fileCopy.copy(outgoing)) {
             outgoing.close();
         }
+        else {
+            if (fileCopy.copied() > maximumBytes) {
+                outgoing.close();
+            }
+        }
+        */
+    }
+    else {
+        Logger::info("No reply");
     }
 }
 
@@ -54,7 +72,7 @@ PrepareTransmissionData::PrepareTransmissionData(CoreState &state, FileSystem &f
 }
 
 void PrepareTransmissionData::enqueued() {
-    protocol.push(9, clearModuleData);
+    protocol.push(8, clearModuleData);
 }
 
 TaskEval PrepareTransmissionData::task() {
@@ -67,7 +85,7 @@ TaskEval PrepareTransmissionData::task() {
 
             if (finished.is(clearModuleData)) {
                 moduleDataTransfer.setMaximumBytes(clearModuleData.getMaximumBytes());
-                protocol.push(9, moduleDataTransfer);
+                protocol.push(8, moduleDataTransfer);
             }
             else {
                 log("Done");

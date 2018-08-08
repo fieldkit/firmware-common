@@ -45,11 +45,9 @@ private:
     FlashStorage<PersistedState> flashStorage{ watchdog };
     CoreState state{flashStorage, fileSystem.getData()};
     ModuleCommunications moduleCommunications{bus, pool};
-    PrepareTransmissionData prepareTransmissionData{state, fileSystem, moduleCommunications, { FileNumber::Data }};
 
-    // Scheduler stuff.
-    // TODO: When these are checked they should be checked in a descending order
-    // to avoid starvation.
+    CronTask copyModuleDataTask{ lwcron::CronSpec::specific(0), { CoreFsm::deferred<CopyModuleData>() } };
+
     #ifdef FK_PROFILE_AMAZON
 
     CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { CoreFsm::deferred<BeginGatherReadings>() } };
@@ -60,18 +58,20 @@ private:
     CronTask wifiStartupTask{ lwcron::CronSpec::specific(0, 10),   { CoreFsm::deferred<WifiStartup>() } };
     #endif // FK_WIFI_STARTUP_ONLY
 
-    lwcron::Task *tasks[2] {
+    lwcron::Task *tasks[3] {
         &gatherReadingsTask,
-        &wifiStartupTask
+        &wifiStartupTask,
+        &copyModuleDataTask
     };
 
     #else // FK_PROFILE_AMAZON
 
     PeriodicTask gatherReadingsTask{ ReadingsInterval, { CoreFsm::deferred<BeginGatherReadings>() } };
     PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
-    lwcron::Task *tasks[2] {
+    lwcron::Task *tasks[3] {
         &gatherReadingsTask,
-        &wifiStartupTask
+        &wifiStartupTask,
+        &copyModuleDataTask
     };
 
     #endif // FK_PROFILE_AMAZON
