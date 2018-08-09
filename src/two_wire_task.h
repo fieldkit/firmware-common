@@ -23,17 +23,12 @@ private:
     uint32_t bytesSent{ 0 };
     size_t bytesReceived{ 0 };
     int8_t expectedReplies{ 0 };
+    int8_t repliesRemaining{ 0 };
 
 public:
-    /**
-     *
-     */
-    TwoWireTask(const char *name, TwoWireBus &bus, lws::Reader &outgoing, lws::Writer &incoming, uint8_t address);
-
-    /**
-     *
-     */
-    TwoWireTask(const char *name, TwoWireBus &bus, lws::Writer &incoming, uint8_t address);
+    TwoWireTask(const char *name, TwoWireBus &bus, lws::Reader &outgoing, lws::Writer &incoming,
+                uint8_t address, int8_t expectedReplies);
+    TwoWireTask(const char *name, TwoWireBus &bus, lws::Writer &incoming, uint8_t address, int8_t expectedReplies);
 
 public:
     void enqueued() override;

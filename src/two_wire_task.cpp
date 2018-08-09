@@ -3,12 +3,12 @@
 
 namespace fk {
 
-TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Reader &outgoing, lws::Writer &incoming, uint8_t address) :
-    Task(name), bus(&bus), outgoing(&outgoing), incoming(&incoming), address(address) {
+TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Reader &outgoing, lws::Writer &incoming, uint8_t address, int8_t expectedReplies) :
+    Task(name), bus(&bus), outgoing(&outgoing), incoming(&incoming), address(address), expectedReplies(expectedReplies) {
 }
 
-TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Writer &incoming, uint8_t address) :
-    Task(name), bus(&bus), outgoing(nullptr), incoming(&incoming), address(address) {
+TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Writer &incoming, uint8_t address, int8_t expectedReplies) :
+    Task(name), bus(&bus), outgoing(nullptr), incoming(&incoming), address(address), expectedReplies(expectedReplies) {
 }
 
 void TwoWireTask::enqueued() {
@@ -16,8 +16,8 @@ void TwoWireTask::enqueued() {
     checkAt = 0;
     bytesReceived = 0;
     doneAt = 0;
-    expectedReplies = 1;
     bytesSent = 0;
+    repliesRemaining = expectedReplies;
     if (outgoing == nullptr) {
         checkAt = fk_uptime() + 200;
     }
@@ -76,7 +76,7 @@ TaskEval TwoWireTask::send() {
 }
 
 TaskEval TwoWireTask::receive() {
-    if (expectedReplies > 0) {
+    if (repliesRemaining > 0) {
         uint8_t buffer[SERIAL_BUFFER_SIZE - 1];
         bytesReceived = bus->receive(address, buffer, sizeof(buffer));
         if (bytesReceived == 0) {
@@ -91,11 +91,9 @@ TaskEval TwoWireTask::receive() {
         auto wrote = incoming->write(buffer, bytesReceived);
         if (wrote != (int32_t)bytesReceived) {
             log("Error: Out of buffer space (%lu != %d)", wrote, bytesReceived);
-            // return TaskEval::error();
-            // return TaskEval::idle();
         }
         else {
-            expectedReplies--;
+            repliesRemaining--;
         }
     }
 

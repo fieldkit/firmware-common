@@ -16,6 +16,9 @@ public:
     virtual void reply(ModuleReplyMessage &message) = 0;
     virtual void prepare(ModuleQueryMessage &message, lws::Writer &outgoing);
     virtual void tick(lws::Writer &outgoing);
+    virtual bool replyExpected() {
+        return true;
+    }
 
 };
 

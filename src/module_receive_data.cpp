@@ -1,11 +1,12 @@
 #include "module_receive_data.h"
 #include "module_idle.h"
+#include "message_buffer.h"
 
 namespace fk {
 
 void ModuleReceiveData::task() {
-    lws::AlignedStorageBuffer<256> scratch;
-    lws::VarintEncodedStream blockReader{ *services().reader, scratch.toBufferPtr() };
+    auto reader = services().reader;
+    auto received = 0;
 
     services().pipe->clear();
 
@@ -14,20 +15,26 @@ void ModuleReceiveData::task() {
 
         if (elapsed() > 1000) {
             transit<ModuleIdle>();
-            return;
+            break;
         }
 
-        auto block = blockReader.read();
-        if (block.eos()) {
+        uint8_t buffer[64];
+        auto s = reader->read(buffer, sizeof(buffer));
+        if (s == lws::Stream::EOS) {
             log("stream: End");
             transit<ModuleIdle>();
-            return;
+            break;
         }
-        if (block) {
-            log("stream: Read %ld bytes", block.blockSize);
+        if (s > 0) {
+            received += s;
+            log("stream: Read %ld bytes (%d)", s, received);
             mark();
         }
     }
+
+    log("stream: Clearing");
+    services().incoming->clear();
+    services().outgoing->clear();
 }
 
 }

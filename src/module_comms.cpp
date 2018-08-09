@@ -14,7 +14,7 @@ void ModuleQuery::tick(lws::Writer &outgoing) {
 }
 
 ModuleCommunications::ModuleCommunications(TwoWireBus &bus, Pool &pool) :
-    Task("ModuleCommunications"), bus(&bus), pool(&pool), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, outgoing.getReader(), incoming.getWriter(), 0) {
+    Task("ModuleCommunications"), bus(&bus), pool(&pool), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, outgoing.getReader(), incoming.getWriter(), 0, 0) {
 }
 
 void ModuleCommunications::enqueue(uint8_t destination, ModuleQuery &mq) {
@@ -44,7 +44,10 @@ TaskEval ModuleCommunications::task() {
 
             pending->prepare(query, outgoing.getWriter());
 
-            twoWireTask = TwoWireTask{ pending->name(), *bus, outgoing.getReader(), incoming.getWriter(), address };
+            auto repliesExpected = (int8_t)(pending->replyExpected() ? 1 : 0);
+            twoWireTask = TwoWireTask{ pending->name(), *bus,
+                                       outgoing.getReader(), incoming.getWriter(),
+                                       address, repliesExpected };
             twoWireTask.enqueued();
 
             hasQuery = false;
@@ -56,6 +59,11 @@ TaskEval ModuleCommunications::task() {
         }
 
         if (twoWireTask.completed()) {
+            if (!pending->replyExpected()) {
+                log("No reply expected");
+                address = 0;
+                return TaskEval::idle();
+            }
             if (twoWireTask.received() > 0) {
                 auto protoReader = lws::ProtoBufMessageReader{ incoming.getReader() };
 
@@ -69,7 +77,8 @@ TaskEval ModuleCommunications::task() {
                         outgoing.clear();
                         query.clear();
 
-                        twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address };
+                        auto repliesExpected = (int8_t)(pending->replyExpected() ? 1 : 0);
+                        twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address, repliesExpected };
                         twoWireTask.enqueued();
 
                         return TaskEval::idle();

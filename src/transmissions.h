@@ -39,10 +39,7 @@ class ModuleDataTransfer : public ModuleQuery {
 private:
     FileSystem *fileSystem;
     FileCopySettings settings;
-    lws::AlignedStorageBuffer<128> buffer;
-    lws::StreamCopier streamCopier;
     uint32_t maximumBytes{ 0 };
-    bool receivedReply{ false };
 
 public:
     ModuleDataTransfer(FileSystem &fileSystem, FileCopySettings settings);
@@ -54,8 +51,6 @@ public:
 
     void query(ModuleQueryMessage &message) override;
     void reply(ModuleReplyMessage &message) override;
-    void prepare(ModuleQueryMessage &message, lws::Writer &outgoing) override;
-    void tick(lws::Writer &outgoing) override;
 
 public:
     void setMaximumBytes(uint32_t bytes) {
@@ -67,11 +62,32 @@ public:
     }
 };
 
+class WriteModuleData : public ModuleQuery {
+private:
+    uint32_t maximumBytes{ 0 };
+
+public:
+    const char *name() const override {
+        return "WriteModuleData";
+    }
+
+public:
+    void query(ModuleQueryMessage &message) override;
+    void reply(ModuleReplyMessage &message) override;
+    void prepare(ModuleQueryMessage &message, lws::Writer &outgoing) override;
+    void tick(lws::Writer &outgoing) override;
+    bool replyExpected() override {
+        return false;
+    }
+
+};
+
 class PrepareTransmissionData : public Task {
 private:
     CoreState *state;
     ClearModuleData clearModuleData;
     ModuleDataTransfer moduleDataTransfer;
+    WriteModuleData writeModuleData;
     ModuleProtocolHandler protocol;
 
 public:

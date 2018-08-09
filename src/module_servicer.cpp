@@ -11,13 +11,17 @@ void ModuleServicer::task() {
     auto outgoing = services().outgoing;
 
     if (!incoming->empty()) {
+        auto pos = incoming->position();
         ModuleQueryMessage query(*services().pool);
         auto status = incoming->read(query);
         incoming->clear();
         if (!status) {
-            log("Malformed message");
+            log("Malformed message (%d bytes)", pos);
             transit<ModuleIdle>();
             return;
+        }
+        else {
+            log("Received (%d bytes)", pos);
         }
 
         if (!outgoing->empty()) {
