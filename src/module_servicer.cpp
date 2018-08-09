@@ -2,6 +2,7 @@
 #include "module.h"
 #include "rtc.h"
 #include "module_idle.h"
+#include "module_receive_data.h"
 
 namespace fk {
 
@@ -159,19 +160,19 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         break;
     }
     case fk_module_QueryType_QUERY_DATA_PREPARE: {
-        log("Data (%lu / %lu)", query.m().data.size, query.m().data.kind);
+        log("DataPrepare (%lu / %lu)", query.m().data.size, query.m().data.kind);
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_DATA;
 
         outgoing->write(reply);
 
-        // transit<ModuleReceiveData>();
+        transit<ModuleReceiveData>();
 
         break;
     }
     case fk_module_QueryType_QUERY_DATA_APPEND: {
-        log("Data (%lu)", query.m().data.size);
+        log("DataAppend (%lu)", query.m().data.size);
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_DATA;

@@ -26,9 +26,7 @@ private:
     Leds leds;
     Watchdog watchdog_{ leds };
     ModuleInfo *info;
-    lws::AlignedStorageBuffer<256> scratch;
-    lws::CircularStreams<lws::RingBufferN<256>> incomingPipe;
-    lws::VarintEncodedStream blockReader{ incomingPipe.getReader(), scratch.toBufferPtr() };
+    lws::CircularStreams<lws::RingBufferN<256>> pipe;
     ModuleServices moduleServices{
         &replyPool,
         info,
@@ -38,7 +36,9 @@ private:
         this,
         &outgoing,
         &incoming,
-        &incomingPipe.getWriter(),
+        &pipe,
+        &pipe.getWriter(),
+        &pipe.getReader()
     };
 
 public:

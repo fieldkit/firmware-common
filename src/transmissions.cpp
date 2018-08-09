@@ -27,7 +27,7 @@ void ModuleDataTransfer::query(ModuleQueryMessage &message) {
 
     auto &fileCopy = fileSystem->files().fileCopy();
 
-    message.m().type = fk_module_QueryType_QUERY_DATA_APPEND;
+    message.m().type = fk_module_QueryType_QUERY_DATA_PREPARE;
     message.m().data.size = fileCopy.size();
 }
 

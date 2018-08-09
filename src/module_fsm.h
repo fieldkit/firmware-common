@@ -33,7 +33,9 @@ struct ModuleServices {
     ModuleCallbacks *callbacks;
     TwoWireMessageBuffer *outgoing;
     TwoWireMessageBuffer *incoming;
+    lws::Pipe *pipe;
     lws::Writer *writer;
+    lws::Reader *reader;
 
     void alive();
     void clear();

@@ -45,8 +45,9 @@ void Module::resume() {
 void Module::receive(size_t bytes) {
     if (bytes > 0) {
         lastActivity = fk_uptime();
+        incoming.clear();
         incoming.readIncoming(bytes);
-        incomingPipe.getWriter().write(incoming.ptr(), incoming.position());
+        pipe.getWriter().write(incoming.ptr(), incoming.position());
     }
 }
 
@@ -80,14 +81,6 @@ void Module::tick() {
     if (elapsedSinceActivity() > ModuleIdleRebootInterval) {
         log("Reboot due to inactivity.");
         NVIC_SystemReset();
-    }
-
-    auto block = blockReader.read();
-    if (block.eos()) {
-        log("stream: End");
-    }
-    if (block) {
-        log("stream: Read %ld bytes", block.blockSize);
     }
 }
 
