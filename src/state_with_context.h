@@ -9,18 +9,22 @@ template<typename T, typename B>
 class StateWithContext : public B {
 private:
     static T *services_;
-    uint32_t entered_{ 0 };
+    uint32_t mark_{ 0 };
 
 public:
     uint32_t elapsed() {
-        return fk_uptime() - entered_;
+        return fk_uptime() - mark_;
     }
 
 public:
     void entry() override {
         B::entry();
         services_->clear();
-        entered_ = fk_uptime();
+        mark_ = fk_uptime();
+    }
+
+    void mark() {
+        mark_ = fk_uptime();
     }
 
 public:
