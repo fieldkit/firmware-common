@@ -8,9 +8,9 @@ timestamps {
 
         build job: "distribution", parameters: []
 
-        build job: "weather", parameters: []
-        build job: "atlas", parameters: []
-        build job: "sonar", parameters: []
-        build job: "core", parameters: []
+        build job: "weather", wait: false, parameters: []
+        build job: "atlas", wait: false, parameters: []
+        build job: "sonar", wait: false, parameters: []
+        build job: "core", wait: false, parameters: []
     }
 }
