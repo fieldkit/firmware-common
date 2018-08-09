@@ -10,6 +10,9 @@ timestamps {
         build job: "atlas", wait: false
         build job: "sonar", wait: false
         build job: "core", wait: false
+        build job: "naturalist", wait: false
+        build job: "fona", wait: false
+        build job: "example-module", wait: false
     }
 
     refreshDistribution()
