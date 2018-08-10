@@ -3,6 +3,7 @@
 #include "transmissions.h"
 #include "performance.h"
 #include "flash_reader.h"
+#include "checksum_streams.h"
 
 namespace fk {
 
@@ -16,11 +17,12 @@ void CopyModuleData::task() {
     }
 
     FlashReader reader(&flash, 0, 256 * 1024);
+    Crc32Reader crc32{ reader };
 
     PrepareTransmissionData prepareTransmissionData{
         *services().state,
         *services().moduleCommunications,
-        &reader
+        &crc32
     };
 
     prepareTransmissionData.enqueued();
@@ -29,6 +31,8 @@ void CopyModuleData::task() {
         services().watchdog->task();
         services().moduleCommunications->task();
     }
+
+    log("Crc32: %lu", crc32.checksum());
 
     back();
 }
