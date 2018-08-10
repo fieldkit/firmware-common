@@ -26,6 +26,7 @@ class ModuleCommunications : public Task {
 private:
     TwoWireBus *bus;
     Pool *pool;
+    uint8_t retries{ 0 };
     uint8_t address{ 0 };
     ModuleQuery *pending{ nullptr };
     ModuleQueryMessage query;

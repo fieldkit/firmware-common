@@ -25,7 +25,6 @@ void ModuleReceiveData::task() {
         auto s = crc32.read(buffer, sizeof(buffer));
         if (s == lws::Stream::EOS) {
             log("stream: End");
-            transit<ModuleIdle>();
             break;
         }
         if (s > 0) {
@@ -38,6 +37,8 @@ void ModuleReceiveData::task() {
 
     services().incoming->clear();
     services().outgoing->clear();
+
+    transit<ModuleIdle>();
 }
 
 }

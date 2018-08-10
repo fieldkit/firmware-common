@@ -72,10 +72,18 @@ TaskEval ModuleCommunications::task() {
                 }
                 else {
                     if (reply.m().type == fk_module_ReplyType_REPLY_RETRY) {
-                        log("Retry!");
                         incoming.clear();
                         outgoing.clear();
                         query.clear();
+
+                        if (retries == 3) {
+                            log("No reply!");
+                            address = 0;
+                            return TaskEval::idle();
+                        }
+
+                        log("Retry!");
+                        retries++;
 
                         auto repliesExpected = (int8_t)(pending->replyExpected() ? 1 : 0);
                         twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address, repliesExpected };
