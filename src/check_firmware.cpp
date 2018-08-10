@@ -19,15 +19,42 @@ static void erase(SerialFlashChip &serialFlash) {
     }
 }
 
+void CheckAllAttachedFirmware::task() {
+    auto state = services().state;
+
+    if (index_ < state->numberOfModules()) {
+        auto module = state->getModuleByIndex(index_);
+        index_++;
+        transit_into<CheckFirmware>(module->module);
+    }
+    else if (index_ == state->numberOfModules()) {
+        index_++;
+        transit_into<CheckFirmware>("fk-core");
+    }
+    else {
+        transit<WifiTransmitFiles>();
+    }
+}
+
 void CheckFirmware::task() {
-    fk::Url parsed(WifiApiUrlFirmware, deviceId.toString(), "fk-core");
+    if (module_ == nullptr) {
+        log("No module given");
+        back();
+        return;
+    }
+
+    check();
+}
+
+void CheckFirmware::check() {
+    fk::Url parsed(WifiApiUrlFirmware, deviceId.toString(), module_);
     SerialFlashChip serialFlash;
     HttpResponseParser parser;
     WiFiClient wcl;
 
     if (!serialFlash.begin(Hardware::FLASH_PIN_CS)) {
         log("Error opening serial flash");
-        transit<WifiTransmitFiles>();
+        back();
         return;
     }
 
@@ -40,6 +67,7 @@ void CheckFirmware::task() {
     else {
         log("Bank1: invalid");
     }
+
     log("GET http://%s:%d/%s", parsed.server, parsed.port, parsed.path);
 
     if (wcl.connect(parsed.server, parsed.port)) {
@@ -114,7 +142,7 @@ void CheckFirmware::task() {
         error("Connection failed!");
     }
 
-    transit<WifiTransmitFiles>();
+    back();
 }
 
 }

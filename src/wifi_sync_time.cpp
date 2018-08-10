@@ -18,7 +18,8 @@ void WifiSyncTime::task() {
             }
         }
     }
-    transit<CheckFirmware>();
+
+    transit<CheckAllAttachedFirmware>();
 }
 
 }

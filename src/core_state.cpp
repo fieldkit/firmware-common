@@ -132,6 +132,17 @@ ModuleInfo *CoreState::getOrCreateModule(uint8_t address, uint8_t numberOfSensor
     return module;
 }
 
+ModuleInfo *CoreState::getModuleByIndex(uint8_t index) {
+    for (auto m = attachedModules(); m != nullptr; m = m->np) {
+        if (index == 0) {
+            return m;
+        }
+        index--;
+    }
+    fk_assert(false);
+    return nullptr;
+}
+
 ModuleInfo *CoreState::getModule(uint8_t address) {
     for (auto m = attachedModules(); m != nullptr; m = m->np) {
         if (m->address == address) {

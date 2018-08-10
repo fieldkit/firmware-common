@@ -44,6 +44,7 @@ public:
     size_t numberOfSensors() const;
     size_t numberOfReadings() const;
     size_t readingsToTake() const;
+    ModuleInfo *getModuleByIndex(uint8_t index);
     ModuleInfo *getModule(uint8_t address);
     bool hasModules();
     bool hasModuleWithAddress(uint8_t address);
