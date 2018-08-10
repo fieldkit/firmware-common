@@ -39,7 +39,7 @@ void Booting::task() {
 
     services().leds->setup();
     services().watchdog->setup();
-    services().bus->begin();
+    services().bus->begin(400000);
     services().power->setup();
     services().button->enqueued();
 
