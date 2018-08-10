@@ -29,8 +29,6 @@ void Watchdog::started() {
 }
 
 TaskEval Watchdog::task() {
-    fk::restartWizard.looped();
-
     if (wdt_read_early_warning()) {
         wdt_clear_early_warning();
         wdt_checkin();
