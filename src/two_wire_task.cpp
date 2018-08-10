@@ -20,7 +20,7 @@ void TwoWireTask::enqueued() {
     bytesSent = 0;
     repliesRemaining = expectedReplies;
     if (outgoing == nullptr) {
-        checkAt = fk_uptime() + 200;
+        checkAt = fk_uptime() + TwoWireDefaultReplyWait;
     }
     bus->begin();
 }
@@ -37,7 +37,7 @@ TaskEval TwoWireTask::task() {
         else {
             if (repliesRemaining > 0) {
                 dieAt = fk_uptime() + TwoWireMaximumReplyWait;
-                checkAt = fk_uptime() + 100;
+                checkAt = fk_uptime() + TwoWireDefaultReplyWait;
                 return TaskEval::idle();
             }
             else {
@@ -82,7 +82,7 @@ TaskEval TwoWireTask::send() {
     }
 
     // They won't be ready yet, check back soon, though.
-    checkAt = fk_uptime() + 100;
+    checkAt = fk_uptime() + TwoWireDefaultReplyWait;
 
     return TaskEval::idle();
 }

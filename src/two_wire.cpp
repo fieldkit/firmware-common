@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include "wiring_private.h"
 #include "two_wire.h"
+#include "tuning.h"
 #include "performance.h"
 
 namespace fk {
@@ -12,7 +13,7 @@ bool TwoWireBus::begin(uint32_t speed) {
         bus->setClock(speed);
     }
     else {
-        bus->setClock(400000);
+        bus->setClock(TwoWireDefaultSpeed);
     }
 
     #ifdef FK_HARDWARE_WIRE11AND13_ENABLE
