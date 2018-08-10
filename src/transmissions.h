@@ -14,9 +14,6 @@
 namespace fk {
 
 class ClearModuleData : public ModuleQuery {
-private:
-    uint32_t maximumBytes{ 0 };
-
 public:
     const char *name() const override {
         return "ClearModuleData";
@@ -28,21 +25,11 @@ public:
 public:
     ClearModuleData();
 
-public:
-    uint32_t getMaximumBytes() {
-        return maximumBytes;
-    }
-
 };
 
 class ModuleDataTransfer : public ModuleQuery {
-private:
-    FileSystem *fileSystem;
-    FileCopySettings settings;
-    uint32_t maximumBytes{ 0 };
-
 public:
-    ModuleDataTransfer(FileSystem &fileSystem, FileCopySettings settings);
+    ModuleDataTransfer();
 
 public:
     const char *name() const override {
@@ -52,22 +39,19 @@ public:
     void query(ModuleQueryMessage &message) override;
     void reply(ModuleReplyMessage &message) override;
 
-public:
-    void setMaximumBytes(uint32_t bytes) {
-        maximumBytes = bytes;
-    }
-
-    uint32_t getMaximumBytes() {
-        return maximumBytes;
-    }
 };
 
 class WriteModuleData : public ModuleQuery {
 private:
+    lws::Reader *reader_;
+    lws::BufferedStreamCopier<FileCopyBufferSize> streamCopier_;
     uint32_t started_{ 0 };
     uint32_t total_{ 0 };
     uint32_t copied_{ 0 };
     uint32_t lastStatus_{ 0 };
+
+public:
+    WriteModuleData(lws::Reader *reader);
 
 public:
     const char *name() const override {
@@ -94,7 +78,7 @@ private:
     ModuleProtocolHandler protocol;
 
 public:
-    PrepareTransmissionData(CoreState &state, FileSystem &fileSystem, ModuleCommunications &communications, FileCopySettings settings);
+    PrepareTransmissionData(CoreState &state, ModuleCommunications &communications, lws::Reader *reader);
 
 public:
     void enqueued() override;

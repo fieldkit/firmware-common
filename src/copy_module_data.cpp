@@ -2,17 +2,25 @@
 #include "watchdog.h"
 #include "transmissions.h"
 #include "performance.h"
+#include "flash_reader.h"
 
 namespace fk {
 
 void CopyModuleData::task() {
-    FileCopySettings fileCopySettings{ FileNumber::Data };
+    SerialFlashChip flash;
+
+    if (!flash.begin(Hardware::FLASH_PIN_CS)) {
+        log("Error opening serial flash");
+        back();
+        return;
+    }
+
+    FlashReader reader(&flash, 0, 256 * 1024);
 
     PrepareTransmissionData prepareTransmissionData{
         *services().state,
-        *services().fileSystem,
         *services().moduleCommunications,
-        fileCopySettings,
+        &reader
     };
 
     prepareTransmissionData.enqueued();

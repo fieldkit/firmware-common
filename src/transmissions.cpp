@@ -15,26 +15,21 @@ void ClearModuleData::query(ModuleQueryMessage &message) {
 }
 
 void ClearModuleData::reply(ModuleReplyMessage &message) {
-    maximumBytes = message.m().data.size;
 }
 
-ModuleDataTransfer::ModuleDataTransfer(FileSystem &fileSystem, FileCopySettings settings) : fileSystem(&fileSystem), settings(settings) {
+ModuleDataTransfer::ModuleDataTransfer() {
 }
 
 void ModuleDataTransfer::query(ModuleQueryMessage &message) {
-    if (!fileSystem->beginFileCopy(settings)) {
-        Logger::error("Failed to begin file copy.");
-    }
-
-    auto &fileCopy = fileSystem->files().fileCopy();
-
     message.m().type = fk_module_QueryType_QUERY_DATA_PREPARE;
-    message.m().data.size = fileCopy.size();
+    message.m().data.size = 0;
 }
 
 void ModuleDataTransfer::reply(ModuleReplyMessage &message) {
     Logger::info("Reply: %d", message.m().data.size);
-    maximumBytes = message.m().data.size;
+}
+
+WriteModuleData::WriteModuleData(lws::Reader *reader) : reader_(reader) {
 }
 
 void WriteModuleData::query(ModuleQueryMessage &message) {
@@ -54,11 +49,12 @@ void WriteModuleData::prepare(ModuleQueryMessage &message, lws::Writer &outgoing
 void WriteModuleData::tick(lws::Writer &outgoing) {
     auto remaining = total_ - copied_;
     if (remaining > 0) {
-        uint8_t data[256];
-
-        auto s = outgoing.write(data, std::min((uint32_t)sizeof(data), remaining));
-        if (s > 0) {
-            copied_ += s;
+        auto bytes = streamCopier_.copy(*reader_, outgoing);
+        if (bytes == lws::Stream::EOS) {
+            outgoing.close();
+        }
+        else if (bytes > 0) {
+            copied_ += bytes;
         }
 
         if (fk_uptime() - lastStatus_ > 1000) {
@@ -76,8 +72,8 @@ void WriteModuleData::tick(lws::Writer &outgoing) {
 }
 
 
-PrepareTransmissionData::PrepareTransmissionData(CoreState &state, FileSystem &fileSystem, ModuleCommunications &communications, FileCopySettings settings) :
-    Task("PrepareTransmissionData"), state(&state), moduleDataTransfer(fileSystem, settings), protocol(communications) {
+PrepareTransmissionData::PrepareTransmissionData(CoreState &state, ModuleCommunications &communications, lws::Reader *reader) :
+    Task("PrepareTransmissionData"), state(&state), moduleDataTransfer(), writeModuleData(reader), protocol(communications) {
 }
 
 void PrepareTransmissionData::enqueued() {
@@ -93,7 +89,6 @@ TaskEval PrepareTransmissionData::task() {
             }
 
             if (finished.is(clearModuleData)) {
-                moduleDataTransfer.setMaximumBytes(clearModuleData.getMaximumBytes());
                 protocol.push(8, moduleDataTransfer);
             }
             else if (finished.is(moduleDataTransfer)) {
