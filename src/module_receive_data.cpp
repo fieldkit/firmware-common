@@ -2,6 +2,7 @@
 #include "module_idle.h"
 #include "message_buffer.h"
 #include "checksum_streams.h"
+#include "tuning.h"
 
 namespace fk {
 
@@ -16,8 +17,7 @@ void ModuleReceiveData::task() {
     while (true) {
         services().alive();
 
-        if (elapsed() > 500) {
-            transit<ModuleIdle>();
+        if (elapsed() > TwoWireStreamingWait) {
             break;
         }
 
