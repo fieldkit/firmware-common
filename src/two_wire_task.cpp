@@ -34,9 +34,14 @@ TaskEval TwoWireTask::task() {
             return send();
         }
         else {
-            dieAt = fk_uptime() + TwoWireMaximumReplyWait;
-            checkAt = fk_uptime() + 100;
-            return TaskEval::idle();
+            if (repliesRemaining > 0) {
+                dieAt = fk_uptime() + TwoWireMaximumReplyWait;
+                checkAt = fk_uptime() + 100;
+                return TaskEval::idle();
+            }
+            else {
+                return TaskEval::done();
+            }
         }
     }
 
@@ -70,6 +75,11 @@ TaskEval TwoWireTask::send() {
     }
 
     dieAt = fk_uptime() + TwoWireMaximumReplyWait;
+
+    if (repliesRemaining == 0) {
+        return TaskEval::idle();
+    }
+
     // They won't be ready yet, check back soon, though.
     checkAt = fk_uptime() + 100;
 
