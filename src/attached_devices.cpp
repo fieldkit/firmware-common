@@ -75,7 +75,10 @@ void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
         state->merge(address, *finished.reply);
 
         if (queryCapabilities.isSensor()) {
-            log("[0x%d]: Sensor module (%d)", address, queryCapabilities.getNumberOfSensors());
+            log("[0x%d]: Sensor module (sensors = %d) (name = %s) (module = %s)",
+                address, queryCapabilities.getNumberOfSensors(),
+                (const char *)finished.reply->m().capabilities.name.arg,
+                (const char *)finished.reply->m().capabilities.module.arg);
             if (queryCapabilities.getNumberOfSensors() > 0) {
                 querySensorCapabilities = QuerySensorCapabilities();
                 protocol.push(address, querySensorCapabilities);
