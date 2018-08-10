@@ -52,6 +52,7 @@ TaskEval ModuleCommunications::task() {
 
             hasQuery = false;
             hasReply = false;
+            retries = 0;
         }
         else {
             simple_task_run(twoWireTask);
@@ -93,6 +94,7 @@ TaskEval ModuleCommunications::task() {
                     }
                     else {
                         hasReply = true;
+                        retries = 0;
                     }
                 }
             }

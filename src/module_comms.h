@@ -83,7 +83,7 @@ public:
         }
 
         bool error() {
-            return reply == nullptr;
+            return reply == nullptr && query->replyExpected();
         }
 
         bool is(ModuleQuery &other) {
