@@ -94,7 +94,6 @@ private:
     Queued active;
     Queued pending;
     ModuleCommunications *communications;
-    Pool *pool;
 
 public:
     ModuleProtocolHandler(ModuleCommunications &communications);

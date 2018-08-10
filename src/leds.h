@@ -45,6 +45,7 @@ class Leds : public Task {
 
 private:
     Blinker blinkers[MaximumBlinkers];
+    uint32_t aliveOff{ 0 };
 
 public:
     Leds();

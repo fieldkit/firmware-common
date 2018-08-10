@@ -1,6 +1,7 @@
 #include "copy_module_data.h"
-
+#include "watchdog.h"
 #include "transmissions.h"
+#include "performance.h"
 
 namespace fk {
 

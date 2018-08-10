@@ -132,9 +132,14 @@ void Leds::clear(BlinkerKind kind) {
 
 void Leds::alive() {
     if (!disabled()) {
-        digitalWrite(A3, HIGH);
-        delay(100);
-        digitalWrite(A3, LOW);
+        if (aliveOff > 0) {
+            aliveOff = 0;
+            digitalWrite(A3, LOW);
+        }
+        else {
+            aliveOff = fk_uptime() + 100;
+            digitalWrite(A3, HIGH);
+        }
     }
 }
 
