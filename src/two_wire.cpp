@@ -9,7 +9,10 @@ bool TwoWireBus::begin(uint32_t speed) {
     bus->begin();
 
     if (speed > 0) {
-        Wire.setClock(speed);
+        bus->setClock(speed);
+    }
+    else {
+        bus->setClock(400000);
     }
 
     #ifdef FK_HARDWARE_WIRE11AND13_ENABLE

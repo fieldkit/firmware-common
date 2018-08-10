@@ -22,6 +22,7 @@ void TwoWireTask::enqueued() {
     if (outgoing == nullptr) {
         checkAt = fk_uptime() + 200;
     }
+    bus->begin();
 }
 
 TaskEval TwoWireTask::task() {

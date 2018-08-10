@@ -17,8 +17,6 @@ void CopyModuleData::task() {
 
     prepareTransmissionData.enqueued();
 
-    services().bus->begin(400000);
-
     while (simple_task_run(prepareTransmissionData)) {
         services().watchdog->task();
         services().moduleCommunications->task();
