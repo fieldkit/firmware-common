@@ -33,7 +33,7 @@ void ModuleReceiveData::task() {
         }
     }
 
-    log("stream: Done (received %d) (crc32 %lu)", received, crc32.checksum());
+    log("stream: Done (received %d) (checksum = 0x%lx)", received, crc32.checksum());
 
     services().incoming->clear();
     services().outgoing->clear();

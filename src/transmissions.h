@@ -10,6 +10,7 @@
 #include "two_wire_task.h"
 #include "file_system.h"
 #include "file_reader.h"
+#include "checksum_streams.h"
 
 namespace fk {
 
@@ -19,6 +20,7 @@ public:
         return "ClearModuleData";
     }
 
+public:
     void query(ModuleQueryMessage &message) override;
     void reply(ModuleReplyMessage &message) override;
 
@@ -36,6 +38,7 @@ public:
         return "ModuleDataTransfer";
     }
 
+public:
     void query(ModuleQueryMessage &message) override;
     void reply(ModuleReplyMessage &message) override;
 
@@ -67,15 +70,43 @@ public:
         return false;
     }
 
+private:
+    void status();
+
+};
+
+class VerifyModuleData : public ModuleQuery {
+private:
+    uint32_t expectedChecksum_{ 0 };
+    pb_data_t checksumData;
+
+public:
+    VerifyModuleData();
+
+public:
+    const char *name() const override {
+        return "VerifyModuleData";
+    }
+
+public:
+    void query(ModuleQueryMessage &message) override;
+    void reply(ModuleReplyMessage &message) override;
+
+public:
+    void expectedChecksum(uint32_t value) {
+        expectedChecksum_ = value;
+    }
 };
 
 class PrepareTransmissionData : public Task {
 private:
     CoreState *state;
+    ModuleProtocolHandler protocol;
+    Crc32Reader checksumReader;
     ClearModuleData clearModuleData;
     ModuleDataTransfer moduleDataTransfer;
     WriteModuleData writeModuleData;
-    ModuleProtocolHandler protocol;
+    VerifyModuleData verifyModuleData;
 
 public:
     PrepareTransmissionData(CoreState &state, ModuleCommunications &communications, lws::Reader *reader);

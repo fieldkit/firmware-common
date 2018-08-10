@@ -24,11 +24,17 @@ public:
     fk_module_WireMessageQuery *forDecode() {
         message.custom.message.funcs.decode = pb_decode_data;
         message.custom.message.arg = pool;
+        message.data.checksum.funcs.decode = pb_decode_data;
+        message.data.checksum.arg = pool;
+        message.data.data.funcs.decode = pb_decode_data;
+        message.data.data.arg = pool;
         return &message;
     }
 
     fk_module_WireMessageQuery *forEncode() {
         message.custom.message.funcs.encode = pb_encode_data;
+        message.data.checksum.funcs.encode = pb_encode_data;
+        message.data.data.funcs.encode = pb_encode_data;
         return &message;
     }
 

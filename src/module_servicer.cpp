@@ -175,12 +175,26 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
 
         break;
     }
+    case fk_module_QueryType_QUERY_DATA_VERIFY: {
+        pb_data_t *checksumData = (pb_data_t *)query.m().data.checksum.arg;
+        uint32_t expected{ 0 };
+
+        memcpy(&expected, checksumData->buffer, sizeof(uint32_t));
+
+        log("DataVerify (%lu) (0x%lx)", query.m().data.size, expected);
+
+        ModuleReplyMessage reply(*pool);
+        reply.m().type = fk_module_ReplyType_REPLY_SUCCESS;
+
+        outgoing->write(reply);
+
+        break;
+    }
     case fk_module_QueryType_QUERY_DATA_APPEND: {
         log("DataAppend (%lu)", query.m().data.size);
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_DATA;
-        reply.m().data.size = 4096;
 
         outgoing->write(reply);
 
@@ -191,7 +205,6 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_DATA;
-        reply.m().data.size = 0;
 
         outgoing->write(reply);
 
