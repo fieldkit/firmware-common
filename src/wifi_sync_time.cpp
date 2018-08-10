@@ -19,7 +19,7 @@ void WifiSyncTime::task() {
         }
     }
 
-    transit<CheckAllAttachedFirmware>();
+    transit_into<CheckAllAttachedFirmware>((uint8_t)0);
 }
 
 }
