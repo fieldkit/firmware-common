@@ -58,20 +58,18 @@ private:
     CronTask wifiStartupTask{ lwcron::CronSpec::specific(0, 10),   { CoreFsm::deferred<WifiStartup>() } };
     #endif // FK_WIFI_STARTUP_ONLY
 
-    lwcron::Task *tasks[3] {
+    lwcron::Task *tasks[2] {
         &gatherReadingsTask,
-        &wifiStartupTask,
-        &copyModuleDataTask
+        &wifiStartupTask
     };
 
     #else // FK_PROFILE_AMAZON
 
     PeriodicTask gatherReadingsTask{ ReadingsInterval, { CoreFsm::deferred<BeginGatherReadings>() } };
     PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
-    lwcron::Task *tasks[3] {
+    lwcron::Task *tasks[2] {
         &gatherReadingsTask,
-        &wifiStartupTask,
-        &copyModuleDataTask
+        &wifiStartupTask
     };
 
     #endif // FK_PROFILE_AMAZON
