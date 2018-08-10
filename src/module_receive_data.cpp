@@ -13,7 +13,7 @@ void ModuleReceiveData::task() {
     while (true) {
         services().alive();
 
-        if (elapsed() > 1000) {
+        if (elapsed() > 500) {
             transit<ModuleIdle>();
             break;
         }
@@ -27,12 +27,11 @@ void ModuleReceiveData::task() {
         }
         if (s > 0) {
             received += s;
-            log("stream: Read %ld bytes (%d)", s, received);
             mark();
         }
     }
 
-    log("stream: Clearing");
+    log("stream: Done (received %d)", received);
     services().incoming->clear();
     services().outgoing->clear();
 }

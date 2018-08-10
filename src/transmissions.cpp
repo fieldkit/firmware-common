@@ -37,28 +37,37 @@ void ModuleDataTransfer::reply(ModuleReplyMessage &message) {
 }
 
 void WriteModuleData::query(ModuleQueryMessage &message) {
-    Logger::info("Query");
 }
 
 void WriteModuleData::reply(ModuleReplyMessage &message) {
-    Logger::info("Reply");
 }
 
 void WriteModuleData::prepare(ModuleQueryMessage &message, lws::Writer &outgoing) {
     Logger::info("Prepare");
-    maximumBytes = 1024;
+    total_ = 1024 * 256;
+    copied_ = 0;
+    started_ = fk_uptime();
+    lastStatus_ = started_;
 }
 
 void WriteModuleData::tick(lws::Writer &outgoing) {
-    if (maximumBytes > 0) {
-        uint8_t data[128];
+    auto remaining = total_ - copied_;
+    if (remaining > 0) {
+        uint8_t data[256];
 
-        auto s = outgoing.write(data, std::min((uint32_t)sizeof(data), maximumBytes));
+        auto s = outgoing.write(data, std::min((uint32_t)sizeof(data), remaining));
         if (s > 0) {
-            Logger::trace("Send: %d (%d)", s, maximumBytes);
+            copied_ += s;
         }
 
-        maximumBytes -= s;
+        if (fk_uptime() - lastStatus_ > 1000) {
+            auto elapsed = fk_uptime() - started_;
+            auto complete = copied_ > 0 ? ((float)copied_ / total_) * 100.0f : 0.0f;
+            auto speed = copied_ > 0 ? copied_ / ((float)elapsed / 1000.0f) : 0.0f;
+            logf(LogLevels::TRACE, "Copy", "%lu/%lu %lums %.2f %.2fbps (%lu)",
+                 copied_, total_, elapsed, complete, speed, fk_uptime() - lastStatus_);
+            lastStatus_ = fk_uptime();
+        }
     }
     else {
         outgoing.close();

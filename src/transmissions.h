@@ -64,7 +64,10 @@ public:
 
 class WriteModuleData : public ModuleQuery {
 private:
-    uint32_t maximumBytes{ 0 };
+    uint32_t started_{ 0 };
+    uint32_t total_{ 0 };
+    uint32_t copied_{ 0 };
+    uint32_t lastStatus_{ 0 };
 
 public:
     const char *name() const override {
