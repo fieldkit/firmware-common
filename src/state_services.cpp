@@ -9,6 +9,7 @@
 #include "gps.h"
 #include "user_button.h"
 #include "scheduler.h"
+#include "performance.h"
 
 namespace fk {
 

@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include "wiring_private.h"
 #include "two_wire.h"
+#include "performance.h"
 
 namespace fk {
 

@@ -77,15 +77,9 @@ public:
     virtual void react(ReadingComplete const &ignored);
 
 public:
-    virtual void entry() {
-        log("Entered");
-    }
-
-    virtual void task() {
-    }
-
-    virtual void exit() {
-    }
+    virtual void entry();
+    virtual void task();
+    virtual void exit();
 
 public:
     void log(const char *f, ...) const __attribute__((format(printf, 2, 3)));

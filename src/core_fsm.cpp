@@ -2,6 +2,7 @@
 #include "core_fsm.h"
 #include "reboot_device.h"
 #include "user_wakeup.h"
+#include "performance.h"
 
 namespace fk {
 
@@ -38,6 +39,17 @@ void CoreDevice::react(UserRebootEvent const &ignored) {
 }
 
 void CoreDevice::react(ReadingComplete const &ignored) {
+}
+
+void CoreDevice::entry() {
+    log("Entered");
+    Performance::reset();
+}
+
+void CoreDevice::task() {
+}
+
+void CoreDevice::exit() {
 }
 
 void CoreDevice::log(const char *f, ...) const {
