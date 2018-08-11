@@ -61,8 +61,7 @@ void Booting::task() {
     #endif
 
     #ifdef FK_ENABLE_FLASH
-    auto flash = services().flash;
-    fk_assert(flash->initialize(Hardware::FLASH_PIN_CS));
+    setupFlash();
     #else
     log("Flash memory disabled");
     #endif
@@ -96,6 +95,26 @@ void Booting::task() {
     services().scheduler->begin(lwcron::DateTime{ now.unixtime() });
 
     transit(configure_);
+}
+
+void Booting::setupFlash() {
+    auto flashFs = services().flashFs;
+    auto flashState = services().flashState;
+
+    if (!flashFs->initialize(Hardware::FLASH_PIN_CS)) {
+        log("Flash unavailable.");
+        fk_assert(false);
+    }
+
+    if (!flashState->initialize()) {
+        log("Flash unavailable.");
+        fk_assert(false);
+    }
+
+    if (!flashFs->reclaim(*flashState)) {
+        log("Flash reclaim failed.");
+        fk_assert(false);
+    }
 }
 
 }

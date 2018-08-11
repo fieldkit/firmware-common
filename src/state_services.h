@@ -17,6 +17,7 @@ class Watchdog;
 class TwoWireBus;
 class Power;
 class Status;
+class SerialFlashFileSystem;
 class FileSystem;
 class UserButton;
 class ModuleCommunications;
@@ -31,7 +32,8 @@ struct MainServices {
     Power *power;
     Status *status;
     CoreState *state;
-    FlashStorage<PersistedState> *flash;
+    SerialFlashFileSystem *flashFs;
+    FlashState<PersistedState> *flashState;
     FileSystem *fileSystem;
     UserButton *button;
     lwcron::Scheduler *scheduler;
@@ -40,9 +42,10 @@ struct MainServices {
     GpsService *gps;
 
     MainServices(Pool *pool, Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
-                 FlashStorage<PersistedState> *flash, FileSystem *fileSystem, UserButton *button, lwcron::Scheduler *scheduler,
+                 SerialFlashFileSystem *flashFs, FlashState<PersistedState> *flashState, FileSystem *fileSystem, UserButton *button,
+                 lwcron::Scheduler *scheduler,
                  ModuleCommunications *moduleCommunications, RadioService *radio, GpsService *gps) :
-        pool(pool), leds(leds), watchdog(watchdog), bus(bus), power(power), status(status), state(state), flash(flash),
+        pool(pool), leds(leds), watchdog(watchdog), bus(bus), power(power), status(status), state(state), flashFs(flashFs), flashState(flashState),
         fileSystem(fileSystem), button(button), scheduler(scheduler), moduleCommunications(moduleCommunications), radio(radio), gps(gps) {
     }
 
@@ -67,11 +70,12 @@ struct WifiServices : MainServices {
     LiveDataManager *liveData;
 
     WifiServices(Pool *pool, Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
-                 FlashStorage<PersistedState> *flash, FileSystem *fileSystem, UserButton *button, lwcron::Scheduler *scheduler,
+                 SerialFlashFileSystem *flashFs, FlashState<PersistedState> *flashState, FileSystem *fileSystem, UserButton *button,
+                 lwcron::Scheduler *scheduler,
                  ModuleCommunications *moduleCommunications, RadioService *radio, GpsService *gps,
                  Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer,
                  LiveDataManager *liveData) :
-        MainServices(pool, leds, watchdog, bus, power, status, state, flash, fileSystem, button, scheduler, moduleCommunications, radio, gps),
+        MainServices(pool, leds, watchdog, bus, power, status, state, flashFs, flashState, fileSystem, button, scheduler, moduleCommunications, radio, gps),
         wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer), liveData(liveData) {
     }
 };

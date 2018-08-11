@@ -1,6 +1,8 @@
 #ifndef FK_CORE_STATE_H_INCLUDED
 #define FK_CORE_STATE_H_INCLUDED
 
+#include <phylum/private.h>
+
 #include "app_messages.h"
 #include "module_info.h"
 #include "module_messages.h"
@@ -11,6 +13,18 @@
 
 namespace fk {
 
+enum class FirmwareBank {
+    CoreA,
+    CoreB,
+    ModuleA,
+    ModuleB,
+    NumberOfBanks
+};
+
+struct FirmwareAddresses {
+    phylum::BlockAddress banks[(size_t)FirmwareBank::NumberOfBanks];
+};
+
 struct PersistedState : phylum::MinimumSuperBlock {
     uint32_t time;
     uint32_t seed;
@@ -18,6 +32,7 @@ struct PersistedState : phylum::MinimumSuperBlock {
     NetworkSettings networkSettings;
     DeviceLocation location;
     uint32_t readingNumber{ 0 };
+    FirmwareAddresses firmwares;
 };
 
 class CoreState {
@@ -31,11 +46,11 @@ private:
 
 private:
     DeviceStatus deviceStatus_;
-    FlashStorage<PersistedState> *storage_;
+    FlashState<PersistedState> *storage_;
     FkfsData *data_;
 
 public:
-    CoreState(FlashStorage<PersistedState> &storage, FkfsData &data);
+    CoreState(FlashState<PersistedState> &storage, FkfsData &data);
 
 public:
     ModuleInfo* attachedModules() const;

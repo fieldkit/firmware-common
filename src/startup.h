@@ -23,6 +23,9 @@ public:
 public:
     void task() override;
 
+private:
+    void setupFlash();
+
 };
 
 }

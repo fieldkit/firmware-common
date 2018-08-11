@@ -4,6 +4,7 @@
 #include <lwstreams/lwstreams.h>
 
 #include "firmware_header.h"
+#include "core_state.h"
 
 namespace fk {
 
@@ -14,8 +15,8 @@ public:
     FirmwareStorage();
 
 public:
-    lws::Writer *write();
-    lws::Reader *read();
+    lws::Writer *write(FirmwareBank bank);
+    lws::Reader *read(FirmwareBank bank);
 
 };
 

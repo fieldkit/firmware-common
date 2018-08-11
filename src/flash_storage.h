@@ -15,6 +15,11 @@ namespace fk {
 
 constexpr const char FlashStorageLogName[] = "Flash";
 
+using FlashLog = SimpleLog<FlashStorageLogName>;
+
+template<typename T>
+class FlashState;
+
 class SerialFlashFileSystem : public phylum::StorageBackendCallbacks {
 private:
     Watchdog *watchdog_;
@@ -23,79 +28,72 @@ private:
     phylum::Files files_{ &storage_, &allocator_ };
 
 public:
+    SerialFlashFileSystem(Watchdog &watchdog) : watchdog_(&watchdog), storage_(*this) {
+    }
+
+public:
+    bool initialize(uint8_t cs, phylum::sector_index_t sector_size = 512);
+
+    bool erase();
+
+    template<typename T>
+    bool reclaim(FlashState<T> &manager) {
+        phylum::UnusedBlockReclaimer reclaimer(&files_, &manager.manager());
+        reclaim(reclaimer);
+        return reclaimer.reclaim();
+    }
+
+    template<typename T>
+    friend class FlashState;
+
+protected:
+    bool busy(uint32_t elapsed) override;
+
+    bool reclaim(phylum::UnusedBlockReclaimer &reclaimer);
 
 };
 
 template<typename T>
-class FlashStorage : public phylum::StorageBackendCallbacks {
+class FlashState {
 private:
-    Watchdog *watchdog_;
-    phylum::ArduinoSerialFlashBackend storage_;
-    phylum::SerialFlashAllocator allocator_{ storage_ };
-    phylum::SerialFlashStateManager<T> manager_{ storage_, allocator_ };
-
-    using Logger = SimpleLog<FlashStorageLogName>;
+    SerialFlashFileSystem *flashFs_;
+    phylum::SerialFlashStateManager<T> manager_;
 
 public:
-    FlashStorage(Watchdog &watchdog) : watchdog_(&watchdog), storage_(*this) {
+    FlashState(SerialFlashFileSystem &flashFs) : flashFs_(&flashFs), manager_{ flashFs.storage_, flashFs.allocator_ } {
     }
 
 public:
+    phylum::SerialFlashStateManager<T>& manager() {
+        return manager_;
+    }
+
     T& state() {
         return manager_.state();
     }
 
-    bool initialize(uint8_t cs, phylum::sector_index_t sector_size = 512) {
-        if (!storage_.initialize(cs, sector_size)) {
-            Logger::error("Initialize failed");
-            return false;
-        }
-
-        auto g = storage_.geometry();
-        auto firmwareArea = 256 * 1024 * 2;
-        auto firmwareBlocks = firmwareArea / g.block_size();
-        g.number_of_blocks -= firmwareBlocks;
-        storage_.geometry(g);
-
-        Logger::info("Flash Geometry: (%d x %lu) (%d for firmware)",
-                     g.number_of_blocks, g.block_size(), firmwareBlocks);
-
-        if (!storage_.open()) {
-            Logger::error("Open failed");
-            return false;
-        }
-
+    bool initialize() {
         if (!manager_.locate()) {
             if (!erase()) {
-                Logger::error("Erase failed");
+                FlashLog::error("Erase failed");
                 return false;
             }
         }
         else {
             auto location = manager_.location();
-            Logger::info("Located (%d.%d)", location.block, location.sector);
-        }
-
-        if (!allocator_.initialize()) {
-            Logger::error("Initialize failed");
-            return false;
+            FlashLog::info("Located (%d.%d) (size = %d)", location.block, location.sector, sizeof(T));
         }
 
         return true;
     }
 
     bool erase() {
-        Logger::info("Erasing");
-        if (!storage_.erase()) {
-            return false;
-        }
-
-        Logger::info("Creating");
+        FlashLog::info("Creating (size = %d)", sizeof(T));
         if (!manager_.create()) {
             return false;
         }
 
-        Logger::info("Locating");
+        FlashLog::info("Locating");
         if (!manager_.locate()) {
             return false;
         }
@@ -109,14 +107,7 @@ public:
         }
 
         auto location = manager_.location();
-        Logger::info("Saved (%lu:%d)", location.block, location.sector);
-        return true;
-    }
-
-protected:
-    bool busy(uint32_t elapsed) override {
-        watchdog_->task();
-
+        FlashLog::info("Saved (%lu:%d)", location.block, location.sector);
         return true;
     }
 

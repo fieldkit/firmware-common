@@ -42,8 +42,9 @@ private:
     Status status{ state, bus, leds };
     TwoWireBus bus{ Wire };
     FileSystem fileSystem{ bus };
-    FlashStorage<PersistedState> flashStorage{ watchdog };
-    CoreState state{flashStorage, fileSystem.getData()};
+    SerialFlashFileSystem flashFs{ watchdog };
+    FlashState<PersistedState> flashState{ flashFs };
+    CoreState state{flashState, fileSystem.getData()};
     ModuleCommunications moduleCommunications{bus, pool};
 
     CronTask copyModuleDataTask{ lwcron::CronSpec::specific(0), { CoreFsm::deferred<CopyModuleData>() } };
@@ -105,7 +106,8 @@ private:
         &power,
         &status,
         &state,
-        &flashStorage,
+        &flashFs,
+        &flashState,
         &fileSystem,
         &button,
         &scheduler,
@@ -126,7 +128,8 @@ private:
         &power,
         &status,
         &state,
-        &flashStorage,
+        &flashFs,
+        &flashState,
         &fileSystem,
         &button,
         &scheduler,
