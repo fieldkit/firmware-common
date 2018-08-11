@@ -3,6 +3,8 @@
 
 #include <alogging/alogging.h>
 #include <phylum/super_block.h>
+#include <phylum/serial_flash_state_manager.h>
+#include <phylum/serial_flash_fs.h>
 #include <backends/arduino_serial_flash/arduino_serial_flash.h>
 #include <backends/arduino_serial_flash/serial_flash_allocator.h>
 
@@ -13,36 +15,16 @@ namespace fk {
 
 constexpr const char FlashStorageLogName[] = "Flash";
 
-#ifdef FK_DISABLE_FLASH
-
-template<typename T>
-class FlashStorage {
+class SerialFlashFileSystem : public phylum::StorageBackendCallbacks {
 private:
-    T state_;
+    Watchdog *watchdog_;
+    phylum::ArduinoSerialFlashBackend storage_;
+    phylum::SerialFlashAllocator allocator_{ storage_ };
+    phylum::Files files_{ &storage_, &allocator_ };
 
 public:
-    FlashStorage(Watchdog &watchdog) {
-    }
-
-    T& state() {
-        return state_;
-    }
-
-    bool save() {
-        return true;
-    }
-
-    bool initialize(uint8_t cs, phylum::sector_index_t sector_size = 512) {
-        return true;
-    }
-
-    bool erase() {
-        return true;
-    }
 
 };
-
-#else
 
 template<typename T>
 class FlashStorage : public phylum::StorageBackendCallbacks {
@@ -139,8 +121,6 @@ protected:
     }
 
 };
-
-#endif // FK_DISABLE_FLASH
 
 }
 

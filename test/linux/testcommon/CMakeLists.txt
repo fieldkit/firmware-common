@@ -49,7 +49,8 @@ target_include_directories(testcommon PUBLIC "${LIB_INCLUDES}")
 
 target_link_libraries(testcommon libgtest libgmock)
 
-add_definitions("-DFK_DISABLE_FLASH")
+add_definitions(-DPHYLUM_ENABLE_SERIAL_FLASH)
+target_compile_options(arduino_zero_phylum PUBLIC -DPHYLUM_ENABLE_SERIAL_FLASH)
 
 set_target_properties(testcommon PROPERTIES C_STANDARD 11)
 set_target_properties(testcommon PROPERTIES CXX_STANDARD 11)
