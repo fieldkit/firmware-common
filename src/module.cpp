@@ -44,7 +44,6 @@ void Module::resume() {
 
 void Module::receive(size_t bytes) {
     if (bytes > 0) {
-        lastActivity = fk_uptime();
         incoming.clear();
         incoming.readIncoming(bytes);
         pipe.getWriter().write(incoming.ptr(), incoming.position());
@@ -77,11 +76,6 @@ void Module::reply() {
 
 void Module::tick() {
     ModuleState::current().task();
-
-    if (elapsedSinceActivity() > ModuleIdleRebootInterval) {
-        log("Reboot due to inactivity.");
-        NVIC_SystemReset();
-    }
 }
 
 void Module::log(const char *f, ...) const {

@@ -22,7 +22,6 @@ private:
     StaticPool<128> replyPool{ "Reply" };
     TwoWireMessageBuffer outgoing;
     TwoWireMessageBuffer incoming;
-    uint32_t lastActivity{ 0 };
     Leds leds;
     Watchdog watchdog_{ leds };
     ModuleInfo *info;
@@ -63,11 +62,6 @@ public:
     void receive(size_t bytes);
     void reply();
     void log(const char *f, ...) const;
-
-public:
-    uint32_t elapsedSinceActivity() const {
-        return fk_uptime() - lastActivity;
-    }
 
 public:
     ModuleReadingStatus beginReading(PendingSensorReading &pending) override;

@@ -6,6 +6,9 @@
 namespace fk {
 
 class ModuleIdle : public ModuleServicesState {
+private:
+    uint32_t tick_{ 0 };
+
 public:
     const char *name() const override {
         return "ModuleIdle";
