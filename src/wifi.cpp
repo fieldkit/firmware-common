@@ -3,7 +3,7 @@
 #include "wifi.h"
 #include "utils.h"
 #include "hardware.h"
-#include "static_wifi_allocator.h"
+#include "wifi_callbacks.h"
 
 namespace fk {
 
