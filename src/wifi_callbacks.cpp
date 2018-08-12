@@ -41,12 +41,13 @@ bool StaticWiFiCallbacks::busy(uint32_t elapsed) {
         if (elapsed > 0) {
             logf(LogLevels::TRACE, "Wifi", "Busy (%lu)", elapsed);
         }
-
-        if (wdt_read_early_warning()) {
-            wdt_clear_early_warning();
-            wdt_checkin();
-        }
     }
+
+    if (wdt_read_early_warning()) {
+        wdt_clear_early_warning();
+        wdt_checkin();
+    }
+
     return true;
 }
 
