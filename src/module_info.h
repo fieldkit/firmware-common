@@ -1,8 +1,12 @@
 #ifndef FK_MODULE_INFO_H_INCLUDED
 #define FK_MODULE_INFO_H_INCLUDED
 
-#include <cstdint>
+#include <cinttypes>
 #include <cstring>
+
+#include <phylum/wandering_block_manager.h>
+
+#include "network_settings.h"
 
 namespace fk {
 
@@ -100,6 +104,27 @@ struct HttpTransmissionConfig {
     const char *streamUrl;
 };
 
+enum class FirmwareBank {
+    CoreA,
+    CoreB,
+    ModuleA,
+    ModuleB,
+    NumberOfBanks
+};
+
+struct FirmwareAddresses {
+    phylum::BlockAddress banks[(size_t)FirmwareBank::NumberOfBanks];
+};
+
+struct PersistedState : phylum::MinimumSuperBlock {
+    uint32_t time;
+    uint32_t seed;
+    FirmwareAddresses firmwares;
+    DeviceIdentity deviceIdentity;
+    NetworkSettings networkSettings;
+    DeviceLocation location;
+    uint32_t readingNumber{ 0 };
+};
 
 }
 

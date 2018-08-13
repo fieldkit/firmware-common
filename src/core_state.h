@@ -8,32 +8,9 @@
 #include "module_messages.h"
 #include "two_wire_task.h"
 #include "fkfs_data.h"
-#include "network_settings.h"
 #include "flash_storage.h"
 
 namespace fk {
-
-enum class FirmwareBank {
-    CoreA,
-    CoreB,
-    ModuleA,
-    ModuleB,
-    NumberOfBanks
-};
-
-struct FirmwareAddresses {
-    phylum::BlockAddress banks[(size_t)FirmwareBank::NumberOfBanks];
-};
-
-struct PersistedState : phylum::MinimumSuperBlock {
-    uint32_t time;
-    uint32_t seed;
-    DeviceIdentity deviceIdentity;
-    NetworkSettings networkSettings;
-    DeviceLocation location;
-    uint32_t readingNumber{ 0 };
-    FirmwareAddresses firmwares;
-};
 
 class CoreState {
 private:

@@ -10,6 +10,7 @@
 
 #include "debug.h"
 #include "watchdog.h"
+#include "module_info.h"
 
 namespace fk {
 
@@ -44,7 +45,7 @@ public:
     template<typename T>
     bool reclaim(FlashState<T> &manager) {
         phylum::UnusedBlockReclaimer reclaimer(&files_, &manager.manager());
-        reclaim(reclaimer);
+        reclaim(reclaimer, manager.state());
         return reclaimer.reclaim();
     }
 
@@ -54,7 +55,7 @@ public:
 protected:
     bool busy(uint32_t elapsed) override;
 
-    bool reclaim(phylum::UnusedBlockReclaimer &reclaimer);
+    bool reclaim(phylum::UnusedBlockReclaimer &reclaimer, PersistedState &state);
 
 };
 

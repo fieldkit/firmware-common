@@ -5,6 +5,7 @@
 
 void setup() {
     Serial.begin(115200);
+    Serial5.begin(115200);
 
     while (!Serial) {
         delay(100);

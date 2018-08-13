@@ -34,8 +34,18 @@ bool SerialFlashFileSystem::erase() {
     return true;
 }
 
-bool SerialFlashFileSystem::reclaim(phylum::UnusedBlockReclaimer &reclaimer) {
-    // reclaimer.walk(location);
+bool SerialFlashFileSystem::reclaim(phylum::UnusedBlockReclaimer &reclaimer, PersistedState &state) {
+    for (auto i = 0; i < (int32_t)FirmwareBank::NumberOfBanks; ++i) {
+        auto addr = state.firmwares.banks[i];
+        if (storage_.geometry().valid(addr)) {
+            FlashLog::info("Walk (%lu:%lu)", addr.block, addr.position);
+            reclaimer.walk(addr);
+        }
+        else {
+            // NOTE: This fixes up some gibberish addresses I introduced in testing.
+            state.firmwares.banks[i] = { };
+        }
+    }
 
     return true;
 }

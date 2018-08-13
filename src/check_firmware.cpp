@@ -60,7 +60,10 @@ void CheckFirmware::check() {
 
     if (firmwareStorage.header(bank_, header)) {
         if (header.version != FIRMWARE_VERSION_INVALID) {
-            log("Have: %s", header.etag);
+            log("Have: '%s' (%lu bytes)", header.etag, header.size);
+        }
+        else {
+            log("No existing firmware");
         }
     }
 
@@ -80,14 +83,14 @@ void CheckFirmware::check() {
         httpWriter.writeHeaders(parsed, "GET", headers);
 
         auto writer = (lws::Writer *)nullptr;
-        auto started = millis();
+        auto activity = fk_uptime();
         auto total = (uint32_t)0;
 
         while (wcl.connected() || wcl.available()) {
-            delay(10);
+            services().alive();
 
-            if (millis() - started > WifiConnectionTimeout) {
-                error("Failed!");
+            if (fk_uptime() - activity > WifiConnectionTimeout) {
+                error("Failed! (%lu)", fk_uptime() - activity);
                 break;
             }
 
@@ -108,14 +111,16 @@ void CheckFirmware::check() {
                                 header.version = 1;
                                 header.position = 0;
                                 header.size = httpParser.content_length();
-                                strncpy(header.etag, httpParser.etag(), sizeof(header.etag));
+                                strncpy(header.etag, httpParser.etag(), sizeof(header.etag) - 1);
 
-                                if (writer->write((uint8_t *)&header, sizeof(firmware_header_t)) != sizeof(firmware_header_t)) {
+                                auto headerBytes = writer->write((uint8_t *)&header, sizeof(firmware_header_t));
+                                if (headerBytes != sizeof(firmware_header_t)) {
                                     error("Writing header failed.");
                                 }
                             }
                             writer->write(buffer, bytes);
                             total += bytes;
+                            activity = fk_uptime();
                         }
                     }
                 }

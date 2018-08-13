@@ -8,7 +8,7 @@ namespace fk {
 
 class FileWriter : public lws::Writer {
 private:
-    phylum::BlockedFile *file_{ nullptr };
+    phylum::File *file_{ nullptr };
     bool closed_{ false };
 
 public:

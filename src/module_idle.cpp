@@ -11,6 +11,8 @@ namespace fk {
 void ModuleIdle::task() {
     if (fk_uptime() - tick_ > 5000) {
         trace("Tick");
+        Serial5.print(millis());
+        Serial5.println(" Tick");
         tick_ = fk_uptime();
     }
     if (!services().incoming->empty()) {

@@ -52,10 +52,7 @@ bool FirmwareStorage::header(FirmwareBank bank, firmware_header_t &header) {
 
     auto bytes = file.read((uint8_t *)&header, sizeof(firmware_header_t));
     if (bytes != sizeof(firmware_header_t)) {
-        return false;
-    }
-
-    if (header.version != 1) {
+        Logger::error("Bank %d: Read header failed", bank);
         return false;
     }
 
