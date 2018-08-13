@@ -26,7 +26,7 @@ void ModuleDataTransfer::query(ModuleQueryMessage &message) {
 }
 
 void ModuleDataTransfer::reply(ModuleReplyMessage &message) {
-    Logger::info("Reply: %d", message.m().data.size);
+    Logger::info("Reply: %lu", (uint32_t)message.m().data.size);
 }
 
 WriteModuleData::WriteModuleData(lws::Reader *reader) : reader_(reader) {
@@ -89,7 +89,7 @@ void VerifyModuleData::query(ModuleQueryMessage &message) {
 }
 
 void VerifyModuleData::reply(ModuleReplyMessage &message) {
-    Logger::info("Reply: %d", message.m().data.size);
+    Logger::info("Reply: %lu", (uint32_t)message.m().data.size);
 }
 
 PrepareTransmissionData::PrepareTransmissionData(CoreState &state, ModuleCommunications &communications, lws::Reader *reader) :

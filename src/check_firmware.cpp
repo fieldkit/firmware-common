@@ -3,13 +3,15 @@
 #include "check_firmware.h"
 #include "transmit_files.h"
 
-#include "firmware_header.h"
 #include "http_response_parser.h"
 #include "http_response_writer.h"
 
+#include "firmware_header.h"
+#include "firmware_storage.h"
+
 namespace fk {
 
-static void erase(SerialFlashChip &serialFlash) {
+void erase(SerialFlashChip &serialFlash) {
     auto starting = FLASH_FIRMWARE_BANK_1_ADDRESS;
     auto block_size = serialFlash.blockSize();
 
@@ -48,25 +50,9 @@ void CheckFirmware::task() {
 
 void CheckFirmware::check() {
     fk::Url parsed(WifiApiUrlFirmware, deviceId.toString(), module_);
-    SerialFlashChip serialFlash;
+    FirmwareStorage firmwareStorage{ *services().flashFs };
     HttpResponseParser parser;
     WiFiClient wcl;
-
-    if (!serialFlash.begin(Hardware::FLASH_PIN_CS)) {
-        log("Error opening serial flash");
-        back();
-        return;
-    }
-
-    firmware_header_t bank1;
-    serialFlash.read(FLASH_FIRMWARE_BANK_1_HEADER_ADDRESS, &bank1, sizeof(bank1));
-
-    if (bank1.version != FIRMWARE_VERSION_INVALID) {
-        log("Bank1: version=%lu size=%lu (%s)", bank1.version, bank1.size, bank1.etag);
-    }
-    else {
-        log("Bank1: invalid");
-    }
 
     log("GET http://%s:%d/%s", parsed.server, parsed.port, parsed.path);
 
@@ -76,7 +62,8 @@ void CheckFirmware::check() {
             firmware_version_get(),
             firmware_build_get(),
             deviceId.toString(),
-            bank1.version != FIRMWARE_VERSION_INVALID ? bank1.etag : nullptr,
+            nullptr,
+            // bank1.version != FIRMWARE_VERSION_INVALID ? bank1.etag : nullptr,
         };
         HttpHeadersWriter httpWriter(wcl);
         HttpResponseParser httpParser;
@@ -85,10 +72,9 @@ void CheckFirmware::check() {
 
         httpWriter.writeHeaders(parsed, "GET", headers);
 
+        auto writer = (lws::Writer *)nullptr;
         auto started = millis();
         auto total = 0;
-        auto starting = FLASH_FIRMWARE_BANK_1_ADDRESS;
-        auto address = starting;
 
         while (wcl.connected() || wcl.available()) {
             delay(10);
@@ -108,13 +94,11 @@ void CheckFirmware::check() {
                     auto bytes = wcl.read(buffer, sizeof(buffer));
                     if (bytes > 0) {
                         if (httpParser.status_code() == 200) {
-                            if (total == 0) {
-                                log("Erasing");
-                                erase(serialFlash);
+                            if (writer == nullptr) {
+                                writer = firmwareStorage.write();
                             }
-                            serialFlash.write(address, buffer, bytes);
+                            writer->write(buffer, bytes);
                             total += bytes;
-                            address += bytes;
                         }
                     }
                 }
@@ -122,13 +106,8 @@ void CheckFirmware::check() {
         }
 
         if (total > 0) {
-            firmware_header_t header;
-            header.version = 1;
-            header.position = starting;
-            header.size = total;
-            strncpy(header.etag, httpParser.etag(), sizeof(header.etag));
-            serialFlash.write(FLASH_FIRMWARE_BANK_1_HEADER_ADDRESS, &header, sizeof(header));
-            log("Status: %d total=%d etag='%s'", httpParser.status_code(), total, header.etag);
+            firmwareStorage.update(FirmwareBank::CoreA, writer, httpParser.etag());
+            log("Status: %d total=%d etag='%s'", httpParser.status_code(), total, httpParser.etag());
         }
         else {
             log("Status: %d", httpParser.status_code());

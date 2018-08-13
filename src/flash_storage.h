@@ -32,6 +32,11 @@ public:
     }
 
 public:
+    phylum::Files &files() {
+        return files_;
+    }
+
+public:
     bool initialize(uint8_t cs, phylum::sector_index_t sector_size = 512);
 
     bool erase();
@@ -81,7 +86,7 @@ public:
         }
         else {
             auto location = manager_.location();
-            FlashLog::info("Located (%d.%d) (size = %d)", location.block, location.sector, sizeof(T));
+            FlashLog::info("Located (%lu.%d) (size = %d)", location.block, location.sector, sizeof(T));
         }
 
         return true;

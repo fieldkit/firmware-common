@@ -8,7 +8,7 @@ namespace fk {
 
 class FileReader : public lws::SizedReader {
 private:
-    phylum::SimpleFile *file_{ nullptr };
+    phylum::BlockedFile *file_{ nullptr };
     uint32_t offset_{ 0 };
     uint32_t length_{ 0 };
     bool opened_{ false };
@@ -16,6 +16,7 @@ private:
 
 public:
     FileReader();
+    FileReader(phylum::BlockedFile *file);
     FileReader(phylum::SimpleFile *file);
 
 public:

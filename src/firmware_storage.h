@@ -5,18 +5,23 @@
 
 #include "firmware_header.h"
 #include "core_state.h"
+#include "file_writer.h"
 
 namespace fk {
 
 class FirmwareStorage {
 private:
+    phylum::AllocatedBlockedFile opened_;
+    SerialFlashFileSystem *fs_;
+    FileWriter writer_;
 
 public:
-    FirmwareStorage();
+    FirmwareStorage(SerialFlashFileSystem &fs);
 
 public:
-    lws::Writer *write(FirmwareBank bank);
+    lws::Writer *write();
     lws::Reader *read(FirmwareBank bank);
+    bool update(FirmwareBank bank, lws::Writer *writer, const char *etag);
 
 };
 

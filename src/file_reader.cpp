@@ -12,7 +12,10 @@ using Logger = SimpleLog<LogName>;
 FileReader::FileReader() {
 }
 
-FileReader::FileReader(phylum::SimpleFile *file) : file_(file) {
+FileReader::FileReader(phylum::BlockedFile *file) : file_(file) {
+}
+
+FileReader::FileReader(phylum::SimpleFile *file) : file_(&file->blocked()) {
 }
 
 bool FileReader::isOpen() {

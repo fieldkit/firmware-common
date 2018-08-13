@@ -10,7 +10,7 @@ bool SerialFlashFileSystem::initialize(uint8_t cs, phylum::sector_index_t sector
     }
 
     auto g = storage_.geometry();
-    FlashLog::info("Flash Geometry: (%d x %lu)", g.number_of_blocks, g.block_size());
+    FlashLog::info("Flash Geometry: (%lu x %lu)", g.number_of_blocks, g.block_size());
 
     if (!storage_.open()) {
         FlashLog::error("Open failed");

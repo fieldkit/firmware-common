@@ -21,7 +21,10 @@ bool fk_console_attached() {
     if (Serial) {
         console_attached = true;
     }
+    /*
     return console_attached;
+     */
+    return true;
 }
 
 bool fk_logging_trace_enabled() {
