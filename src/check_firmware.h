@@ -27,14 +27,14 @@ public:
 
 class CheckFirmware : public WifiState {
 private:
+    FirmwareBank bank_;
     const char *module_;
-    const char *etag_;
 
 public:
     CheckFirmware() : module_(nullptr) {
     }
 
-    CheckFirmware(const char *module) : module_(module) {
+    CheckFirmware(FirmwareBank bank, const char *module) : bank_(bank), module_(module) {
     }
 
 public:

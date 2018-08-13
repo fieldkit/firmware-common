@@ -27,11 +27,11 @@ void CheckAllAttachedFirmware::task() {
     if (index_ < state->numberOfModules()) {
         auto module = state->getModuleByIndex(index_);
         index_++;
-        transit_into<CheckFirmware>(module->module);
+        transit_into<CheckFirmware>(FirmwareBank::ModuleA, module->module);
     }
     else if (index_ == state->numberOfModules()) {
         index_++;
-        transit_into<CheckFirmware>("fk-core");
+        transit_into<CheckFirmware>(FirmwareBank::CoreA, "fk-core");
     }
     else {
         transit<WifiTransmitFiles>();
@@ -50,11 +50,19 @@ void CheckFirmware::task() {
 
 void CheckFirmware::check() {
     fk::Url parsed(WifiApiUrlFirmware, deviceId.toString(), module_);
-    FirmwareStorage firmwareStorage{ *services().flashFs };
+    FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
     HttpResponseParser parser;
     WiFiClient wcl;
 
     log("GET http://%s:%d/%s", parsed.server, parsed.port, parsed.path);
+
+    firmware_header_t header;
+
+    if (firmwareStorage.header(bank_, header)) {
+        if (header.version != FIRMWARE_VERSION_INVALID) {
+            log("Have: %s", header.etag);
+        }
+    }
 
     if (wcl.connect(parsed.server, parsed.port)) {
         OutgoingHttpHeaders headers{
@@ -62,8 +70,7 @@ void CheckFirmware::check() {
             firmware_version_get(),
             firmware_build_get(),
             deviceId.toString(),
-            nullptr,
-            // bank1.version != FIRMWARE_VERSION_INVALID ? bank1.etag : nullptr,
+            header.version != FIRMWARE_VERSION_INVALID ? header.etag : nullptr,
         };
         HttpHeadersWriter httpWriter(wcl);
         HttpResponseParser httpParser;
@@ -74,7 +81,7 @@ void CheckFirmware::check() {
 
         auto writer = (lws::Writer *)nullptr;
         auto started = millis();
-        auto total = 0;
+        auto total = (uint32_t)0;
 
         while (wcl.connected() || wcl.available()) {
             delay(10);
@@ -96,6 +103,16 @@ void CheckFirmware::check() {
                         if (httpParser.status_code() == 200) {
                             if (writer == nullptr) {
                                 writer = firmwareStorage.write();
+
+                                firmware_header_t header;
+                                header.version = 1;
+                                header.position = 0;
+                                header.size = httpParser.content_length();
+                                strncpy(header.etag, httpParser.etag(), sizeof(header.etag));
+
+                                if (writer->write((uint8_t *)&header, sizeof(firmware_header_t)) != sizeof(firmware_header_t)) {
+                                    error("Writing header failed.");
+                                }
                             }
                             writer->write(buffer, bytes);
                             total += bytes;
@@ -105,9 +122,16 @@ void CheckFirmware::check() {
             }
         }
 
-        if (total > 0) {
-            firmwareStorage.update(FirmwareBank::CoreA, writer, httpParser.etag());
-            log("Status: %d total=%d etag='%s'", httpParser.status_code(), total, httpParser.etag());
+        if (total > 0 && writer != nullptr) {
+            if (total != httpParser.content_length()) {
+                error("Status: %d (Size mismatch!) total=%lu expected=%lu etag='%s'", httpParser.status_code(),
+                      total, httpParser.content_length(), httpParser.etag());
+            }
+            else {
+                log("Status: %d total=%lu etag='%s'", httpParser.status_code(), total, httpParser.etag());
+
+                firmwareStorage.update(bank_, writer, httpParser.etag());
+            }
         }
         else {
             log("Status: %d", httpParser.status_code());
@@ -115,7 +139,7 @@ void CheckFirmware::check() {
 
         wcl.stop();
 
-        log("Done! (%d bytes)", total);
+        log("Done!");
     }
     else {
         error("Connection failed!");
