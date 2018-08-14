@@ -3,13 +3,29 @@
  */
 #include "example_module.h"
 
-void setup() {
+static void setup_serial() {
     Serial.begin(115200);
-    Serial5.begin(115200);
 
     while (!Serial) {
         delay(100);
+
+        #ifndef FK_DEBUG_UART_REQUIRE_CONSOLE
+        if (fk::fk_uptime() > 2000) {
+            break;
+        }
+        #endif
     }
+
+    if (!Serial) {
+        // The call to end here seems to free up some memory.
+        Serial.end();
+        Serial5.begin(115200);
+        log_uart_set(Serial5);
+    }
+}
+
+void setup() {
+    setup_serial();
 
     loginfof("Module", "Starting (%lu free)", fk_free_memory());
 

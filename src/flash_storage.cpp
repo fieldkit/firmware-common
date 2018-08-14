@@ -5,7 +5,7 @@ namespace fk {
 
 bool SerialFlashFileSystem::initialize(uint8_t cs, phylum::sector_index_t sector_size) {
     if (!storage_.initialize(cs, sector_size)) {
-        FlashLog::error("Initialize failed");
+        FlashLog::error("Initialize failed (%d)", cs);
         return false;
     }
 
