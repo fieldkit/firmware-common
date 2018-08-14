@@ -4,7 +4,8 @@ conservifyProperties()
 
 timestamps {
     node () {
-        conservifyBuild(name: 'firmware-common', archive: true, distribute: true)
+        conservifyBuild(name: 'firmware-common', archive: true)
+        distributeFirmware(module: 'fk-core')
 
         build job: "weather", wait: false
         build job: "atlas", wait: false
