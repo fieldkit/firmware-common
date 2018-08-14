@@ -11,6 +11,30 @@
 
 namespace fk {
 
+class CheckFirmware : public WifiState {
+private:
+    FirmwareBank bank_;
+    const char *module_;
+
+public:
+    CheckFirmware() : module_(nullptr) {
+    }
+
+    CheckFirmware(FirmwareBank bank, const char *module) : bank_(bank), module_(module) {
+    }
+
+public:
+    const char *name() const override {
+        return "CheckFirmware";
+    }
+
+public:
+    void task() override;
+
+private:
+    void check();
+};
+
 void CheckAllAttachedFirmware::task() {
     auto state = services().state;
 

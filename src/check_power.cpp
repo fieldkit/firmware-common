@@ -1,7 +1,7 @@
 #include "check_power.h"
 #include "power_management.h"
 #include "low_power_sleep.h"
-#include "scan_attached_devices.h"
+#include "firmware_health_check.h"
 
 namespace fk {
 
@@ -28,7 +28,7 @@ void CheckPower::task() {
 
     visited_ = true;
 
-    transit<ScanAttachedDevices>();
+    transit<FirmwareHealthCheck>();
 }
 
 }

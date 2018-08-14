@@ -25,30 +25,14 @@ public:
     void task() override;
 };
 
-class CheckFirmware : public WifiState {
-private:
-    FirmwareBank bank_;
-    const char *module_;
-
-public:
-    CheckFirmware() : module_(nullptr) {
-    }
-
-    CheckFirmware(FirmwareBank bank, const char *module) : bank_(bank), module_(module) {
-    }
-
+class FirmwareHealthCheck : public MainServicesState {
 public:
     const char *name() const override {
-        return "CheckFirmware";
+        return "FirmwareHealthCheck";
     }
 
 public:
     void task() override;
-
-private:
-    void check();
-
-
 };
 
 }
