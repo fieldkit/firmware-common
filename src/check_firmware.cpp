@@ -11,27 +11,17 @@
 
 namespace fk {
 
-void erase(SerialFlashChip &serialFlash) {
-    auto starting = FLASH_FIRMWARE_BANK_1_ADDRESS;
-    auto block_size = serialFlash.blockSize();
-
-    for (auto i = 0; i < 8; ++i) {
-        auto address = starting + i * block_size;
-        serialFlash.eraseBlock(address);
-    }
-}
-
 void CheckAllAttachedFirmware::task() {
     auto state = services().state;
 
     if (index_ < state->numberOfModules()) {
         auto module = state->getModuleByIndex(index_);
         index_++;
-        transit_into<CheckFirmware>(FirmwareBank::ModuleA, module->module);
+        transit_into<CheckFirmware>(FirmwareBank::ModuleNew, module->module);
     }
     else if (index_ == state->numberOfModules()) {
         index_++;
-        transit_into<CheckFirmware>(FirmwareBank::CoreA, "fk-core");
+        transit_into<CheckFirmware>(FirmwareBank::CoreNew, "fk-core");
     }
     else {
         transit<WifiTransmitFiles>();
@@ -109,7 +99,7 @@ void CheckFirmware::check() {
 
                                 firmware_header_t header;
                                 header.version = 1;
-                                header.position = 0;
+                                header.time = 0;
                                 header.size = httpParser.content_length();
                                 strncpy(header.etag, httpParser.etag(), sizeof(header.etag) - 1);
 

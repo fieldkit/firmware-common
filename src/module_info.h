@@ -105,10 +105,12 @@ struct HttpTransmissionConfig {
 };
 
 enum class FirmwareBank {
-    CoreA,
-    CoreB,
-    ModuleA,
-    ModuleB,
+    Core,
+    CoreNew,
+    CoreGood,
+    Module,
+    ModuleNew,
+    ModuleGood,
     NumberOfBanks
 };
 
