@@ -4,7 +4,7 @@ conservifyProperties()
 
 timestamps {
     node () {
-        conservifyBuild(name: 'firmware-common')
+        conservifyBuild(name: 'firmware-common', archive: true, distribute: true)
 
         build job: "weather", wait: false
         build job: "atlas", wait: false
