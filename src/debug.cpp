@@ -1,7 +1,7 @@
-#include <Arduino.h>
-
 #include "debug.h"
 #include "hardware.h"
+
+#include <Arduino.h>
 
 const char *global_firmware_build = "<unknown>";
 
