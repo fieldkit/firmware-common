@@ -48,14 +48,12 @@ void setup() {
         readings
     };
 
-    example::Sensors exampleSensors;
-    example::ExampleModule module(info, exampleSensors);
+    example::ExampleModule module(info);
 
     module.begin();
 
     while (true) {
         module.tick();
-        exampleSensors.tick();
         delay(10);
     }
 }

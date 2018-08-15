@@ -6,37 +6,16 @@
 
 namespace example {
 
-class TakeFakeReadings : public fk::Task {
-private:
-    fk::SensorReading *readings;
-
-public:
-    TakeFakeReadings();
-
-public:
-    TakeFakeReadings &into(fk::SensorReading *r);
-    fk::TaskEval task() override;
-
-};
-
-class Sensors : public fk::ActiveObject {
-public:
-    Sensors() : fk::ActiveObject("Sensors") {
-    }
-};
-
 class ExampleModule : public fk::Module {
 private:
     fk::TwoWireBus bus{ fk::Wire4and3 };
-    fk::Delay fiveSeconds{ 5000 };
-    TakeFakeReadings takeFakeReadings;
-    Sensors &sensors;
 
 public:
-    ExampleModule(fk::ModuleInfo &info, Sensors &sensors);
+    ExampleModule(fk::ModuleInfo &info);
 
 public:
-    virtual fk::ModuleReadingStatus beginReading(fk::PendingSensorReading &pending) override;
+    fk::ModuleReadingStatus beginReading(fk::PendingSensorReading &pending) override;
+    fk::DeferredModuleState beginReadingState() override;
 
 };
 

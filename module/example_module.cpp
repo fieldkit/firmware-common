@@ -1,35 +1,42 @@
+#include <module_idle.h>
+
 #include "example_module.h"
 
 namespace example {
 
-TakeFakeReadings::TakeFakeReadings() : Task("TakeFakeReadings") {
+class TakeSensorReadings : public fk::ModuleServicesState {
+public:
+    const char *name() const override {
+        return "TakeSensorReadings";
+    }
+
+public:
+    void task() override;
+};
+
+void TakeSensorReadings::task() {
+    transit<fk::ModuleIdle>();
 }
 
-TakeFakeReadings &TakeFakeReadings::into(fk::SensorReading *r) {
-    readings = r;
-    return *this;
+ExampleModule::ExampleModule(fk::ModuleInfo &info) :
+    Module(bus, info) {
 }
 
-fk::TaskEval TakeFakeReadings::task() {
+fk::ModuleReadingStatus ExampleModule::beginReading(fk::PendingSensorReading &pending) {
+    log("Readings!");
+
+    auto readings = pending.readings;
     for (size_t i = 0; i < 3; ++i) {
         readings[i].time = fk::clock.getTime();
         readings[i].value = random(10, 20);
         readings[i].status = fk::SensorReadingStatus::Done;
     }
 
-    return fk::TaskEval::done();
-}
-
-ExampleModule::ExampleModule(fk::ModuleInfo &info, Sensors &sensors) :
-    Module(bus, info), sensors(sensors) {
-}
-
-fk::ModuleReadingStatus ExampleModule::beginReading(fk::PendingSensorReading &pending) {
-    log("Readings!");
-
-    sensors.push(takeFakeReadings.into(pending.readings));
-
     return fk::ModuleReadingStatus();
+}
+
+fk::DeferredModuleState ExampleModule::beginReadingState() {
+    return fk::ModuleFsm::deferred<TakeSensorReadings>();
 }
 
 }
