@@ -6,6 +6,8 @@
 #include "message_buffer.h"
 #include "tuning.h"
 
+#include <Arduino.h>
+
 namespace fk {
 
 void ModuleIdle::task() {

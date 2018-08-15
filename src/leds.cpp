@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include "leds.h"
 #include "tuning.h"
 

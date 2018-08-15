@@ -112,7 +112,7 @@ bool FileSystem::setup() {
     }
 
     log_configure_time(fk_uptime, log_uptime);
-    log_add_hook(debug_write_log, nullptr);
+    log_configure_hook_register(debug_write_log, nullptr);
     log_configure_hook(true);
 
     return true;
