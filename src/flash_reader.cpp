@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "flash_reader.h"
 #include "flash_storage.h"
 

@@ -7,7 +7,7 @@
 #include <node_protocol.h>
 
 #include "tuning.h"
-#include "active_object.h"
+#include "task.h"
 #include "device_id.h"
 #include "file_system.h"
 #include "file_reader.h"

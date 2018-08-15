@@ -4,7 +4,7 @@
 #include <lwstreams/lwstreams.h>
 
 #include "rtc.h"
-#include "active_object.h"
+#include "task.h"
 #include "message_buffer.h"
 #include "module_messages.h"
 #include "pool.h"

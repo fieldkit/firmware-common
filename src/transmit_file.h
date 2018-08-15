@@ -1,7 +1,7 @@
 #ifndef FK_TRANSMIT_READINGS_H_INCLUDED
 #define FK_TRANSMIT_READINGS_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 #include "pool.h"
 #include "wifi.h"
 #include "core_state.h"

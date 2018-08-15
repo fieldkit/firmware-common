@@ -4,7 +4,7 @@
 #define LWS_ENABLE_PROTOBUF
 #include <lwstreams/lwstreams.h>
 
-#include "active_object.h"
+#include "task.h"
 #include "message_buffer.h"
 #include "module_messages.h"
 #include "module_servicer.h"

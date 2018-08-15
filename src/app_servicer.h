@@ -1,12 +1,11 @@
 #ifndef FK_APP_SERVICER_H_INCLUDED
 #define FK_APP_SERVICER_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 #include "app_messages.h"
 #include "core_state.h"
 #include "scheduler.h"
 #include "fkfs_replies.h"
-#include "task_container.h"
 #include "app_module_query_task.h"
 #include "wifi_client.h"
 

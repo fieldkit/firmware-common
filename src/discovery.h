@@ -1,7 +1,7 @@
 #ifndef FK_DISCOVERY_H_INCLUDED
 #define FK_DISCOVERY_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 #include "wifi.h"
 
 namespace fk {

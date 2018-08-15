@@ -5,7 +5,7 @@
 
 #include <lwstreams/lwstreams.h>
 
-#include "active_object.h"
+#include "task.h"
 #include "core_state.h"
 #include "two_wire_task.h"
 #include "file_system.h"

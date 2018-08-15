@@ -1,7 +1,7 @@
 #ifndef LEDS_H_INCLUDED
 #define LEDS_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 
 namespace fk {
 

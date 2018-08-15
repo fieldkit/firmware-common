@@ -1,7 +1,7 @@
 #ifndef FK_DOWNLOAD_FILE_TASK_H_INCLUDED
 #define FK_DOWNLOAD_FILE_TASK_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 #include "message_buffer.h"
 #include "app_messages.h"
 #include "wifi_client.h"

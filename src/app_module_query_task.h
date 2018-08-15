@@ -1,7 +1,7 @@
 #ifndef FK_APP_MODULE_QUERY_TASK_H_INCLUDED
 #define FK_APP_MODULE_QUERY_TASK_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 #include "app_messages.h"
 #include "core_state.h"
 #include "module_comms.h"

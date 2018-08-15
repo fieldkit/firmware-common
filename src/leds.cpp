@@ -2,6 +2,7 @@
 
 #include "leds.h"
 #include "tuning.h"
+#include "platform.h"
 
 namespace fk {
 

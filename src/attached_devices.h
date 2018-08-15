@@ -1,7 +1,7 @@
 #ifndef FK_ATTACHED_DEVICES_H_INCLUDED
 #define FK_ATTACHED_DEVICES_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 #include "two_wire_task.h"
 #include "core_state.h"
 

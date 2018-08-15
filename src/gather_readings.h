@@ -1,7 +1,7 @@
 #ifndef FK_GATHER_READINGS_H_INCLUDED
 #define FK_GATHER_READINGS_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 #include "core_state.h"
 #include "two_wire_task.h"
 #include "module_comms.h"

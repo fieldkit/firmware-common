@@ -1,7 +1,7 @@
 #ifndef FK_USER_BUTTON_H_INCLUDED
 #define FK_USER_BUTTON_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 
 namespace fk {
 

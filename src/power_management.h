@@ -1,7 +1,7 @@
 #ifndef FK_POWER_H_INCLUDED
 #define FK_POWER_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 #include "core_state.h"
 
 #include <FuelGauge.h>

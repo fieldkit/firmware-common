@@ -1,7 +1,7 @@
 #ifndef FK_STATUS_H_INCLUDED
 #define FK_STATUS_H_INCLUDED
 
-#include "active_object.h"
+#include "task.h"
 #include "core_state.h"
 #include "two_wire.h"
 #include "leds.h"

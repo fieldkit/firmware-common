@@ -1,7 +1,6 @@
 #ifndef FK_MODULE_H_EXTERNAL_INCLUDED
 #define FK_MODULE_H_EXTERNAL_INCLUDED
 
-#include "active_object.h"
 #include "debug.h"
 #include "two_wire.h"
 #include "module.h"
