@@ -19,10 +19,10 @@ TaskEval Status::task() {
             lastLogged = fk_uptime();
         }
 
-        logf(level, "Status", "%s (%" PRIu32 ") (%.2f%% / %.2fmv) (%" PRIu32 " free) (%s) (%s) (%s)",
-             nowFormatted.toString(), now.unixtime(),
-             percentage, voltage, fk_free_memory(),
-             deviceId.toString(), ip.toString(), state);
+        alogf(level, "Status", "%s (%" PRIu32 ") (%.2f%% / %.2fmv) (%" PRIu32 " free) (%s) (%s) (%s)",
+              nowFormatted.toString(), now.unixtime(),
+              percentage, voltage, fk_free_memory(),
+              deviceId.toString(), ip.toString(), state);
 
         lastTick = fk_uptime();
 

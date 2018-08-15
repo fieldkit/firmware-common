@@ -20,9 +20,6 @@ public:
     void eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer);
     void eraseAll(CoreState &state);
 
-private:
-    void log(const char *f, ...) const;
-
 };
 
 }

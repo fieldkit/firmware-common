@@ -31,9 +31,6 @@ public:
 private:
     size_t append(DataRecordMessage &message);
 
-private:
-    void log(const char *f, ...) const;
-
 };
 
 }

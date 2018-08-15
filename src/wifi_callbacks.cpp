@@ -39,7 +39,7 @@ bool StaticWiFiCallbacks::busy(uint32_t elapsed) {
         ticked = fk_uptime();
 
         if (elapsed > 0) {
-            logf(LogLevels::TRACE, "Wifi", "Busy (%lu)", elapsed);
+            logtracef("Wifi", "Busy (%lu)", elapsed);
         }
     }
 

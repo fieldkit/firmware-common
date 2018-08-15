@@ -14,6 +14,8 @@ namespace fk {
 
 constexpr const char Log[] = "Data";
 
+using Logger = SimpleLog<Log>;
+
 FkfsData::FkfsData(TwoWireBus &bus, Files &files) : bus(&bus), files(&files) {
 }
 
@@ -23,7 +25,7 @@ bool FkfsData::appendMetadata(CoreState &state) {
 
     auto size = append(message);
 
-    log("Appended metadata (%d bytes)", size);
+    Logger::info("Appended metadata (%d bytes)", size);
 
     return true;
 }
@@ -34,7 +36,7 @@ bool FkfsData::appendStatus(CoreState &state) {
 
     auto size = append(message);
 
-    log("Appended status (%d bytes)", size);
+    Logger::info("Appended status (%d bytes)", size);
 
     return true;
 }
@@ -52,7 +54,7 @@ bool FkfsData::appendLocation(DeviceLocation &location) {
 
     auto size = append(message);
 
-    log("Appended location (%d bytes)", size);
+    Logger::info("Appended location (%d bytes)", size);
 
     return true;
 }
@@ -74,7 +76,7 @@ bool FkfsData::appendReading(DeviceLocation &location, uint32_t readingNumber, u
 
     auto size = append(message);
 
-    log("Appended reading (%d bytes) (%lu, %d, '%s' = %f)", size, reading.time, sensorId, sensor.name, reading.value);
+    Logger::info("Appended reading (%d bytes) (%lu, %lu, '%s' = %f)", size, reading.time, sensorId, sensor.name, reading.value);
 
     return true;
 }
@@ -89,14 +91,14 @@ size_t FkfsData::append(DataRecordMessage &message) {
     uint8_t buffer[size + ProtoBufEncodeOverhead];
     auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, message.forEncode())) {
-        log("Error encoding data file record (%d/%d bytes)", size, sizeof(buffer));
+        Logger::error("Error encoding data file record (%d/%d bytes)", size, sizeof(buffer));
         return 0;
     }
 
     auto bytes = stream.bytes_written;
     auto written = (uint32_t)files->data().write(buffer, bytes, true);
     if (written != bytes) {
-        log("Error appending data file (%d != %d).", bytes, written);
+        Logger::error("Error appending data file (%d != %lu).", bytes, written);
         return 0;
     }
 
@@ -105,13 +107,6 @@ size_t FkfsData::append(DataRecordMessage &message) {
 
 bool FkfsData::doneTakingReadings() {
     return true;
-}
-
-void FkfsData::log(const char *f, ...) const {
-    va_list args;
-    va_start(args, f);
-    vlogf(LogLevels::INFO, Log, f, args);
-    va_end(args);
 }
 
 }

@@ -7,7 +7,7 @@ void callIdle(ActiveObject *task) {
     task->idle();
     auto ended = fk_uptime();
     if (ended - began > 500) {
-        logf(LogLevels::TRACE, "Tasks", "Long idle: %s (%lu)", task->name, ended - began);
+        alogf(LogLevels::TRACE, "Tasks", "Long idle: %s (%lu)", task->name, ended - began);
     }
 }
 
@@ -17,7 +17,7 @@ TaskEval callTask(Task *task) {
     auto ended = fk_uptime();
     if (!task->collection()) {
         if (ended - began > 500) {
-            logf(LogLevels::TRACE, "Tasks", "Long task: %s (%lu)", task->name, ended - began);
+            alogf(LogLevels::TRACE, "Tasks", "Long task: %s (%lu)", task->name, ended - began);
         }
     }
     return eval;
@@ -26,28 +26,28 @@ TaskEval callTask(Task *task) {
 void Task::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::INFO, name, f, args);
+    valogf(LogLevels::INFO, name, f, args);
     va_end(args);
 }
 
 void Task::info(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::INFO, name, f, args);
+    valogf(LogLevels::INFO, name, f, args);
     va_end(args);
 }
 
 void Task::trace(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::TRACE, name, f, args);
+    valogf(LogLevels::TRACE, name, f, args);
     va_end(args);
 }
 
 void Task::warn(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::WARN, name, f, args);
+    valogf(LogLevels::WARN, name, f, args);
     va_end(args);
 }
 

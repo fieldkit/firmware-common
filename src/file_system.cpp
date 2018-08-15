@@ -12,6 +12,8 @@ static Files *global_files{ nullptr };
 
 constexpr const char Log[] = "FileSystem";
 
+using Logger = SimpleLog<Log>;
+
 extern "C" {
 
 static uint32_t log_uptime() {
@@ -53,16 +55,16 @@ FileSystem::FileSystem(TwoWireBus &bus) : data_{ bus, files_ }, replies_{ *this 
 
 bool FileSystem::format() {
     if (!fs_.format(files_.descriptors_)) {
-        logf(LogLevels::ERROR, Log, "Format failed!");
+        Logger::error("Format failed!");
         return false;
     }
 
     if (!fs_.mount(files_.descriptors_)) {
-        logf(LogLevels::ERROR, Log, "Mount failed!");
+        Logger::error("Mount failed!");
         return false;
     }
 
-    logf(LogLevels::INFO, Log, "Formatted!");
+    Logger::info( "Formatted!");
 
     return true;
 }
@@ -75,7 +77,7 @@ bool FileSystem::eraseAll() {
     for (auto &fd : files_.descriptors_) {
         if (!fs_.erase(*fd)) {
             success = false;
-            log("Erase failed");
+            Logger::error("Erase failed");
         }
     }
 
@@ -88,24 +90,24 @@ bool FileSystem::eraseAll() {
 
 bool FileSystem::setup() {
     if (!storage_.initialize(g_, Hardware::SD_PIN_CS)) {
-        logf(LogLevels::ERROR, Log, "Unable to initialize SD.");
+        Logger::error("Unable to initialize SD.");
         return false;
     }
 
     if (!storage_.open()) {
-        logf(LogLevels::ERROR, Log, "Unable to open SD.");
+        Logger::error("Unable to open SD.");
         return false;
     }
 
     if (!fs_.mount(files_.descriptors_)) {
-        logf(LogLevels::ERROR, Log, "Mount failed!");
+        Logger::error("Mount failed!");
 
         if (!format()) {
             return false;
         }
     }
 
-    log("Mounted");
+    Logger::info("Mounted");
 
     if (!openSystemFiles()) {
         return false;
@@ -157,7 +159,7 @@ bool FileSystem::openSystemFiles() {
     for (auto fd : files_.descriptors_) {
         auto opened = fs_.open(*fd);
         if (opened) {
-            log("File: %s size = %lu maximum = %lu", fd->name, (uint32_t)opened.size(), (uint32_t)fd->maximum_size);
+            Logger::info("File: %s size = %lu maximum = %lu", fd->name, (uint32_t)opened.size(), (uint32_t)fd->maximum_size);
             opened.close();
         }
     }
@@ -173,7 +175,7 @@ bool FileSystem::erase(FileNumber number) {
 
     if (!fs_.erase(*fd)) {
         success = false;
-        log("Erase failed: %d", number);
+        Logger::error("Erase failed: %d", number);
     }
 
     if (!openSystemFiles()) {
@@ -186,8 +188,8 @@ bool FileSystem::erase(FileNumber number) {
 bool FileSystem::beginFileCopy(FileCopySettings settings) {
     auto fd = files_.descriptors_[(size_t)settings.file];
 
-    log("Prepare: id=%d name=%s offset=%lu length=%lu",
-         (size_t)settings.file, fd->name, settings.offset, settings.length);
+    Logger::info("Prepare: id=%d name=%s offset=%lu length=%lu",
+                 (size_t)settings.file, fd->name, settings.offset, settings.length);
 
     files_.opened_ = fs_.open(*fd, OpenMode::Read);
     if (!files_.opened_) {
@@ -212,13 +214,6 @@ bool FileSystem::flush() {
     }
 
     return true;
-}
-
-void FileSystem::log(const char *f, ...) const {
-    va_list args;
-    va_start(args, f);
-    vlogf(LogLevels::INFO, Log, f, args);
-    va_end(args);
 }
 
 phylum::SimpleFile FileSystem::openSystem(phylum::OpenMode mode) {
@@ -340,8 +335,7 @@ void FileCopyOperation::status() {
     auto elapsed = fk_uptime() - started_;
     auto complete = copied_ > 0 ? ((float)copied_ / total_) * 100.0f : 0.0f;
     auto speed = copied_ > 0 ? copied_ / ((float)elapsed / 1000.0f) : 0.0f;
-    logf(LogLevels::TRACE, "Copy", "%lu/%lu %lums %.2f %.2fbps (%lu)",
-         copied_, total_, elapsed, complete, speed, fk_uptime() - lastStatus_);
+    logtracef("Copy", "%lu/%lu %lums %.2f %.2fbps (%lu)", copied_, total_, elapsed, complete, speed, fk_uptime() - lastStatus_);
 }
 
 }

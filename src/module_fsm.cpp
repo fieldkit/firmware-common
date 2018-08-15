@@ -35,35 +35,35 @@ void ModuleState::react(tinyfsm::Event const &e) {
 void ModuleState::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::INFO, name(), f, args);
+    valogf(LogLevels::INFO, name(), f, args);
     va_end(args);
 }
 
 void ModuleState::info(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::INFO, name(), f, args);
+    valogf(LogLevels::INFO, name(), f, args);
     va_end(args);
 }
 
 void ModuleState::trace(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::TRACE, name(), f, args);
+    valogf(LogLevels::TRACE, name(), f, args);
     va_end(args);
 }
 
 void ModuleState::warn(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::WARN, name(), f, args);
+    valogf(LogLevels::WARN, name(), f, args);
     va_end(args);
 }
 
 void ModuleState::error(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::ERROR, name(), f, args);
+    valogf(LogLevels::ERROR, name(), f, args);
     va_end(args);
 }
 

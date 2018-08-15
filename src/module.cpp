@@ -1,10 +1,12 @@
-#include <Wire.h>
-
 #include "tuning.h"
 #include "module.h"
 #include "rtc.h"
 
 namespace fk {
+
+constexpr const char Log[] = "Module";
+
+using Logger = SimpleLog<Log>;
 
 static void module_request_callback() {
     fk_assert(fk::Module::active != nullptr);
@@ -52,19 +54,19 @@ void Module::receive(size_t bytes) {
 
 void Module::reply() {
     if (outgoing.empty()) {
-        log("Sending retry.");
+        Logger::info("Sending retry.");
         TwoWireMessageBuffer retryBuffer{ *bus };
         ModuleReplyMessage reply(replyPool);
         reply.m().type = fk_module_ReplyType_REPLY_RETRY;
         retryBuffer.write(reply);
         if (!bus->send(0, retryBuffer.ptr(), retryBuffer.position())) {
-            log("Error sending reply");
+            Logger::error("Error sending reply");
         }
         return;
     }
 
     if (!bus->send(0, outgoing.ptr(), outgoing.position())) {
-        log("Error sending reply");
+        Logger::error("Error sending reply");
     }
 
     // Careful here if this is called after we've placed a message in the
@@ -81,7 +83,7 @@ void Module::tick() {
 void Module::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::INFO, "Module", f, args);
+    loginfof("Module", f, args);
     va_end(args);
 }
 

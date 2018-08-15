@@ -8,7 +8,7 @@ ClockType clock;
 static void log(const char *f, ...) {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::TRACE, "Clock", f, args);
+    logtracef("Clock", f, args);
     va_end(args);
 }
 

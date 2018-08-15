@@ -10,6 +10,10 @@
 
 namespace fk {
 
+constexpr const char Log[] = "Files";
+
+using Logger = SimpleLog<Log>;
+
 FkfsReplies::FkfsReplies(FileSystem &fileSystem) : fileSystem(&fileSystem) {
 }
 
@@ -48,7 +52,7 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     reply.m().files.files.arg = (void *)&filesArray;
 
     if (!buffer.write(reply)) {
-        log("Error writing reply");
+        Logger::error("Error writing reply");
     }
 }
 
@@ -56,12 +60,12 @@ void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply,
     auto number = (FileNumber)query.m().eraseFile.id;
 
     if (!fileSystem->erase(number)) {
-        log("Failed to erase file: %d", number);
+        Logger::error("Failed to erase file: %d", number);
     }
 
     FileCursorManager fcm(*fileSystem);
     if (!fcm.save(number, 0)) {
-        log("Failed to save cursor: %d", sizeof(FileCursors));
+        Logger::error("Failed to save cursor: %d", sizeof(FileCursors));
     }
 
     queryFilesReply(query, reply, buffer);
@@ -84,14 +88,7 @@ void FkfsReplies::eraseAll(CoreState &state) {
 
     state.started();
 
-    log("Reset done.");
-}
-
-void FkfsReplies::log(const char *f, ...) const {
-    va_list args;
-    va_start(args, f);
-    vlogf(LogLevels::INFO, "Files", f, args);
-    va_end(args);
+    Logger::info("Reset done.");
 }
 
 }

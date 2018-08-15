@@ -9,7 +9,7 @@ Listen::Listen(uint16_t port, WifiConnection &connection) : port_(port), server_
 void Listen::begin() {
     if (!initialized_) {
         server_.begin();
-        logf(LogLevels::INFO, "Listen", "Server began (port = %d)", port_);
+        loginfof("Listen", "Server began (port = %d)", port_);
         initialized_ = true;
     }
 }
@@ -17,7 +17,7 @@ void Listen::begin() {
 void Listen::end() {
     if (initialized_) {
         initialized_ = false;
-        logf(LogLevels::INFO, "Listen", "Ended");
+        loginfof("Listen", "Ended");
     }
 }
 
@@ -26,7 +26,7 @@ bool Listen::listen() {
 
     auto wcl = server_.available();
     if (wcl) {
-        logf(LogLevels::INFO, "Listen", "Accepted!");
+        loginfof("Listen", "Accepted!");
         connection_->setConnection(wcl);
         return true;
     }

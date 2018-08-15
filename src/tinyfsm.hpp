@@ -228,8 +228,8 @@ protected:
 
     void sanity_check_before_transition(state_ptr_t state_ptr) {
         if (transitioned()) {
-            logf(LogLevels::TRACE, "FSM", "%s -> %s from %s",
-                 current_state_ptr->name(), state_ptr->name(), this->name());
+            alogf(LogLevels::TRACE, "FSM", "%s -> %s from %s",
+                  current_state_ptr->name(), state_ptr->name(), this->name());
         }
     }
 };

@@ -316,7 +316,7 @@ bool CoreState::hasModules() {
 void CoreState::log(const char *f, ...) const {
     va_list args;
     va_start(args, f);
-    vlogf(LogLevels::INFO, "CoreState", f, args);
+    valogf(LogLevels::INFO, "CoreState", f, args);
     va_end(args);
 }
 
