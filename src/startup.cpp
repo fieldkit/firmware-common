@@ -88,7 +88,7 @@ void Booting::task() {
 
     auto now = clock.now();
     FormattedTime nowFormatted{ now };
-    log("Now: %s", nowFormatted.toString());
+    log("Now: %s (%lu)", nowFormatted.toString(), now.unixtime());
 
     services().watchdog->started();
     services().state->started();

@@ -12,15 +12,11 @@ namespace fk {
 
 class ClockPair {
 private:
-    bool valid{ false };
     RTC_PCF8523 external;
     RTCZero local;
 
 public:
     void begin();
-    bool isValid() {
-        return valid;
-    }
 
 public:
     void setTime(DateTime dt);
@@ -32,14 +28,10 @@ public:
 
 class Clock {
 private:
-    bool valid{ false };
     RTCZero local;
 
 public:
     void begin();
-    bool isValid() {
-        return valid;
-    }
 
 public:
     void setTime(DateTime dt);
@@ -58,10 +50,6 @@ using ClockType = Clock;
 extern ClockType clock;
 
 inline bool isTimeOff(uint32_t time) {
-    if (!clock.isValid()) {
-        return false;
-    }
-
     // Decided to only do this check if we have a valid time, because if we
     // didn't then what would we do?
     if (time == 0) {
