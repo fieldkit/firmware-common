@@ -94,6 +94,8 @@ constexpr uint32_t SchedulerCheckInterval = 500;
 
 constexpr uint32_t NoModulesRebootWait = 1000 * 60 * 10;
 
+constexpr uint32_t SelfFlashWaitPeriod = 1000 * 20;
+
 }
 
 #endif

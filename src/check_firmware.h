@@ -25,16 +25,6 @@ public:
     void task() override;
 };
 
-class FirmwareHealthCheck : public MainServicesState {
-public:
-    const char *name() const override {
-        return "FirmwareHealthCheck";
-    }
-
-public:
-    void task() override;
-};
-
 }
 
 #endif

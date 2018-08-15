@@ -29,6 +29,51 @@ lws::Reader *FirmwareStorage::read(FirmwareBank bank) {
     return nullptr;
 }
 
+bool FirmwareStorage::backup() {
+    firmware_header_t header;
+    if (this->header(FirmwareBank::CoreGood, header)) {
+        if (header.version != FIRMWARE_VERSION_INVALID) {
+            Logger::info("Have: '%s' (%lu bytes)", header.etag, header.size);
+            return true;
+        }
+    }
+
+    auto writer = write();
+    header.version = 1;
+    header.time = clock.getTime();
+    header.size = 256 * 1024 - 2048;
+    header.etag[0] = 0;
+
+    auto headerBytes = writer->write((uint8_t *)&header, sizeof(firmware_header_t));
+    if (headerBytes != sizeof(firmware_header_t)) {
+        Logger::error("Writing header failed.");
+        return false;
+    }
+
+    Logger::info("Saving existing firmware (%p)", (void *)FIRMWARE_NVM_PROGRAM_ADDRESS);
+
+    uint32_t bytes = 0;
+    uint8_t *ptr = (uint8_t *)FIRMWARE_NVM_PROGRAM_ADDRESS;
+
+    while (bytes < header.size) {
+        auto written = writer->write(ptr, 1024);
+        if (written == 0) {
+            break;
+        }
+        bytes += written;
+    }
+
+    if (bytes == header.size) {
+        Logger::info("Done, filling bank.");
+        if (!update(FirmwareBank::CoreGood, writer, "")) {
+            Logger::error("Error");
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool FirmwareStorage::header(FirmwareBank bank, firmware_header_t &header) {
     header.version = FIRMWARE_VERSION_INVALID;
 

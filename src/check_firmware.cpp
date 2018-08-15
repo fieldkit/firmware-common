@@ -1,6 +1,7 @@
 #include <WiFi101.h>
 
 #include "check_firmware.h"
+#include "firmware_health_check.h"
 #include "transmit_files.h"
 
 #include "http_response_parser.h"
@@ -150,6 +151,10 @@ void CheckFirmware::check() {
                 log("Status: %d total=%lu etag='%s'", httpParser.status_code(), total, httpParser.etag());
 
                 firmwareStorage.update(bank_, writer, httpParser.etag());
+                firmwareStorage.backup();
+
+                transit<FirmwareSelfFlash>();
+                return;
             }
         }
         else {

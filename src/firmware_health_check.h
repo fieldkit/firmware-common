@@ -5,6 +5,16 @@
 
 namespace fk {
 
+class FirmwareSelfFlash : public MainServicesState {
+public:
+    const char *name() const override {
+        return "FirmwareSelfFlash";
+    }
+
+public:
+    void task() override;
+};
+
 class FirmwareHealthCheck : public MainServicesState {
 public:
     const char *name() const override {
