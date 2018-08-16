@@ -24,6 +24,7 @@ public:
 
 public:
     void entry() override {
+        #if defined(FK_CONFIG_WIFI_1_SSID) && defined(FK_CONFIG_WIFI_2_SSID)
         fk::NetworkInfo networks[2] = {
             {
                 FK_CONFIG_WIFI_1_SSID,
@@ -37,7 +38,8 @@ public:
 
         services().state->configure(fk::NetworkSettings{ false, networks });
 
-        log("Configured");
+        log("Configured compile time networks.");
+        #endif
 
         transit<fk::Initialized>();
     }
