@@ -54,6 +54,8 @@ FileSystem::FileSystem(TwoWireBus &bus) : data_{ bus, files_ }, replies_{ *this 
 }
 
 bool FileSystem::format() {
+    Logger::info("Formatting SD");
+
     if (!fs_.format(files_.descriptors_)) {
         Logger::error("Format failed!");
         return false;
@@ -63,8 +65,6 @@ bool FileSystem::format() {
         Logger::error("Mount failed!");
         return false;
     }
-
-    Logger::info( "Formatted!");
 
     return true;
 }
@@ -77,7 +77,7 @@ bool FileSystem::eraseAll() {
     for (auto &fd : files_.descriptors_) {
         if (!fs_.erase(*fd)) {
             success = false;
-            Logger::error("Erase failed");
+            Logger::error("Erase failed: %s", fd->name);
         }
     }
 
@@ -107,7 +107,7 @@ bool FileSystem::setup() {
         }
     }
 
-    Logger::info("Mounted");
+    Logger::info("Mounted (%lu blocks)", storage_.geometry().number_of_blocks);
 
     if (!openSystemFiles()) {
         return false;
@@ -175,7 +175,7 @@ bool FileSystem::erase(FileNumber number) {
 
     if (!fs_.erase(*fd)) {
         success = false;
-        Logger::error("Erase failed: %d", number);
+        Logger::error("Erase failed: %s", fd->name);
     }
 
     if (!openSystemFiles()) {

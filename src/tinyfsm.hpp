@@ -39,7 +39,6 @@
 #define TINYFSM_HPP_INCLUDED
 
 #include <type_traits>
-#include <cassert>
 #include <utility>
 
 #include "debug.h"
