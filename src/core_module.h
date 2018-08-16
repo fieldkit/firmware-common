@@ -1,8 +1,8 @@
 #ifndef FK_CORE_MODULE_H_INCLUDED
 #define FK_CORE_MODULE_H_INCLUDED
 
+#include <cinttypes>
 #include <cstddef>
-#include <cstdint>
 #include <cstdio>
 
 #include "pool.h"

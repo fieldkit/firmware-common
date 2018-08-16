@@ -1,7 +1,7 @@
 #ifndef FK_BUFFERS_H_INCLUDED
 #define FK_BUFFERS_H_INCLUDED
 
-#include <cstdint>
+#include <cinttypes>
 
 namespace fk {
 

@@ -3,7 +3,7 @@
 
 #include <lwstreams/lwstreams.h>
 
-#include <cstdint>
+#include <cinttypes>
 
 #include "two_wire.h"
 
