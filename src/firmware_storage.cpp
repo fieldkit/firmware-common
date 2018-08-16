@@ -30,11 +30,12 @@ lws::Reader *FirmwareStorage::read(FirmwareBank bank) {
 }
 
 bool FirmwareStorage::backup() {
+    Logger::info("Backup");
+
     firmware_header_t header;
     if (this->header(FirmwareBank::CoreGood, header)) {
         if (header.version != FIRMWARE_VERSION_INVALID) {
-            Logger::info("Have: '%s' (%lu bytes)", header.etag, header.size);
-            return true;
+            Logger::info("Existing: '%s' (%lu bytes), overwriting.", header.etag, header.size);
         }
     }
 
@@ -64,7 +65,7 @@ bool FirmwareStorage::backup() {
     }
 
     if (bytes == header.size) {
-        Logger::info("Done, filling bank.");
+        Logger::info("Done, updating bank.");
         if (!update(FirmwareBank::CoreGood, writer, "")) {
             Logger::error("Error");
             return false;
