@@ -2,8 +2,8 @@
 #define FK_FLASH_STORAGE_H_INCLUDED
 
 #include <alogging/alogging.h>
-#include <phylum/super_block.h>
-#include <phylum/serial_flash_state_manager.h>
+#include <phylum/super_block_manager.h>
+#include <phylum/basic_super_block_manager.h>
 #include <phylum/files.h>
 #include <phylum/unused_block_reclaimer.h>
 #include <backends/arduino_serial_flash/arduino_serial_flash.h>
@@ -45,7 +45,7 @@ public:
 
     template<typename T>
     bool reclaim(FlashState<T> &manager) {
-        phylum::UnusedBlockReclaimer reclaimer(&files_, &manager.manager());
+        phylum::UnusedBlockReclaimer reclaimer(files_, manager.manager().manager()); // Sorry
         reclaim(reclaimer, manager.state());
         return reclaimer.reclaim();
     }
@@ -64,14 +64,14 @@ template<typename T>
 class FlashState {
 private:
     SerialFlashFileSystem *flashFs_;
-    phylum::SerialFlashStateManager<T> manager_;
+    phylum::BasicSuperBlockManager<T> manager_;
 
 public:
     FlashState(SerialFlashFileSystem &flashFs) : flashFs_(&flashFs), manager_{ flashFs.storage_, flashFs.allocator_ } {
     }
 
 public:
-    phylum::SerialFlashStateManager<T>& manager() {
+    phylum::BasicSuperBlockManager<T>& manager() {
         return manager_;
     }
 

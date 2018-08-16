@@ -4,7 +4,7 @@
 #include <cinttypes>
 #include <cstring>
 
-#include <phylum/wandering_block_manager.h>
+#include <phylum/super_block_manager.h>
 
 #include "network_settings.h"
 
