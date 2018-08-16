@@ -14,6 +14,8 @@
 
 extern "C" {
 
+namespace fk {
+
 class ConfigureDevice : public fk::MainServicesState {
 public:
     const char *name() const override {
@@ -41,6 +43,8 @@ public:
     }
 };
 
+}
+
 static void setup_serial();
 static void setup_env();
 static void dump_configuration();
@@ -61,7 +65,7 @@ void setup() {
 
 void loop() {
     fk::CoreModule coreModule;
-    coreModule.run(fk::CoreFsm::deferred<ConfigureDevice>());
+    coreModule.run(fk::CoreFsm::deferred<fk::ConfigureDevice>());
 }
 
 static void setup_serial() {
