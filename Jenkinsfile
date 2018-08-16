@@ -4,7 +4,10 @@ conservifyProperties()
 
 timestamps {
     node () {
+        sh "rm -rf core/config.h"
+
         conservifyBuild(name: 'firmware-common', archive: true)
+
         distributeFirmware(module: 'fk-core')
 
         build job: "weather", wait: false
