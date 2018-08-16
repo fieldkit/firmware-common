@@ -16,6 +16,22 @@ bool fk_console_attached();
 
 bool fk_logging_trace_enabled();
 
+uint32_t fk_wdt_period(uint32_t ms);
+
+bool fk_wdt_enable();
+
+bool fk_wdt_early_warning_read();
+
+void fk_wdt_early_warning_clear();
+
+void fk_wdt_checkin();
+
+void fk_system_sleep();
+
+void fk_delay(uint32_t ms);
+
+const char *fk_system_get_reset_cause();
+
 }
 
 #endif
