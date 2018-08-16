@@ -1,5 +1,6 @@
 #include "watchdog.h"
 #include "platform.h"
+#include "tuning.h"
 
 namespace fk {
 
@@ -16,10 +17,19 @@ TaskEval Watchdog::task() {
         fk_wdt_early_warning_clear();
         fk_wdt_checkin();
 
-        leds->alive();
+        leds_->alive();
+    }
+
+    if (elapsedSinceIdle() > MaximumWaitBeforeReturnToIdle) {
+        error("No idle for %lu", elapsedSinceIdle());
+        fk_system_reset();
     }
 
     return TaskEval::idle();
+}
+
+void Watchdog::idling() {
+    idledAt_ = fk_uptime();
 }
 
 uint32_t Watchdog::sleep(uint32_t ms) {

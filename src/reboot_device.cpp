@@ -13,7 +13,7 @@ void RebootDevice::task() {
         transit<Initialized>();
     }
     else {
-        NVIC_SystemReset();
+        fk_system_reset();
     }
 }
 

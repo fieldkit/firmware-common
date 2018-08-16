@@ -6,6 +6,8 @@ namespace fk {
 void Idle::entry() {
     MainServicesState::entry();
 
+    services().watchdog->idling();
+
     auto now = clock.now();
     auto nextTask = services().scheduler->nextTask();
     FormattedTime nowFormatted{ now };

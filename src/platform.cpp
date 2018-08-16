@@ -62,6 +62,10 @@ void fk_system_sleep() {
     system_sleep();
 }
 
+void fk_system_reset() {
+    NVIC_SystemReset();
+}
+
 const char *fk_system_get_reset_cause() {
     switch (system_get_reset_cause()) {
     case SYSTEM_RESET_CAUSE_SOFTWARE: return "Software";

@@ -28,6 +28,8 @@ void fk_wdt_checkin();
 
 void fk_system_sleep();
 
+void fk_system_reset();
+
 void fk_delay(uint32_t ms);
 
 const char *fk_system_get_reset_cause();
