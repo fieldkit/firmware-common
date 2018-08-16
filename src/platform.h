@@ -32,7 +32,11 @@ void fk_system_reset();
 
 void fk_delay(uint32_t ms);
 
-const char *fk_system_get_reset_cause();
+bool fk_system_reset_cause_is_wdt();
+
+uint8_t fk_system_reset_cause_get();
+
+const char *fk_system_reset_cause_get_string();
 
 }
 

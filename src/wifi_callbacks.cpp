@@ -1,6 +1,6 @@
-#include "asf.h"
-#include "platform.h"
 #include "wifi_callbacks.h"
+#include "watchdog.h"
+#include "platform.h"
 #include "debug.h"
 
 namespace fk {
@@ -43,10 +43,7 @@ bool StaticWiFiCallbacks::busy(uint32_t elapsed) {
         }
     }
 
-    if (wdt_read_early_warning()) {
-        wdt_clear_early_warning();
-        wdt_checkin();
-    }
+    Watchdog::checkin();
 
     return true;
 }

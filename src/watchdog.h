@@ -31,6 +31,9 @@ public:
 public:
     TaskEval task() override;
 
+public:
+    static bool checkin();
+
 };
 
 }

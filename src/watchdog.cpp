@@ -9,14 +9,11 @@ void Watchdog::setup() {
 }
 
 void Watchdog::started() {
-    log("ResetCause: %s", fk_system_get_reset_cause());
+    log("ResetCause: %s", fk_system_reset_cause_get_string());
 }
 
 TaskEval Watchdog::task() {
-    if (fk_wdt_early_warning_read()) {
-        fk_wdt_early_warning_clear();
-        fk_wdt_checkin();
-
+    if (checkin()) {
         leds_->alive();
     }
 
@@ -26,6 +23,15 @@ TaskEval Watchdog::task() {
     }
 
     return TaskEval::idle();
+}
+
+bool Watchdog::checkin() {
+    if (fk_wdt_early_warning_read()) {
+        fk_wdt_early_warning_clear();
+        fk_wdt_checkin();
+        return true;
+    }
+    return false;
 }
 
 void Watchdog::idling() {

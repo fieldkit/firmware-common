@@ -1,7 +1,6 @@
 #include "data_messages.h"
 #include "rtc.h"
 #include "core_state.h"
-#include "asf.h"
 
 namespace fk {
 
@@ -58,7 +57,7 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
     };
 
     m().metadata.time = clock.getTime();
-    m().metadata.resetCause = system_get_reset_cause();
+    m().metadata.resetCause = fk_system_reset_cause_get();
     m().metadata.deviceId.funcs.encode = pb_encode_data;
     m().metadata.deviceId.arg = (void *)&deviceIdData;
     m().metadata.git.funcs.encode = pb_encode_string;

@@ -1,5 +1,5 @@
 #include "restart_wizard.h"
-#include "asf.h"
+#include "platform.h"
 
 namespace fk {
 
@@ -10,7 +10,7 @@ RestartWizard restartWizard __attribute__ ((section (".noinit")));
 static bool cygEnabled = false;
 
 void RestartWizard::startup() {
-    if (system_get_reset_cause() != SYSTEM_RESET_CAUSE_WDT) {
+    if (!fk_system_reset_cause_is_wdt()) {
         loginfof("RW", "RestartWizard: Reset.");
         calls.startup();
         deepestStack = 0;

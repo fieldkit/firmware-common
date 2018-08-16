@@ -1,7 +1,11 @@
+#include <../Adafruit_ASFcore/reset.h>
+#include <../Adafruit_ASFcore/power.h>
+#undef LOW
+#undef HIGH
 #include <Arduino.h>
+#include <AtSamd.h>
 
 #include "platform.h"
-#include "asf.h"
 
 namespace fk {
 
@@ -66,7 +70,15 @@ void fk_system_reset() {
     NVIC_SystemReset();
 }
 
-const char *fk_system_get_reset_cause() {
+bool fk_system_reset_cause_is_wdt() {
+    return system_get_reset_cause() == SYSTEM_RESET_CAUSE_WDT;
+}
+
+uint8_t fk_system_reset_cause_get() {
+    return system_get_reset_cause();
+}
+
+const char *fk_system_reset_cause_get_string() {
     switch (system_get_reset_cause()) {
     case SYSTEM_RESET_CAUSE_SOFTWARE: return "Software";
     case SYSTEM_RESET_CAUSE_WDT: return "WDT";
