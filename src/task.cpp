@@ -34,4 +34,11 @@ void Task::warn(const char *f, ...) const {
     va_end(args);
 }
 
+void Task::error(const char *f, ...) const {
+    va_list args;
+    va_start(args, f);
+    valogf(LogLevels::ERROR, name, f, args);
+    va_end(args);
+}
+
 }

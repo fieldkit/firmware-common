@@ -91,6 +91,7 @@ public:
     void info(const char *f, ...) const __attribute__((format(printf, 2, 3)));
     void trace(const char *f, ...) const __attribute__((format(printf, 2, 3)));
     void warn(const char *f, ...) const __attribute__((format(printf, 2, 3)));
+    void error(const char *f, ...) const __attribute__((format(printf, 2, 3)));
 
 };
 
