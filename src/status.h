@@ -5,7 +5,6 @@
 #include "core_state.h"
 #include "two_wire.h"
 #include "leds.h"
-#include "utils.h"
 
 namespace fk {
 

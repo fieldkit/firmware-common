@@ -1,5 +1,4 @@
 #include "wifi_server.h"
-#include "utils.h"
 
 namespace fk {
 

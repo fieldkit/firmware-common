@@ -90,7 +90,7 @@ void CheckFirmware::check() {
             deviceId.toString(),
             header.version != FIRMWARE_VERSION_INVALID ? header.etag : nullptr,
         };
-        HttpHeadersWriter httpWriter(wcl);
+        HttpHeadersWriter httpWriter(&wcl);
         HttpResponseParser httpParser;
 
         log("Connected!");

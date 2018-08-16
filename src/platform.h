@@ -5,6 +5,7 @@
 
 // Arduino
 class Uart;
+class Print;
 
 namespace fk {
 

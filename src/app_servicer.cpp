@@ -3,14 +3,11 @@
 #include <FuelGauge.h>
 
 #include "app_servicer.h"
-#include "utils.h"
 #include "device_id.h"
-
 #include "download_file_task.h"
 #include "leds.h"
 #include "watchdog.h"
 #include "live_data.h"
-
 #include "wifi_download_file.h"
 #include "wifi_query_module.h"
 #include "wifi_live_data.h"

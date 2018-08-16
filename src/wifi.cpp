@@ -1,7 +1,6 @@
 #include <SPI.h>
 
 #include "wifi.h"
-#include "utils.h"
 #include "hardware.h"
 #include "wifi_callbacks.h"
 

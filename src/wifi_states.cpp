@@ -1,6 +1,4 @@
-#include "utils.h"
 #include "wifi_states.h"
-
 #include "core_state.h"
 #include "app_servicer.h"
 #include "wifi_server.h"

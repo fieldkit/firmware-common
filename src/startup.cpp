@@ -12,7 +12,7 @@
 #include "file_system.h"
 #include "user_button.h"
 #include "power_management.h"
-#include "utils.h"
+#include "serial_number.h"
 #include "radio_service.h"
 
 namespace fk {

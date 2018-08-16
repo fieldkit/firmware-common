@@ -1,6 +1,7 @@
 #include "status.h"
 #include "core_fsm.h"
 #include "tuning.h"
+#include "wifi_tools.h"
 
 namespace fk {
 

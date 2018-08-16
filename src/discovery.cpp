@@ -1,8 +1,8 @@
+#include <WiFiUdp.h>
+
 #include "discovery.h"
 #include "device_id.h"
-#include "utils.h"
-
-#include <WiFiUdp.h>
+#include "wifi_tools.h"
 
 namespace fk {
 

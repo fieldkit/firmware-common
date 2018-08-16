@@ -6,8 +6,10 @@
 #include "wifi.h"
 #include "core_state.h"
 #include "file_reader.h"
-#include "utils.h"
+#include "wifi_tools.h"
 #include "file_system.h"
+#include "url_parser.h"
+#include "http_response_parser.h"
 
 namespace fk {
 

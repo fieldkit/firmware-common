@@ -1,9 +1,9 @@
 #ifndef FK_HTTP_RESPONSE_WRITER_H_INCLUDED
 #define FK_HTTP_RESPONSE_WRITER_H_INCLUDED
 
-#include <Arduino.h>
-
 #include "url_parser.h"
+
+class Print;
 
 namespace fk {
 
@@ -32,10 +32,10 @@ struct OutgoingHttpHeaders {
 
 class HttpHeadersWriter {
 private:
-    Print &stream;
+    Print *stream_;
 
 public:
-    explicit HttpHeadersWriter(Print &stream);
+    explicit HttpHeadersWriter(Print *stream);
 
 public:
     void writeHeaders(Url &url, const char *method, OutgoingHttpHeaders &headers);

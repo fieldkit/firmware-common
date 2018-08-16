@@ -3,6 +3,7 @@
 #include "transmit_file.h"
 #include "restart_wizard.h"
 #include "file_cursors.h"
+#include "http_response_writer.h"
 
 namespace fk {
 
@@ -178,7 +179,7 @@ bool TransmitFileTask::writeBeginning(Url &parsed) {
     auto fileSize = fileCopy.remaining();
     auto transmitting = fileSize + bufferSize;
 
-    HttpHeadersWriter httpWriter(wcl);
+    HttpHeadersWriter httpWriter(&wcl);
     OutgoingHttpHeaders headers{
         "application/vnd.fk.data+binary",
         transmitting,

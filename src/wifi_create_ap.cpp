@@ -1,8 +1,10 @@
 #ifdef FK_CORE
 #include <Base64.h>
 #endif
+#include <WiFi101.h>
+#include <IPAddress.h>
 
-#include "utils.h"
+#include "wifi_tools.h"
 #include "wifi_create_ap.h"
 #include "wifi_disable.h"
 #include "wifi_listening.h"

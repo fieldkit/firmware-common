@@ -6,6 +6,7 @@
 #include <AtSamd.h>
 
 #include "platform.h"
+#include "debug.h"
 
 namespace fk {
 
@@ -89,6 +90,16 @@ const char *fk_system_reset_cause_get_string() {
     default: {
         return "Unknown";
     }
+    }
+}
+
+}
+
+namespace std {
+
+void __throw_bad_alloc() {
+    loginfof("Assert", "std::bad_alloc");
+    while (true) {
     }
 }
 

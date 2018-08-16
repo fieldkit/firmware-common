@@ -3,7 +3,7 @@
 
 #include "debug.h"
 #include "device_id.h"
-#include "utils.h"
+#include "serial_number.h"
 
 namespace fk {
 

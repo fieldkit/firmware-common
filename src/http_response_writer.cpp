@@ -1,68 +1,70 @@
 #include <cstdlib>
 
+#include <Arduino.h>
+
 #include "http_response_writer.h"
 
 namespace fk {
 
-HttpHeadersWriter::HttpHeadersWriter(Print &stream) : stream(stream) {
+HttpHeadersWriter::HttpHeadersWriter(Print *stream) : stream_(stream) {
 }
 
 void HttpHeadersWriter::writeHeaders(Url &url, const char *method, OutgoingHttpHeaders &headers) {
-    stream.print(method);
-    stream.print(" /");
-    stream.print(url.path);
-    stream.println(" HTTP/1.1");
+    stream_->print(method);
+    stream_->print(" /");
+    stream_->print(url.path);
+    stream_->println(" HTTP/1.1");
 
-    stream.print("Host: ");
-    stream.println(url.server);
+    stream_->print("Host: ");
+    stream_->println(url.server);
 
-    stream.println("Connection: close");
+    stream_->println("Connection: close");
 
     if (headers.contentLength != OutgoingHttpHeaders::InvalidContentLength) {
-        stream.print("Content-Length: ");
-        stream.println(headers.contentLength);
+        stream_->print("Content-Length: ");
+        stream_->println(headers.contentLength);
     }
 
     if (headers.contentType != nullptr) {
-        stream.print("Content-Type: ");
-        stream.println(headers.contentType);
+        stream_->print("Content-Type: ");
+        stream_->println(headers.contentType);
     }
 
     if (headers.etag != nullptr) {
         auto len = strlen(headers.etag);
         auto quote = headers.etag[0] != '"' && headers.etag[len - 1] != '"';
-        stream.print("If-None-Match: ");
+        stream_->print("If-None-Match: ");
         if (quote) {
-            stream.print('"');
+            stream_->print('"');
         }
-        stream.print(headers.etag);
+        stream_->print(headers.etag);
         if (quote) {
-            stream.print('"');
+            stream_->print('"');
         }
-        stream.println();
+        stream_->println();
     }
 
     if (headers.fileId != OutgoingHttpHeaders::InvalidFileId) {
-        stream.print("Fk-FileId: ");
-        stream.println(headers.fileId);
+        stream_->print("Fk-FileId: ");
+        stream_->println(headers.fileId);
     }
 
     if (headers.version != nullptr) {
-        stream.print("Fk-Version: ");
-        stream.println(headers.version);
+        stream_->print("Fk-Version: ");
+        stream_->println(headers.version);
     }
 
     if (headers.build != nullptr) {
-        stream.print("Fk-Build: ");
-        stream.println(headers.build);
+        stream_->print("Fk-Build: ");
+        stream_->println(headers.build);
     }
 
     if (headers.deviceId != nullptr) {
-        stream.print("Fk-DeviceId: ");
-        stream.println(headers.deviceId);
+        stream_->print("Fk-DeviceId: ");
+        stream_->println(headers.deviceId);
     }
 
-    stream.println();
+    stream_->println();
 }
 
 }

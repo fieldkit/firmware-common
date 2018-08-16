@@ -1,7 +1,9 @@
+#include <WiFi101.h>
+
 #include "wifi_try_network.h"
 #include "wifi_sync_time.h"
 #include "wifi_create_ap.h"
-#include "utils.h"
+#include "wifi_tools.h"
 
 namespace fk {
 

@@ -2,7 +2,6 @@
 
 #include "tuning.h"
 #include "debug.h"
-#include "utils.h"
 #include "fkfs_replies.h"
 #include "file_system.h"
 #include "core_state.h"
