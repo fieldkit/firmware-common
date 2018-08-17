@@ -48,6 +48,7 @@ void ModuleReceiveData::task() {
 
     if (received != settings_.size) {
         log("stream: Fail (expected=%lu) (received=%lu)", settings_.size, received);
+        firmwareStorage.erase(fileWriter);
     }
     else {
         log("stream: Done (expected=%lu) (received=%lu) (bank=%d) (checksum=0x%lx)",

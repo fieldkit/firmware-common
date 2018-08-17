@@ -87,6 +87,13 @@ bool FirmwareStorage::backup() {
     return true;
 }
 
+bool FirmwareStorage::erase(lws::Writer *writer) {
+    opened_.erase_all_blocks();
+    opened_.close();
+
+    return true;
+}
+
 bool FirmwareStorage::header(FirmwareBank bank, firmware_header_t &header) {
     header.version = FIRMWARE_VERSION_INVALID;
 
