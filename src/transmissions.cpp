@@ -21,7 +21,7 @@ void PrepareModuleDataTransfer::reply(ModuleReplyMessage &message) {
     Logger::info("Reply: %lu", (uint32_t)message.m().data.size);
 }
 
-WriteModuleData::WriteModuleData(lws::SizedReader *reader) : reader_(reader) {
+WriteModuleData::WriteModuleData(lws::SizedReader *reader) : reader_(reader), checksumReader_{ *reader } {
 }
 
 void WriteModuleData::query(ModuleQueryMessage &message) {
@@ -41,7 +41,7 @@ void WriteModuleData::prepare(ModuleQueryMessage &message, lws::Writer &outgoing
 
 void WriteModuleData::tick(lws::Writer &outgoing) {
     if (total_ > 0) {
-        auto bytes = streamCopier_.copy(*reader_, outgoing);
+        auto bytes = streamCopier_.copy(checksumReader_, outgoing);
         if (bytes == lws::Stream::EOS) {
             status();
             total_ = 0;
@@ -66,7 +66,7 @@ void WriteModuleData::status() {
               copied_, total_, elapsed, complete, speed, fk_uptime() - lastStatus_);
 }
 
-VerifyModuleData::VerifyModuleData() {
+VerifyModuleData::VerifyModuleData(ModuleCopySettings settings) : settings_(settings) {
 }
 
 void VerifyModuleData::query(ModuleQueryMessage &message) {
@@ -76,7 +76,9 @@ void VerifyModuleData::query(ModuleQueryMessage &message) {
     };
 
     message.m().type = fk_module_QueryType_QUERY_DATA_VERIFY;
-    message.m().data.bank = 0;
+    message.m().data.size = settings_.size;
+    message.m().data.bank = (uint32_t)settings_.bank;
+    message.m().data.etag.arg = (void *)settings_.etag;
     message.m().data.checksum.arg = (void *)&checksumData_;
 }
 
@@ -85,7 +87,8 @@ void VerifyModuleData::reply(ModuleReplyMessage &message) {
 }
 
 PrepareTransmissionData::PrepareTransmissionData(CoreState &state, ModuleCommunications &communications, lws::SizedReader *reader, ModuleCopySettings settings) :
-    Task("PrepareTransmissionData"), state(&state), protocol(communications), prepareModuleDataTransfer(settings), writeModuleData(reader), settings(settings) {
+    Task("PrepareTransmissionData"), state(&state), protocol(communications),
+    prepareModuleDataTransfer(settings), writeModuleData(reader), verifyModuleData(settings), settings(settings) {
 }
 
 void PrepareTransmissionData::enqueued() {
@@ -107,7 +110,7 @@ TaskEval PrepareTransmissionData::task() {
                 log("Copy done");
                 // TODO: Remove this. Hack to let the module stop waiting for data.
                 delay(750);
-                // verifyModuleData.expectedChecksum(checksumReader.checksum());
+                verifyModuleData.expectedChecksum(writeModuleData.checksum());
                 protocol.push(8, verifyModuleData);
             }
             else {

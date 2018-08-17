@@ -42,6 +42,7 @@ class WriteModuleData : public ModuleQuery {
 private:
     lws::SizedReader *reader_;
     lws::BufferedStreamCopier<FileCopyBufferSize> streamCopier_;
+    Crc32Reader checksumReader_;
     uint32_t started_{ 0 };
     uint32_t total_{ 0 };
     uint32_t copied_{ 0 };
@@ -64,6 +65,11 @@ public:
         return false;
     }
 
+public:
+    uint32_t checksum() {
+        return checksumReader_.checksum();
+    }
+
 private:
     void status();
 
@@ -71,11 +77,13 @@ private:
 
 class VerifyModuleData : public ModuleQuery {
 private:
+    ModuleCopySettings settings_;
     uint32_t expectedChecksum_{ 0 };
     pb_data_t checksumData_;
 
 public:
-    VerifyModuleData();
+    VerifyModuleData(ModuleCopySettings settings);
+
 public:
     const char *name() const override {
         return "VerifyModuleData";

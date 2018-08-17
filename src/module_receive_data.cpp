@@ -40,6 +40,7 @@ void ModuleReceiveData::task() {
             break;
         }
         if (s > 0) {
+            writer.write(buffer, s);
             received += s;
             mark();
         }
