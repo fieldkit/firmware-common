@@ -10,6 +10,12 @@
 
 namespace fk {
 
+void ModuleIdle::entry() {
+    ModuleServicesState::entry();
+
+    services().watchdog->idling();
+}
+
 void ModuleIdle::task() {
     if (fk_uptime() - tick_ > 5000) {
         trace("Tick");
