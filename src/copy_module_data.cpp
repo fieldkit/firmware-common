@@ -1,26 +1,33 @@
 #include "copy_module_data.h"
 #include "watchdog.h"
 #include "transmissions.h"
-#include "performance.h"
-#include "flash_reader.h"
+#include "firmware_storage.h"
+#include "check_power.h"
 
 namespace fk {
 
 void CopyModuleData::task() {
-    SerialFlashChip flash;
+    FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
 
-    if (!flash.begin(Hardware::FLASH_PIN_CS)) {
-        log("Error opening serial flash");
-        back();
+    firmware_header_t header;
+    if (!firmwareStorage.header(FirmwareBank::ModuleNew, header)) {
+        transit_into<CheckPower>();
         return;
     }
 
-    FlashReader reader(&flash, 0, 256 * 1024);
+    auto reader = firmwareStorage.read(FirmwareBank::ModuleNew);
+
+    ModuleCopySettings settings = {
+        FirmwareBank::ModuleNew,
+        reader->size(),
+        header.etag
+    };
 
     PrepareTransmissionData prepareTransmissionData{
         *services().state,
         *services().moduleCommunications,
-        &reader
+        reader,
+        settings
     };
 
     prepareTransmissionData.enqueued();
@@ -30,7 +37,7 @@ void CopyModuleData::task() {
         services().moduleCommunications->task();
     }
 
-    back();
+    transit_into<CheckPower>();
 }
 
 }

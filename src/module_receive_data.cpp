@@ -2,27 +2,39 @@
 #include "module_idle.h"
 #include "message_buffer.h"
 #include "checksum_streams.h"
+#include "firmware_storage.h"
 #include "tuning.h"
 
 namespace fk {
 
-void ModuleReceiveData::task() {
-    auto reader = services().reader;
-    Crc32Reader crc32{ *reader };
+ModuleReceiveData::ModuleReceiveData() {
+}
 
-    auto received = 0;
+ModuleReceiveData::ModuleReceiveData(ModuleCopySettings settings) : settings_(settings) {
+}
+
+void ModuleReceiveData::task() {
+    FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
+
+    auto reader = services().reader;
+    auto fileWriter = firmwareStorage.write();
+    auto writer = Crc32Writer{ *fileWriter };
+    auto received = (uint32_t)0;
 
     services().pipe->clear();
 
-    while (true) {
+    mark();
+
+    while (received < settings_.size) {
         services().alive();
 
         if (elapsed() > TwoWireStreamingWait) {
+            log("Data stopped!");
             break;
         }
 
         uint8_t buffer[64];
-        auto s = crc32.read(buffer, sizeof(buffer));
+        auto s = reader->read(buffer, sizeof(buffer));
         if (s == lws::Stream::EOS) {
             log("stream: End");
             break;
@@ -33,9 +45,17 @@ void ModuleReceiveData::task() {
         }
     }
 
-    log("stream: Done (received %d) (checksum = 0x%lx)", received, crc32.checksum());
+    if (received != settings_.size) {
+        log("stream: Fail (expected=%lu) (received=%lu)", settings_.size, received);
+    }
+    else {
+        log("stream: Done (expected=%lu) (received=%lu) (bank=%d) (checksum=0x%lx)",
+            settings_.size, received, settings_.bank, writer.checksum());
+        firmwareStorage.update(settings_.bank, fileWriter);
+    }
 
     services().incoming->clear();
+
     services().outgoing->clear();
 
     transit<ModuleIdle>();

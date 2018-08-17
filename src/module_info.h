@@ -118,10 +118,13 @@ struct FirmwareAddresses {
     phylum::BlockAddress banks[(size_t)FirmwareBank::NumberOfBanks];
 };
 
-struct PersistedState : phylum::MinimumSuperBlock {
+struct MinimumFlashState : phylum::MinimumSuperBlock {
     uint32_t time;
     uint32_t seed;
     FirmwareAddresses firmwares;
+};
+
+struct PersistedState : MinimumFlashState {
     DeviceIdentity deviceIdentity;
     NetworkSettings networkSettings;
     DeviceLocation location;

@@ -34,7 +34,7 @@ bool SerialFlashFileSystem::erase() {
     return true;
 }
 
-bool SerialFlashFileSystem::reclaim(phylum::UnusedBlockReclaimer &reclaimer, PersistedState &state) {
+bool SerialFlashFileSystem::reclaim(phylum::UnusedBlockReclaimer &reclaimer, MinimumFlashState &state) {
     for (auto i = 0; i < (int32_t)FirmwareBank::NumberOfBanks; ++i) {
         auto addr = state.firmwares.banks[i];
         if (storage_.geometry().valid(addr)) {

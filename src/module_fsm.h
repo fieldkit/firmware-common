@@ -24,6 +24,7 @@ class Watchdog;
 class TwoWireBus;
 class ModuleCallbacks;
 class TwoWireMessageBuffer;
+class SerialFlashFileSystem;
 
 struct ModuleServices {
     Pool *pool;
@@ -37,6 +38,8 @@ struct ModuleServices {
     lws::Pipe *pipe;
     lws::Writer *writer;
     lws::Reader *reader;
+    SerialFlashFileSystem *flashFs;
+    FlashStateService *flashState;
 
     void alive();
     void clear();

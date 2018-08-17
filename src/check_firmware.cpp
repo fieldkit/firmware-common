@@ -150,7 +150,7 @@ void CheckFirmware::check() {
             else {
                 log("Status: %d total=%lu etag='%s'", httpParser.status_code(), total, httpParser.etag());
 
-                firmwareStorage.update(bank_, writer, httpParser.etag());
+                firmwareStorage.update(bank_, writer);
                 firmwareStorage.backup();
 
                 transit<FirmwareSelfFlash>();

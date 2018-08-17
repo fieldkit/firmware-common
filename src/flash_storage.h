@@ -56,7 +56,7 @@ public:
 protected:
     bool busy(uint32_t elapsed) override;
 
-    bool reclaim(phylum::UnusedBlockReclaimer &reclaimer, PersistedState &state);
+    bool reclaim(phylum::UnusedBlockReclaimer &reclaimer, MinimumFlashState &state);
 
 };
 

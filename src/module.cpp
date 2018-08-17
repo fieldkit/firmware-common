@@ -37,6 +37,8 @@ void Module::begin() {
     watchdog_.setup();
     clock.begin();
 
+    setupFlash();
+
     resume();
 }
 
@@ -49,6 +51,23 @@ void Module::receive(size_t bytes) {
         incoming.clear();
         incoming.readIncoming(bytes);
         pipe.getWriter().write(incoming.ptr(), incoming.position());
+    }
+}
+
+void Module::setupFlash() {
+    if (!flashFs_.initialize(6)) {
+        log("Flash unavailable.");
+        fk_assert(false);
+    }
+
+    if (!flashState_.initialize()) {
+        log("Flash initialize failed.");
+        fk_assert(false);
+    }
+
+    if (!flashFs_.reclaim(flashState_)) {
+        log("Flash reclaim failed.");
+        fk_assert(false);
     }
 }
 

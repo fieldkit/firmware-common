@@ -14,28 +14,22 @@
 
 namespace fk {
 
-class ClearModuleData : public ModuleQuery {
-public:
-    const char *name() const override {
-        return "ClearModuleData";
-    }
-
-public:
-    void query(ModuleQueryMessage &message) override;
-    void reply(ModuleReplyMessage &message) override;
-
-public:
-    ClearModuleData();
-
+struct ModuleCopySettings {
+    FirmwareBank bank;
+    uint32_t size;
+    const char *etag;
 };
 
-class ModuleDataTransfer : public ModuleQuery {
+class PrepareModuleDataTransfer : public ModuleQuery {
+private:
+    ModuleCopySettings settings_;
+
 public:
-    ModuleDataTransfer();
+    PrepareModuleDataTransfer(ModuleCopySettings settings);
 
 public:
     const char *name() const override {
-        return "ModuleDataTransfer";
+        return "PrepareModuleDataTransfer";
     }
 
 public:
@@ -46,7 +40,7 @@ public:
 
 class WriteModuleData : public ModuleQuery {
 private:
-    lws::Reader *reader_;
+    lws::SizedReader *reader_;
     lws::BufferedStreamCopier<FileCopyBufferSize> streamCopier_;
     uint32_t started_{ 0 };
     uint32_t total_{ 0 };
@@ -54,7 +48,7 @@ private:
     uint32_t lastStatus_{ 0 };
 
 public:
-    WriteModuleData(lws::Reader *reader);
+    WriteModuleData(lws::SizedReader *reader);
 
 public:
     const char *name() const override {
@@ -78,7 +72,7 @@ private:
 class VerifyModuleData : public ModuleQuery {
 private:
     uint32_t expectedChecksum_{ 0 };
-    pb_data_t checksumData;
+    pb_data_t checksumData_;
 
 public:
     VerifyModuleData();
@@ -101,14 +95,14 @@ class PrepareTransmissionData : public Task {
 private:
     CoreState *state;
     ModuleProtocolHandler protocol;
-    Crc32Reader checksumReader;
-    ClearModuleData clearModuleData;
-    ModuleDataTransfer moduleDataTransfer;
+    lws::SizedReader *reader;
+    PrepareModuleDataTransfer prepareModuleDataTransfer;
     WriteModuleData writeModuleData;
     VerifyModuleData verifyModuleData;
+    ModuleCopySettings settings;
 
 public:
-    PrepareTransmissionData(CoreState &state, ModuleCommunications &communications, lws::Reader *reader);
+    PrepareTransmissionData(CoreState &state, ModuleCommunications &communications, lws::SizedReader *reader, ModuleCopySettings settings);
 
 public:
     void enqueued() override;

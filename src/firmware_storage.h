@@ -31,7 +31,7 @@ public:
 
 public:
     bool header(FirmwareBank bank, firmware_header_t &header);
-    bool update(FirmwareBank bank, lws::Writer *writer, const char *etag);
+    bool update(FirmwareBank bank, lws::Writer *writer);
     bool backup();
 
 };

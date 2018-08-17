@@ -164,14 +164,23 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         break;
     }
     case fk_module_QueryType_QUERY_DATA_PREPARE: {
-        log("DataPrepare (%lu / %lu)", query.m().data.size, query.m().data.kind);
+        log("DataPrepare (size=%lu kind=%lu bank=%lu etag='%s')",
+            query.m().data.size, query.m().data.kind,
+            query.m().data.bank, (const char *)query.m().data.etag.arg);
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_DATA;
 
         outgoing->write(reply);
 
-        transit<ModuleReceiveData>();
+        ModuleCopySettings settings{
+            (FirmwareBank)query.m().data.bank,
+            (uint32_t)query.m().data.size,
+            // This is freed on the following transition.
+            nullptr // (const char *)query.m().data.etag.arg
+        };
+
+        transit_into<ModuleReceiveData>(settings);
 
         break;
     }
@@ -181,7 +190,8 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
 
         memcpy(&expected, checksumData->buffer, sizeof(uint32_t));
 
-        log("DataVerify (%lu) (0x%lx)", query.m().data.size, expected);
+        log("DataVerify (size=%lu kind=%lu bank=%lu) (checksum=0x%lx)",
+            query.m().data.size, query.m().data.kind, query.m().data.bank, expected);
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_SUCCESS;

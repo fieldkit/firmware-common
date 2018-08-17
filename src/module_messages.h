@@ -28,6 +28,8 @@ public:
         message.data.checksum.arg = pool;
         message.data.data.funcs.decode = pb_decode_data;
         message.data.data.arg = pool;
+        message.data.etag.funcs.decode = pb_decode_string;
+        message.data.etag.arg = pool;
         return &message;
     }
 
@@ -35,6 +37,7 @@ public:
         message.custom.message.funcs.encode = pb_encode_data;
         message.data.checksum.funcs.encode = pb_encode_data;
         message.data.data.funcs.encode = pb_encode_data;
+        message.data.etag.funcs.encode = pb_encode_string;
         return &message;
     }
 

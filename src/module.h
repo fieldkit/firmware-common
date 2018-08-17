@@ -25,6 +25,8 @@ private:
     StaticPool<128> replyPool{ "Reply" };
     Leds leds;
     Watchdog watchdog_{ leds };
+    SerialFlashFileSystem flashFs_{ watchdog_ };
+    FlashState<MinimumFlashState> flashState_{ flashFs_ };
     lws::CircularStreams<lws::RingBufferN<256>> pipe;
     ModuleServices moduleServices{
         &replyPool,
@@ -37,7 +39,9 @@ private:
         &incoming,
         &pipe,
         &pipe.getWriter(),
-        &pipe.getReader()
+        &pipe.getReader(),
+        &flashFs_,
+        &flashState_
     };
 
 public:
@@ -51,6 +55,7 @@ public:
     virtual void tick();
 
     void run();
+    void setupFlash();
 
 public:
     Watchdog &watchdog() {

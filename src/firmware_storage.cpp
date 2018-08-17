@@ -78,7 +78,7 @@ bool FirmwareStorage::backup() {
 
     if (bytes == header.size) {
         Logger::info("Done, updating bank.");
-        if (!update(FirmwareBank::CoreGood, writer, "")) {
+        if (!update(FirmwareBank::CoreGood, writer)) {
             Logger::error("Error");
             return false;
         }
@@ -117,7 +117,7 @@ bool FirmwareStorage::header(FirmwareBank bank, firmware_header_t &header) {
     return true;
 }
 
-bool FirmwareStorage::update(FirmwareBank bank, lws::Writer *writer, const char *etag) {
+bool FirmwareStorage::update(FirmwareBank bank, lws::Writer *writer) {
     auto beg = opened_.beginning();
     auto head = opened_.head();
 
