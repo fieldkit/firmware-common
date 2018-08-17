@@ -16,8 +16,8 @@ private:
 
 public:
     FileReader();
-    FileReader(phylum::BlockedFile *file);
-    FileReader(phylum::SimpleFile *file);
+    FileReader(phylum::BlockedFile &file);
+    FileReader(phylum::SimpleFile &file);
 
 public:
     int32_t read() override;

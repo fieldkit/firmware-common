@@ -82,7 +82,6 @@ private:
 
 public:
     VerifyModuleData();
-
 public:
     const char *name() const override {
         return "VerifyModuleData";

@@ -11,17 +11,23 @@ namespace fk {
 
 class FirmwareStorage {
 private:
-    FlashState<PersistedState> *flashState_;
+    FlashStateService *flashState_;
     phylum::AllocatedBlockedFile opened_;
     SerialFlashFileSystem *fs_;
     FileWriter writer_;
+    FileReader reader_;
 
 public:
-    FirmwareStorage(FlashState<PersistedState> &flashState, SerialFlashFileSystem &fs);
+    FirmwareStorage(FlashStateService &flashState, SerialFlashFileSystem &fs);
+
+private:
+    MinimumFlashState& state() {
+        return flashState_->minimum();
+    }
 
 public:
     lws::Writer *write();
-    lws::Reader *read(FirmwareBank bank);
+    lws::SizedReader *read(FirmwareBank bank);
 
 public:
     bool header(FirmwareBank bank, firmware_header_t &header);

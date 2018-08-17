@@ -64,7 +64,7 @@ void CheckFirmware::task() {
 }
 
 void CheckFirmware::check() {
-    fk::Url parsed(WifiApiUrlFirmware, deviceId.toString(), module_);
+    Url parsed(WifiApiUrlFirmware, deviceId.toString(), module_);
     FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
     HttpResponseParser parser;
     WiFiClient wcl;

@@ -20,9 +20,9 @@ static void module_receive_callback(int bytes) {
     fk::Module::active->receive((size_t)bytes);
 }
 
-Module::Module(TwoWireBus &bus, ModuleInfo &info) : bus(&bus),
-      outgoing{ bus }, incoming{ bus }, info(&info) {
-}
+Module::Module(TwoWireBus &bus, ModuleInfo &info) :
+    bus(&bus), info(&info), outgoing{ bus }, incoming{ bus } {
+    }
 
 void Module::begin() {
     fk_assert(active == nullptr);

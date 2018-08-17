@@ -196,7 +196,7 @@ bool FileSystem::beginFileCopy(FileCopySettings settings) {
         return false;
     }
 
-    auto newReader = FileReader{ &files_.opened_ };
+    auto newReader = FileReader{ files_.opened_ };
     if (!files_.fileCopy_.prepare(newReader, settings)) {
         return false;
     }

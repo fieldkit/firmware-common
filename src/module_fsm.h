@@ -7,6 +7,7 @@
 
 #include "tinyfsm.hpp"
 #include "state_with_context.h"
+#include "flash_storage.h"
 
 namespace fk {
 

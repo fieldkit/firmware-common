@@ -60,8 +60,15 @@ protected:
 
 };
 
+class FlashStateService {
+public:
+    virtual bool save() = 0;
+    virtual MinimumFlashState& minimum() = 0;
+
+};
+
 template<typename T>
-class FlashState {
+class FlashState : public FlashStateService {
 private:
     SerialFlashFileSystem *flashFs_;
     phylum::BasicSuperBlockManager<T> manager_;
@@ -73,6 +80,10 @@ public:
 public:
     phylum::BasicSuperBlockManager<T>& manager() {
         return manager_;
+    }
+
+    MinimumFlashState& minimum() override {
+        return manager_.state();
     }
 
     T& state() {
@@ -108,7 +119,7 @@ public:
         return true;
     }
 
-    bool save() {
+    bool save() override {
         if (!manager_.save()) {
             return false;
         }

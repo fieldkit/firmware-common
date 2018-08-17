@@ -2,6 +2,7 @@
 #define FK_MODULE_H_INCLUDED
 
 #define LWS_ENABLE_PROTOBUF
+
 #include <lwstreams/lwstreams.h>
 
 #include "task.h"
@@ -11,7 +12,6 @@
 #include "watchdog.h"
 #include "leds.h"
 #include "two_wire.h"
-
 #include "module_fsm.h"
 
 namespace fk {
@@ -19,12 +19,12 @@ namespace fk {
 class Module : public ModuleCallbacks {
 private:
     TwoWireBus *bus;
-    StaticPool<128> replyPool{ "Reply" };
+    ModuleInfo *info;
     TwoWireMessageBuffer outgoing;
     TwoWireMessageBuffer incoming;
+    StaticPool<128> replyPool{ "Reply" };
     Leds leds;
     Watchdog watchdog_{ leds };
-    ModuleInfo *info;
     lws::CircularStreams<lws::RingBufferN<256>> pipe;
     ModuleServices moduleServices{
         &replyPool,

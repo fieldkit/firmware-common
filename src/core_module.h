@@ -47,8 +47,6 @@ private:
     CoreState state{flashState, fileSystem.getData()};
     ModuleCommunications moduleCommunications{bus, pool};
 
-    CronTask copyModuleDataTask{ lwcron::CronSpec::specific(0), { CoreFsm::deferred<CopyModuleData>() } };
-
     #ifdef FK_PROFILE_AMAZON
 
     CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { CoreFsm::deferred<BeginGatherReadings>() } };

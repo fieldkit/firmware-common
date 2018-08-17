@@ -6,7 +6,7 @@ constexpr const char LogName[] = "Firmware";
 
 using Logger = SimpleLog<LogName>;
 
-FirmwareStorage::FirmwareStorage(FlashState<PersistedState> &flashState, SerialFlashFileSystem &fs): flashState_(&flashState), fs_(&fs) {
+FirmwareStorage::FirmwareStorage(FlashStateService &flashState, SerialFlashFileSystem &fs): flashState_(&flashState), fs_(&fs) {
 }
 
 lws::Writer *FirmwareStorage::write() {
@@ -23,10 +23,22 @@ lws::Writer *FirmwareStorage::write() {
     return &writer_;
 }
 
-lws::Reader *FirmwareStorage::read(FirmwareBank bank) {
-    opened_ = fs_->files().open({ }, phylum::OpenMode::Read);
+lws::SizedReader *FirmwareStorage::read(FirmwareBank bank) {
+    auto addr = state().firmwares.banks[(int32_t)bank];
+    fk_assert(addr.valid());
 
-    return nullptr;
+    opened_ = fs_->files().open(addr, phylum::OpenMode::Read);
+
+    opened_.seek(UINT64_MAX);
+
+    sdebug() << "FileSize: " << (uint32_t)opened_.size() << endl;
+
+    reader_ = FileReader{ opened_ };
+    if (!reader_.open(0, 0)) {
+        Logger::error("Error opening bank");
+    }
+
+    return &reader_;
 }
 
 bool FirmwareStorage::backup() {
@@ -78,7 +90,7 @@ bool FirmwareStorage::backup() {
 bool FirmwareStorage::header(FirmwareBank bank, firmware_header_t &header) {
     header.version = FIRMWARE_VERSION_INVALID;
 
-    auto addr = flashState_->state().firmwares.banks[(int32_t)bank];
+    auto addr = state().firmwares.banks[(int32_t)bank];
     if (!addr.valid()) {
         Logger::info("Bank %d: address is invalid.", bank);
         return false;
@@ -116,8 +128,8 @@ bool FirmwareStorage::update(FirmwareBank bank, lws::Writer *writer, const char 
 
     opened_.close();
 
-    auto previousAddr = flashState_->state().firmwares.banks[(int32_t)bank];
-    flashState_->state().firmwares.banks[(int32_t)bank] = beg;
+    auto previousAddr = state().firmwares.banks[(int32_t)bank];
+    state().firmwares.banks[(int32_t)bank] = beg;
 
     if (!flashState_->save()) {
         Logger::error("Error saving block");
