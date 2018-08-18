@@ -9,6 +9,7 @@ timestamps {
         conservifyBuild(name: 'firmware-common', archive: true)
 
         distributeFirmware(module: 'fk-core')
+        distributeFirmware(module: 'fk-testing-module')
 
         build job: "weather", wait: false
         build job: "atlas", wait: false

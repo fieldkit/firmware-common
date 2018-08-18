@@ -3,9 +3,9 @@ set(LIBRARIES SPI Wire)
 
 include(ArduinoMinimal)
 
-arduino(fk-module "${SOURCE_FILES}" "${LIBRARIES}")
+arduino(fk-testing-module-standard "${SOURCE_FILES}" "${LIBRARIES}")
 
-target_compile_options(fk-module PUBLIC -Wall -Werror)
+target_compile_options(fk-testing-module-standard PUBLIC -Wall -Werror)
 
 add_definitions(-DPHYLUM_ENABLE_SERIAL_FLASH -DPHYLUM_ENABLE_SD)
 target_compile_options(arduino_zero_phylum PUBLIC -DPHYLUM_ENABLE_SERIAL_FLASH -DPHYLUM_ENABLE_SD)
