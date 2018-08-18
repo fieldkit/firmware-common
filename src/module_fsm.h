@@ -60,6 +60,10 @@ public:
     virtual void exit() {
     }
 
+    virtual bool busy() {
+        return true;
+    }
+
 public:
     void log(const char *f, ...) const __attribute__((format(printf, 2, 3)));
     void info(const char *f, ...) const __attribute__((format(printf, 2, 3)));

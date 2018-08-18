@@ -77,10 +77,12 @@ void Module::setupFlash() {
 
 void Module::reply() {
     if (outgoing.empty()) {
-        Logger::info("Sending retry.");
+        auto busy = ModuleState::current().busy();
+        Logger::info(busy ? "Busy" : "Retry.");
+
         TwoWireMessageBuffer retryBuffer{ *bus };
         ModuleReplyMessage reply(replyPool);
-        reply.m().type = fk_module_ReplyType_REPLY_RETRY;
+        reply.m().type = busy ? fk_module_ReplyType_REPLY_BUSY : fk_module_ReplyType_REPLY_RETRY;
         retryBuffer.write(reply);
         if (!bus->send(0, retryBuffer.ptr(), retryBuffer.position())) {
             Logger::error("Error sending reply");

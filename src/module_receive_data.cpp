@@ -56,6 +56,8 @@ void ModuleReceiveData::task() {
         firmwareStorage.update(settings_.bank, fileWriter);
     }
 
+    log("Clearing: incoming=%d outgoing=%d", services().incoming->position(), services().outgoing->position());
+
     services().incoming->clear();
 
     services().outgoing->clear();

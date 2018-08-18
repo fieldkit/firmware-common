@@ -17,6 +17,9 @@ public:
 public:
     void entry() override;
     void task() override;
+    bool busy() override {
+        return false;
+    }
 };
 
 }

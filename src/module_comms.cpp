@@ -73,7 +73,7 @@ TaskEval ModuleCommunications::task() {
                     log("Error: Unable to read reply.");
                 }
                 else {
-                    if (reply.m().type == fk_module_ReplyType_REPLY_RETRY) {
+                    if (reply.m().type == fk_module_ReplyType_REPLY_BUSY || reply.m().type == fk_module_ReplyType_REPLY_RETRY) {
                         incoming.clear();
                         outgoing.clear();
                         query.clear();
@@ -87,9 +87,15 @@ TaskEval ModuleCommunications::task() {
                         log("Retry!");
                         retries++;
 
-                        auto repliesExpected = (int8_t)(pending->replyExpected() ? 1 : 0);
-                        twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address, repliesExpected };
-                        twoWireTask.enqueued();
+                        if (reply.m().type == fk_module_ReplyType_REPLY_BUSY) {
+                            auto repliesExpected = (int8_t)(pending->replyExpected() ? 1 : 0);
+                            twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address, repliesExpected };
+                            twoWireTask.enqueued();
+                        }
+                        else {
+                            hasQuery = true;
+                            hasReply = false;
+                        }
 
                         return TaskEval::idle();
                     }
