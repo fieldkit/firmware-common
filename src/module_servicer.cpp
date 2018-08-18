@@ -44,6 +44,8 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
     auto outgoing = services().outgoing;
     auto callbacks = services().callbacks;
 
+    services().pipe->clear();
+
     switch (query.m().type) {
     case fk_module_QueryType_QUERY_CAPABILITIES: {
         log("Module info (%lu)", query.m().beginTakeReadings.callerTime);
