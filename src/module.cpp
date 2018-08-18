@@ -50,7 +50,11 @@ void Module::receive(size_t bytes) {
     if (bytes > 0) {
         incoming.clear();
         incoming.readIncoming(bytes);
-        pipe.getWriter().write(incoming.ptr(), incoming.position());
+        auto size = (int32_t)incoming.position();
+        auto wrote = pipe.getWriter().write(incoming.ptr(), size);
+        if (wrote != size) {
+            Logger::info("Dropped (%ld bytes)", wrote);
+        }
     }
 }
 
