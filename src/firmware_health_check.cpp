@@ -5,6 +5,10 @@
 namespace fk {
 
 void FirmwareSelfFlash::task() {
+    FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
+
+    firmwareStorage.backup();
+
     log("Waiting for %lums", SelfFlashWaitPeriod);
     while (elapsed() < SelfFlashWaitPeriod) {
         services().alive();

@@ -84,17 +84,18 @@ TaskEval ModuleCommunications::task() {
                             return TaskEval::idle();
                         }
 
-                        log("Retry!");
                         retries++;
 
                         if (reply.m().type == fk_module_ReplyType_REPLY_BUSY) {
                             auto repliesExpected = (int8_t)(pending->replyExpected() ? 1 : 0);
                             twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address, repliesExpected };
                             twoWireTask.enqueued();
+                            log("Busy!");
                         }
                         else {
                             hasQuery = true;
                             hasReply = false;
+                            log("Retry!");
                         }
 
                         return TaskEval::idle();

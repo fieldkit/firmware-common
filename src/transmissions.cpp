@@ -18,7 +18,6 @@ void PrepareModuleDataTransfer::query(ModuleQueryMessage &message) {
 }
 
 void PrepareModuleDataTransfer::reply(ModuleReplyMessage &message) {
-    Logger::info("Reply: %lu", (uint32_t)message.m().data.size);
 }
 
 WriteModuleData::WriteModuleData(lws::SizedReader *reader) : reader_(reader), checksumReader_{ *reader } {
@@ -31,7 +30,6 @@ void WriteModuleData::reply(ModuleReplyMessage &message) {
 }
 
 void WriteModuleData::prepare(ModuleQueryMessage &message, lws::Writer &outgoing) {
-    Logger::info("Prepare");
     total_ = reader_->size();
     copied_ = 0;
     started_ = fk_uptime();

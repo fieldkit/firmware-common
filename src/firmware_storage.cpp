@@ -31,8 +31,6 @@ lws::SizedReader *FirmwareStorage::read(FirmwareBank bank) {
 
     opened_.seek(UINT64_MAX);
 
-    sdebug() << "FileSize: " << (uint32_t)opened_.size() << endl;
-
     reader_ = FileReader{ opened_ };
     if (!reader_.open(0, 0)) {
         Logger::error("Error opening bank");

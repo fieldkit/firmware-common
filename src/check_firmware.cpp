@@ -3,6 +3,7 @@
 #include "check_firmware.h"
 #include "firmware_health_check.h"
 #include "transmit_files.h"
+#include "upgrade_module_firmware.h"
 
 #include "http_response_parser.h"
 #include "http_response_writer.h"
@@ -151,9 +152,14 @@ void CheckFirmware::check() {
                 log("Status: %d total=%lu etag='%s'", httpParser.status_code(), total, httpParser.etag());
 
                 firmwareStorage.update(bank_, writer);
-                firmwareStorage.backup();
 
-                transit<FirmwareSelfFlash>();
+                if (bank_ == FirmwareBank::CoreNew) {
+                    transit_into<FirmwareSelfFlash>();
+                }
+                else {
+                    transit<UpgradeModuleFirmware>();
+                }
+
                 return;
             }
         }
