@@ -19,7 +19,10 @@ int32_t FileWriter::write(uint8_t byte) {
 }
 
 void FileWriter::close() {
-    closed_ = true;
+    if (!closed_) {
+        file_->close();
+        closed_ = true;
+    }
 }
 
 }

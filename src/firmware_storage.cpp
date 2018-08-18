@@ -124,19 +124,11 @@ bool FirmwareStorage::header(FirmwareBank bank, firmware_header_t &header) {
     return true;
 }
 
-bool FirmwareStorage::update(FirmwareBank bank, lws::Writer *writer) {
-    auto beg = opened_.beginning();
-    auto head = opened_.head();
-
-    Logger::info("Bank %d: Saving (size=%lu) (beg=%lu:%lu, head=%lu:%lu)", bank,
-                 (uint32_t)opened_.size(), beg.block, beg.position, head.block, head.position);
-
-    writer->close();
-
-    opened_.close();
+bool FirmwareStorage::update(FirmwareBank bank, phylum::BlockAddress beginning) {
+    Logger::info("Bank %d: Saving (beg=%lu:%lu)", bank, beginning.block, beginning.position);
 
     auto previousAddr = state().firmwares.banks[(int32_t)bank];
-    state().firmwares.banks[(int32_t)bank] = beg;
+    state().firmwares.banks[(int32_t)bank] = beginning;
 
     if (!flashState_->save()) {
         Logger::error("Error saving block");
@@ -150,6 +142,12 @@ bool FirmwareStorage::update(FirmwareBank bank, lws::Writer *writer) {
     }
 
     return true;
+}
+
+bool FirmwareStorage::update(FirmwareBank bank, lws::Writer *writer) {
+    writer->close();
+
+    return update(bank, opened_.beginning());
 }
 
 }

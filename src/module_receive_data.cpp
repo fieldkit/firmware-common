@@ -21,6 +21,8 @@ void ModuleReceiveData::task() {
     auto reader = services().reader;
     auto received = (uint32_t)0;
 
+    services().dataCopyStatus = DataCopyStatus{ };
+
     services().pipe->clear();
 
     mark();
@@ -33,7 +35,7 @@ void ModuleReceiveData::task() {
             break;
         }
 
-        uint8_t buffer[256];
+        uint8_t buffer[FileCopyBufferSize];
         auto s = reader->read(buffer, sizeof(buffer));
         if (s == lws::Stream::EOS) {
             log("stream: End");
@@ -53,10 +55,11 @@ void ModuleReceiveData::task() {
     else {
         log("stream: Done (expected=%lu) (received=%lu) (bank=%d) (checksum=0x%lx)",
             settings_.size, received, settings_.bank, writer.checksum());
-        firmwareStorage.update(settings_.bank, fileWriter);
+        services().dataCopyStatus.checksum = writer.checksum();
+        services().dataCopyStatus.pending = firmwareStorage.beginningOfOpenFile();
     }
 
-    log("Clearing: incoming=%d outgoing=%d", services().incoming->position(), services().outgoing->position());
+    log("Clearing (incoming=%d, outgoing=%d)", services().incoming->position(), services().outgoing->position());
 
     services().incoming->clear();
 

@@ -32,8 +32,12 @@ public:
 public:
     bool header(FirmwareBank bank, firmware_header_t &header);
     bool update(FirmwareBank bank, lws::Writer *writer);
+    bool update(FirmwareBank bank, phylum::BlockAddress beginning);
     bool erase(lws::Writer *writer);
     bool backup();
+    phylum::BlockAddress beginningOfOpenFile() {
+        return opened_.beginning();
+    }
 
 };
 

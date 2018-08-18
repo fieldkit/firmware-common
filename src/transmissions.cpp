@@ -83,7 +83,6 @@ void VerifyModuleData::query(ModuleQueryMessage &message) {
 }
 
 void VerifyModuleData::reply(ModuleReplyMessage &message) {
-    Logger::info("Reply: %lu", (uint32_t)message.m().data.size);
 }
 
 PrepareTransmissionData::PrepareTransmissionData(CoreState &state, ModuleCommunications &communications, lws::SizedReader *reader, ModuleCopySettings settings) :
@@ -100,6 +99,7 @@ TaskEval PrepareTransmissionData::task() {
         auto finished = protocol.handle();
         if (finished) {
             if (finished.error()) {
+                error("Failed!");
                 return TaskEval::error();
             }
 
@@ -107,14 +107,11 @@ TaskEval PrepareTransmissionData::task() {
                 protocol.push(8, writeModuleData);
             }
             else if (finished.is(writeModuleData)) {
-                log("Copy done");
-                // TODO: Remove this. Hack to let the module stop waiting for data.
-                delay(750);
                 verifyModuleData.expectedChecksum(writeModuleData.checksum());
                 protocol.push(8, verifyModuleData);
             }
             else {
-                log("Done");
+                log("Success!");
             }
         }
         return TaskEval::busy();

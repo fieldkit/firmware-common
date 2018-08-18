@@ -26,6 +26,11 @@ class ModuleCallbacks;
 class TwoWireMessageBuffer;
 class SerialFlashFileSystem;
 
+struct DataCopyStatus {
+    uint32_t checksum;
+    phylum::BlockAddress pending;
+};
+
 struct ModuleServices {
     Pool *pool;
     ModuleInfo *info;
@@ -40,6 +45,7 @@ struct ModuleServices {
     lws::Reader *reader;
     SerialFlashFileSystem *flashFs;
     FlashStateService *flashState;
+    DataCopyStatus dataCopyStatus;
 
     void alive();
     void clear();

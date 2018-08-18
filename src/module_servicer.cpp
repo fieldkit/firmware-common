@@ -3,6 +3,7 @@
 #include "rtc.h"
 #include "module_idle.h"
 #include "module_receive_data.h"
+#include "firmware_storage.h"
 
 namespace fk {
 
@@ -215,7 +216,23 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             query.m().data.size, query.m().data.kind, query.m().data.bank, expected);
 
         ModuleReplyMessage reply(*pool);
-        reply.m().type = fk_module_ReplyType_REPLY_SUCCESS;
+
+        if (services().dataCopyStatus.checksum == expected) {
+            FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
+            auto bank = (FirmwareBank)query.m().data.bank;
+            if (!firmwareStorage.update(bank, services().dataCopyStatus.pending)) {
+                error("Error updating bank!");
+                reply.m().type = fk_module_ReplyType_REPLY_ERROR;
+            }
+            else {
+                log("Verified! Saved!");
+                reply.m().type = fk_module_ReplyType_REPLY_SUCCESS;
+            }
+        }
+        else {
+            error("Checksum mismatch!");
+            reply.m().type = fk_module_ReplyType_REPLY_ERROR;
+        }
 
         outgoing->write(reply);
 
