@@ -168,21 +168,40 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             query.m().data.size, query.m().data.kind,
             query.m().data.bank, (const char *)query.m().data.etag.arg);
 
-        ModuleReplyMessage reply(*pool);
-        reply.m().type = fk_module_ReplyType_REPLY_DATA;
+        bool failed = false;
 
-        services().flashFs->preallocate();
+        log("Reclaim...");
+        if (!services().flashFs->reclaim(*services().flashState)) {
+            log("Flash reclaim failed.");
+            failed = true;
+        }
+        else {
+            log("Preallocate...");
+            if (!services().flashFs->preallocate()) {
+                log("Preallocate failed.");
+                failed = true;
+            }
+        }
+
+        ModuleReplyMessage reply(*pool);
+
+        if (failed) {
+            reply.m().type = fk_module_ReplyType_REPLY_ERROR;
+        }
+        else {
+            reply.m().type = fk_module_ReplyType_REPLY_DATA;
+
+            ModuleCopySettings settings{
+                (FirmwareBank)query.m().data.bank,
+                (uint32_t)query.m().data.size,
+                // This is freed on the following transition.
+                nullptr // (const char *)query.m().data.etag.arg
+            };
+
+            transit_into<ModuleReceiveData>(settings);
+        }
 
         outgoing->write(reply);
-
-        ModuleCopySettings settings{
-            (FirmwareBank)query.m().data.bank,
-            (uint32_t)query.m().data.size,
-            // This is freed on the following transition.
-            nullptr // (const char *)query.m().data.etag.arg
-        };
-
-        transit_into<ModuleReceiveData>(settings);
 
         break;
     }
