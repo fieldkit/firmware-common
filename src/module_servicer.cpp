@@ -4,6 +4,7 @@
 #include "module_idle.h"
 #include "module_receive_data.h"
 #include "firmware_storage.h"
+#include "module_firmware_self_flash.h"
 
 namespace fk {
 
@@ -229,6 +230,8 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             else {
                 log("Verified! Saved!");
                 reply.m().type = fk_module_ReplyType_REPLY_SUCCESS;
+
+                transit<ModuleFirmwareSelfFlash>();
             }
         }
         else {

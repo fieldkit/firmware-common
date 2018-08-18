@@ -95,12 +95,6 @@ public:
 
 };
 
-TaskEval callTask(Task *task);
-
-inline bool areSame(const Task &a, const Task &b) {
-    return &a == &b;
-}
-
 inline bool simple_task_run(Task &task)  {
     auto e = task.task();
     if (e.isDone()) {
