@@ -42,8 +42,8 @@ void setup() {
         8,
         3,
         1,
-        "Dummy Module",
-        "fk-dummy-module",
+        "Testing Module",
+        "fk-testing-module",
         sensors,
         readings
     };
