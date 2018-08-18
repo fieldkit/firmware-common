@@ -2,6 +2,7 @@
 #define FK_FLASH_STORAGE_H_INCLUDED
 
 #include <alogging/alogging.h>
+
 #include <phylum/super_block_manager.h>
 #include <phylum/basic_super_block_manager.h>
 #include <phylum/files.h>
@@ -21,6 +22,14 @@ using FlashLog = SimpleLog<FlashStorageLogName>;
 
 template<typename T>
 class FlashState;
+
+class FlashStateService {
+public:
+    virtual bool save() = 0;
+    virtual MinimumFlashState& minimum() = 0;
+    virtual phylum::SuperBlockManager &manager() = 0;
+
+};
 
 class SerialFlashFileSystem : public phylum::StorageBackendCallbacks {
 private:
@@ -43,12 +52,7 @@ public:
 
     bool erase();
 
-    template<typename T>
-    bool reclaim(FlashState<T> &manager) {
-        phylum::UnusedBlockReclaimer reclaimer(files_, manager.manager().manager()); // Sorry
-        reclaim(reclaimer, manager.state());
-        return reclaimer.reclaim();
-    }
+    bool reclaim(FlashStateService &manager);
 
     bool preallocate();
 
@@ -59,13 +63,6 @@ protected:
     bool busy(uint32_t elapsed) override;
 
     bool reclaim(phylum::UnusedBlockReclaimer &reclaimer, MinimumFlashState &state);
-
-};
-
-class FlashStateService {
-public:
-    virtual bool save() = 0;
-    virtual MinimumFlashState& minimum() = 0;
 
 };
 
@@ -80,8 +77,8 @@ public:
     }
 
 public:
-    phylum::BasicSuperBlockManager<T>& manager() {
-        return manager_;
+    phylum::SuperBlockManager &manager() override {
+        return manager_.manager();
     }
 
     MinimumFlashState& minimum() override {

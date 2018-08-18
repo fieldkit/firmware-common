@@ -38,6 +38,12 @@ bool SerialFlashFileSystem::erase() {
     return true;
 }
 
+bool SerialFlashFileSystem::reclaim(FlashStateService &manager) {
+    phylum::UnusedBlockReclaimer reclaimer(files_, manager.manager());
+    reclaim(reclaimer, manager.minimum());
+    return reclaimer.reclaim();
+}
+
 bool SerialFlashFileSystem::reclaim(phylum::UnusedBlockReclaimer &reclaimer, MinimumFlashState &state) {
     for (auto i = 0; i < (int32_t)FirmwareBank::NumberOfBanks; ++i) {
         auto addr = state.firmwares.banks[i];

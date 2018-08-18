@@ -53,7 +53,7 @@ void Module::receive(size_t bytes) {
         auto size = (int32_t)incoming.position();
         auto wrote = pipe.getWriter().write(incoming.ptr(), size);
         if (wrote != size) {
-            Logger::info("Dropped (%ld bytes)", wrote);
+            Logger::info("Dropped (%ld bytes)", size - wrote);
         }
     }
 }
