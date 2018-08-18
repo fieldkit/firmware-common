@@ -1,4 +1,5 @@
 #include "module_comms.h"
+#include "tuning.h"
 
 namespace fk {
 
@@ -77,7 +78,7 @@ TaskEval ModuleCommunications::task() {
                         outgoing.clear();
                         query.clear();
 
-                        if (retries == 3) {
+                        if (retries == TwoWireRetries) {
                             log("No reply!");
                             address = 0;
                             return TaskEval::idle();

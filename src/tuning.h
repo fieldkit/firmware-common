@@ -23,6 +23,9 @@ constexpr uint32_t TwoWireMaximumReplyWait = 3000;
 constexpr uint32_t TwoWireDefaultSpeed = 400000;
 constexpr uint32_t TwoWireDefaultReplyWait = 100;
 constexpr uint32_t TwoWireStreamingWait = 1000;
+constexpr uint32_t TwoWireRetries = 30; // This is high because we retry fast
+                                        // and some operations, like
+                                        // DATA_PREPARE can take a few seconds.
 
 constexpr uint32_t PowerManagementQueryInterval = 5000;
 constexpr uint32_t PowerManagementAlertInterval = 60 * 1000;
