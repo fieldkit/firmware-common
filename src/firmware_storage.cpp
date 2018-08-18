@@ -111,13 +111,15 @@ bool FirmwareStorage::header(FirmwareBank bank, firmware_header_t &header) {
 
     file.seek(0);
 
-    Logger::info("Bank %d: (%lu:%lu) %lu bytes", bank, addr.block, addr.position, (uint32_t)file.size());
-
     auto bytes = file.read((uint8_t *)&header, sizeof(firmware_header_t));
     if (bytes != sizeof(firmware_header_t)) {
         Logger::error("Bank %d: Read header failed", bank);
         return false;
     }
+
+    Logger::info("Bank %d: file=(%lu:%lu %lu bytes) header=('%s' %lu bytes)",
+                 bank, addr.block, addr.position, (uint32_t)file.size(),
+                 header.etag, header.size);
 
     return true;
 }

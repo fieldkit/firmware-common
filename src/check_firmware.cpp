@@ -70,18 +70,10 @@ void CheckFirmware::check() {
     HttpResponseParser parser;
     WiFiClient wcl;
 
-    log("GET http://%s:%d/%s", parsed.server, parsed.port, parsed.path);
-
     firmware_header_t header;
+    firmwareStorage.header(bank_, header);
 
-    if (firmwareStorage.header(bank_, header)) {
-        if (header.version != FIRMWARE_VERSION_INVALID) {
-            log("Have: '%s' (%lu bytes)", header.etag, header.size);
-        }
-        else {
-            log("No existing firmware");
-        }
-    }
+    log("GET http://%s:%d/%s", parsed.server, parsed.port, parsed.path);
 
     if (wcl.connect(parsed.server, parsed.port)) {
         OutgoingHttpHeaders headers{

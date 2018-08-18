@@ -30,11 +30,11 @@ void WriteModuleData::reply(ModuleReplyMessage &message) {
 }
 
 void WriteModuleData::prepare(ModuleQueryMessage &message, lws::Writer &outgoing) {
+    delay(500);
     total_ = reader_->size();
     copied_ = 0;
     started_ = fk_uptime();
     lastStatus_ = started_;
-    delay(500);
 }
 
 void WriteModuleData::tick(lws::Writer &outgoing) {
