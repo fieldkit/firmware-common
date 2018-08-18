@@ -171,6 +171,8 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_DATA;
 
+        services().flashFs->preallocate();
+
         outgoing->write(reply);
 
         ModuleCopySettings settings{

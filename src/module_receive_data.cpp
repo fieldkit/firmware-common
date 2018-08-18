@@ -16,9 +16,9 @@ ModuleReceiveData::ModuleReceiveData(ModuleCopySettings settings) : settings_(se
 void ModuleReceiveData::task() {
     FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
 
-    auto reader = services().reader;
     auto fileWriter = firmwareStorage.write();
     auto writer = Crc32Writer{ *fileWriter };
+    auto reader = services().reader;
     auto received = (uint32_t)0;
 
     services().pipe->clear();
@@ -33,7 +33,7 @@ void ModuleReceiveData::task() {
             break;
         }
 
-        uint8_t buffer[64];
+        uint8_t buffer[256];
         auto s = reader->read(buffer, sizeof(buffer));
         if (s == lws::Stream::EOS) {
             log("stream: End");

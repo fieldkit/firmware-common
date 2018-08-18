@@ -50,6 +50,8 @@ public:
         return reclaimer.reclaim();
     }
 
+    bool preallocate();
+
     template<typename T>
     friend class FlashState;
 

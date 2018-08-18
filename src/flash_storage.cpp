@@ -25,6 +25,10 @@ bool SerialFlashFileSystem::initialize(uint8_t cs, phylum::sector_index_t sector
     return true;
 }
 
+bool SerialFlashFileSystem::preallocate() {
+    return allocator_.preallocate(0);
+}
+
 bool SerialFlashFileSystem::erase() {
     FlashLog::info("Erasing");
     if (!storage_.erase()) {
