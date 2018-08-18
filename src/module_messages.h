@@ -77,6 +77,12 @@ public:
         message.sensorCapabilities.unitOfMeasure.arg = pool;
         message.custom.message.funcs.decode = pb_decode_data;
         message.custom.message.arg = pool;
+        message.firmware.active.etag.funcs.decode = pb_decode_string;
+        message.firmware.active.etag.arg = pool;
+        message.firmware.pending.etag.funcs.decode = pb_decode_string;
+        message.firmware.pending.etag.arg = pool;
+        message.firmware.good.etag.funcs.decode = pb_decode_string;
+        message.firmware.good.etag.arg = pool;
         return &message;
     }
 
@@ -89,6 +95,9 @@ public:
         message.sensorCapabilities.name.funcs.encode = pb_encode_string;
         message.sensorCapabilities.unitOfMeasure.funcs.encode = pb_encode_string;
         message.custom.message.funcs.encode = pb_encode_data;
+        message.firmware.active.etag.funcs.encode = pb_encode_string;
+        message.firmware.pending.etag.funcs.encode = pb_encode_string;
+        message.firmware.good.etag.funcs.encode = pb_encode_string;
         return &message;
     }
 

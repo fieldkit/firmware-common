@@ -103,17 +103,23 @@ void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
         if (firmware.git != nullptr && firmware.build != nullptr) {
             log("[0x%d]: Firmware: git='%s' build='%s'", address, firmware.git, firmware.build);
         }
-    } else if (finished.is(querySensorCapabilities)) {
+    }
+    else if (finished.is(queryFirmware)) {
+        addressIndex++;
+        resume();
+    }
+    else if (finished.is(querySensorCapabilities)) {
         state->merge(address, *finished.reply);
         if (querySensorCapabilities.getSensor() < queryCapabilities.getNumberOfSensors()) {
             protocol.push(address, querySensorCapabilities);
-        } else {
-            addressIndex++;
-            resume();
+        }
+        else {
+            protocol.push(address, queryFirmware);
         }
 
         retries = 0;
-    } else {
+    }
+    else {
         if (state->numberOfModules() == 0) {
             leds->noAttachedModules();
         } else {

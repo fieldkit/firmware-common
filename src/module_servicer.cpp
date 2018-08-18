@@ -258,6 +258,29 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
 
         break;
     }
+    case fk_module_QueryType_QUERY_FIRMWARE: {
+        log("Firmware query");
+
+        ModuleReplyMessage reply(*pool);
+        reply.m().type = fk_module_ReplyType_REPLY_FIRMWARE;
+
+        FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
+        firmware_header_t header;
+
+        if (firmwareStorage.header(FirmwareBank::ModuleNew, header)) {
+            reply.m().firmware.pending.etag.arg = (void *)pool->strdup(header.etag);
+            reply.m().firmware.pending.size = header.size;
+        }
+
+        if (firmwareStorage.header(FirmwareBank::ModuleGood, header)) {
+            reply.m().firmware.good.etag.arg = (void *)pool->strdup(header.etag);
+            reply.m().firmware.good.size = header.size;
+        }
+
+        outgoing->write(reply);
+
+        break;
+    }
     case fk_module_QueryType_QUERY_BEGIN_TRANSMISSION: {
         log("Begin transmission");
 

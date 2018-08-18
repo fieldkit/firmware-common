@@ -85,6 +85,30 @@ public:
     }
 };
 
+class QueryFirmware : public ModuleQuery {
+public:
+    const char *name() const override {
+        return "QueryFirmware";
+    }
+
+    void query(ModuleQueryMessage &message) override {
+        message.m().type = fk_module_QueryType_QUERY_FIRMWARE;
+    }
+
+    void reply(ModuleReplyMessage &message) override {
+        {
+            auto size = message.m().firmware.good.size;
+            auto etag = (const char *)message.m().firmware.good.etag.arg;
+            loginfof("QueryFirmware", "Good: size=%" PRIu32 " etag='%s'", size, etag);
+        }
+        {
+            auto size = message.m().firmware.pending.size;
+            auto etag = (const char *)message.m().firmware.pending.etag.arg;
+            loginfof("QueryFirmware", "Pending: size=%" PRIu32 " etag='%s'", size, etag);
+        }
+    }
+};
+
 class AttachedDevices : public Task {
 private:
     CoreState *state;
@@ -94,6 +118,7 @@ private:
     uint8_t addressIndex{ 0 };
     uint32_t lastScanAt{ 0 };
     QueryCapabilities queryCapabilities;
+    QueryFirmware queryFirmware;
     QuerySensorCapabilities querySensorCapabilities;
     uint8_t retries{ 0 };
     bool scanning{ false };

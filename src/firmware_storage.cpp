@@ -95,7 +95,7 @@ bool FirmwareStorage::erase(lws::Writer *writer) {
 }
 
 bool FirmwareStorage::header(FirmwareBank bank, firmware_header_t &header) {
-    header.version = FIRMWARE_VERSION_INVALID;
+    header = { };
 
     auto addr = state().firmwares.banks[(int32_t)bank];
     if (!addr.valid()) {
