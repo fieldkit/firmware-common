@@ -1,5 +1,5 @@
 set(SOURCE_FILES ${COMMON_SOURCE_FILES} main.cpp)
-set(LIBRARIES Wire SD SPI ../module-protocol)
+set(LIBRARIES Wire SPI)
 
 # Get the current working branch
 execute_process(
