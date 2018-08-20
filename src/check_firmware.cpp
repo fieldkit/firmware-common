@@ -80,6 +80,7 @@ void CheckFirmware::check() {
             nullptr,
             firmware_version_get(),
             firmware_build_get(),
+            firmware_compiled_get(),
             deviceId.toString(),
             header.version != FIRMWARE_VERSION_INVALID ? header.etag : nullptr,
         };

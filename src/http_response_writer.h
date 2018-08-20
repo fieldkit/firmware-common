@@ -16,17 +16,18 @@ struct OutgoingHttpHeaders {
     const char *build;
     const char *deviceId;
     const char *etag;
+    uint32_t compiled;
     uint32_t contentLength{ InvalidContentLength };
     uint8_t fileId{ InvalidFileId };
 
     OutgoingHttpHeaders(const char *contentType, uint32_t contentLength, const char *version,
-                        const char *build, const char *deviceId, uint8_t fileId) :
-        contentType(contentType), version(version), build(build), deviceId(deviceId), contentLength(contentLength), fileId(fileId) {
+                        const char *build, uint32_t compiled, const char *deviceId, uint8_t fileId) :
+        contentType(contentType), version(version), build(build), deviceId(deviceId), compiled(compiled), contentLength(contentLength), fileId(fileId) {
     }
 
     OutgoingHttpHeaders(const char *contentType, const char *version, const char *build,
-                        const char *deviceId, const char *etag) :
-        contentType(contentType), version(version), build(build), deviceId(deviceId), etag(etag) {
+                        uint32_t compiled, const char *deviceId, const char *etag) :
+        contentType(contentType), version(version), build(build), deviceId(deviceId), etag(etag), compiled(compiled) {
     }
 };
 

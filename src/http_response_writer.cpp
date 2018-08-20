@@ -64,6 +64,11 @@ void HttpHeadersWriter::writeHeaders(Url &url, const char *method, OutgoingHttpH
         stream_->println(headers.deviceId);
     }
 
+    if (headers.compiled > 0) {
+        stream_->print("Fk-Compiled: ");
+        stream_->println(headers.compiled);
+    }
+
     stream_->println();
 }
 

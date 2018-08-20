@@ -185,6 +185,7 @@ bool TransmitFileTask::writeBeginning(Url &parsed) {
         transmitting,
         firmware_version_get(),
         firmware_build_get(),
+        firmware_compiled_get(),
         deviceId.toString(),
         (uint8_t)settings.file
     };
