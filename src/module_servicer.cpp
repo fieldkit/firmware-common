@@ -65,6 +65,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().capabilities.firmware.git.arg = (void *)firmware_version_get();
         reply.m().capabilities.firmware.build.funcs.encode = pb_encode_string;
         reply.m().capabilities.firmware.build.arg = (void *)firmware_build_get();
+        reply.m().capabilities.compiled = firmware_compiled_get();
 
         outgoing->write(reply);
 

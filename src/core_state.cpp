@@ -55,6 +55,7 @@ void CoreState::merge(uint8_t address, ModuleReplyMessage &reply) {
         module->minimumNumberOfReadings = reply.m().capabilities.minimumNumberOfReadings;
         module->name = pool_.strdup((const char *)reply.m().capabilities.name.arg);
         module->module = pool_.strdup((const char *)reply.m().capabilities.module.arg);
+        module->compiled = reply.m().capabilities.compiled;
         break;
     }
     case fk_module_ReplyType_REPLY_SENSOR_CAPABILITIES: {

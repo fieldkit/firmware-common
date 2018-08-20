@@ -17,12 +17,13 @@ class CheckFirmware : public WifiState {
 private:
     FirmwareBank bank_;
     const char *module_;
+    uint32_t compiled_{ 0 };
 
 public:
     CheckFirmware() : module_(nullptr) {
     }
 
-    CheckFirmware(FirmwareBank bank, const char *module) : bank_(bank), module_(module) {
+    CheckFirmware(FirmwareBank bank, const char *module, uint32_t compiled) : bank_(bank), module_(module), compiled_(compiled) {
     }
 
 public:
@@ -43,11 +44,11 @@ void CheckAllAttachedFirmware::task() {
     if (index_ < state->numberOfModules()) {
         auto module = state->getModuleByIndex(index_);
         index_++;
-        transit_into<CheckFirmware>(FirmwareBank::ModuleNew, module->module);
+        transit_into<CheckFirmware>(FirmwareBank::ModuleNew, module->module, module->compiled);
     }
     else if (index_ == state->numberOfModules()) {
         index_++;
-        transit_into<CheckFirmware>(FirmwareBank::CoreNew, "fk-core");
+        transit_into<CheckFirmware>(FirmwareBank::CoreNew, "fk-core", firmware_compiled_get());
     }
     else {
         transit<WifiTransmitFiles>();
@@ -80,7 +81,7 @@ void CheckFirmware::check() {
             nullptr,
             firmware_version_get(),
             firmware_build_get(),
-            firmware_compiled_get(),
+            compiled_,
             deviceId.toString(),
             header.version != FIRMWARE_VERSION_INVALID ? header.etag : nullptr,
         };

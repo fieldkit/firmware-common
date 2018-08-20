@@ -51,6 +51,7 @@ struct ModuleInfo {
     const char *module;
     SensorInfo *sensors;
     SensorReading *readings;
+    uint32_t compiled;
     ModuleInfo *np;
 };
 
