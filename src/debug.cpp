@@ -23,6 +23,16 @@ void firmware_version_set(const char *hash) {
     global_firmware_version = hash;
 }
 
+uint32_t global_compiled = 0;
+
+uint32_t firmware_compiled_get() {
+    return global_compiled;
+}
+
+void firmware_compiled_set(uint32_t compiled) {
+    global_compiled = compiled;
+}
+
 extern "C" char *sbrk(int32_t i);
 
 uint32_t fk_free_memory() {
