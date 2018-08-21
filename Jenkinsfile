@@ -6,7 +6,7 @@ timestamps {
     node () {
         sh "rm -rf core/config.h"
 
-        conservifyBuild(name: 'firmware-common', archive: true)
+        conservifyBuild(name: 'firmware-common', archive: "build/core/*.bin;build/modules/*.bin")
 
         distributeFirmware(module: 'fk-core')
         distributeFirmware(module: 'fk-testing-module')
