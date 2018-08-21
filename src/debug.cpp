@@ -1,7 +1,9 @@
 #include "debug.h"
 #include "hardware.h"
 
+#if defined(ARDUINO)
 #include <Arduino.h>
+#endif
 
 const char *global_firmware_build = "<unknown>";
 
@@ -41,21 +43,21 @@ uint32_t fk_free_memory() {
 }
 
 void __fk_assert(const char *msg, const char *file, int lineno) {
+    #if defined(ARDUINO)
+
     loginfof("Assert", "ASSERTION: %s:%d '%s'", file, lineno, msg);
 
-    #ifdef ARDUINO
-    log_uart_get()->flush();
-    #endif
-
-    pinMode(A3, OUTPUT);
-    pinMode(A4, OUTPUT);
-    pinMode(A5, OUTPUT);
-
-    #ifdef FK_CORE_GENERATION_2
+    #if defined(FK_CORE_GENERATION_2)
     loginfof("Assert", "Disabling peripherals.");
     pinMode(fk::Hardware::PIN_PERIPH_ENABLE, OUTPUT);
     digitalWrite(fk::Hardware::PIN_PERIPH_ENABLE, LOW);
     #endif
+
+    log_uart_get()->flush();
+
+    pinMode(A3, OUTPUT);
+    pinMode(A4, OUTPUT);
+    pinMode(A5, OUTPUT);
 
     while (1) {
         // This will happen until the WDT kicks is back to Reset, hopefully. I'm
@@ -70,4 +72,8 @@ void __fk_assert(const char *msg, const char *file, int lineno) {
         digitalWrite(A5, HIGH);
         delay(100);
     }
+    #else
+    fprintf(stderr, "ASSERTION: %s:%d '%s'", file, lineno, msg);
+    abort();
+    #endif
 }

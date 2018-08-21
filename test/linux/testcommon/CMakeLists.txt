@@ -1,56 +1,16 @@
-file(GLOB SRCS
-  *.cpp
-  ../testhal/*.cpp
+include(${CMAKE_CURRENT_SOURCE_DIR}/dependencies.cmake)
+
+file(GLOB sources *.cpp
   ../../../src/debug.cpp
-  ../../../src/protobuf.cpp
   ../../../src/pool.cpp
-  ../../../src/streams.cpp
   ../../../src/http_response_parser.cpp
 )
 
-add_executable(testcommon ${SRCS})
+add_executable(testcommon "${sources}")
 
-include(ArduinoMinimal)
-
-set(PROJECT_INCLUDES
-  "${CMAKE_CURRENT_SOURCE_DIR}"
-  "${CMAKE_CURRENT_SOURCE_DIR}/../testhal"
-)
-
-target_include_directories(testcommon PUBLIC "${PROJECT_INCLUDES}")
-
-read_arduino_libraries(PROJECT_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR})
-
-setup_libraries(LIBRARY_INFO "testcommon" "" "" "" "${PROJECT_LIBRARIES}")
-
-foreach(key ${LIBRARY_INFO})
-  set(LIB_INCLUDES "${LIB_INCLUDES};${${key}_INCLUDES}")
-
-  list(GET "${key}_INFO" 3 HEADERS_ONLY)
-  list(GET "${key}_INFO" 4 LIB_TARGET_NAME)
-
-  if(NOT HEADERS_ONLY)
-    add_dependencies(testcommon ${LIB_TARGET_NAME})
-    list(APPEND LIBRARY_DEPS "${LIBRARY_OUTPUT_DIRECTORY}/lib${LIB_TARGET_NAME}.a")
-    target_link_libraries(testcommon "${LIBRARY_OUTPUT_DIRECTORY}/lib${LIB_TARGET_NAME}.a")
-  endif()
-endforeach(key)
-
-foreach(key ${LIBRARY_INFO})
-  list(GET "${key}_INFO" 3 HEADERS_ONLY)
-  list(GET "${key}_INFO" 4 LIB_TARGET_NAME)
-
-  if(NOT HEADERS_ONLY)
-    target_include_directories(${LIB_TARGET_NAME} PUBLIC "${LIB_INCLUDES};${PROJECT_INCLUDES}")
-  endif()
-endforeach(key)
-
-target_include_directories(testcommon PUBLIC "${LIB_INCLUDES}")
+target_include_directories(testcommon PRIVATE "${arduino-logging_PATH}/src")
 
 target_link_libraries(testcommon libgtest libgmock)
-
-add_definitions(-DPHYLUM_ENABLE_SERIAL_FLASH)
-target_compile_options(arduino_zero_phylum PUBLIC -DPHYLUM_ENABLE_SERIAL_FLASH)
 
 set_target_properties(testcommon PROPERTIES C_STANDARD 11)
 set_target_properties(testcommon PROPERTIES CXX_STANDARD 11)
