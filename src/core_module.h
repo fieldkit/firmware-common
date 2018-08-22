@@ -27,6 +27,7 @@
 #include "begin_gather_readings.h"
 #include "wifi_startup.h"
 #include "copy_module_data.h"
+#include "transmit_lora_data.h"
 
 namespace fk {
 
@@ -47,11 +48,11 @@ private:
     CoreState state{flashState, fileSystem.getData()};
     ModuleCommunications moduleCommunications{bus, pool};
 
-    #ifdef FK_PROFILE_AMAZON
+    #if defined(FK_PROFILE_AMAZON)
 
     CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { CoreFsm::deferred<BeginGatherReadings>() } };
 
-    #ifdef FK_WIFI_STARTUP_ONLY
+    #if defined(FK_WIFI_STARTUP_ONLY)
     CronTask wifiStartupTask{ { },                                 { CoreFsm::deferred<WifiStartup>() } };
     #else // FK_WIFI_STARTUP_ONLY
     CronTask wifiStartupTask{ lwcron::CronSpec::specific(0, 10),   { CoreFsm::deferred<WifiStartup>() } };
@@ -64,6 +65,19 @@ private:
 
     #else // FK_PROFILE_AMAZON
 
+    #if defined(FK_NATURALIST) && defined(FK_ENABLE_RADIO)
+
+    PeriodicTask gatherReadingsTask{ ReadingsInterval, { CoreFsm::deferred<BeginGatherReadings>() } };
+    PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
+    PeriodicTask loraTask{ 30, { CoreFsm::deferred<TransmitLoraData>() } };
+    lwcron::Task *tasks[3] {
+        &gatherReadingsTask,
+        &wifiStartupTask,
+        &loraTask
+    };
+
+    #else
+
     PeriodicTask gatherReadingsTask{ ReadingsInterval, { CoreFsm::deferred<BeginGatherReadings>() } };
     PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
     lwcron::Task *tasks[2] {
@@ -71,13 +85,15 @@ private:
         &wifiStartupTask
     };
 
+    #endif
+
     #endif // FK_PROFILE_AMAZON
+
     lwcron::Scheduler scheduler{tasks};
 
     // Radio stuff.
-    #ifdef FK_ENABLE_RADIO
+    #if defined(FK_ENABLE_RADIO)
     RadioService radioService;
-    SendDataToLoraGateway sendDataToLoraGateway{ radioService, fileSystem, { FileNumber::Data } };
     #endif
 
     // Wifi stuff
