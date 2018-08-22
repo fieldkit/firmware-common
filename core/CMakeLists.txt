@@ -38,6 +38,8 @@ fk_configure_core(fk-core)
 
 fk_core_apply_configuration(fk-core)
 
+fk_write_profile(fk-core)
+
 add_arduino_firmware(fk-core)
 
 option(FK_PROFILE_STANDARD "Standard Profile" ON)
@@ -52,6 +54,8 @@ if(FK_PROFILE_STANDARD)
   target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_DEBUG_UART_FALLBACK)
   target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_ENABLE_FLASH)
   target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_DISABLE_RADIO)
+
+  fk_write_profile(fk-core-standard)
 
   add_arduino_firmware(fk-core-standard)
 endif(FK_PROFILE_STANDARD)
@@ -70,6 +74,8 @@ if(FK_PROFILE_AMAZON)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_DEBUG_UART_FALLBACK)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_ENABLE_FLASH)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_DISABLE_RADIO)
+
+  fk_write_profile(fk-core-amazon)
 
   add_arduino_firmware(fk-core-amazon)
 endif(FK_PROFILE_AMAZON)
