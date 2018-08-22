@@ -297,12 +297,6 @@ bool FileCopyOperation::copy(lws::Writer &writer, FileCopyCallbacks *callbacks) 
 
     auto started = fk_uptime();
     while (fk_uptime() - started < FileCopyMaximumElapsed) {
-        if (reader_.isFinished()) {
-            status();
-            busy_ = false;
-            return true;
-        }
-
         auto bytes = streamCopier_.copy(reader_, writer);
         if (bytes == 0) {
             break;
@@ -315,7 +309,7 @@ bool FileCopyOperation::copy(lws::Writer &writer, FileCopyCallbacks *callbacks) 
         if (bytes == lws::Stream::EOS) {
             status();
             busy_ = false;
-            return false;
+            return true;
         }
 
         if (fk_uptime() - lastStatus_ > FileCopyStatusInterval) {

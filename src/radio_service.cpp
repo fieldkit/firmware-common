@@ -101,6 +101,12 @@ TaskEval SendDataToLoraGateway::task() {
         auto &fileCopy = fileSystem->files().fileCopy();
         auto &writer = radioService->getWriter();
         if (!fileCopy.copy(writer)) {
+            log("Error!");
+            writer.close();
+            copying = false;
+        }
+
+        if (fileCopy.isFinished()) {
             log("Done!");
             writer.close();
             copying = false;

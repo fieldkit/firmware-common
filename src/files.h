@@ -48,11 +48,12 @@ public:
     FileCopyOperation();
 
 public:
-    bool busy() const {
-        return busy_;
-    }
-    bool isFinished() {
-        return reader_.isFinished();
+    bool prepare(const FileReader &reader, const FileCopySettings &settings);
+    bool copy(lws::Writer &writer, FileCopyCallbacks *callbacks = nullptr);
+
+public:
+    bool isFinished() const {
+        return !busy_;
     }
     size_t tell() {
         return reader_.tell();
@@ -69,8 +70,6 @@ public:
     uint32_t version() const {
         return reader_.version();
     }
-    bool prepare(const FileReader &reader, const FileCopySettings &settings);
-    bool copy(lws::Writer &writer, FileCopyCallbacks *callbacks = nullptr);
     bool seek(uint64_t position) {
         return reader_.seek(position);
     }
