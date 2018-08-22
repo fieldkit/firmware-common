@@ -6,6 +6,7 @@
 namespace fk {
 
 void TransmitLoraData::task() {
+    #if defined(FK_ENABLE_RADIO)
     if (!services().radio->isAvailable()) {
         log("Skip, Radio unavailable.");
         back();
@@ -26,6 +27,7 @@ void TransmitLoraData::task() {
         services().watchdog->task();
         services().radio->task();
     }
+    #endif
 
     back();
 }
