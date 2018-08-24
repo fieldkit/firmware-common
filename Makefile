@@ -25,10 +25,10 @@ seed:
 	echo "#define RANDOM_SEED $$RANDOM" >> core/seed.h
 
 gitdeps:
-	simple-deps --config core/arduino-libraries
-	simple-deps --config module/arduino-libraries
-	simple-deps --config test/mcu/arduino-libraries
-	simple-deps --config test/linux/testcommon/arduino-libraries
+	simple-deps --config core/dependencies.sd
+	simple-deps --config module/dependencies.sd
+	simple-deps --config test/mcu/dependencies.sd
+	simple-deps --config test/linux/testcommon/dependencies.sd
 
 clean:
 	rm -rf $(BUILD)
