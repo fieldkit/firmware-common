@@ -50,7 +50,7 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
 
 }
 
-FileSystem::FileSystem(TwoWireBus &bus) : data_{ bus, files_ }, replies_{ *this } {
+FileSystem::FileSystem() : data_{ files_ }, replies_{ *this } {
 }
 
 bool FileSystem::format() {

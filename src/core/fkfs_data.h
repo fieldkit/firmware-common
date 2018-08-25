@@ -2,7 +2,6 @@
 #define FK_FKFS_DATA_H_INCLUDED
 
 #include "pool.h"
-#include "two_wire.h"
 #include "data_messages.h"
 #include "flash_state.h"
 #include "files.h"
@@ -13,11 +12,10 @@ class CoreState;
 
 class FkfsData {
 private:
-    TwoWireBus *bus;
     Files *files;
 
 public:
-    FkfsData(TwoWireBus &bus, Files &files);
+    FkfsData(Files &files);
 
 public:
     bool appendMetadata(CoreState &state);

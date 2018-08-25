@@ -16,7 +16,7 @@ constexpr const char Log[] = "Data";
 
 using Logger = SimpleLog<Log>;
 
-FkfsData::FkfsData(TwoWireBus &bus, Files &files) : bus(&bus), files(&files) {
+FkfsData::FkfsData(Files &files) : files(&files) {
 }
 
 bool FkfsData::appendMetadata(CoreState &state) {

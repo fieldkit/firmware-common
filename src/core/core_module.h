@@ -40,9 +40,9 @@ private:
     Watchdog watchdog{ leds };
     Power power{ state };
     UserButton button{ leds };
-    Status status{ state, bus, leds };
+    Status status{ state, leds };
     TwoWireBus bus{ Wire };
-    FileSystem fileSystem{ bus };
+    FileSystem fileSystem;
     SerialFlashFileSystem flashFs{ watchdog };
     FlashState<PersistedState> flashState{ flashFs };
     CoreState state{flashState, fileSystem.getData()};
