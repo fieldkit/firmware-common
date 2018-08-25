@@ -4,11 +4,9 @@
 #include <cinttypes>
 
 #include "platform.h"
+#include "serial_port.h"
 
 #if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
-
-#define FK_RTC_PCF8523
-#define FK_HARDWARE_SERIAL2_ENABLE
 
 /**
  * The FkNat board uses the pin usually mapepd to PIN_LED_TXL for the CS on
@@ -18,22 +16,11 @@
  */
 #ifdef PIN_LED_TXL
 #pragma message "Disabling serial flash due to collision with PIN_LED_TXL. Please remove this from variant.h."
-#define FK_DISABLE_FLASH
 #endif // PIN_LED_TXL
-
-#else // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
-
-#ifndef FK_HARDWARE_WIRE11AND13_ENABLE
-#define FK_HARDWARE_WIRE11AND13_ENABLE
-#endif
 
 #endif // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
 
 namespace fk {
-
-#ifdef FK_HARDWARE_SERIAL2_ENABLE
-extern Uart Serial2;
-#endif
 
 class Hardware {
 public:
@@ -72,22 +59,6 @@ public:
     static constexpr uint8_t SD_PIN_CS = 12;
 
     static Uart &gpsUart;
-};
-
-class SerialPort {
-private:
-    Uart *uart;
-
-public:
-    SerialPort(Uart &uart) : uart(&uart) {
-    }
-
-public:
-    void begin(int32_t baud);
-    bool available();
-    int32_t read();
-    void println(const char *str);
-
 };
 
 }

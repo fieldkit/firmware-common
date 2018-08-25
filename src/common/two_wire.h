@@ -7,7 +7,6 @@
 
 #include "debug.h"
 #include "peripherals.h"
-#include "hardware.h"
 
 namespace fk {
 

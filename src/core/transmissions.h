@@ -1,8 +1,6 @@
 #ifndef FK_TRANSMISSIONS_H_INCLUDED
 #define FK_TRANSMISSIONS_H_INCLUDED
 
-#define LWS_ENABLE_PROTOBUF
-
 #include <lwstreams/lwstreams.h>
 
 #include "task.h"

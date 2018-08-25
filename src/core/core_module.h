@@ -18,7 +18,7 @@
 #include "scheduler.h"
 #include "wifi.h"
 #include "discovery.h"
-
+#include "hardware.h"
 #include "app_servicer.h"
 #include "gps.h"
 #include "live_data.h"

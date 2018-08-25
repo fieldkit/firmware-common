@@ -6,8 +6,6 @@
 #include <RTCZero.h>
 #include <RTClib.h>
 
-#include "hardware.h"
-
 namespace fk {
 
 class ClockPair {

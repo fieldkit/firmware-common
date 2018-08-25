@@ -1,19 +1,9 @@
 #include <Arduino.h>
 #include <wiring_private.h>
 
-#include "hardware.h"
+#include "serial_port.h"
 
 namespace fk {
-
-#if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
-
-Uart &Hardware::gpsUart = Serial2;
-
-#else // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
-
-Uart &Hardware::gpsUart = Serial1;
-
-#endif // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
 
 #if defined(FK_HARDWARE_SERIAL2_ENABLE)
 
@@ -24,12 +14,12 @@ Uart Serial2(&sercom1, 11, 10, SERCOM_RX_PAD_0, UART_TX_PAD_2);
 void SerialPort::begin(int32_t baud) {
     uart->begin(baud);
 
-#if defined(FK_HARDWARE_SERIAL2_ENABLE)
+    #if defined(FK_HARDWARE_SERIAL2_ENABLE)
     if (*uart == Serial2) {
         pinPeripheral(10, PIO_SERCOM);
         pinPeripheral(11, PIO_SERCOM);
     }
-#endif // defined(FK_HARDWARE_SERIAL2_ENABLE)
+    #endif // defined(FK_HARDWARE_SERIAL2_ENABLE)
 }
 
 bool SerialPort::available() {

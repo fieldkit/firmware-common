@@ -1,8 +1,6 @@
 #ifndef FK_MODULE_COMMS_H_INCLUDED
 #define FK_MODULE_COMMS_H_INCLUDED
 
-#define LWS_ENABLE_PROTOBUF
-
 #include <lwstreams/lwstreams.h>
 
 #include "two_wire_task.h"

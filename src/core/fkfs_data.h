@@ -1,12 +1,10 @@
 #ifndef FK_FKFS_DATA_H_INCLUDED
 #define FK_FKFS_DATA_H_INCLUDED
 
-#include <fk-data-protocol.h>
-
-#include "module_info.h"
 #include "pool.h"
 #include "two_wire.h"
 #include "data_messages.h"
+#include "flash_state.h"
 #include "files.h"
 
 namespace fk {

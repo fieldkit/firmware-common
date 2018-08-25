@@ -1,5 +1,4 @@
 #include "debug.h"
-#include "hardware.h"
 
 #if defined(ARDUINO)
 #include <Arduino.h>
@@ -48,9 +47,9 @@ void __fk_assert(const char *msg, const char *file, int lineno) {
     loginfof("Assert", "ASSERTION: %s:%d '%s'", file, lineno, msg);
 
     #if defined(FK_CORE_GENERATION_2)
-    loginfof("Assert", "Disabling peripherals.");
-    pinMode(fk::Hardware::PIN_PERIPH_ENABLE, OUTPUT);
-    digitalWrite(fk::Hardware::PIN_PERIPH_ENABLE, LOW);
+    loginfof("Assert", "Disabling peripherals (NOT).");
+    // pinMode(fk::Hardware::PIN_PERIPH_ENABLE, OUTPUT);
+    // digitalWrite(fk::Hardware::PIN_PERIPH_ENABLE, LOW);
     #endif
 
     log_uart_get()->flush();

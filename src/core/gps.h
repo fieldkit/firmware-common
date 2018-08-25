@@ -5,7 +5,7 @@
 
 #include "task.h"
 #include "core_state.h"
-#include "hardware.h"
+#include "serial_port.h"
 
 namespace fk {
 
