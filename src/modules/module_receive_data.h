@@ -2,7 +2,7 @@
 #define FK_MODULE_RECEIVE_DATA_H_INCLUDED
 
 #include "module_fsm.h"
-#include "transmissions.h"
+#include "module_copy_settings.h"
 
 namespace fk {
 

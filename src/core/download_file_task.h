@@ -6,6 +6,7 @@
 #include "app_messages.h"
 #include "wifi_client.h"
 #include "files.h"
+#include "core_state.h"
 
 namespace fk {
 

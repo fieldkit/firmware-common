@@ -3,6 +3,7 @@
 
 #include "message_buffer.h"
 #include "app_messages.h"
+#include "core_state.h"
 
 namespace fk {
 

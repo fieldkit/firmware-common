@@ -1,6 +1,7 @@
 #include "data_messages.h"
 #include "rtc.h"
 #include "core_state.h"
+#include "device_id.h"
 
 namespace fk {
 

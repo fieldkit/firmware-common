@@ -1,5 +1,6 @@
 #include "module_firmware_self_flash.h"
 #include "firmware_storage.h"
+#include "tuning.h"
 
 namespace fk {
 

@@ -11,14 +11,10 @@
 #include "file_system.h"
 #include "file_reader.h"
 #include "checksum_streams.h"
+#include "module_comms.h"
+#include "module_copy_settings.h"
 
 namespace fk {
-
-struct ModuleCopySettings {
-    FirmwareBank bank;
-    uint32_t size;
-    const char *etag;
-};
 
 class PrepareModuleDataTransfer : public ModuleQuery {
 private:

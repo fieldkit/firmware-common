@@ -4,6 +4,7 @@
 #include "firmware_health_check.h"
 #include "transmit_files.h"
 #include "upgrade_module_firmware.h"
+#include "device_id.h"
 
 #include "http_response_parser.h"
 #include "http_response_writer.h"

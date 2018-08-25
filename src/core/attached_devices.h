@@ -4,6 +4,7 @@
 #include "task.h"
 #include "two_wire_task.h"
 #include "core_state.h"
+#include "module_comms.h"
 
 namespace fk {
 

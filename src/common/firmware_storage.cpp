@@ -1,4 +1,5 @@
 #include "firmware_storage.h"
+#include "rtc.h"
 
 namespace fk {
 

@@ -6,7 +6,6 @@
 #include "module_info.h"
 #include "pool.h"
 #include "two_wire.h"
-#include "device_id.h"
 #include "protobuf.h"
 
 namespace fk {

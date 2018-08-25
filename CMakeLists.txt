@@ -4,19 +4,12 @@ cmake_minimum_required(VERSION 3.5)
 set(CMAKE_MODULE_PATH $ENV{CMAKE_MODULE_PATH})
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-set(VERSION_MAJOR   0   CACHE STRING "Project major version number.")
-set(VERSION_MINOR   0   CACHE STRING "Project minor version number.")
-set(VERSION_PATCH   1   CACHE STRING "Project patch version number.")
+set(VERSION_MAJOR 0 CACHE STRING "Project major version number.")
+set(VERSION_MINOR 0 CACHE STRING "Project minor version number.")
+set(VERSION_PATCH 1 CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 enable_testing()
-
-# TODO: Make creating internal libraries easier?
-set(COMMON_SRCS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-
-file(GLOB COMMON_SOURCE_FILES ${COMMON_SRCS_DIR}/*.cpp)
-
-include_directories(${COMMON_SRCS_DIR})
 
 add_subdirectory(module)
 add_subdirectory(core)

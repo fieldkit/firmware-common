@@ -2,6 +2,7 @@
 #include "core_fsm.h"
 #include "tuning.h"
 #include "wifi_tools.h"
+#include "device_id.h"
 
 namespace fk {
 

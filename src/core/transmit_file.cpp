@@ -4,6 +4,7 @@
 #include "restart_wizard.h"
 #include "file_cursors.h"
 #include "http_response_writer.h"
+#include "device_id.h"
 
 namespace fk {
 

@@ -9,6 +9,8 @@
 #include "wifi_disable.h"
 #include "wifi_listening.h"
 
+#include "device_id.h"
+
 namespace fk {
 
 #ifdef FK_CORE

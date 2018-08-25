@@ -60,6 +60,4 @@ private:
 
 }
 
-#include "module_comms.h"
-
 #endif

@@ -4,7 +4,8 @@
 #include <lwstreams/lwstreams.h>
 
 #include "firmware_header.h"
-#include "core_state.h"
+#include "flash_storage.h"
+#include "file_reader.h"
 #include "file_writer.h"
 
 namespace fk {

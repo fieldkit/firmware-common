@@ -2,7 +2,7 @@ include(Arduino)
 
 enable_arduino_toolchain()
 
-set(firmware-common_PATH ../src)
+set(firmware-common_PATH ../)
 
 find_package(FkModule)
 

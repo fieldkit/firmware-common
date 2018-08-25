@@ -3,6 +3,7 @@
 
 namespace fk {
 
+/*
 bool MessageBuffer::write(ModuleQueryMessage &message) {
     return write(fk_module_WireMessageQuery_fields, message.forEncode());
 }
@@ -30,6 +31,7 @@ bool MessageBuffer::write(AppReplyMessage &message) {
 bool MessageBuffer::write(DataRecordMessage &message) {
     return write(fk_data_DataRecord_fields, message.forEncode());
 }
+*/
 
 bool MessageBuffer::write(const pb_field_t *fields, void *src) {
     size_t required = 0;
