@@ -1,8 +1,9 @@
 #ifndef FK_WIFI_TOOLS_H_INCLUDED
 #define FK_WIFI_TOOLS_H_INCLUDED
 
+#include <alogging/sprintf.h>
+
 #include <cinttypes>
-#include <cstdio>
 
 namespace fk {
 
@@ -24,7 +25,7 @@ public:
 
 public:
     const char *toString() {
-        snprintf(str, sizeof(str), "%d.%d.%d.%d", a.bytes[0], a.bytes[1], a.bytes[2], a.bytes[3]);
+        alogging_snprintf(str, sizeof(str), "%d.%d.%d.%d", a.bytes[0], a.bytes[1], a.bytes[2], a.bytes[3]);
         return str;
     }
 };

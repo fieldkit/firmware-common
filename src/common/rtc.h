@@ -1,6 +1,8 @@
 #ifndef FK_RTC_H_INCLUDED
 #define FK_RTC_H_INCLUDED
 
+#include <alogging/sprintf.h>
+
 #include <cstdlib>
 
 #include <RTCZero.h>
@@ -71,9 +73,9 @@ constexpr size_t length(char const (&)[N]) {
 constexpr size_t MaximumLengthOfTimeString = length("0000/00/00 00:00:00");
 
 inline void timeToString(char *buffer, size_t length, DateTime dt) {
-    snprintf(buffer, length, "%d/%d/%d %02d:%02d:%02d",
-             dt.year(), dt.month(), dt.day(),
-             dt.hour(), dt.minute(), dt.second());
+    alogging_snprintf(buffer, length, "%d/%d/%d %02d:%02d:%02d",
+                      dt.year(), dt.month(), dt.day(),
+                      dt.hour(), dt.minute(), dt.second());
 }
 
 class FormattedTime {
