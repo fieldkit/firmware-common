@@ -1,13 +1,7 @@
 #ifndef FK_MESSAGE_BUFFER_H_INCLUDED
 #define FK_MESSAGE_BUFFER_H_INCLUDED
 
-// #include <fk-app-protocol.h>
-// #include <fk-module-protocol.h>
-
 #include "two_wire.h"
-// #include "app_messages.h"
-// #include "module_messages.h"
-// #include "data_messages.h"
 
 namespace fk {
 
@@ -20,28 +14,14 @@ public:
 
     virtual size_t size() = 0;
 
-    // bool write(ModuleQueryMessage &message);
-
-    // bool write(ModuleReplyMessage &message);
-
-    // bool read(ModuleQueryMessage &message);
-
-    // bool read(ModuleReplyMessage &message);
-
-    // bool read(AppQueryMessage &message);
-
-    // bool write(AppReplyMessage &message);
-
-    // bool write(DataRecordMessage &message);
-
     template<typename T>
     bool read(T &message) {
-        return false;
+        return read(T::fields, message.forDecode());
     }
 
     template<typename T>
     bool write(T &message) {
-        return false;
+        return write(T::fields, message.forEncode());
     }
 
     size_t position() {

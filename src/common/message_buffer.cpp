@@ -3,36 +3,6 @@
 
 namespace fk {
 
-/*
-bool MessageBuffer::write(ModuleQueryMessage &message) {
-    return write(fk_module_WireMessageQuery_fields, message.forEncode());
-}
-
-bool MessageBuffer::write(ModuleReplyMessage &message) {
-    return write(fk_module_WireMessageReply_fields, message.forEncode());
-}
-
-bool MessageBuffer::read(ModuleQueryMessage &message) {
-    return read(fk_module_WireMessageQuery_fields, message.forDecode());
-}
-
-bool MessageBuffer::read(ModuleReplyMessage &message) {
-    return read(fk_module_WireMessageReply_fields, message.forDecode());
-}
-
-bool MessageBuffer::read(AppQueryMessage &message) {
-    return read(fk_app_WireMessageQuery_fields, message.forDecode());
-}
-
-bool MessageBuffer::write(AppReplyMessage &message) {
-    return write(fk_app_WireMessageReply_fields, message.forEncode());
-}
-
-bool MessageBuffer::write(DataRecordMessage &message) {
-    return write(fk_data_DataRecord_fields, message.forEncode());
-}
-*/
-
 bool MessageBuffer::write(const pb_field_t *fields, void *src) {
     size_t required = 0;
 

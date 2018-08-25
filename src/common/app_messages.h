@@ -10,6 +10,9 @@
 namespace fk {
 
 class AppQueryMessage {
+public:
+    static constexpr const pb_field_t *fields{ fk_app_WireMessageQuery_fields };
+
 private:
     fk_app_WireMessageQuery message = fk_app_WireMessageQuery_init_default;
     pb_array_t networksArray;
@@ -57,6 +60,9 @@ public:
 };
 
 class AppReplyMessage {
+public:
+    static constexpr const pb_field_t *fields{ fk_app_WireMessageReply_fields };
+
 private:
     fk_app_WireMessageReply message = fk_app_WireMessageReply_init_default;
     Pool *pool;
