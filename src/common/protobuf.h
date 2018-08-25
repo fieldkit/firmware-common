@@ -10,6 +10,10 @@ namespace fk {
 
 constexpr size_t ProtoBufEncodeOverhead = 16;
 
+struct pb_array_t;
+
+typedef bool (*pb_decode_array_item)(pb_istream_t *stream, pb_array_t *array);
+
 bool pb_encode_string(pb_ostream_t *stream, const pb_field_t *field, void *const *arg);
 
 bool pb_decode_string(pb_istream_t *stream, const pb_field_t *field, void **arg);
@@ -19,6 +23,7 @@ typedef struct pb_array_t {
     size_t itemSize;
     void *buffer;
     const pb_field_t *fields;
+    pb_decode_array_item decode_item_fn;
     Pool *pool;
 } pb_array_t;
 
