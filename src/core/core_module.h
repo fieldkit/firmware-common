@@ -3,7 +3,6 @@
 
 #include <cinttypes>
 #include <cstddef>
-#include <cstdio>
 
 #include "pool.h"
 #include "leds.h"

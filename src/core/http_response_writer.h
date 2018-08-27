@@ -22,7 +22,7 @@ struct OutgoingHttpHeaders {
 
     OutgoingHttpHeaders(const char *contentType, uint32_t contentLength, const char *version,
                         const char *build, uint32_t compiled, const char *deviceId, uint8_t fileId) :
-        contentType(contentType), version(version), build(build), deviceId(deviceId), compiled(compiled), contentLength(contentLength), fileId(fileId) {
+        contentType(contentType), version(version), build(build), deviceId(deviceId), etag(nullptr), compiled(compiled), contentLength(contentLength), fileId(fileId) {
     }
 
     OutgoingHttpHeaders(const char *contentType, const char *version, const char *build,
