@@ -1,4 +1,3 @@
-#include "tuning.h"
 #include "module.h"
 
 namespace fk {
@@ -19,25 +18,6 @@ void Module::begin() {
 
 void Module::tick() {
     ModuleState::current().task();
-}
-
-void Module::log(const char *f, ...) const {
-    va_list args;
-    va_start(args, f);
-    loginfof("Module", f, args);
-    va_end(args);
-}
-
-ModuleReadingStatus Module::beginReading(PendingSensorReading &pending) {
-    return ModuleReadingStatus();
-}
-
-Deferred Module::beginReadingState() {
-    return Deferred{ };
-}
-
-ModuleReadingStatus Module::readingStatus(PendingSensorReading &pending) {
-    return ModuleReadingStatus();
 }
 
 }

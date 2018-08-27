@@ -34,9 +34,9 @@ void setup() {
     loginfof("Module", "Starting (%lu free)", fk_free_memory());
 
     fk::SensorInfo sensors[3] = {
-      { "depth", "m" },
-      { "temperature", "°C" },
-      { "conductivity", "µS/cm" }
+        { "depth", "m" },
+        { "temperature", "°C" },
+        { "conductivity", "µS/cm" }
     };
 
     fk::SensorReading readings[3];

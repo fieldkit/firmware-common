@@ -1,11 +1,10 @@
 #include "startup.h"
 #include "module_idle.h"
+#include "module_callbacks.h"
 #include "two_wire_child.h"
 #include "rtc.h"
 
 namespace fk {
-
-Booting::Deferred Booting::configure_;
 
 void Booting::task() {
     services().leds->setup();
@@ -17,7 +16,7 @@ void Booting::task() {
 
     services().child->setup();
 
-    transit<ModuleIdle>();
+    transit(services().callbacks->states().configure);
 }
 
 void Booting::setupFlash() {

@@ -8,5 +8,9 @@
 #include "protobuf.h"
 #include "watchdog.h"
 #include "rtc.h"
+#include "pending_readings.h"
+
+#include "configure.h"
+#include "module_idle.h"
 
 #endif

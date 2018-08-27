@@ -7,31 +7,9 @@
 #include "module_info.h"
 #include "module_messages.h"
 #include "module_fsm.h"
+#include "module_callbacks.h"
 
 namespace fk {
-
-struct ModuleReadingStatus {
-    uint32_t backoff{ 0 };
-
-    ModuleReadingStatus() {
-    }
-
-    ModuleReadingStatus(uint32_t backoff) : backoff(backoff) {
-    }
-};
-
-class ModuleCallbacks {
-public:
-    virtual ModuleReadingStatus beginReading(PendingSensorReading &pending) = 0;
-    virtual ModuleReadingStatus readingStatus(PendingSensorReading &pending) = 0;
-    virtual TaskEval message(ModuleQueryMessage &query, ModuleReplyMessage &reply) {
-        return TaskEval::done();
-    }
-
-public:
-    virtual Deferred beginReadingState() = 0;
-
-};
 
 class ModuleServicer : public ModuleServicesState {
 private:

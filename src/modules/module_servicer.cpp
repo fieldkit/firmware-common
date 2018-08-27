@@ -43,7 +43,6 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
     auto pool = services().pool;
     auto info = services().info;
     auto& outgoing = services().child->outgoing();
-    auto callbacks = services().callbacks;
 
     services().child->clear();
 
@@ -99,6 +98,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
         reply.m().readingStatus.state = fk_module_ReadingState_BEGIN;
+        reply.m().readingStatus.backoff = 1000;
 
         for (size_t i = 0; i < info->numberOfSensors; ++i) {
             info->readings[i].status = SensorReadingStatus::Busy;
@@ -107,15 +107,8 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         pending.number = query.m().beginTakeReadings.number;
         pending.elapsed = 0;
         pending.readings = info->readings;
-        auto status = callbacks->beginReading(pending);
-        if (status.backoff > 0) {
-            reply.m().readingStatus.backoff = status.backoff;
-        }
 
-        auto deferred = callbacks->beginReadingState();
-        if (deferred) {
-            transit(deferred);
-        }
+        transit(services().callbacks->states().readings);
 
         outgoing.write(reply);
 
@@ -127,12 +120,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_READING_STATUS;
         reply.m().readingStatus.state = fk_module_ReadingState_IDLE;
-
-        pending.readings = info->readings;
-        auto status = callbacks->readingStatus(pending);
-        if (status.backoff > 0) {
-            reply.m().readingStatus.backoff = status.backoff;
-        }
+        reply.m().readingStatus.backoff = 1000;
 
         for (size_t i = 0; i < info->numberOfSensors; ++i) {
             if (info->readings[i].status == SensorReadingStatus::Busy) {
@@ -162,7 +150,9 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_ERROR;
 
-        callbacks->message(query, reply);
+        if (services().callbacks->states().message) {
+            transit(services().callbacks->states().message);
+        }
 
         outgoing.write(reply);
 
@@ -199,8 +189,9 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             ModuleCopySettings settings{
                 (FirmwareBank)query.m().data.bank,
                 (uint32_t)query.m().data.size,
-                // This is freed on the following transition.
-                nullptr // (const char *)query.m().data.etag.arg
+                // NOTE: This is freed on the following transition.
+                // (const char *)query.m().data.etag.arg
+                nullptr
             };
 
             transit_into<ModuleReceiveData>(settings);

@@ -28,6 +28,7 @@ class ModuleCallbacks;
 class TwoWireMessageBuffer;
 class TwoWireChild;
 class SerialFlashFileSystem;
+class PendingReadings;
 
 struct DataCopyStatus {
     uint32_t checksum;
@@ -42,13 +43,9 @@ struct ModuleServices {
     TwoWireBus *bus;
     ModuleCallbacks *callbacks;
     TwoWireChild *child;
-    // TwoWireMessageBuffer *outgoing;
-    // TwoWireMessageBuffer *incoming;
-    // lws::Pipe *pipe;
-    // lws::Writer *writer;
-    // lws::Reader *reader;
     SerialFlashFileSystem *flashFs;
     FlashStateService *flashState;
+    PendingReadings *readings;
     DataCopyStatus dataCopyStatus;
 
     void alive();

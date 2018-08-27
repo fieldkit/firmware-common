@@ -11,6 +11,7 @@
 #include "leds.h"
 #include "two_wire.h"
 #include "two_wire_child.h"
+#include "pending_readings.h"
 
 namespace fk {
 
@@ -19,11 +20,13 @@ private:
     TwoWireBus *bus_;
     ModuleInfo *info_;
     TwoWireChild twoWireChild_;
+    ModuleStates states_;
     StaticPool<128> replyPool_{ "Reply" };
     Leds leds_;
     Watchdog watchdog_{ leds_ };
     SerialFlashFileSystem flashFs_{ watchdog_ };
     FlashState<MinimumFlashState> flashState_{ flashFs_ };
+    PendingReadings readings_{ *info_ };
     ModuleServices moduleServices_{
         &replyPool_,
         info_,
@@ -33,7 +36,8 @@ private:
         this,
         &twoWireChild_,
         &flashFs_,
-        &flashState_
+        &flashState_,
+        &readings_
     };
 
 public:
@@ -42,19 +46,6 @@ public:
 public:
     virtual void begin();
     virtual void tick();
-
-public:
-    Watchdog &watchdog() {
-        return watchdog_;
-    }
-
-public:
-    void log(const char *f, ...) const;
-
-public:
-    ModuleReadingStatus beginReading(PendingSensorReading &pending) override;
-    ModuleReadingStatus readingStatus(PendingSensorReading &pending) override;
-    Deferred beginReadingState() override;
 
 };
 
