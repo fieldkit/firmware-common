@@ -15,6 +15,8 @@ class ModuleState;
 
 using ModuleFsm = tinyfsm::Fsm<ModuleState>;
 
+using Deferred = ModuleFsm::Deferred;
+// TODO: Deprecate this.
 using DeferredModuleState = ModuleFsm::Deferred;
 
 class Pool;
@@ -24,6 +26,7 @@ class Watchdog;
 class TwoWireBus;
 class ModuleCallbacks;
 class TwoWireMessageBuffer;
+class TwoWireChild;
 class SerialFlashFileSystem;
 
 struct DataCopyStatus {
@@ -38,11 +41,12 @@ struct ModuleServices {
     Watchdog *watchdog;
     TwoWireBus *bus;
     ModuleCallbacks *callbacks;
-    TwoWireMessageBuffer *outgoing;
-    TwoWireMessageBuffer *incoming;
-    lws::Pipe *pipe;
-    lws::Writer *writer;
-    lws::Reader *reader;
+    TwoWireChild *child;
+    // TwoWireMessageBuffer *outgoing;
+    // TwoWireMessageBuffer *incoming;
+    // lws::Pipe *pipe;
+    // lws::Writer *writer;
+    // lws::Reader *reader;
     SerialFlashFileSystem *flashFs;
     FlashStateService *flashState;
     DataCopyStatus dataCopyStatus;
@@ -79,6 +83,13 @@ public:
 };
 
 using ModuleServicesState = StateWithContext<ModuleServices, ModuleState>;
+
+using fsm_list = tinyfsm::FsmList<ModuleState>;
+
+template<typename E>
+void send_event(E const & event) {
+    fsm_list::template dispatch<E>(event);
+}
 
 }
 

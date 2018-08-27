@@ -3,6 +3,7 @@
 #include "message_buffer.h"
 #include "checksum_streams.h"
 #include "firmware_storage.h"
+#include "two_wire_child.h"
 #include "tuning.h"
 
 namespace fk {
@@ -16,8 +17,10 @@ ModuleReceiveData::ModuleReceiveData(ModuleCopySettings settings) : settings_(se
 void ModuleReceiveData::task() {
     FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
 
+    /*
     auto fileWriter = firmwareStorage.write();
     auto writer = Crc32Writer{ *fileWriter };
+    auto child = services().child;
     auto reader = services().reader;
     auto received = (uint32_t)0;
 
@@ -64,7 +67,7 @@ void ModuleReceiveData::task() {
     services().incoming->clear();
 
     services().outgoing->clear();
-
+    */
     transit<ModuleIdle>();
 }
 

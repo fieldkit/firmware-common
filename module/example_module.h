@@ -15,7 +15,7 @@ public:
 
 public:
     fk::ModuleReadingStatus beginReading(fk::PendingSensorReading &pending) override;
-    fk::DeferredModuleState beginReadingState() override;
+    fk::Deferred beginReadingState() override;
 
 };
 

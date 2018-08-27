@@ -3,47 +3,38 @@
 
 #include <lwstreams/lwstreams.h>
 
-#include "task.h"
 #include "message_buffer.h"
 #include "module_messages.h"
 #include "module_servicer.h"
+#include "module_fsm.h"
 #include "watchdog.h"
 #include "leds.h"
 #include "two_wire.h"
-#include "module_fsm.h"
+#include "two_wire_child.h"
 
 namespace fk {
 
 class Module : public ModuleCallbacks {
 private:
-    TwoWireBus *bus;
-    ModuleInfo *info;
-    TwoWireMessageBuffer outgoing;
-    TwoWireMessageBuffer incoming;
-    StaticPool<128> replyPool{ "Reply" };
-    Leds leds;
-    Watchdog watchdog_{ leds };
+    TwoWireBus *bus_;
+    ModuleInfo *info_;
+    TwoWireChild twoWireChild_;
+    StaticPool<128> replyPool_{ "Reply" };
+    Leds leds_;
+    Watchdog watchdog_{ leds_ };
     SerialFlashFileSystem flashFs_{ watchdog_ };
     FlashState<MinimumFlashState> flashState_{ flashFs_ };
-    lws::CircularStreams<lws::RingBufferN<256>> pipe;
-    ModuleServices moduleServices{
-        &replyPool,
-        info,
-        &leds,
+    ModuleServices moduleServices_{
+        &replyPool_,
+        info_,
+        &leds_,
         &watchdog_,
-        bus,
+        bus_,
         this,
-        &outgoing,
-        &incoming,
-        &pipe,
-        &pipe.getWriter(),
-        &pipe.getReader(),
+        &twoWireChild_,
         &flashFs_,
         &flashState_
     };
-
-public:
-    static Module *active;
 
 public:
     Module(TwoWireBus &bus, ModuleInfo &info);
@@ -52,33 +43,20 @@ public:
     virtual void begin();
     virtual void tick();
 
-    void run();
-    void setupFlash();
-
 public:
     Watchdog &watchdog() {
         return watchdog_;
     }
 
 public:
-    void resume();
-    void receive(size_t bytes);
-    void reply();
     void log(const char *f, ...) const;
 
 public:
     ModuleReadingStatus beginReading(PendingSensorReading &pending) override;
     ModuleReadingStatus readingStatus(PendingSensorReading &pending) override;
-    DeferredModuleState beginReadingState() override;
+    Deferred beginReadingState() override;
 
 };
-
-using fsm_list = tinyfsm::FsmList<ModuleState>;
-
-template<typename E>
-void send_event(E const & event) {
-    fsm_list::template dispatch<E>(event);
-}
 
 }
 

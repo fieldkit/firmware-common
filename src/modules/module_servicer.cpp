@@ -9,14 +9,14 @@
 namespace fk {
 
 void ModuleServicer::task() {
-    auto incoming = services().incoming;
-    auto outgoing = services().outgoing;
+    auto& incoming = services().child->incoming();
+    auto& outgoing = services().child->outgoing();
 
-    if (!incoming->empty()) {
-        auto pos = incoming->position();
+    if (!incoming.empty()) {
+        auto pos = incoming.position();
         ModuleQueryMessage query(*services().pool);
-        auto status = incoming->read(query);
-        incoming->clear();
+        auto status = incoming.read(query);
+        incoming.clear();
         if (!status) {
             log("Malformed message (%d bytes)", pos);
             transit<ModuleIdle>();
@@ -26,9 +26,9 @@ void ModuleServicer::task() {
             log("Received (%d bytes)", pos);
         }
 
-        if (!outgoing->empty()) {
-            log("Orphaned reply! QueryType=%d ReplySize=%d", outgoing->position(), query.m().type);
-            outgoing->clear();
+        if (!outgoing.empty()) {
+            log("Orphaned reply! QueryType=%d ReplySize=%d", outgoing.position(), query.m().type);
+            outgoing.clear();
         }
 
         handle(query);
@@ -42,10 +42,10 @@ void ModuleServicer::task() {
 void ModuleServicer::handle(ModuleQueryMessage &query) {
     auto pool = services().pool;
     auto info = services().info;
-    auto outgoing = services().outgoing;
+    auto& outgoing = services().child->outgoing();
     auto callbacks = services().callbacks;
 
-    services().pipe->clear();
+    services().child->clear();
 
     switch (query.m().type) {
     case fk_module_QueryType_QUERY_CAPABILITIES: {
@@ -67,7 +67,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().capabilities.firmware.build.arg = (void *)firmware_build_get();
         reply.m().capabilities.compiled = firmware_compiled_get();
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -84,7 +84,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().sensorCapabilities.name.arg = (void *)sensor.name;
         reply.m().sensorCapabilities.unitOfMeasure.arg = (void *)sensor.unitOfMeasure;
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -117,7 +117,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             transit(deferred);
         }
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -152,7 +152,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             }
         }
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -164,7 +164,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
 
         callbacks->message(query, reply);
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -206,7 +206,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             transit_into<ModuleReceiveData>(settings);
         }
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -240,7 +240,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             reply.m().type = fk_module_ReplyType_REPLY_ERROR;
         }
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -250,7 +250,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_DATA;
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -260,7 +260,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_DATA;
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -283,7 +283,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             reply.m().firmware.good.size = header.size;
         }
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -294,7 +294,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().type = fk_module_ReplyType_REPLY_TRANSMISSION_STATUS;
         reply.m().transmissionStatus.state = fk_module_TransmissionState_TRANSMISSION_IDLE;
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -305,7 +305,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().type = fk_module_ReplyType_REPLY_TRANSMISSION_STATUS;
         reply.m().transmissionStatus.state = fk_module_TransmissionState_TRANSMISSION_IDLE;
 
-        outgoing->write(reply);
+        outgoing.write(reply);
 
         break;
     }
@@ -313,7 +313,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         log("Unknown query: %d", query.m().type);
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_ERROR;
-        if (!outgoing->write(reply)) {
+        if (!outgoing.write(reply)) {
             log("Error writing reply");
         }
         break;

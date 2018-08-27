@@ -29,7 +29,7 @@ public:
     }
 
 public:
-    virtual DeferredModuleState beginReadingState() = 0;
+    virtual Deferred beginReadingState() = 0;
 
 };
 

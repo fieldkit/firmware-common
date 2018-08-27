@@ -1,21 +1,10 @@
 #include "module_fsm.h"
 #include "module_idle.h"
+#include "startup.h"
+
 #include "watchdog.h"
 
 namespace fk {
-
-class ModuleBooting : public ModuleServicesState {
-public:
-    const char *name() const override {
-        return "ModuleBooting";
-    }
-
-public:
-    void task() override {
-        transit<ModuleIdle>();
-    }
-
-};
 
 template<>
 ModuleServices *ModuleServicesState::services_{ nullptr };
@@ -69,4 +58,4 @@ void ModuleState::error(const char *f, ...) const {
 
 }
 
-FSM_INITIAL_STATE(fk::ModuleState, fk::ModuleBooting)
+FSM_INITIAL_STATE(fk::ModuleState, fk::Booting)

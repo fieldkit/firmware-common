@@ -1,10 +1,11 @@
 #include "module_idle.h"
 
+#include "tuning.h"
 #include "leds.h"
 #include "watchdog.h"
 #include "module_servicer.h"
 #include "message_buffer.h"
-#include "tuning.h"
+#include "two_wire_child.h"
 
 #include <Arduino.h>
 
@@ -21,7 +22,7 @@ void ModuleIdle::task() {
         trace("Tick");
         tick_ = fk_uptime();
     }
-    if (!services().incoming->empty()) {
+    if (!services().child->incoming().empty()) {
         transit<ModuleServicer>();
     }
     else {

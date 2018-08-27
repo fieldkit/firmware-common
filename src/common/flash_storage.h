@@ -25,6 +25,7 @@ class FlashState;
 
 class FlashStateService {
 public:
+    virtual bool initialize() = 0;
     virtual bool save() = 0;
     virtual MinimumFlashState& minimum() = 0;
     virtual phylum::SuperBlockManager &manager() = 0;
@@ -89,7 +90,7 @@ public:
         return manager_.state();
     }
 
-    bool initialize() {
+    bool initialize() override {
         if (!manager_.locate()) {
             if (!erase()) {
                 FlashLog::error("Erase failed");
