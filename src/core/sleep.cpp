@@ -5,9 +5,6 @@ namespace fk {
 void Sleep::entry() {
     MainServicesState::entry();
     activity_ = 0;
-
-    FormattedTime wakeFormatted{ { clock.getTime() + maximum_ } };
-    log("Sleeping for %lu (%s)", maximum_, wakeFormatted.toString());
 }
 
 void Sleep::react(UserButtonEvent const &ignored) {

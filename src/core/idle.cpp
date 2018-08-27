@@ -1,5 +1,6 @@
 #include "idle.h"
 #include "low_power_sleep.h"
+#include "scheduler.h"
 
 namespace fk {
 
@@ -8,11 +9,7 @@ void Idle::entry() {
 
     services().watchdog->idling();
 
-    auto now = clock.now();
-    auto nextTask = services().scheduler->nextTask();
-    FormattedTime nowFormatted{ now };
-    FormattedTime runsAgainFormatted{ { nextTask.time } };
-    log("Idling (now = %s) (again = %s)", nowFormatted.toString(), runsAgainFormatted.toString());
+    status(clock.now(), services().scheduler->nextTask());
 }
 
 void Idle::react(LowPowerEvent const &lpe) {
@@ -31,6 +28,27 @@ void Idle::react(SchedulerEvent const &se) {
     }
 }
 
+class TaskLogger : public lwcron::TaskVisitor {
+public:
+    void visit(lwcron::PeriodicTask &task) override {
+        sdebug() << "PeriodicTask<'" << task.toString() << "' every " << task.interval() << "s>" << endl;
+    }
+
+    void visit(lwcron::CronTask &task) override {
+        sdebug() << "CronTask<'" << task.toString() << "'>" << endl;
+    }
+};
+
+void Idle::status(DateTime now, lwcron::Scheduler::TaskAndTime nextTask) {
+    FormattedTime nowFormatted{ now };
+    FormattedTime runsAgainFormatted{ { nextTask.time } };
+    auto prettyTask = nextTask.task != nullptr ? nextTask.task->toString() : "<none>";
+    log("Status (now = %s) (task '%s' = %s)", nowFormatted.toString(), prettyTask, runsAgainFormatted.toString());
+
+    TaskLogger logger;
+    services().scheduler->accept(logger);
+}
+
 void Idle::task() {
     services().alive();
 
@@ -45,15 +63,13 @@ void Idle::task() {
             auto seconds = nextTask.time - now.unixtime();
             if (seconds > SleepMinimumSeconds) {
                 auto sleepingFor = seconds - SleepLeadingWakeupSeconds;
-                FormattedTime nowFormatted{ now };
-                FormattedTime runsAgainFormatted{ { nextTask.time } };
-                log("Sleeping (now = %s) (again = %s) (%lu)", nowFormatted.toString(), runsAgainFormatted.toString(), sleepingFor);
+                status(now, nextTask);
                 transit_into<Sleep>(sleepingFor);
                 return;
             }
         }
         else {
-            log("No next task. Possible configuration/firmware issue?");
+            error("No next task!");
             transit_into<Sleep>((uint32_t)300);
             return;
         }

@@ -19,6 +19,9 @@ public:
     void react(SchedulerEvent const &se) override;
     void entry() override;
     void task() override;
+
+private:
+    void status(DateTime now, lwcron::Scheduler::TaskAndTime nextTask);
 };
 
 }
