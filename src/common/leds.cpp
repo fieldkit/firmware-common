@@ -6,74 +6,7 @@
 
 namespace fk {
 
-TaskEval Blinker::task() {
-    switch (kind) {
-    case BlinkerKind::Fatal:  {
-        if (nextChange < fk_uptime()) {
-            auto value = !digitalRead(A1);
-            digitalWrite(A3, value);
-            digitalWrite(A4, value);
-            digitalWrite(A5, value);
-            nextChange = fk_uptime() + 100;
-        }
-        break;
-    }
-    case BlinkerKind::NoAttachedModules:  {
-        if (nextChange < fk_uptime()) {
-            digitalWrite(A3, !digitalRead(A3));
-            nextChange = fk_uptime() + 500;
-        }
-        break;
-    }
-    case BlinkerKind::Alive:  {
-        break;
-    }
-    case BlinkerKind::Reading:  {
-        digitalWrite(A4, HIGH);
-        break;
-    }
-    case BlinkerKind::Status:  {
-        if (nextChange < fk_uptime()) {
-            if (digitalRead(A5)) {
-                digitalWrite(A5, LOW);
-                if (blinksRemaining > 1) {
-                    blinksRemaining--;
-                    nextChange = fk_uptime() + 200;
-                }
-                else {
-                    clear();
-                }
-            }
-            else {
-                digitalWrite(A5, HIGH);
-                nextChange = fk_uptime() + 200;
-            }
-        }
-        break;
-    }
-    default: {
-        break;
-    }
-    }
-
-    return TaskEval::idle();
-}
-
-void Blinker::clear() {
-    switch (kind) {
-    case BlinkerKind::Reading:  {
-        digitalWrite(A4, LOW);
-        break;
-    }
-    default: {
-        break;
-    }
-    }
-
-    kind = BlinkerKind::None;
-}
-
-Leds::Leds() : Task("LEDs") {
+Leds::Leds() {
 }
 
 void Leds::setup() {
@@ -89,95 +22,9 @@ void Leds::setup() {
     // https://github.com/arduino/ArduinoCore-samd/commit/33efce53f509e276f8c7e727ab425ed7427e9bfd
 
     pinMode(A3, OUTPUT);
-    pinMode(A4, OUTPUT);
-    pinMode(A5, OUTPUT);
-
-    all(LOW);
 }
 
-TaskEval Leds::task() {
-    for (auto i = 0; i < MaximumBlinkers; ++i) {
-        blinkers[i].task();
-    }
-    return TaskEval::busy();
-}
-
-void Leds::all(bool value) {
-    if (!disabled()) {
-        digitalWrite(A3, value);
-        digitalWrite(A4, value);
-        digitalWrite(A5, value);
-    }
-}
-
-void Leds::push(BlinkerKind kind, uint8_t blinksRemaining) {
-    if (disabled()) {
-        return;
-    }
-
-    for (auto i = 0; i < MaximumBlinkers; ++i) {
-        if (blinkers[i].isIdle()) {
-            blinkers[i] = Blinker{ kind, blinksRemaining };
-            return;
-        }
-    }
-
-    warn("No available blinkers for %d", kind);
-}
-
-void Leds::clear(BlinkerKind kind) {
-    for (auto i = 0; i < MaximumBlinkers; ++i) {
-        if (blinkers[i].isOfKind(kind)) {
-            blinkers[i].clear();
-        }
-    }
-}
-
-void Leds::alive() {
-    if (!disabled()) {
-        if (aliveOff > 0) {
-            aliveOff = 0;
-            digitalWrite(A3, LOW);
-        }
-        else {
-            aliveOff = fk_uptime() + 100;
-            digitalWrite(A3, HIGH);
-        }
-    }
-}
-
-void Leds::restarting() {
-    all(true);
-}
-
-void Leds::fatal() {
-    push(BlinkerKind::Fatal);
-}
-
-void Leds::blink(uint32_t duration) {
-    all(true);
-    delay(duration);
-    all(false);
-}
-
-void Leds::takingReadings() {
-    push(BlinkerKind::Reading);
-}
-
-void Leds::doneTakingReadings() {
-    clear(BlinkerKind::Reading);
-}
-
-void Leds::noAttachedModules() {
-    push(BlinkerKind::NoAttachedModules);
-}
-
-void Leds::haveAttachedModules() {
-    clear(BlinkerKind::NoAttachedModules);
-}
-
-void Leds::status(uint8_t batteryBlinks) {
-    push(BlinkerKind::Status, batteryBlinks);
+void Leds::task() {
 }
 
 bool Leds::disabled() {
@@ -185,6 +32,24 @@ bool Leds::disabled() {
         return false;
     }
     return fk_uptime() > LedsDisableAfter;
+}
+
+void Leds::notifyAlive() {
+}
+
+void Leds::notifyBattery(float percentage) {
+}
+
+void Leds::notifyNoModules() {
+}
+
+void Leds::notifyReadingsBegin() {
+}
+
+void Leds::notifyReadingsDone() {
+}
+
+void Leds::notifyFatal() {
 }
 
 }

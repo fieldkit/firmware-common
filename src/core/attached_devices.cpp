@@ -121,9 +121,7 @@ void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
     }
     else {
         if (state->numberOfModules() == 0) {
-            leds->noAttachedModules();
-        } else {
-            leds->haveAttachedModules();
+            leds->notifyNoModules();
         }
     }
 }

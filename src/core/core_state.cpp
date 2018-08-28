@@ -286,10 +286,6 @@ void CoreState::takingReadings() {
     readingNumber_++;
 }
 
-void CoreState::doneTakingReadings() {
-    data_->doneTakingReadings();
-}
-
 ModuleInfo* CoreState::attachedModules() const {
     return modules_;
 }

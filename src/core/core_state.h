@@ -50,9 +50,9 @@ public:
 public:
     void started();
 
-    void takingReadings();
-    void doneTakingReadings();
+public:
     AvailableSensorReading getReading(size_t index);
+    void takingReadings();
     void clearReadings();
 
     void doneScanning();

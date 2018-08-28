@@ -14,7 +14,7 @@ void Watchdog::started() {
 
 TaskEval Watchdog::task() {
     if (checkin()) {
-        leds_->alive();
+        leds_->notifyAlive();
     }
 
     if (elapsedSinceIdle() > MaximumWaitBeforeReturnToIdle) {

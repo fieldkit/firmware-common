@@ -28,10 +28,7 @@ TaskEval Status::task() {
 
         lastTick = fk_uptime();
 
-        if (percentage < BatteryStatusBlinkThreshold) {
-            auto batteryBlinks = (uint8_t)(percentage / 10.0f);
-            leds->status(batteryBlinks);
-        }
+        leds->notifyBattery(percentage);
     }
     return TaskEval::idle();
 }

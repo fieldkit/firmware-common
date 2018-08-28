@@ -22,7 +22,7 @@ void GatherReadings::enqueued() {
     beginTakeReading.remaining(remaining);
 
     state->takingReadings();
-    leds->takingReadings();
+    leds->notifyReadingsBegin();
     protocol.push(8, beginTakeReading);
     startedAt = 0;
 }
@@ -111,16 +111,14 @@ void GatherReadings::error() {
     if (peripherals.twoWire1().isOwner(this)) {
         peripherals.twoWire1().release(this);
     }
-    state->doneTakingReadings();
-    leds->doneTakingReadings();
+    leds->notifyReadingsDone();
 }
 
 void GatherReadings::done() {
     if (peripherals.twoWire1().isOwner(this)) {
         peripherals.twoWire1().release(this);
     }
-    state->doneTakingReadings();
-    leds->doneTakingReadings();
+    leds->notifyReadingsDone();
 }
 
 }
