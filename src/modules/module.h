@@ -12,6 +12,7 @@
 #include "two_wire.h"
 #include "two_wire_child.h"
 #include "pending_readings.h"
+#include "hardware.h"
 
 namespace fk {
 
@@ -27,6 +28,7 @@ private:
     SerialFlashFileSystem flashFs_{ watchdog_ };
     FlashState<MinimumFlashState> flashState_{ flashFs_ };
     PendingReadings readings_{ *info_ };
+    ModuleHardware hardware_;
     ModuleServices moduleServices_{
         &replyPool_,
         info_,
@@ -37,19 +39,20 @@ private:
         &twoWireChild_,
         &flashFs_,
         &flashState_,
-        &readings_
+        &readings_,
+        &hardware_
     };
 
 public:
-    Module(TwoWireBus &bus, ModuleInfo &info);
+    Module(TwoWireBus &bus, ModuleInfo &info, ModuleHardware hardware = { });
 
 public:
     virtual void begin();
     virtual void tick();
 
 public:
-    Watchdog &watchdog() {
-        return watchdog_;
+    ModuleServices &moduleServices() {
+        return moduleServices_;
     }
 
 };

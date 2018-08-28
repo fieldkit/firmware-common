@@ -3,6 +3,7 @@
 #include "module_callbacks.h"
 #include "two_wire_child.h"
 #include "rtc.h"
+#include "hardware.h"
 
 namespace fk {
 
@@ -20,22 +21,26 @@ void Booting::task() {
 }
 
 void Booting::setupFlash() {
-    auto flashFs = services().flashFs;
-    auto flashState = services().flashState;
+    auto hw = services().hardware;
 
-    if (!flashFs->initialize(6)) {
-        log("Flash unavailable.");
-        fk_assert(false);
-    }
+    if (hw->flash > 0) {
+        auto flashFs = services().flashFs;
+        auto flashState = services().flashState;
 
-    if (!flashState->initialize()) {
-        log("Flash initialize failed.");
-        fk_assert(false);
-    }
+        if (!flashFs->initialize(hw->flash)) {
+            log("Flash unavailable.");
+            fk_assert(false);
+        }
 
-    if (!flashFs->reclaim(*flashState)) {
-        log("Flash reclaim failed.");
-        fk_assert(false);
+        if (!flashState->initialize()) {
+            log("Flash initialize failed.");
+            fk_assert(false);
+        }
+
+        if (!flashFs->reclaim(*flashState)) {
+            log("Flash reclaim failed.");
+            fk_assert(false);
+        }
     }
 }
 

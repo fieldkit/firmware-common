@@ -29,6 +29,7 @@ class TwoWireMessageBuffer;
 class TwoWireChild;
 class SerialFlashFileSystem;
 class PendingReadings;
+class ModuleHardware;
 
 struct DataCopyStatus {
     uint32_t checksum;
@@ -46,6 +47,7 @@ struct ModuleServices {
     SerialFlashFileSystem *flashFs;
     FlashStateService *flashState;
     PendingReadings *readings;
+    ModuleHardware *hardware;
     DataCopyStatus dataCopyStatus;
 
     void alive();

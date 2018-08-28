@@ -14,8 +14,12 @@ void PendingReadings::done(size_t i, float value) {
     info_->readings[i].status = SensorReadingStatus::Done;
 }
 
+void PendingReadings::begin(size_t remaining) {
+    remaining_ = remaining;
+}
+
 size_t PendingReadings::remaining() const {
-    return 1;
+    return remaining_;
 }
 
 }

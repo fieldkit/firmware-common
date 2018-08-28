@@ -13,7 +13,7 @@ void TakeSensorReadings::task() {
 }
 
 ExampleModule::ExampleModule(fk::ModuleInfo &info) :
-    Module(bus, info) {
+    Module(bus, info, { 6 }) {
 }
 
 }

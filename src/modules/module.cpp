@@ -6,8 +6,8 @@ constexpr const char Log[] = "Module";
 
 using Logger = SimpleLog<Log>;
 
-Module::Module(TwoWireBus &bus, ModuleInfo &info) :
-    bus_(&bus), info_(&info), twoWireChild_(bus, info.address) {
+Module::Module(TwoWireBus &bus, ModuleInfo &info, ModuleHardware hardware) :
+    bus_(&bus), info_(&info), twoWireChild_(bus, info.address), hardware_(hardware) {
 }
 
 void Module::begin() {

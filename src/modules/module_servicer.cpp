@@ -108,6 +108,8 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         pending.elapsed = 0;
         pending.readings = info->readings;
 
+        services().readings->begin(pending.number);
+
         transit(services().callbacks->states().readings);
 
         outgoing.write(reply);
