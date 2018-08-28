@@ -40,11 +40,11 @@ public:
         return fs_;
     }
 
-    DataLogging &getData() {
+    DataLogging &logging() {
         return data_;
     }
 
-    DataReplies &getReplies() {
+    DataReplies &replies() {
         return replies_;
     }
 

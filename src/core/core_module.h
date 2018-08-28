@@ -44,7 +44,7 @@ private:
     FileSystem fileSystem;
     SerialFlashFileSystem flashFs{ watchdog };
     FlashState<PersistedState> flashState{ flashFs };
-    CoreState state{flashState, fileSystem.getData()};
+    CoreState state{flashState, fileSystem.logging()};
     ModuleCommunications moduleCommunications{bus, pool};
 
     #if defined(FK_PROFILE_AMAZON)
@@ -100,7 +100,7 @@ private:
         .streamUrl = WifiApiUrlIngestionStream,
     };
     WifiConnection connection;
-    AppServicer appServicer{state, fileSystem.getReplies(), connection, moduleCommunications, pool};
+    AppServicer appServicer{state, fileSystem.replies(), connection, moduleCommunications, pool};
     Wifi wifi{connection};
     Discovery discovery;
 
