@@ -29,7 +29,9 @@ struct ModuleReadingStatus {
 
 class ModuleCallbacks {
 public:
-    virtual ModuleStates states() = 0;
+    virtual ModuleStates states() {
+        return { };
+    }
 
 };
 
