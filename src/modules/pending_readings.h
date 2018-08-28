@@ -15,6 +15,8 @@ public:
 public:
     void done(size_t i, float value);
 
+    size_t remaining() const;
+
 };
 
 }

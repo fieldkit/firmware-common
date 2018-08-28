@@ -47,6 +47,11 @@ public:
     virtual void begin();
     virtual void tick();
 
+public:
+    Watchdog &watchdog() {
+        return watchdog_;
+    }
+
 };
 
 }
