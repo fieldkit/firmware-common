@@ -5,7 +5,7 @@
 
 namespace fk {
 
-CoreState::CoreState(FlashState<PersistedState> &storage, FkfsData &data) : storage_(&storage), data_(&data) {
+CoreState::CoreState(FlashState<PersistedState> &storage, DataLogging &data) : storage_(&storage), data_(&data) {
     modules_ = nullptr;
 }
 

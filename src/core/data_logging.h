@@ -1,5 +1,5 @@
-#ifndef FK_FKFS_DATA_H_INCLUDED
-#define FK_FKFS_DATA_H_INCLUDED
+#ifndef FK_DATA_LOGGING_H_INCLUDED
+#define FK_DATA_LOGGING_H_INCLUDED
 
 #include "pool.h"
 #include "data_messages.h"
@@ -10,12 +10,12 @@ namespace fk {
 
 class CoreState;
 
-class FkfsData {
+class DataLogging {
 private:
     Files *files;
 
 public:
-    FkfsData(Files &files);
+    DataLogging(Files &files);
 
 public:
     bool appendMetadata(CoreState &state);

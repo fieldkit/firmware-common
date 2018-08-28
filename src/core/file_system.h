@@ -4,8 +4,8 @@
 #include <phylum/phylum.h>
 #include <backends/arduino_sd/arduino_sd.h>
 
-#include "fkfs_data.h"
-#include "fkfs_replies.h"
+#include "data_logging.h"
+#include "data_replies.h"
 
 namespace fk {
 
@@ -17,8 +17,8 @@ private:
 
 private:
     Files files_{ fs_ };
-    FkfsData data_;
-    FkfsReplies replies_;
+    DataLogging data_;
+    DataReplies replies_;
 
 public:
     FileSystem();
@@ -40,11 +40,11 @@ public:
         return fs_;
     }
 
-    FkfsData &getData() {
+    DataLogging &getData() {
         return data_;
     }
 
-    FkfsReplies &getReplies() {
+    DataReplies &getReplies() {
         return replies_;
     }
 

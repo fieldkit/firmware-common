@@ -2,7 +2,7 @@
 
 #include "tuning.h"
 #include "debug.h"
-#include "fkfs_replies.h"
+#include "data_replies.h"
 #include "file_system.h"
 #include "core_state.h"
 #include "file_cursors.h"
@@ -13,10 +13,10 @@ constexpr const char Log[] = "Files";
 
 using Logger = SimpleLog<Log>;
 
-FkfsReplies::FkfsReplies(FileSystem &fileSystem) : fileSystem(&fileSystem) {
+DataReplies::DataReplies(FileSystem &fileSystem) : fileSystem(&fileSystem) {
 }
 
-void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+void DataReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     auto &files = fileSystem->files();
     auto numberOfFiles = files.numberOfFiles();
     auto numberOfVisibleFiles = 0;
@@ -55,7 +55,7 @@ void FkfsReplies::queryFilesReply(AppQueryMessage &query, AppReplyMessage &reply
     }
 }
 
-void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
+void DataReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply, MessageBuffer &buffer) {
     auto number = (FileNumber)query.m().eraseFile.id;
 
     if (!fileSystem->erase(number)) {
@@ -70,7 +70,7 @@ void FkfsReplies::eraseFileReply(AppQueryMessage &query, AppReplyMessage &reply,
     queryFilesReply(query, reply, buffer);
 }
 
-void FkfsReplies::eraseAll(CoreState &state) {
+void DataReplies::eraseAll(CoreState &state) {
     /*
     if (!fileSystem->format()) {
         return;

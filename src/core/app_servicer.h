@@ -5,7 +5,7 @@
 #include "app_messages.h"
 #include "core_state.h"
 #include "scheduler.h"
-#include "fkfs_replies.h"
+#include "data_replies.h"
 #include "app_module_query_task.h"
 #include "wifi_client.h"
 
@@ -18,12 +18,12 @@ namespace fk {
 class AppServicer : public ApiConnection {
 private:
     CoreState *state_;
-    FkfsReplies *fileReplies_;
+    DataReplies *fileReplies_;
     ModuleCommunications *communications_;
     Pool *pool_;
 
 public:
-    AppServicer(CoreState &state, FkfsReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
+    AppServicer(CoreState &state, DataReplies &fileReplies, WifiConnection &connection, ModuleCommunications &communications, Pool &pool);
 
 public:
     const char *name() const override {

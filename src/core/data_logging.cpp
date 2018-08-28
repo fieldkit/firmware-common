@@ -4,7 +4,7 @@
 #undef HIGH
 #undef LOW
 
-#include "fkfs_data.h"
+#include "data_logging.h"
 #include "core_state.h"
 #include "debug.h"
 #include "device_id.h"
@@ -16,10 +16,10 @@ constexpr const char Log[] = "Data";
 
 using Logger = SimpleLog<Log>;
 
-FkfsData::FkfsData(Files &files) : files(&files) {
+DataLogging::DataLogging(Files &files) : files(&files) {
 }
 
-bool FkfsData::appendMetadata(CoreState &state) {
+bool DataLogging::appendMetadata(CoreState &state) {
     EmptyPool pool;
     DataRecordMetadataMessage message{ state, pool };
 
@@ -30,7 +30,7 @@ bool FkfsData::appendMetadata(CoreState &state) {
     return true;
 }
 
-bool FkfsData::appendStatus(CoreState &state) {
+bool DataLogging::appendStatus(CoreState &state) {
     EmptyPool pool;
     DataRecordStatusMessage message{ state, pool };
 
@@ -41,7 +41,7 @@ bool FkfsData::appendStatus(CoreState &state) {
     return true;
 }
 
-bool FkfsData::appendLocation(DeviceLocation &location) {
+bool DataLogging::appendLocation(DeviceLocation &location) {
     EmptyPool pool;
     DataRecordMessage message{ pool };
 
@@ -59,7 +59,7 @@ bool FkfsData::appendLocation(DeviceLocation &location) {
     return true;
 }
 
-bool FkfsData::appendReading(DeviceLocation &location, uint32_t readingNumber, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading) {
+bool DataLogging::appendReading(DeviceLocation &location, uint32_t readingNumber, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading) {
     EmptyPool pool;
     DataRecordMessage message{ pool };
 
@@ -81,7 +81,7 @@ bool FkfsData::appendReading(DeviceLocation &location, uint32_t readingNumber, u
     return true;
 }
 
-size_t FkfsData::append(DataRecordMessage &message) {
+size_t DataLogging::append(DataRecordMessage &message) {
     size_t size;
 
     if (!pb_get_encoded_size(&size, fk_data_DataRecord_fields, message.forEncode())) {

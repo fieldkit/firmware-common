@@ -7,7 +7,7 @@
 #include "module_info.h"
 #include "module_messages.h"
 #include "two_wire_task.h"
-#include "fkfs_data.h"
+#include "data_logging.h"
 #include "flash_storage.h"
 
 namespace fk {
@@ -24,10 +24,10 @@ private:
 private:
     DeviceStatus deviceStatus_;
     FlashState<PersistedState> *storage_;
-    FkfsData *data_;
+    DataLogging *data_;
 
 public:
-    CoreState(FlashState<PersistedState> &storage, FkfsData &data);
+    CoreState(FlashState<PersistedState> &storage, DataLogging &data);
 
 public:
     ModuleInfo* attachedModules() const;
