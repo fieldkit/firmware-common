@@ -22,6 +22,10 @@ void Leds::setup() {
     // https://github.com/arduino/ArduinoCore-samd/commit/33efce53f509e276f8c7e727ab425ed7427e9bfd
 
     pinMode(A3, OUTPUT);
+
+    pixel_.begin();
+    pixel_.setPixelColor(0, 0);
+    pixel_.show();
 }
 
 void Leds::task() {
@@ -41,15 +45,28 @@ void Leds::notifyBattery(float percentage) {
 }
 
 void Leds::notifyNoModules() {
+    pixel_.setPixelColor(0, 0, 0, 0);
+    pixel_.show();
 }
 
 void Leds::notifyReadingsBegin() {
+    pixel_.setPixelColor(0, 0, 32, 0);
+    pixel_.show();
 }
 
 void Leds::notifyReadingsDone() {
+    pixel_.setPixelColor(0, 0, 0, 0);
+    pixel_.show();
 }
 
 void Leds::notifyFatal() {
+    pixel_.setPixelColor(0, 64, 0, 0);
+    pixel_.show();
+}
+
+void Leds::notifyHappy() {
+    pixel_.setPixelColor(0, 16, 16, 16);
+    pixel_.show();
 }
 
 }
