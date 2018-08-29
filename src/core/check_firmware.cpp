@@ -49,7 +49,7 @@ void CheckAllAttachedFirmware::task() {
     }
     else if (index_ == state->numberOfModules()) {
         index_++;
-        transit_into<CheckFirmware>(FirmwareBank::CoreNew, "fk-core", firmware_compiled_get());
+        transit_into<CheckFirmware>(FirmwareBank::CoreNew, ModuleName, firmware_compiled_get());
     }
     else {
         transit<WifiTransmitFiles>();

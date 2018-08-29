@@ -12,8 +12,10 @@ namespace fk {
 
 #ifdef FK_NATURALIST
 constexpr const char *DefaultName = "FieldKit Naturalist";
+constexpr const char *ModuleName = "fk-naturalist";
 #else
 constexpr const char *DefaultName = "FieldKit Device";
+constexpr const char *ModuleName = "fk-core";
 #endif
 
 constexpr uint32_t LivePollInactivity = 1000 * 10;
