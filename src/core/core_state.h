@@ -59,6 +59,7 @@ public:
     void scanFailure();
 
     void setDeviceId(const char *deviceId);
+    void configure(ModuleInfo &module);
     void configure(DeviceIdentity newIdentity);
     void configure(NetworkSettings newSettings);
 
@@ -73,8 +74,6 @@ public:
 private:
     ModuleInfo *getOrCreateModule(uint8_t address, uint8_t numberOfSensors);
     bool appendReading(SensorReading &reading);
-
-private:
     void copyFrom(PersistedState &state);
     void copyTo(PersistedState &state);
     void save();

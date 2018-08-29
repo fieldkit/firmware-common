@@ -228,6 +228,11 @@ void CoreState::clearReadings() {
     }
 }
 
+void CoreState::configure(ModuleInfo &module) {
+    modules_ = &module;
+    module.np = nullptr;
+}
+
 void CoreState::configure(DeviceIdentity newIdentity) {
     deviceIdentity_ = newIdentity;
     save();
