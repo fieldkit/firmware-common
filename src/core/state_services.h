@@ -49,7 +49,7 @@ struct MainServices {
         fileSystem(fileSystem), button(button), scheduler(scheduler), moduleCommunications(moduleCommunications), radio(radio), gps(gps) {
     }
 
-    void alive();
+    bool alive();
     void clear();
     DateTime scheduledTasks();
 };

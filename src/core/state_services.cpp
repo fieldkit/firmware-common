@@ -19,13 +19,13 @@ MainServices *MainServicesState::services_{ nullptr };
 template<>
 WifiServices *WifiServicesState::services_{ nullptr };
 
-void MainServices::alive() {
-    leds->task();
+bool MainServices::alive() {
     watchdog->task();
     power->task();
     status->task();
     gps->task();
     button->task();
+    return leds->task();
 }
 
 DateTime MainServices::scheduledTasks() {

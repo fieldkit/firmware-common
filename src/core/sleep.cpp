@@ -14,13 +14,14 @@ void Sleep::react(UserButtonEvent const &ignored) {
 void Sleep::task() {
     auto started = fk_uptime();
     auto stopping = started + (maximum_ * 1000);
+    auto canSleep = false;
 
     services().fileSystem->flush();
 
     while (fk_uptime() < stopping) {
         auto delayed = false;
 
-        if (activity_ == 0 || fk_uptime() - activity_ > 10000) {
+        if (canSleep && (activity_ == 0 || fk_uptime() - activity_ > 10000)) {
             #ifdef FK_ENABLE_DEEP_SLEEP
             if (!fk_console_attached()) {
                 auto left = stopping - fk_uptime();
@@ -39,7 +40,12 @@ void Sleep::task() {
             delay(10);
         }
 
-        services().alive();
+        if (!services().alive()) {
+            canSleep = true;
+        }
+        else {
+            canSleep = false;
+        }
 
         // Should never be scheduled events during this.
         if (transitioned()) {

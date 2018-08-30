@@ -145,13 +145,15 @@ void Leds::setup() {
     pixel_.show();
 }
 
-void Leds::task() {
+bool Leds::task() {
     if (!active_.off()) {
         auto color = active_.update();
         pixel_.setBrightness(32);
         pixel_.setPixelColor(0, color);
         pixel_.show();
+        return true;
     }
+    return false;
 }
 
 bool Leds::disabled() {
