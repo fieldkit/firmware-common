@@ -25,7 +25,7 @@ namespace fk {
 class Hardware {
 public:
     // TODO: This could be done much better.
-    #if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
+    #if defined(FK_CORE_GENERATION_2)
     static constexpr uint8_t WIFI_PIN_CS = 7;
     static constexpr uint8_t WIFI_PIN_IRQ = 16;
     static constexpr uint8_t WIFI_PIN_RST = 15;

@@ -1,6 +1,7 @@
 #include "debug.h"
 
 #if defined(ARDUINO)
+#include "leds.h"
 #include <Arduino.h>
 #endif
 
@@ -41,38 +42,38 @@ uint32_t fk_free_memory() {
     return &stack_dummy - sbrk(0);
 }
 
+extern "C" {
+
+void fk_assertion_hook_dummy()  {
+}
+
+void fk_assertion_hook(void) __attribute__ ((weak, alias("fk_assertion_hook_dummy")));
+
+}
+
 void __fk_assert(const char *msg, const char *file, int lineno) {
+    fk_assertion_hook();
+
     #if defined(ARDUINO)
 
     loginfof("Assert", "ASSERTION: %s:%d '%s'", file, lineno, msg);
 
-    #if defined(FK_CORE_GENERATION_2)
-    loginfof("Assert", "Disabling peripherals (NOT).");
-    // pinMode(fk::Hardware::PIN_PERIPH_ENABLE, OUTPUT);
-    // digitalWrite(fk::Hardware::PIN_PERIPH_ENABLE, LOW);
-    #endif
-
     log_uart_get()->flush();
 
-    pinMode(A3, OUTPUT);
-    pinMode(A4, OUTPUT);
-    pinMode(A5, OUTPUT);
+    fk::Leds leds;
+    leds.notifyFatal();
 
+    // This will happen until the WDT kicks is back to Reset, hopefully. I'm
+    // flashing these just to sort of give the user an idea that something's
+    // going wrong if they happen to be around.
     while (1) {
-        // This will happen until the WDT kicks is back to Reset, hopefully. I'm
-        // flashing these just to sort of give the user an idea that something's
-        // going wrong if they happen to be around.
-        digitalWrite(A3, LOW);
-        digitalWrite(A4, LOW);
-        digitalWrite(A5, LOW);
-        delay(100);
-        digitalWrite(A3, HIGH);
-        digitalWrite(A4, HIGH);
-        digitalWrite(A5, HIGH);
-        delay(100);
+        leds.task();
+        delay(10);
     }
     #else
+
     fprintf(stderr, "ASSERTION: %s:%d '%s'", file, lineno, msg);
     abort();
-    #endif
+
+    #endif // defined(ARDUINO)
 }
