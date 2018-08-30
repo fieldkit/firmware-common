@@ -49,16 +49,11 @@ void Booting::task() {
     fk_assert(deviceId.initialize(*services().bus));
     services().state->setDeviceId(deviceId.toString());
 
-    #ifdef FK_CORE_GENERATION_2
-    log("Cycling peripherals.");
-    pinMode(Hardware::PIN_PERIPH_ENABLE, OUTPUT);
-    digitalWrite(Hardware::PIN_PERIPH_ENABLE, LOW);
-    delay(500);
-    digitalWrite(Hardware::PIN_PERIPH_ENABLE, HIGH);
-    delay(500);
-    #else
-    log("Peripherals always on.");
-    #endif
+    Hardware::cyclePeripherals();
+
+    // TODO: Move this after low power sleep. Also going to need to work around
+    // the startup delay.
+    Hardware::cycleModules();
 
     #ifdef FK_ENABLE_FLASH
     setupFlash();

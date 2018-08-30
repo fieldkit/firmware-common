@@ -6,7 +6,7 @@
 #include "platform.h"
 #include "serial_port.h"
 
-#if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
+#if defined(FK_CORE_GENERATION_2)
 
 /**
  * The FkNat board uses the pin usually mapepd to PIN_LED_TXL for the CS on
@@ -15,10 +15,14 @@
  * use the serial flash.
  */
 #ifdef PIN_LED_TXL
-#pragma message "Disabling serial flash due to collision with PIN_LED_TXL. Please remove this from variant.h."
+#pragma message "Pin collision with PIN_LED_TXL. Please remove this from variant.h."
 #endif // PIN_LED_TXL
 
-#endif // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
+#ifdef PIN_LED_RXL
+#pragma message "Pin collision with PIN_LED_RXL. Please remove this from variant.h."
+#endif // PIN_LED_RXL
+
+#endif // defined(FK_CORE_GENERATION_2)
 
 namespace fk {
 
@@ -26,6 +30,7 @@ class Hardware {
 public:
     // TODO: This could be done much better.
     #if defined(FK_CORE_GENERATION_2)
+
     static constexpr uint8_t WIFI_PIN_CS = 7;
     static constexpr uint8_t WIFI_PIN_IRQ = 16;
     static constexpr uint8_t WIFI_PIN_RST = 15;
@@ -37,9 +42,15 @@ public:
     static constexpr uint8_t RFM95_PIN_ENABLE = 0;
     static constexpr uint8_t RFM95_PIN_D0 = 2;
 
-    static constexpr uint8_t PIN_PERIPH_ENABLE = (25u); // PIN_LED_RXL;
-    static constexpr uint8_t FLASH_PIN_CS = (26u);      // PIN_LED_TXL;
+    // PIN_LED_TXL;
+    static constexpr uint8_t FLASH_PIN_CS = (26u);
+
+    // PIN_LED_RXL;
+    static constexpr uint8_t PERIPHERALS_ENABLE_PIN = (25u);
+    static constexpr uint8_t MODULES_ENABLE_PIN = (9);
+
     #else
+
     static constexpr uint8_t WIFI_PIN_CS = 7;
     static constexpr uint8_t WIFI_PIN_IRQ = 9;
     static constexpr uint8_t WIFI_PIN_RST = 10;
@@ -52,6 +63,7 @@ public:
     static constexpr uint8_t RFM95_PIN_D0 = 2;
 
     static constexpr uint8_t FLASH_PIN_CS = 4;
+
     #endif
 
     static constexpr uint8_t USER_BUTTON_PIN = 6;
@@ -59,6 +71,16 @@ public:
     static constexpr uint8_t SD_PIN_CS = 12;
 
     static Uart &gpsUart;
+
+    static void disableModules();
+
+    static void enableModules();
+
+    static void cycleModules();
+
+    static void disablePeripherals();
+
+    static void cyclePeripherals();
 };
 
 }
