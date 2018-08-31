@@ -49,7 +49,6 @@ public:
 
 static void setup_serial();
 static void setup_env();
-static void dump_configuration();
 
 void setup() {
     #ifdef FK_DEBUG_MTB_ENABLE
@@ -60,7 +59,6 @@ void setup() {
 
     setup_serial();
     setup_env();
-    dump_configuration();
 
     fk::restartWizard.startup();
 }
@@ -98,84 +96,6 @@ static void setup_env() {
     firmware_version_set(FIRMWARE_GIT_HASH);
     firmware_build_set(FIRMWARE_BUILD);
     firmware_compiled_set(DateTime(__DATE__, __TIME__).unixtime());
-}
-
-static void dump_configuration() {
-    loginfof("Core", "Starting");
-
-    #ifdef FK_DEBUG_UART_FALLBACK
-    loginfof("Core", "FK_DEBUG_UART_FALLBACK");
-    #endif
-
-    #ifdef FK_DEBUG_MTB_ENABLE
-    loginfof("Core", "FK_DEBUG_MTB_ENABLE");
-    #else
-    loginfof("Core", "FK_DEBUG_MTB_DISABLE");
-    #endif
-
-    #if defined(FK_NATURALIST)
-    loginfof("Core", "FK_NATURALIST");
-    #elif defined(FK_CORE_GENERATION_2)
-    loginfof("Core", "FK_CORE_GENERATION_2");
-    #elif defined(FK_CORE_GENERATION_1)
-    loginfof("Core", "FK_CORE_GENERATION_1");
-    #endif
-
-    #ifdef FK_CORE_REQUIRE_MODULES
-    loginfof("Core", "FK_CORE_REQUIRE_MODULES");
-    #endif
-
-    #ifdef FK_WIFI_STARTUP_ONLY
-    loginfof("Core", "FK_WIFI_STARTUP_ONLY");
-    #endif
-
-    #ifdef FK_WIFI_ALWAYS_ON
-    loginfof("Core", "FK_WIFI_ALWAYS_ON");
-    #endif
-
-    #ifdef FK_DISABLE_RADIO
-    loginfof("Core", "FK_DISABLE_RADIO");
-    #endif
-
-    #ifdef FK_ENABLE_RADIO
-    loginfof("Core", "FK_ENABLE_RADIO");
-    #endif
-
-    #ifdef FK_DISABLE_FLASH
-    loginfof("Core", "FK_DISABLE_FLASH");
-    #endif
-
-    #ifdef FK_ENABLE_FLASH
-    loginfof("Core", "FK_ENABLE_FLASH");
-    #endif
-
-    #ifdef FK_ENABLE_LOW_POWER_SLEEP
-    loginfof("Core", "FK_ENABLE_LOW_POWER_SLEEP");
-    #endif
-
-    #ifdef FK_ENABLE_DEEP_SLEEP
-    loginfof("Core", "FK_ENABLE_DEEP_SLEEP");
-    #endif
-
-    #ifdef FK_DISABLE_LOW_POWER_SLEEP
-    loginfof("Core", "FK_DISABLE_LOW_POWER_SLEEP");
-    #endif
-
-    #ifdef FK_DISABLE_DEEP_SLEEP
-    loginfof("Core", "FK_DISABLE_DEEP_SLEEP");
-    #endif
-
-    #ifdef FK_PROFILE_STANDARD
-    loginfof("Core", "FK_PROFILE_STANDARD");
-    #endif
-
-    #ifdef FK_PROFILE_AMAZON
-    loginfof("Core", "FK_PROFILE_AMAZON");
-    #endif
-
-    #ifdef FK_DEBUG_INSTRUMENTATION
-    loginfof("Core", "FK_DEBUG_INSTRUMENTATION");
-    #endif
 }
 
 #ifdef FK_DEBUG_MTB_ENABLE
