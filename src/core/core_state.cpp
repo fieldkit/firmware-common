@@ -27,10 +27,8 @@ void CoreState::started() {
     data_->appendStatus(*this);
 }
 
-void CoreState::formatAll() {
-    if (!storage_->erase()) {
-        log("Flash storage erase failed.");
-    }
+bool CoreState::formatAll() {
+    return storage_->erase();
 }
 
 void CoreState::doneScanning() {

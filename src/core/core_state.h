@@ -69,7 +69,7 @@ public:
     void updateIp(uint32_t ip);
     void updateLocation(DeviceLocation&& fix);
 
-    void formatAll();
+    bool formatAll();
 
 private:
     ModuleInfo *getOrCreateModule(uint8_t address, uint8_t numberOfSensors);

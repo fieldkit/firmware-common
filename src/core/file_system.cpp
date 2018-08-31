@@ -53,8 +53,13 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
 FileSystem::FileSystem() : data_{ files_ }, replies_{ *this } {
 }
 
-bool FileSystem::format() {
+bool FileSystem::formatAll() {
     Logger::info("Formatting SD");
+
+    if (!storage_.initialize(g_, Hardware::SD_PIN_CS)) {
+        Logger::error("Unable to initialize SD.");
+        return false;
+    }
 
     if (!fs_.format(files_.descriptors_)) {
         Logger::error("Format failed!");
@@ -102,7 +107,7 @@ bool FileSystem::setup() {
     if (!fs_.mount(files_.descriptors_)) {
         Logger::error("Mount failed!");
 
-        if (!format()) {
+        if (!formatAll()) {
             return false;
         }
     }

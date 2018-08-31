@@ -13,6 +13,9 @@ public:
 
 public:
     void task() override;
+    void react(ShortButtonPressEvent const &sbpe);
+    void react(LongButtonPressEvent const &lbpe);
+
 };
 
 }

@@ -24,7 +24,7 @@ public:
     FileSystem();
 
 public:
-    bool format();
+    bool formatAll();
     bool eraseAll();
     bool setup();
 
