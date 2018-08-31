@@ -24,9 +24,12 @@ void StartSystem::task() {
 
     Hardware::cyclePeripherals();
 
+    #if !defined(FK_NATURALIST)
     // TODO: Move this after low power sleep. Also going to need to work around
     // the startup delay.
+    // NOTE: This breaks Audio on Naturalist?!
     Hardware::cycleModules();
+    #endif
 
     #ifdef FK_ENABLE_FLASH
     setupFlash();
