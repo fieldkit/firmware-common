@@ -3,6 +3,12 @@
 
 namespace fk {
 
+CoreModule::CoreModule() {
+}
+
+CoreModule::CoreModule(tinyfsm::Fsm<fk::CoreDevice>::Deferred takeReadingsState) : takeReadingsState_(takeReadingsState) {
+}
+
 void CoreModule::run(tinyfsm::Fsm<fk::CoreDevice>::Deferred configuration) {
     MainServicesState::services(mainServices);
     WifiServicesState::services(wifiServices);

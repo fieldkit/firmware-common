@@ -32,6 +32,9 @@ namespace fk {
 
 class CoreModule {
 private:
+    tinyfsm::Fsm<fk::CoreDevice>::Deferred takeReadingsState_{ CoreFsm::deferred<BeginGatherReadings>() };
+
+private:
     StaticPool<512> pool{"Main"};
 
     // Main services.
@@ -49,7 +52,7 @@ private:
 
     #if defined(FK_PROFILE_AMAZON)
 
-    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { CoreFsm::deferred<BeginGatherReadings>() } };
+    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { takeReadingsState_ } };
 
     #if defined(FK_WIFI_STARTUP_ONLY)
     CronTask wifiStartupTask{ { },                                 { CoreFsm::deferred<WifiStartup>() } };
@@ -66,7 +69,7 @@ private:
 
     #if defined(FK_NATURALIST) && defined(FK_ENABLE_RADIO)
 
-    PeriodicTask gatherReadingsTask{ ReadingsInterval, { CoreFsm::deferred<BeginGatherReadings>() } };
+    PeriodicTask gatherReadingsTask{ ReadingsInterval, { takeReadingsState_ } };
     PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
     PeriodicTask loraTask{ 30, { CoreFsm::deferred<TransmitLoraData>() } };
     lwcron::Task *tasks[3] {
@@ -77,7 +80,7 @@ private:
 
     #else
 
-    PeriodicTask gatherReadingsTask{ ReadingsInterval, { CoreFsm::deferred<BeginGatherReadings>() } };
+    PeriodicTask gatherReadingsTask{ ReadingsInterval, { takeReadingsState_ } };
     PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
     lwcron::Task *tasks[2] {
         &gatherReadingsTask,
@@ -161,6 +164,10 @@ private:
         &appServicer,
         &liveData
     };
+
+public:
+    CoreModule();
+    CoreModule(tinyfsm::Fsm<fk::CoreDevice>::Deferred takeReadingsState);
 
 public:
     void run(tinyfsm::Fsm<fk::CoreDevice>::Deferred configureState);
