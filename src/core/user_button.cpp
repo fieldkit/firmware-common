@@ -39,6 +39,7 @@ void UserButton::handler() {
         pressed_ = value;
 
         if (pressed_) {
+            pending_ = PendingButtonEvent::None;
             changedAt_ = fk_uptime();
             notified_ = 0;
         }
@@ -60,39 +61,39 @@ TaskEval UserButton::task() {
             switch (pending_) {
             case PendingButtonEvent::Long: {
                 send_event(LongButtonPressEvent{ });
-                pending_ = PendingButtonEvent::None;
                 break;
             }
             case PendingButtonEvent::Short: {
                 send_event(ShortButtonPressEvent{ });
-                pending_ = PendingButtonEvent::None;
                 break;
             }
             case PendingButtonEvent::None: {
                 break;
             }
             }
+
+            pending_ = PendingButtonEvent::None;
         }
 
         wasPressed_ = pressed_;
     }
 
-    if (fk_uptime() - changedAt_ > ButtonLongPressDuration) {
-        if (pending_ != PendingButtonEvent::Long) {
-            log("Long");
-            leds_->notifyButtonLong();
-            pending_ = PendingButtonEvent::Long;
-        }
-    }
-    else if (fk_uptime() - changedAt_ > ButtonShortPressDuration) {
-        if (pending_ != PendingButtonEvent::Short) {
-            log("Short");
-            leds_->notifyButtonShort();
-            pending_ = PendingButtonEvent::Short;
-        }
-    }
-
     if (pressed_) {
+        if (fk_uptime() - changedAt_ > ButtonLongPressDuration) {
+            if (pending_ != PendingButtonEvent::Long) {
+                log("Long");
+                leds_->notifyButtonLong();
+                pending_ = PendingButtonEvent::Long;
+            }
+        }
+        else if (fk_uptime() - changedAt_ > ButtonShortPressDuration) {
+            if (pending_ != PendingButtonEvent::Short) {
+                log("Short");
+                leds_->notifyButtonShort();
+                pending_ = PendingButtonEvent::Short;
+            }
+        }
+
         if (fk_uptime() - notified_ > 250) {
             send_event(UserButtonEvent{ });
             notified_ = fk_uptime();
