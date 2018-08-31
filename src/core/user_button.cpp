@@ -24,9 +24,12 @@ UserButton::UserButton(Leds &leds) : Task("Button"), leds_(&leds) {
 }
 
 void UserButton::enqueued() {
+    // Setup hardware, interested in changes.
     pinMode(Hardware::USER_BUTTON_PIN, INPUT);
-
     attachInterrupt(digitalPinToInterrupt(Hardware::USER_BUTTON_PIN), irq_button, CHANGE);
+
+    // Check the button, just in case they were holding the thing when we started.
+    handler();
 }
 
 void UserButton::handler() {
@@ -35,39 +38,58 @@ void UserButton::handler() {
     if (changed) {
         pressed_ = value;
 
-        if (!pressed_) {
-            if (fk_uptime() - changedAt_ > ButtonShortPressDuration) {
-                pending_ = PendingButtonEvent::Wakeup;
-            }
-
-            if (fk_uptime() - changedAt_ > ButtonLongPressDuration) {
-                pending_ = PendingButtonEvent::Reboot;
-            }
-
-            changedAt_ = 0;
-        }
-        else {
+        if (pressed_) {
             changedAt_ = fk_uptime();
             notified_ = 0;
+        }
+        else {
+            changedAt_ = 0;
         }
     }
 }
 
 TaskEval UserButton::task() {
-    switch (pending_) {
-    case PendingButtonEvent::Reboot: {
-        send_event(UserRebootEvent{ });
-        pending_ = PendingButtonEvent::None;
-        break;
+    if (wasPressed_ != pressed_) {
+        log("Change");
+        if (pressed_) {
+            leds_->notifyButtonPressed();
+        }
+        else {
+            leds_->notifyButtonReleased();
+
+            switch (pending_) {
+            case PendingButtonEvent::Long: {
+                send_event(LongButtonPressEvent{ });
+                pending_ = PendingButtonEvent::None;
+                break;
+            }
+            case PendingButtonEvent::Short: {
+                send_event(ShortButtonPressEvent{ });
+                pending_ = PendingButtonEvent::None;
+                break;
+            }
+            case PendingButtonEvent::None: {
+                break;
+            }
+            }
+        }
+
+        wasPressed_ = pressed_;
     }
-    case PendingButtonEvent::Wakeup: {
-        send_event(UserWakeupEvent{ });
-        pending_ = PendingButtonEvent::None;
-        break;
+
+    if (fk_uptime() - changedAt_ > ButtonLongPressDuration) {
+        if (pending_ != PendingButtonEvent::Long) {
+            log("Long");
+            leds_->notifyButtonLong();
+            pending_ = PendingButtonEvent::Long;
+        }
     }
-    case PendingButtonEvent::None: {
-        break;
-    }
+    else if (fk_uptime() - changedAt_ > ButtonShortPressDuration) {
+        if (pending_ != PendingButtonEvent::Short) {
+            log("Short");
+            leds_->notifyButtonShort();
+            pending_ = PendingButtonEvent::Short;
+        }
     }
 
     if (pressed_) {

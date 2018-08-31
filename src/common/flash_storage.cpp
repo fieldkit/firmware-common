@@ -31,6 +31,7 @@ bool SerialFlashFileSystem::preallocate() {
 
 bool SerialFlashFileSystem::erase() {
     FlashLog::info("Erasing");
+
     if (!storage_.erase()) {
         return false;
     }

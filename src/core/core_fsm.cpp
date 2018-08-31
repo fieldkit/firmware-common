@@ -28,13 +28,13 @@ void CoreDevice::react(AppQueryEvent const &ignored) {
 void CoreDevice::react(UserButtonEvent const &ignored) {
 }
 
-void CoreDevice::react(UserWakeupEvent const &ignored) {
-    warn("UserWakeupEvent");
+void CoreDevice::react(ShortButtonPressEvent const &ignored) {
+    warn("ShortButtonPressEvent");
     transit<UserWakeup>();
 }
 
-void CoreDevice::react(UserRebootEvent const &ignored) {
-    warn("UserRebootEvent");
+void CoreDevice::react(LongButtonPressEvent const &ignored) {
+    warn("LongButtonPressEvent");
     transit<RebootDevice>();
 }
 

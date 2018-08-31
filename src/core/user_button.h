@@ -12,20 +12,25 @@ class UserButton : public Task {
 private:
     enum class PendingButtonEvent {
         None,
-        Wakeup,
-        Reboot
+        Short,
+        Long
     };
 
     Leds *leds_;
+    bool wasPressed_{ false };
     bool pressed_{ false };
     uint32_t changedAt_{ 0 };
     uint32_t notified_{ 0 };
+    uint32_t ledStatus_{ 0 };
     PendingButtonEvent pending_{ PendingButtonEvent::None };
 
 public:
     UserButton(Leds &leds);
 
 public:
+    bool pressed() const {
+        return pressed_;
+    }
     void handler();
     void enqueued() override;
     TaskEval task() override;

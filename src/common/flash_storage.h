@@ -106,7 +106,7 @@ public:
     }
 
     bool erase() {
-        FlashLog::info("Creating (size = %d)", sizeof(T));
+        FlashLog::info("Creating (sizeof(T) = %d)", sizeof(T));
         if (!manager_.create()) {
             return false;
         }
