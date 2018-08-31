@@ -50,27 +50,24 @@ private:
     CoreState state{flashState, fileSystem.logging()};
     ModuleCommunications moduleCommunications{bus, pool};
 
-    #if defined(FK_PROFILE_AMAZON)
-
-    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { takeReadingsState_ } };
-
     #if defined(FK_WIFI_STARTUP_ONLY)
-    CronTask wifiStartupTask{ { },                                 { CoreFsm::deferred<WifiStartup>() } };
+    PeriodicTask wifiStartupTask{ 0, { CoreFsm::deferred<WifiStartup>() } };
     #else // FK_WIFI_STARTUP_ONLY
-    CronTask wifiStartupTask{ lwcron::CronSpec::specific(0, 10),   { CoreFsm::deferred<WifiStartup>() } };
+    #if defined(FK_PROFILE_AMAZON)
+    CronTask wifiStartupTask{ lwcron::CronSpec::specific(0, 10), { CoreFsm::deferred<WifiStartup>() } };
+    #else
+    PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
+    #endif
     #endif // FK_WIFI_STARTUP_ONLY
 
-    lwcron::Task *tasks[2] {
-        &gatherReadingsTask,
-        &wifiStartupTask
-    };
-
-    #else // FK_PROFILE_AMAZON
+    #if defined(FK_PROFILE_AMAZON)
+    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { takeReadingsState_ } };
+    #else
+    PeriodicTask gatherReadingsTask{ ReadingsInterval, { takeReadingsState_ } };
+    #endif // FK_PROFILE_AMAZON
 
     #if defined(FK_NATURALIST) && defined(FK_ENABLE_RADIO)
 
-    PeriodicTask gatherReadingsTask{ ReadingsInterval, { takeReadingsState_ } };
-    PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
     PeriodicTask loraTask{ 30, { CoreFsm::deferred<TransmitLoraData>() } };
     lwcron::Task *tasks[3] {
         &gatherReadingsTask,
@@ -80,16 +77,12 @@ private:
 
     #else
 
-    PeriodicTask gatherReadingsTask{ ReadingsInterval, { takeReadingsState_ } };
-    PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
     lwcron::Task *tasks[2] {
         &gatherReadingsTask,
         &wifiStartupTask
     };
 
     #endif
-
-    #endif // FK_PROFILE_AMAZON
 
     lwcron::Scheduler scheduler{tasks};
 
