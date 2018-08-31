@@ -7,7 +7,7 @@ void CoreModule::run(tinyfsm::Fsm<fk::CoreDevice>::Deferred configuration) {
     MainServicesState::services(mainServices);
     WifiServicesState::services(wifiServices);
 
-    Booting::configureState(configuration);
+    StartSystem::configureState(configuration);
 
     fsm_list::start();
 

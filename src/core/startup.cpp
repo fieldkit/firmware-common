@@ -3,46 +3,19 @@
 #include "startup.h"
 #include "core_state.h"
 #include "hardware.h"
-#include "leds.h"
 #include "device_id.h"
 #include "rtc.h"
 #include "tuning.h"
-#include "watchdog.h"
 #include "debug.h"
 #include "file_system.h"
-#include "user_button.h"
-#include "power_management.h"
 #include "serial_number.h"
 #include "radio_service.h"
 
 namespace fk {
 
-Booting::Deferred Booting::configure_;
+StartSystem::Deferred StartSystem::configure_;
 
-void Booting::task() {
-    pinMode(Hardware::SD_PIN_CS, OUTPUT);
-    pinMode(Hardware::WIFI_PIN_CS, OUTPUT);
-    pinMode(Hardware::RFM95_PIN_CS, OUTPUT);
-    pinMode(Hardware::FLASH_PIN_CS, OUTPUT);
-
-    digitalWrite(Hardware::SD_PIN_CS, HIGH);
-    digitalWrite(Hardware::WIFI_PIN_CS, HIGH);
-    digitalWrite(Hardware::RFM95_PIN_CS, HIGH);
-    digitalWrite(Hardware::FLASH_PIN_CS, HIGH);
-
-    // This only works if I do this before we initialize the WDT, for some
-    // reason. Not a huge priority to fix but I'd like to understand why
-    // eventually.
-    // 44100
-    // NOTE: FkNaturalist Specific
-    // fk_assert(AudioInI2S.begin(8000, 32));
-
-    services().leds->setup();
-    services().watchdog->setup();
-    services().bus->begin(400000);
-    services().power->setup();
-    services().button->enqueued();
-
+void StartSystem::task() {
     clock.begin();
 
     // TODO: Maybe write this to memory just in case this fails in the future?
@@ -92,7 +65,7 @@ void Booting::task() {
     transit(configure_);
 }
 
-void Booting::setupFlash() {
+void StartSystem::setupFlash() {
     auto flashFs = services().flashFs;
     auto flashState = services().flashState;
 
@@ -113,5 +86,3 @@ void Booting::setupFlash() {
 }
 
 }
-
-FSM_INITIAL_STATE(fk::CoreDevice, fk::Booting)

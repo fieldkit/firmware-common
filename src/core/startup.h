@@ -5,7 +5,7 @@
 
 namespace fk {
 
-class Booting : public MainServicesState {
+class StartSystem : public MainServicesState {
 private:
     // TODO: Default this to Initialized
     static Deferred configure_;
@@ -17,7 +17,7 @@ public:
 
 public:
     const char *name() const override {
-        return "Booting";
+        return "StartSystem";
     }
 
 public:
