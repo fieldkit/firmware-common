@@ -26,6 +26,10 @@ public:
     void notifyReadingsDone();
     void notifyFatal();
     void notifyHappy();
+    void notifyButtonPressed();
+    void notifyButtonLong();
+    void notifyButtonShort();
+    void notifyButtonReleased();
 
 private:
     bool disabled();

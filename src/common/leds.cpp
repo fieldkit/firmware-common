@@ -193,4 +193,24 @@ void Leds::notifyHappy() {
     active_ = LedAnimation{ AnimationType::Wheel, 0, 5000, 0 };
 }
 
+void Leds::notifyButtonPressed() {
+    pixel_.setPixelColor(0, 0, 16, 16);
+    pixel_.show();
+}
+
+void Leds::notifyButtonLong() {
+    pixel_.setPixelColor(0, 64, 64, 64);
+    pixel_.show();
+}
+
+void Leds::notifyButtonShort() {
+    pixel_.setPixelColor(0, 0, 64, 64);
+    pixel_.show();
+}
+
+void Leds::notifyButtonReleased() {
+    pixel_.setPixelColor(0, 0, 0, 0);
+    pixel_.show();
+}
+
 }
