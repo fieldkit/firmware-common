@@ -39,7 +39,7 @@ public:
     }
 
     void write(ostreamtype &os) const override {
-        os << "PeriodicTask<'" << toString() << "' " << interval() << ">";
+        os << "PeriodicTask<'" << toString() << "' " << interval() << (valid() ? "" : " INVALID") << ">";
     }
 
 };
@@ -64,7 +64,7 @@ public:
     }
 
     void write(ostreamtype &os) const override {
-        os << "CronTask<'" << toString() << "'>";
+        os << "CronTask<'" << toString() << "'" << (valid() ? "" : " INVALID") << ">";
     }
 
 };
