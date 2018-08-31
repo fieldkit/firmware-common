@@ -103,7 +103,6 @@ void Booting::task() {
     digitalWrite(Hardware::RFM95_PIN_CS, HIGH);
     digitalWrite(Hardware::FLASH_PIN_CS, HIGH);
 
-
     dump_configuration();
 
     // This only works if I do this before we initialize the WDT, for some

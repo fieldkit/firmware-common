@@ -31,11 +31,11 @@ void Idle::react(SchedulerEvent const &se) {
 class TaskLogger : public lwcron::TaskVisitor {
 public:
     void visit(lwcron::PeriodicTask &task) override {
-        sdebug() << "PeriodicTask<'" << task.toString() << "' every " << task.interval() << "s>" << endl;
+        sdebug() << "PeriodicTask<'" << task.toString() << "' every " << task.interval() << "s" << (task.valid() ? "" : " INVALID") << ">" << endl;
     }
 
     void visit(lwcron::CronTask &task) override {
-        sdebug() << "CronTask<'" << task.toString() << "'>" << endl;
+        sdebug() << "CronTask<'" << task.toString() << "'" << (task.valid() ? "" : " INVALID") << ">" << endl;
     }
 };
 
