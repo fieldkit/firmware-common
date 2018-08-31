@@ -108,6 +108,16 @@ inline bool simple_task_run(Task &task)  {
     return true;
 }
 
+inline bool is_task_running(TaskEval e)  {
+    if (e.isDone()) {
+        return false;
+    }
+    if (e.isError()) {
+        return false;
+    }
+    return true;
+}
+
 }
 
 #endif
