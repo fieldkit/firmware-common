@@ -30,6 +30,9 @@ public:
     bool pressed() const {
         return pressed_;
     }
+    bool pending() const {
+        return pending_ != PendingButtonEvent::None;
+    }
     void handler();
     void enqueued() override;
     TaskEval task() override;
