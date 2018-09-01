@@ -2,9 +2,6 @@
 #define FK_LOW_POWER_SLEEP_H_INCLUDED
 
 #include "state_services.h"
-#include "power_management.h"
-#include "sleep.h"
-#include "reboot_device.h"
 
 namespace fk {
 
@@ -15,16 +12,7 @@ public:
     }
 
 public:
-    void task() override {
-        auto percentage = services().power->percentage();
-        if (percentage > BatteryLowPowerResumeThreshold) {
-            log("Battery: %f", percentage);
-            transit_into<RebootDevice>();
-        }
-        else {
-            transit_into<Sleep>(LowPowerSleepDurationSeconds);
-        }
-    }
+    void task() override;
 };
 
 }
