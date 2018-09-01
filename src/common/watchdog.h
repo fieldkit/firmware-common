@@ -8,7 +8,7 @@
 
 namespace fk {
 
-class Watchdog : public Task {
+class Watchdog {
 private:
     uint32_t idledAt_{ 0 };
     Leds *leds_;
@@ -19,7 +19,7 @@ public:
     }
 
 public:
-    Watchdog(Leds &leds) : Task("Watchdog"), leds_(&leds) {
+    Watchdog(Leds &leds) : leds_(&leds) {
     }
 
 public:
@@ -29,7 +29,7 @@ public:
     uint32_t sleep(uint32_t ms);
 
 public:
-    TaskEval task() override;
+    void task();
 
 public:
     static bool checkin();
