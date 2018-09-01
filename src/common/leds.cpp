@@ -80,6 +80,10 @@ public:
         return type_ == AnimationType::Off;
     }
 
+    bool black() const {
+        return type_ == AnimationType::Static && color_ == 0;
+    }
+
     Priority priority() const {
         return priority_;
     }
@@ -140,7 +144,7 @@ public:
 static LedAnimation active_;
 
 static void pushAnimation(LedAnimation incoming) {
-    if (active_.off() || active_.priority() <= incoming.priority()) {
+    if (active_.off() || active_.black() || active_.priority() <= incoming.priority()) {
         active_ = incoming;
     }
 }
