@@ -6,7 +6,7 @@
 namespace fk {
 
 void LowPowerSleep::entry() {
-    MainServicesState::entry();
+    Sleep::entry();
 
     services().watchdog->idling();
 }
@@ -18,7 +18,8 @@ void LowPowerSleep::task() {
         transit_into<RebootDevice>();
     }
     else {
-        transit_into<Sleep>(LowPowerSleepDurationSeconds);
+        sleep(LowPowerSleepDurationSeconds);
+        transit_into<LowPowerSleep>();
     }
 }
 

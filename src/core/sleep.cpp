@@ -12,8 +12,12 @@ void Sleep::react(UserButtonEvent const &ignored) {
 }
 
 void Sleep::task() {
+    sleep(maximum_);
+}
+
+void Sleep::sleep(uint32_t maximum) {
     auto started = fk_uptime();
-    auto stopping = started + (maximum_ * 1000);
+    auto stopping = started + (maximum * 1000);
     auto canSleep = false;
 
     services().fileSystem->flush();
