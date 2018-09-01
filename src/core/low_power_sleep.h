@@ -12,6 +12,7 @@ public:
     }
 
 public:
+    void entry() override;
     void task() override;
 };
 

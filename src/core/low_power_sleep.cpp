@@ -5,6 +5,12 @@
 
 namespace fk {
 
+void LowPowerSleep::entry() {
+    MainServicesState::entry();
+
+    services().watchdog->idling();
+}
+
 void LowPowerSleep::task() {
     auto percentage = services().power->percentage();
     if (percentage > BatteryLowPowerResumeThreshold) {
