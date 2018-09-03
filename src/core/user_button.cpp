@@ -77,25 +77,25 @@ TaskEval UserButton::task() {
         wasPressed_ = pressed_;
     }
 
-    if (fk_uptime() - changedAt_ > ButtonLongPressDuration) {
-        if (pending_ != PendingButtonEvent::Long) {
-            log("Long");
-            leds_->notifyButtonLong();
-            pending_ = PendingButtonEvent::Long;
-        }
-    }
-    else if (fk_uptime() - changedAt_ > ButtonShortPressDuration) {
-        if (pending_ != PendingButtonEvent::Short) {
-            log("Short");
-            leds_->notifyButtonShort();
-            pending_ = PendingButtonEvent::Short;
-        }
-    }
-
     if (pressed_) {
         if (fk_uptime() - notified_ > 250) {
             send_event(UserButtonEvent{ });
             notified_ = fk_uptime();
+        }
+
+        if (fk_uptime() - changedAt_ > ButtonLongPressDuration) {
+            if (pending_ != PendingButtonEvent::Long) {
+                log("Long");
+                leds_->notifyButtonLong();
+                pending_ = PendingButtonEvent::Long;
+            }
+        }
+        else if (fk_uptime() - changedAt_ > ButtonShortPressDuration) {
+            if (pending_ != PendingButtonEvent::Short) {
+                log("Short");
+                leds_->notifyButtonShort();
+                pending_ = PendingButtonEvent::Short;
+            }
         }
     }
 
