@@ -42,20 +42,6 @@ private:
 
 };
 
-class FileCopierSample : public Task {
-private:
-    FileSystem *fileSystem_;
-    CoreState *state_;
-
-public:
-    FileCopierSample(FileSystem &fileSystem, CoreState &state);
-
-public:
-    void enqueued();
-    TaskEval task() override;
-
-};
-
 }
 
 #endif
