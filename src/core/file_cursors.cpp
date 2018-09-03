@@ -21,7 +21,8 @@ bool FileCursorManager::lookup(FileCursors &cursors) {
 
     auto position = file.size() - sizeof(FileCursors);
     if (!file.seek(position)) {
-        Logger::warn("Unable to seek");
+        Logger::warn("Unable to seek (position = %lu) (size = %lu) (sizeof() = %d)",
+                     (uint32_t)position, (uint32_t)file.size(), sizeof(FileCursors));
         return false;
     }
 
