@@ -5,79 +5,9 @@
 
 #include "tuning.h"
 #include "file_reader.h"
+#include "file_copy_operation.h"
 
 namespace fk {
-
-enum class FileNumber {
-    System = 0,
-    EmergencyLog = 1,
-    LogsA = 2,
-    LogsB = 3,
-    Data = 4
-};
-
-struct FileCopySettings {
-    FileNumber file;
-    uint32_t offset;
-    uint32_t length;
-    uint32_t flags;
-
-    FileCopySettings(FileNumber file) : file(file), offset(0), length(0) {
-    }
-
-    FileCopySettings(FileNumber file, uint32_t offset, uint32_t length, uint32_t flags = 0) : file(file), offset(offset), length(length), flags(flags) {
-    }
-};
-
-class FileCopyCallbacks {
-public:
-    virtual void fileCopyTick() = 0;
-};
-
-class FileCopyOperation {
-private:
-    lws::BufferedStreamCopier<FileCopyBufferSize> streamCopier_;
-    uint32_t started_{ 0 };
-    uint32_t lastStatus_{ 0 };
-    uint32_t copied_{ 0 };
-    uint32_t total_{ 0 };
-    FileReader reader_;
-    bool busy_{ false };
-
-public:
-    FileCopyOperation();
-
-public:
-    bool prepare(const FileReader &reader, const FileCopySettings &settings);
-    bool copy(lws::Writer &writer, FileCopyCallbacks *callbacks = nullptr);
-
-public:
-    bool isFinished() const {
-        return !busy_;
-    }
-    size_t tell() {
-        return reader_.tell();
-    }
-    size_t size() {
-        return reader_.size();
-    }
-    size_t remaining() {
-        return size() - tell();
-    }
-    size_t copied() const {
-        return copied_;
-    }
-    uint32_t version() const {
-        return reader_.version();
-    }
-    bool seek(uint64_t position) {
-        return reader_.seek(position);
-    }
-
-private:
-    void status();
-
-};
 
 class Files {
 private:

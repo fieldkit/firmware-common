@@ -2,7 +2,6 @@
 #define FK_TRANSMIT_READINGS_H_INCLUDED
 
 #include "task.h"
-#include "pool.h"
 #include "wifi.h"
 #include "core_state.h"
 #include "file_reader.h"
