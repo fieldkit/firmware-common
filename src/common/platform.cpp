@@ -39,15 +39,15 @@ bool fk_logging_trace_enabled() {
 }
 
 uint32_t fk_wdt_period(uint32_t ms) {
-    if (ms > 8192) {
+    if (ms >= 8192) {
         return 8192;
     }
     return 0;
 }
 
-bool fk_wdt_enable() {
+uint32_t fk_wdt_enable() {
     wdt_enable(WDT_PERIOD_8X, false);
-    return true;
+    return 8192;
 }
 
 bool fk_wdt_early_warning_read() {

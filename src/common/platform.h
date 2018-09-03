@@ -19,7 +19,7 @@ bool fk_logging_trace_enabled();
 
 uint32_t fk_wdt_period(uint32_t ms);
 
-bool fk_wdt_enable();
+uint32_t fk_wdt_enable();
 
 bool fk_wdt_early_warning_read();
 

@@ -16,11 +16,11 @@ void LowPowerSleep::task() {
     if (percentage > BatteryLowPowerResumeThreshold) {
         log("Battery: %f", percentage);
         transit_into<RebootDevice>();
+        return;
     }
-    else {
-        sleep(LowPowerSleepDurationSeconds);
-        transit_into<LowPowerSleep>();
-    }
+
+    sleep(LowPowerSleepDurationSeconds);
+    transit_into<LowPowerSleep>();
 }
 
 }
