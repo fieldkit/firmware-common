@@ -1,6 +1,7 @@
 #include "idle.h"
-#include "low_power_sleep.h"
 #include "scheduler.h"
+#include "low_power_sleep.h"
+#include "sleep.h"
 
 namespace fk {
 

@@ -27,6 +27,10 @@ public:
     void entry() override;
     void react(UserButtonEvent const &ignored) override;
     void task() override;
+
+protected:
+    void sleep(uint32_t maximum);
+
 };
 
 }
