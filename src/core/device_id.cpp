@@ -7,6 +7,10 @@
 
 namespace fk {
 
+constexpr const char Log[] = "DeviceId";
+
+using Logger = SimpleLog<Log>;
+
 class MacAddressEeprom {
 private:
     TwoWireBus *bus;
@@ -35,6 +39,9 @@ bool DeviceId::initialize(TwoWireBus &bus) {
         memset(data, 0, sizeof(data));
         if (!macAddressChip.read128bMac(data)) {
             SerialNumber serialNumber;
+
+            Logger::warn("DeviceId unavailable, using SerialNumber");
+
             memcpy(data, (uint8_t *)serialNumber.toInts(), sizeof(uint32_t) * 4);
             len = 16;
         } else {

@@ -3,8 +3,6 @@
 
 #include <Adafruit_NeoPixel.h>
 
-#include "task.h"
-
 namespace fk {
 
 class Leds {

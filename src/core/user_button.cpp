@@ -39,6 +39,7 @@ void UserButton::handler() {
         pressed_ = value;
 
         if (pressed_) {
+            pending_ = PendingButtonEvent::None;
             changedAt_ = fk_uptime();
             notified_ = 0;
         }
@@ -60,18 +61,18 @@ TaskEval UserButton::task() {
             switch (pending_) {
             case PendingButtonEvent::Long: {
                 send_event(LongButtonPressEvent{ });
-                pending_ = PendingButtonEvent::None;
                 break;
             }
             case PendingButtonEvent::Short: {
                 send_event(ShortButtonPressEvent{ });
-                pending_ = PendingButtonEvent::None;
                 break;
             }
             case PendingButtonEvent::None: {
                 break;
             }
             }
+
+            pending_ = PendingButtonEvent::None;
         }
 
         wasPressed_ = pressed_;

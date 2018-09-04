@@ -8,9 +8,17 @@ namespace fk {
 
 enum class AnimationType {
     Off,
+    Static,
     Blink,
     Fade,
     Wheel
+};
+
+enum class Priority : uint8_t {
+    Lowest = 0,
+    Normal = 0,
+    Button = 10,
+    Highest = 255
 };
 
 static inline constexpr uint32_t get_color(uint8_t r, uint8_t g, uint8_t b) {
@@ -51,6 +59,7 @@ struct Color {
 class LedAnimation {
 private:
     AnimationType type_{ AnimationType::Off };
+    Priority priority_{ Priority::Lowest };
     uint32_t color_{ 0 };
     uint16_t period_{ 0 };
     uint16_t duration_{ 0 };
@@ -61,14 +70,22 @@ public:
     LedAnimation() {
     }
 
-    LedAnimation(AnimationType type, uint32_t color, uint16_t period, uint16_t duration) :
-        type_(type), color_(color), period_(period), duration_(duration) {
+    LedAnimation(AnimationType type, Priority priority, uint32_t color, uint16_t period, uint16_t duration) :
+        type_(type), priority_(priority), color_(color), period_(period), duration_(duration) {
         started_ = fk_uptime();
     }
 
 public:
-    bool off() {
+    bool off() const {
         return type_ == AnimationType::Off;
+    }
+
+    bool black() const {
+        return type_ == AnimationType::Static && color_ == 0;
+    }
+
+    Priority priority() const {
+        return priority_;
     }
 
 public:
@@ -81,6 +98,9 @@ public:
         }
 
         switch (type_) {
+        case AnimationType::Static: {
+            return color_;
+        }
         case AnimationType::Wheel: {
             auto factor = (elapsed % period_) * 255 / period_;
             auto position = 255 - (factor % 255);
@@ -123,6 +143,12 @@ public:
 
 static LedAnimation active_;
 
+static void pushAnimation(LedAnimation incoming) {
+    if (active_.off() || active_.black() || active_.priority() <= incoming.priority()) {
+        active_ = incoming;
+    }
+}
+
 Leds::Leds() {
 }
 
@@ -164,53 +190,46 @@ bool Leds::disabled() {
 }
 
 void Leds::notifyAlive() {
-    active_ = LedAnimation{ AnimationType::Fade, get_color(0, 0, 255), 500, 500 };
+    pushAnimation(LedAnimation{ AnimationType::Fade, Priority::Normal, get_color(0, 0, 255), 500, 500 });
 }
 
 void Leds::notifyBattery(float percentage) {
 }
 
 void Leds::notifyNoModules() {
-    pixel_.setPixelColor(0, 0, 0, 0);
-    pixel_.show();
+    pushAnimation(LedAnimation{ });
 }
 
 void Leds::notifyReadingsBegin() {
-    pixel_.setPixelColor(0, 0, 32, 0);
-    pixel_.show();
+    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Normal, get_color(0, 32, 0), 0, 0 });
 }
 
 void Leds::notifyReadingsDone() {
-    pixel_.setPixelColor(0, 0, 0, 0);
-    pixel_.show();
+    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Normal, 0, 0, 0 });
 }
 
 void Leds::notifyFatal() {
-    active_ = LedAnimation{ AnimationType::Blink, get_color(255, 0, 0), 500, 0 };
+    pushAnimation(LedAnimation{ AnimationType::Blink, Priority::Highest, get_color(255, 0, 0), 500, 0 });
 }
 
 void Leds::notifyHappy() {
-    active_ = LedAnimation{ AnimationType::Wheel, 0, 5000, 0 };
+    pushAnimation(LedAnimation{ AnimationType::Wheel, Priority::Normal, 0, 5000, 0 });
 }
 
 void Leds::notifyButtonPressed() {
-    pixel_.setPixelColor(0, 0, 16, 16);
-    pixel_.show();
+    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 16, 16), 0, 0 });
 }
 
 void Leds::notifyButtonLong() {
-    pixel_.setPixelColor(0, 64, 64, 64);
-    pixel_.show();
+    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Button, get_color(64, 64, 64), 0, 0 });
 }
 
 void Leds::notifyButtonShort() {
-    pixel_.setPixelColor(0, 0, 64, 64);
-    pixel_.show();
+    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 64, 64), 0, 0 });
 }
 
 void Leds::notifyButtonReleased() {
-    pixel_.setPixelColor(0, 0, 0, 0);
-    pixel_.show();
+    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Button, 0, 0, 0 });
 }
 
 }

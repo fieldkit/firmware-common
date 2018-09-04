@@ -6,7 +6,7 @@
 namespace fk {
 
 void FactoryResetCheck::task() {
-    while (services().button->pressed()) {
+    while (services().button->pressed() || services().button->pending()) {
         services().alive();
 
         if (transitioned()) {

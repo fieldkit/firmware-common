@@ -1,28 +1,31 @@
 #include "watchdog.h"
 #include "platform.h"
 #include "tuning.h"
+#include "debug.h"
 
 namespace fk {
+
+constexpr const char Log[] = "Watchdog";
+
+using Logger = SimpleLog<Log>;
 
 void Watchdog::setup() {
     fk_wdt_enable();
 }
 
 void Watchdog::started() {
-    log("ResetCause: %s", fk_system_reset_cause_get_string());
+    Logger::info("ResetCause: %s", fk_system_reset_cause_get_string());
 }
 
-TaskEval Watchdog::task() {
+void Watchdog::task() {
     if (checkin()) {
         leds_->notifyAlive();
     }
 
     if (elapsedSinceIdle() > MaximumWaitBeforeReturnToIdle) {
-        error("No idle for %lu", elapsedSinceIdle());
+        Logger::error("No idle for %lu", elapsedSinceIdle());
         fk_system_reset();
     }
-
-    return TaskEval::idle();
 }
 
 bool Watchdog::checkin() {
