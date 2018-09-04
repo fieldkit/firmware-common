@@ -44,12 +44,19 @@ uint32_t fk_free_memory() {
 
 extern "C" {
 
-void fk_assertion_hook_dummy()  {
+#if defined(__APPLE__)
+
+void fk_assertion_hook(void) __attribute__ ((weak)) {
+}
+
+#else
+
+void fk_assertion_hook_dummy() {
 }
 
 void fk_assertion_hook(void) __attribute__ ((weak, alias("fk_assertion_hook_dummy")));
 
-}
+#endif
 
 void __fk_assert(const char *msg, const char *file, int lineno) {
     fk_assertion_hook();
@@ -76,4 +83,6 @@ void __fk_assert(const char *msg, const char *file, int lineno) {
     abort();
 
     #endif // defined(ARDUINO)
+}
+
 }
