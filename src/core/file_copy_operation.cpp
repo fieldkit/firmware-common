@@ -6,6 +6,26 @@ namespace fk {
 FileCopyOperation::FileCopyOperation() {
 }
 
+bool FileCopyOperation::isFinished() const {
+    return !busy_;
+}
+
+size_t FileCopyOperation::tell() {
+    return reader_.tell();
+}
+
+size_t FileCopyOperation::size() {
+    return reader_.size();
+}
+
+size_t FileCopyOperation::remaining() {
+    return size() - tell();
+}
+
+uint32_t FileCopyOperation::version() const {
+    return reader_.version();
+}
+
 bool FileCopyOperation::prepare(const FileReader &reader, const FileCopySettings &settings) {
     reader_ = reader;
 
@@ -17,7 +37,7 @@ bool FileCopyOperation::prepare(const FileReader &reader, const FileCopySettings
 
     started_ = 0;
     copied_ = 0;
-    lastStatus_ = fk_uptime();
+    busy_ = true;
     total_ = reader_.size() - reader_.tell();
 
     return true;
@@ -26,6 +46,7 @@ bool FileCopyOperation::prepare(const FileReader &reader, const FileCopySettings
 bool FileCopyOperation::copy(lws::Writer &writer, FileCopyCallbacks *callbacks) {
     if (started_ == 0) {
         started_ = fk_uptime();
+        status_ = fk_uptime();
     }
 
     auto started = fk_uptime();
@@ -41,12 +62,13 @@ bool FileCopyOperation::copy(lws::Writer &writer, FileCopyCallbacks *callbacks) 
 
         if (bytes == lws::Stream::EOS) {
             status();
+            busy_ = false;
             break;
         }
 
-        if (fk_uptime() - lastStatus_ > FileCopyStatusInterval) {
+        if (fk_uptime() - status_ > FileCopyStatusInterval) {
             status();
-            lastStatus_ = fk_uptime();
+            status_ = fk_uptime();
         }
 
         if (callbacks != nullptr) {
@@ -61,7 +83,7 @@ void FileCopyOperation::status() {
     auto elapsed = fk_uptime() - started_;
     auto complete = copied_ > 0 ? ((float)copied_ / total_) * 100.0f : 0.0f;
     auto speed = copied_ > 0 ? copied_ / ((float)elapsed / 1000.0f) : 0.0f;
-    logtracef("Copy", "%lu/%lu %lums %.2f %.2fbps (%lu)", copied_, total_, elapsed, complete, speed, fk_uptime() - lastStatus_);
+    logtracef("Copy", "%lu/%lu %lums %.2f %.2fbps", copied_, total_, elapsed, complete, speed);
 }
 
 }

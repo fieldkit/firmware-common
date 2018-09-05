@@ -18,7 +18,7 @@ class FileCopyOperation {
 private:
     lws::BufferedStreamCopier<FileCopyBufferSize> streamCopier_;
     uint32_t started_{ 0 };
-    uint32_t lastStatus_{ 0 };
+    uint32_t status_{ 0 };
     uint32_t copied_{ 0 };
     uint32_t total_{ 0 };
     FileReader reader_;
@@ -32,21 +32,11 @@ public:
     bool copy(lws::Writer &writer, FileCopyCallbacks *callbacks = nullptr);
 
 public:
-    bool isFinished() const {
-        return !busy_;
-    }
-    size_t tell() {
-        return reader_.tell();
-    }
-    size_t size() {
-        return reader_.size();
-    }
-    size_t remaining() {
-        return size() - tell();
-    }
-    uint32_t version() const {
-        return reader_.version();
-    }
+    bool isFinished() const;
+    size_t tell();
+    size_t size();
+    size_t remaining();
+    uint32_t version() const;
 
 private:
     void status();
