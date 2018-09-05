@@ -23,7 +23,7 @@ bool MainServices::alive() {
     watchdog->task();
     power->task();
     status->task();
-    gps->task();
+    gps->read();
     button->task();
     return leds->task();
 }

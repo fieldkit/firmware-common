@@ -3,32 +3,30 @@
 
 #include <TinyGPS.h>
 
-#include "task.h"
 #include "core_state.h"
 #include "serial_port.h"
 
 namespace fk {
 
-class GpsService : public Task {
+class GpsService {
 private:
-    CoreState *state;
-    SerialPort *serial;
-    TinyGPS gps;
-    bool configured{ false };
-    uint32_t lastStatus{ 0 };
-    uint32_t started{ 0 };
-    uint16_t position{ 0 };
-    uint8_t buffer[64];
+    CoreState *state_;
+    SerialPort *serial_;
+    TinyGPS gps_;
+    bool configured_{ false };
+    uint32_t lastStatus_{ 0 };
+    uint32_t started_{ 0 };
+    uint16_t position_{ 0 };
+    uint8_t buffer_[64];
+    uint32_t status_{ 0 };
 
 public:
-    GpsService(CoreState &state, SerialPort &serial) : Task("GPS"), state(&state), serial(&serial) {
+    GpsService(CoreState &state, SerialPort &serial) : state_(&state), serial_(&serial) {
     }
 
 public:
-    void enqueued() override;
     void read();
     void save();
-    TaskEval task() override;
 
 };
 
