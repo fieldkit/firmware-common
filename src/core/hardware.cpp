@@ -53,6 +53,8 @@ void Hardware::disablePeripherals() {
     Logger::info("Disabling peripherals.");
     pinMode(PERIPHERALS_ENABLE_PIN, OUTPUT);
     digitalWrite(PERIPHERALS_ENABLE_PIN, LOW);
+    pinMode(GPS_ENABLE_PIN, OUTPUT);
+    digitalWrite(GPS_ENABLE_PIN, LOW);
     #endif
 }
 
@@ -61,8 +63,10 @@ void Hardware::cyclePeripherals() {
     Logger::info("Cycling peripherals.");
     pinMode(PERIPHERALS_ENABLE_PIN, OUTPUT);
     digitalWrite(PERIPHERALS_ENABLE_PIN, LOW);
+    digitalWrite(GPS_ENABLE_PIN, LOW);
     delay(500);
     digitalWrite(PERIPHERALS_ENABLE_PIN, HIGH);
+    digitalWrite(GPS_ENABLE_PIN, HIGH);
     delay(500);
     #else
     Logger::info("Peripherals always on.");
