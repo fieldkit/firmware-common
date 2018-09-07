@@ -12,8 +12,8 @@ namespace fk {
 
 class ClockPair {
 private:
-    RTC_PCF8523 external;
-    RTCZero local;
+    RTC_PCF8523 external_;
+    RTCZero local_;
 
 public:
     void begin();
@@ -28,7 +28,7 @@ public:
 
 class Clock {
 private:
-    RTCZero local;
+    RTCZero local_;
 
 public:
     void begin();

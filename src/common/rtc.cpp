@@ -10,29 +10,29 @@ constexpr const char LogName[] = "Clock";
 using Logger = SimpleLog<LogName>;
 
 void ClockPair::begin() {
-    external.begin();
-    local.begin();
+    external_.begin();
+    local_.begin();
 
-    auto externalNow = external.now();
-    local.setYear(externalNow.year() - 2000);
-    local.setMonth(externalNow.month());
-    local.setDay(externalNow.day());
-    local.setHours(externalNow.hour());
-    local.setMinutes(externalNow.minute());
-    local.setSeconds(externalNow.second());
+    auto externalNow = external_.now();
+    local_.setYear(externalNow.year() - 2000);
+    local_.setMonth(externalNow.month());
+    local_.setDay(externalNow.day());
+    local_.setHours(externalNow.hour());
+    local_.setMinutes(externalNow.minute());
+    local_.setSeconds(externalNow.second());
 
     FormattedTime nowFormatted{ externalNow };
     Logger::trace("Synced from external: '%s' (%lu)", nowFormatted.toString(), externalNow.unixtime());
 }
 
 void ClockPair::setTime(DateTime dt) {
-    external.adjust(dt);
-    local.setYear(dt.year() - 2000);
-    local.setMonth(dt.month());
-    local.setDay(dt.day());
-    local.setHours(dt.hour());
-    local.setMinutes(dt.minute());
-    local.setSeconds(dt.second());
+    external_.adjust(dt);
+    local_.setYear(dt.year() - 2000);
+    local_.setMonth(dt.month());
+    local_.setDay(dt.day());
+    local_.setHours(dt.hour());
+    local_.setMinutes(dt.minute());
+    local_.setSeconds(dt.second());
 
     FormattedTime nowFormatted{ dt };
     Logger::trace("Clock changed: '%s' (%lu)", nowFormatted.toString(), dt.unixtime());
@@ -47,12 +47,12 @@ void ClockPair::setTime(uint32_t newTime) {
 }
 
 DateTime ClockPair::now() {
-    return DateTime(local.getYear(),
-                    local.getMonth(),
-                    local.getDay(),
-                    local.getHours(),
-                    local.getMinutes(),
-                    local.getSeconds());
+    return DateTime(local_.getYear(),
+                    local_.getMonth(),
+                    local_.getDay(),
+                    local_.getHours(),
+                    local_.getMinutes(),
+                    local_.getSeconds());
 }
 
 uint32_t ClockPair::getTime() {
@@ -60,16 +60,16 @@ uint32_t ClockPair::getTime() {
 }
 
 void Clock::begin() {
-    local.begin();
+    local_.begin();
 }
 
 void Clock::setTime(DateTime dt) {
-    local.setYear(dt.year() - 2000);
-    local.setMonth(dt.month());
-    local.setDay(dt.day());
-    local.setHours(dt.hour());
-    local.setMinutes(dt.minute());
-    local.setSeconds(dt.second());
+    local_.setYear(dt.year() - 2000);
+    local_.setMonth(dt.month());
+    local_.setDay(dt.day());
+    local_.setHours(dt.hour());
+    local_.setMinutes(dt.minute());
+    local_.setSeconds(dt.second());
 
     FormattedTime nowFormatted{ dt };
     Logger::trace("Clock changed: '%s' (%lu)", nowFormatted.toString(), dt.unixtime());
@@ -85,12 +85,12 @@ void Clock::setTime(uint32_t newTime) {
 }
 
 DateTime Clock::now() {
-    return DateTime(local.getYear(),
-                    local.getMonth(),
-                    local.getDay(),
-                    local.getHours(),
-                    local.getMinutes(),
-                    local.getSeconds());
+    return DateTime(local_.getYear(),
+                    local_.getMonth(),
+                    local_.getDay(),
+                    local_.getHours(),
+                    local_.getMinutes(),
+                    local_.getSeconds());
 }
 
 uint32_t Clock::getTime() {
