@@ -85,7 +85,7 @@ void GpsService::read() {
         status_ = fk_uptime();
     }
 
-    if (fk_uptime() - status_ > 5000) {
+    if (fk_uptime() - status_ > 30000) {
         auto fix = GpsReading{ gps_ };
         auto unix = fix.toDateTime().unixtime();
         Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);
