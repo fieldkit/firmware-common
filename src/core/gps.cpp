@@ -96,7 +96,7 @@ void GpsService::read() {
         auto c = (char)serial_->read();
         gps_.encode(c);
 
-        if (true || GpsEchoRaw) {
+        if (GpsEchoRaw) {
             if (c == '\n' || c == '\r' || position_ == sizeof(buffer_) - 1) {
                 if (position_ > 0 && buffer_[0] == '$') {
                     buffer_[position_] = 0;
