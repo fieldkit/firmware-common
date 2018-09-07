@@ -112,6 +112,9 @@ bool TransmitFileTask::openFile() {
     else {
         log("Uploading: %d", fileCopy.remaining());
     }
+    if (fileCopy.tell() > fileCopy.size()) { // TODO: Quick hack while I diagnose this.
+        return false;
+    }
     return true;
 }
 

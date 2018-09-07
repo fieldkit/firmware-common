@@ -193,9 +193,6 @@ bool FileSystem::erase(FileNumber number) {
 bool FileSystem::beginFileCopy(FileCopySettings settings) {
     auto fd = files_.descriptors_[(size_t)settings.file];
 
-    Logger::info("Prepare: id=%d name=%s offset=%lu length=%lu",
-                 (size_t)settings.file, fd->name, settings.offset, settings.length);
-
     files_.opened_ = fs_.open(*fd, OpenMode::Read);
     if (!files_.opened_) {
         return false;
@@ -205,6 +202,11 @@ bool FileSystem::beginFileCopy(FileCopySettings settings) {
     if (!files_.fileCopy_.prepare(newReader, settings)) {
         return false;
     }
+
+    Logger::info("Prepare: id=%d name=%s offset=%lu length=%lu fileSize=%lu readerSize=%d",
+                 (size_t)settings.file, fd->name,
+                 settings.offset, settings.length,
+                 (uint32_t)files_.opened_.size(), files_.fileCopy_.size());
 
     return true;
 }
