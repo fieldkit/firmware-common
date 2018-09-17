@@ -8,7 +8,7 @@ namespace fk {
 void TakeGpsReading::task() {
     services().gps->save();
 
-    transit<TakeReadings>();
+    transit(services().states->readings);
 }
 
 }
