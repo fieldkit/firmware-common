@@ -24,6 +24,11 @@ class ModuleCommunications;
 class RadioService;
 class GpsService;
 
+struct ConfigurableStates {
+    tinyfsm::Fsm<fk::CoreDevice>::Deferred configure;
+    tinyfsm::Fsm<fk::CoreDevice>::Deferred readings;
+};
+
 struct MainServices {
     Pool *pool;
     Leds *leds;
@@ -40,13 +45,14 @@ struct MainServices {
     ModuleCommunications *moduleCommunications;
     RadioService *radio;
     GpsService *gps;
+    ConfigurableStates *states;
 
     MainServices(Pool *pool, Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
                  SerialFlashFileSystem *flashFs, FlashState<PersistedState> *flashState, FileSystem *fileSystem, UserButton *button,
                  lwcron::Scheduler *scheduler,
-                 ModuleCommunications *moduleCommunications, RadioService *radio, GpsService *gps) :
+                 ModuleCommunications *moduleCommunications, RadioService *radio, GpsService *gps, ConfigurableStates *states) :
         pool(pool), leds(leds), watchdog(watchdog), bus(bus), power(power), status(status), state(state), flashFs(flashFs), flashState(flashState),
-        fileSystem(fileSystem), button(button), scheduler(scheduler), moduleCommunications(moduleCommunications), radio(radio), gps(gps) {
+        fileSystem(fileSystem), button(button), scheduler(scheduler), moduleCommunications(moduleCommunications), radio(radio), gps(gps), states(states) {
     }
 
     bool alive();
@@ -72,10 +78,10 @@ struct WifiServices : MainServices {
     WifiServices(Pool *pool, Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
                  SerialFlashFileSystem *flashFs, FlashState<PersistedState> *flashState, FileSystem *fileSystem, UserButton *button,
                  lwcron::Scheduler *scheduler,
-                 ModuleCommunications *moduleCommunications, RadioService *radio, GpsService *gps,
+                 ModuleCommunications *moduleCommunications, RadioService *radio, GpsService *gps, ConfigurableStates *states,
                  Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer,
                  LiveDataManager *liveData) :
-        MainServices(pool, leds, watchdog, bus, power, status, state, flashFs, flashState, fileSystem, button, scheduler, moduleCommunications, radio, gps),
+        MainServices(pool, leds, watchdog, bus, power, status, state, flashFs, flashState, fileSystem, button, scheduler, moduleCommunications, radio, gps, states),
         wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer), liveData(liveData) {
     }
 };

@@ -32,7 +32,10 @@ namespace fk {
 
 class CoreModule {
 private:
-    tinyfsm::Fsm<fk::CoreDevice>::Deferred takeReadingsState_{ CoreFsm::deferred<BeginGatherReadings>() };
+    ConfigurableStates configurableStates_{
+        CoreFsm::deferred<BeginGatherReadings>(),
+        CoreFsm::deferred<BeginGatherReadings>()
+    };
 
 private:
     StaticPool<512> pool{"Main"};
@@ -61,9 +64,9 @@ private:
     #endif // FK_WIFI_STARTUP_ONLY
 
     #if defined(FK_PROFILE_AMAZON)
-    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { takeReadingsState_ } };
+    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { CoreFsm::deferred<BeginGatherReadings>() } };
     #else
-    PeriodicTask gatherReadingsTask{ ReadingsInterval, { takeReadingsState_ } };
+    PeriodicTask gatherReadingsTask{ ReadingsInterval, { CoreFsm::deferred<BeginGatherReadings>() } };
     #endif // FK_PROFILE_AMAZON
 
     #if defined(FK_NATURALIST) && defined(FK_ENABLE_RADIO)
@@ -126,7 +129,8 @@ private:
         #else
         nullptr,
         #endif
-        &gps
+        &gps,
+        &configurableStates_
     };
 
     WifiServices wifiServices{
@@ -149,6 +153,7 @@ private:
         nullptr,
         #endif
         &gps,
+        &configurableStates_,
 
         &wifi,
         &discovery,
@@ -159,11 +164,10 @@ private:
     };
 
 public:
-    CoreModule();
-    CoreModule(tinyfsm::Fsm<fk::CoreDevice>::Deferred takeReadingsState);
+    CoreModule(ConfigurableStates configurableStates);
 
 public:
-    void run(tinyfsm::Fsm<fk::CoreDevice>::Deferred configureState);
+    void run();
 
 };
 

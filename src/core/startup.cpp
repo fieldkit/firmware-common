@@ -13,8 +13,6 @@
 
 namespace fk {
 
-StartSystem::Deferred StartSystem::configure_;
-
 void StartSystem::task() {
     clock.begin();
 
@@ -65,7 +63,7 @@ void StartSystem::task() {
     services().state->started();
     services().scheduler->begin(lwcron::DateTime{ now.unixtime() });
 
-    transit(configure_);
+    transit(services().states->configure);
 }
 
 void StartSystem::setupFlash() {

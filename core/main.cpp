@@ -8,6 +8,7 @@
 #include "platform.h"
 #include "restart_wizard.h"
 #include "initialized.h"
+#include "take_readings.h"
 
 #include "seed.h"
 #include "config.h"
@@ -64,8 +65,12 @@ void setup() {
 }
 
 void loop() {
-    fk::CoreModule coreModule;
-    coreModule.run(fk::CoreFsm::deferred<fk::ConfigureDevice>());
+    fk::ConfigurableStates states{
+        fk::CoreFsm::deferred<fk::ConfigureDevice>(),
+        fk::CoreFsm::deferred<fk::TakeReadings>()
+    };
+    fk::CoreModule coreModule(states);
+    coreModule.run();
 }
 
 static void setup_serial() {
