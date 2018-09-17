@@ -19,6 +19,7 @@ private:
     Files files_{ fs_ };
     DataLogging data_;
     DataReplies replies_;
+    bool formatted_{ false };
 
 public:
     FileSystem();

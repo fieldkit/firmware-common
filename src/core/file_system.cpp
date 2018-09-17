@@ -54,7 +54,14 @@ FileSystem::FileSystem() : data_{ files_ }, replies_{ *this } {
 }
 
 bool FileSystem::formatAll() {
-    Logger::info("Formatting SD");
+    Logger::info("Formatting SD FileSystem...");
+
+    if (formatted_) {
+        Logger::error("Already formatted, failing.");
+        return false;
+    }
+
+    formatted_ = true;
 
     if (!storage_.initialize(g_, Hardware::SD_PIN_CS)) {
         Logger::error("Unable to initialize SD.");
@@ -104,18 +111,25 @@ bool FileSystem::setup() {
         return false;
     }
 
-    if (!fs_.mount(files_.descriptors_)) {
-        Logger::error("Mount failed!");
+    for (auto i = 0; i < 2; ++i) {
+        if (!fs_.mount(files_.descriptors_)) {
+            Logger::error("Mount failed!");
 
-        if (!formatAll()) {
-            return false;
+            if (!formatAll()) {
+                return false;
+            }
         }
-    }
 
-    Logger::info("Mounted (%lu blocks)", storage_.geometry().number_of_blocks);
+        Logger::info("Mounted (%lu blocks)", storage_.geometry().number_of_blocks);
 
-    if (!openSystemFiles()) {
-        return false;
+        if (!openSystemFiles()) {
+            if (!formatAll()) {
+                return false;
+            }
+        }
+        else {
+            break;
+        }
     }
 
     log_configure_time(fk_uptime, log_uptime);
@@ -135,18 +149,34 @@ bool FileSystem::closeSystemFiles() {
     return true;
 }
 
+static SimpleFile open_file_or_truncate(FileOpener &opener, phylum::FileDescriptor &fd) {
+    auto file = opener.open(fd, OpenMode::MultipleWrites);
+    if (!file) {
+        Logger::error("Opening %s failed, erasing...", fd.name);
+
+        if (!opener.erase(fd)) {
+            Logger::error("Erase %s failed!", fd.name);
+            return { };
+        }
+
+        return opener.open(fd, OpenMode::MultipleWrites);
+    }
+
+    return file;
+}
+
 bool FileSystem::openSystemFiles() {
-    auto logs_a = fs_.open(files_.file_logs_a_fd, OpenMode::MultipleWrites);
+    auto logs_a = open_file_or_truncate(fs_, files_.file_logs_a_fd);
     if (!logs_a) {
         return false;
     }
 
-    auto logs_b = fs_.open(files_.file_logs_b_fd, OpenMode::MultipleWrites);
+    auto logs_b = open_file_or_truncate(fs_, files_.file_logs_b_fd);
     if (!logs_b) {
         return false;
     }
 
-    auto data = fs_.open(files_.file_data_fk, OpenMode::MultipleWrites);
+    auto data = open_file_or_truncate(fs_, files_.file_data_fk);
     if (!data) {
         return false;
     }
@@ -161,11 +191,11 @@ bool FileSystem::openSystemFiles() {
         files_.log_ = logs_a;
     }
 
+    // Report file size information.
     for (auto fd : files_.descriptors_) {
         auto opened = fs_.open(*fd);
         if (opened) {
             Logger::info("File: %s size = %lu maximum = %lu", fd->name, (uint32_t)opened.size(), (uint32_t)fd->maximum_size);
-            opened.close();
         }
     }
 
