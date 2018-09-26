@@ -24,12 +24,6 @@ add_definitions("-DFIRMWARE_GIT_HASH=\"${GIT_COMMIT_HASH}\"")
 add_definitions("-DFIRMWARE_GIT_BRANCH=\"${GIT_BRANCH}\"")
 add_definitions("-DFIRMWARE_BUILD=\"$ENV{BUILD_TAG}\"")
 
-option(FK_BOOTLOADER_LARGE "Require module, restarting if none are found. " ON)
-if(FK_BOOTLOADER_LARGE)
-  set(ARDUINO_BOOTLOADER "${CMAKE_CURRENT_SOURCE_DIR}/samd21x18_bootloader_large.ld")
-  add_definitions(-DFK_BOOTLOADER_LARGE)
-endif(FK_BOOTLOADER_LARGE)
-
 set(sources main.cpp)
 
 add_arduino_library(fk-core "${sources}")
@@ -56,7 +50,6 @@ if(FK_PROFILE_STANDARD)
   target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_DISABLE_RADIO)
   target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_RTC_PCF8523)
   target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_HARDWARE_SERIAL2_ENABLE)
-  # target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_HARDWARE_WIRE11AND13_ENABLE)
 
   fk_write_profile(fk-core-standard)
 
@@ -79,7 +72,6 @@ if(FK_PROFILE_AMAZON)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_DISABLE_RADIO)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_RTC_PCF8523)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_HARDWARE_SERIAL2_ENABLE)
-  # target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_HARDWARE_WIRE11AND13_ENABLE)
 
   fk_write_profile(fk-core-amazon)
 
