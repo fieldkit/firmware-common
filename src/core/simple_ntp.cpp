@@ -38,10 +38,12 @@ TaskEval SimpleNTP::task() {
 
         // Rezero to get UnixTime.
         auto oldEpoch = clock->getTime();
-        auto epoch = (uint32_t)(secondsSince1900 - SeventyYears);
-        clock->setTime(epoch);
+        auto newEpoch = (uint32_t)(secondsSince1900 - SeventyYears);
+        clock->setTime(newEpoch);
 
-        log("UTC: %lu (old = %lu)", epoch, oldEpoch);
+        FormattedTime newFormatted{ newEpoch };
+        FormattedTime oldFormatted{ oldEpoch };
+        log("UTC: '%s' -> '%s' (%lus)", oldFormatted.toString(), newFormatted.toString(), newEpoch - oldEpoch);
 
         stop();
 

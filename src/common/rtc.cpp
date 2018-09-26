@@ -17,20 +17,24 @@ void ClockPair::begin() {
     local_.setEpoch(externalNow.unixtime());
 
     FormattedTime nowFormatted{ externalNow };
-    Logger::trace("Synced from external: '%s' (%lu)", nowFormatted.toString(), externalNow.unixtime());
+    Logger::trace("(ClockPair) Synced from external: '%s' (%lu)", nowFormatted.toString(), externalNow.unixtime());
 }
 
-void ClockPair::setTime(DateTime dt) {
-    external_.adjust(dt);
-    local_.setEpoch(dt.unixtime());
+void ClockPair::setTime(DateTime newEpoch) {
+    auto oldEpoch = getTime();
 
-    FormattedTime nowFormatted{ dt };
-    Logger::trace("Clock changed: '%s' (%lu)", nowFormatted.toString(), dt.unixtime());
+    external_.adjust(newEpoch);
+    local_.setEpoch(newEpoch.unixtime());
+
+    FormattedTime newFormatted{ newEpoch };
+    FormattedTime oldFormatted{ oldEpoch };
+    Logger::trace("(ClockPair) Changed: '%s' -> '%s' (%lu) (%lus)", oldFormatted.toString(), newFormatted.toString(),
+                  newEpoch.unixtime(), newEpoch.unixtime() - oldEpoch);
 }
 
 void ClockPair::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        Logger::trace("Ignoring invalid time (%lu)", newTime);
+        Logger::trace("(ClockPair) Ignoring invalid time (%lu)", newTime);
         return;
     }
     setTime(DateTime(newTime));
@@ -48,17 +52,20 @@ void Clock::begin() {
     local_.begin();
 }
 
-void Clock::setTime(DateTime dt) {
-    auto epoch = dt.unixtime();
-    local_.setEpoch(epoch);
+void Clock::setTime(DateTime newEpoch) {
+    auto oldEpoch = getTime();
 
-    FormattedTime nowFormatted{ dt };
-    Logger::trace("Clock changed: '%s' (%lu)", nowFormatted.toString(), dt.unixtime());
+    local_.setEpoch(newEpoch.unixtime());
+
+    FormattedTime newFormatted{ newEpoch };
+    FormattedTime oldFormatted{ oldEpoch };
+    Logger::trace("(ZeroClock) Changed: '%s' -> '%s' (%lu) (%lus)", oldFormatted.toString(), newFormatted.toString(),
+                  newEpoch.unixtime(), newEpoch.unixtime() - oldEpoch);
 }
 
 void Clock::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        Logger::trace("Ignoring invalid time (%lu)", newTime);
+        Logger::trace("(ZeroClock) Ignoring invalid time (%lu)", newTime);
         return;
     }
 
