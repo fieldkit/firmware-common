@@ -5,7 +5,7 @@
 
 namespace fk {
 
-class Initialized : public CoreDevice {
+class Initialized : public MainServicesState {
 public:
     const char *name() const override {
         return "Initialized";

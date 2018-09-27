@@ -167,7 +167,8 @@ void Leds::setup() {
     pinMode(A3, OUTPUT);
 
     pixel_.begin();
-    pixel_.setPixelColor(0, 0);
+    pixel_.setBrightness(32);
+    pixel_.setPixelColor(0, get_color(16, 16, 16));
     pixel_.show();
 }
 
@@ -198,6 +199,11 @@ void Leds::notifyBattery(float percentage) {
 
 void Leds::notifyNoModules() {
     pushAnimation(LedAnimation{ });
+}
+
+void Leds::notifyStarted() {
+    pixel_.setPixelColor(0, 0);
+    pixel_.show();
 }
 
 void Leds::notifyReadingsBegin() {
