@@ -27,7 +27,7 @@ void Booting::setupFlash() {
         auto flashFs = services().flashFs;
         auto flashState = services().flashState;
 
-        if (!flashFs->initialize(hw->flash)) {
+        if (!flashFs->initialize(hw->flash, 2048)) {
             log("Flash unavailable.");
             fk_assert(false);
         }

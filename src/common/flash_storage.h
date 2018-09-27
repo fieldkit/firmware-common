@@ -49,7 +49,7 @@ public:
     }
 
 public:
-    bool initialize(uint8_t cs, phylum::sector_index_t sector_size = 512);
+    bool initialize(uint8_t cs, phylum::sector_index_t sector_size);
 
     bool erase();
 
@@ -99,7 +99,7 @@ public:
         }
         else {
             auto location = manager_.location();
-            FlashLog::info("Located (%lu.%d) (size = %d)", location.block, location.sector, sizeof(T));
+            FlashLog::info("Located (%lu.%d) (ts = %lu) (size = %d)", location.block, location.sector, state().link.header.timestamp, sizeof(T));
         }
 
         return true;
