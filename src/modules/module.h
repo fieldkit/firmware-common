@@ -16,6 +16,7 @@
 
 namespace fk {
 
+template<typename T = MinimumFlashState>
 class Module : public ModuleCallbacks {
 private:
     TwoWireBus *bus_;
@@ -26,7 +27,7 @@ private:
     Leds leds_;
     Watchdog watchdog_{ leds_ };
     SerialFlashFileSystem flashFs_{ watchdog_ };
-    FlashState<MinimumFlashState> flashState_{ flashFs_ };
+    FlashState<T> flashState_{ flashFs_ };
     PendingReadings readings_{ *info_ };
     ModuleHardware hardware_;
     ModuleServices moduleServices_{
@@ -44,15 +45,28 @@ private:
     };
 
 public:
-    Module(TwoWireBus &bus, ModuleInfo &info, ModuleHardware hardware = { });
+    Module(TwoWireBus &bus, ModuleInfo &info, ModuleHardware hardware = { }) :
+        bus_(&bus), info_(&info), twoWireChild_(bus, info.address), hardware_(hardware) {
+    }
 
 public:
-    virtual void begin();
-    virtual void tick();
+    virtual void begin() {
+        ModuleServicesState::services(moduleServices_);
+
+        fsm_list::start();
+    }
+
+    virtual void tick() {
+        ModuleState::current().task();
+    }
 
 public:
     ModuleServices &moduleServices() {
         return moduleServices_;
+    }
+
+    FlashState<T> &flashState() {
+        return flashState_;
     }
 
 };

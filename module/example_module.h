@@ -16,7 +16,7 @@ public:
     void task() override;
 };
 
-class ExampleModule : public fk::Module {
+class ExampleModule : public fk::Module<fk::MinimumFlashState> {
 private:
     fk::TwoWireBus bus{ fk::Wire4and3 };
 

@@ -42,6 +42,9 @@ void Booting::setupFlash() {
             fk_assert(false);
         }
     }
+    else {
+        log("Flash unconfigured.");
+    }
 }
 
 }
