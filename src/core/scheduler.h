@@ -8,14 +8,6 @@
 namespace fk {
 
 class SchedulerTask {
-public:
-    virtual void write(ostreamtype &os) const = 0;
-
-public:
-    friend ostreamtype& operator<<(ostreamtype& os, const SchedulerTask &task) {
-        task.write(os);
-        return os;
-    }
 
 };
 
@@ -36,10 +28,6 @@ public:
 public:
     const char *toString() const override {
         return event_.toString();
-    }
-
-    void write(ostreamtype &os) const override {
-        os << "PeriodicTask<'" << toString() << "' " << interval() << (valid() ? "" : " INVALID") << ">";
     }
 
 };
@@ -63,10 +51,12 @@ public:
         return event_.toString();
     }
 
-    void write(ostreamtype &os) const override {
-        os << "CronTask<'" << toString() << "'" << (valid() ? "" : " INVALID") << ">";
-    }
+};
 
+class TaskLogger : public lwcron::TaskVisitor {
+public:
+    void visit(lwcron::PeriodicTask &task) override;
+    void visit(lwcron::CronTask &task) override;
 };
 
 }
