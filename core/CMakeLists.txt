@@ -65,14 +65,15 @@ if(FK_PROFILE_AMAZON)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_PROFILE_AMAZON)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_CORE)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_CORE_GENERATION_2)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_CORE_REQUIRE_MODULES)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_WIFI_STARTUP_ONLY)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_DEBUG_UART_FALLBACK)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_ENABLE_FLASH)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_DISABLE_RADIO)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_RTC_PCF8523)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_HARDWARE_SERIAL2_ENABLE)
+
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_GPS_FIXED_STATION)
+  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_CORE_REQUIRE_MODULES)
+  # target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_WIFI_STARTUP_ONLY)
 
   fk_write_profile(fk-core-amazon)
 
