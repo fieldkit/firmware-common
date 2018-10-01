@@ -44,8 +44,7 @@ constexpr uint32_t CheckPowerInterval = 15 * 60;
 constexpr uint32_t WifiTransmitInterval = 60 * 5;
 constexpr uint32_t RadioTransmitInterval = 60 * 5;
 
-constexpr uint32_t GpsFixAttemptInterval = 10 * Seconds;
-constexpr uint32_t GpsStatusInterval = 1 * 500;
+constexpr uint32_t GpsStatusInterval = 30 * 1000;
 constexpr bool     GpsEchoRaw = false;
 
 constexpr uint16_t DiscoveryUdpPort = 54321;

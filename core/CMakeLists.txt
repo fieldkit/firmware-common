@@ -72,6 +72,7 @@ if(FK_PROFILE_AMAZON)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_DISABLE_RADIO)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_RTC_PCF8523)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_HARDWARE_SERIAL2_ENABLE)
+  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_GPS_FIXED_STATION)
 
   fk_write_profile(fk-core-amazon)
 

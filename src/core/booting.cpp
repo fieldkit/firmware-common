@@ -90,6 +90,10 @@ static void dump_configuration() {
     #ifdef FK_DEBUG_INSTRUMENTATION
     loginfof("Core", "FK_DEBUG_INSTRUMENTATION");
     #endif
+
+    #ifdef FK_GPS_FIXED_STATION
+    loginfof("Core", "FK_GPS_FIXED_STATION");
+    #endif
 }
 
 void Booting::task() {

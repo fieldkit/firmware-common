@@ -68,6 +68,10 @@ struct GpsReading {
 };
 
 void GpsService::read() {
+    if (disabled_) {
+        return;
+    }
+
     if (!configured_) {
         gps_ = TinyGPS();
         serial_->begin(9600);
@@ -85,7 +89,7 @@ void GpsService::read() {
         status_ = fk_uptime();
     }
 
-    if (fk_uptime() - status_ > 30000) {
+    if (fk_uptime() - status_ > GpsStatusInterval) {
         auto fix = GpsReading{ gps_ };
         auto unix = fix.toDateTime().unixtime();
         Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);
@@ -109,9 +113,21 @@ void GpsService::read() {
             }
         }
     }
+
+    if (!initial_) {
+        auto fix = GpsReading{ gps_ };
+        if (fix.valid()) {
+            save();
+            initial_ = false;
+        }
+    }
 }
 
 void GpsService::save() {
+    if (disabled_) {
+        return;
+    }
+
     auto fix = GpsReading{ gps_ };
     if (fix.valid()) {
         auto dateTime = fix.toDateTime();
@@ -122,6 +138,11 @@ void GpsService::save() {
         state_->updateLocation(DeviceLocation{ unix, fix.flon, fix.flat, fix.altitude });
 
         clock.setTime(dateTime);
+
+        #if defined(FK_GPS_FIXED_STATION)
+        Hardware::disableGps();
+        disabled_ = true;
+        #endif
     }
     else {
         state_->updateLocation(DeviceLocation{});
