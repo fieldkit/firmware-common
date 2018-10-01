@@ -1,4 +1,5 @@
 #include "low_power_sleep.h"
+#include "hardware.h"
 #include "power_management.h"
 #include "sleep.h"
 #include "reboot_device.h"
@@ -7,6 +8,10 @@ namespace fk {
 
 void LowPowerSleep::entry() {
     Sleep::entry();
+
+    Hardware::disableModules();
+
+    Hardware::disablePeripherals();
 
     services().watchdog->idling();
 }
@@ -20,6 +25,7 @@ void LowPowerSleep::task() {
     }
 
     sleep(LowPowerSleepDurationSeconds);
+
     transit_into<LowPowerSleep>();
 }
 
