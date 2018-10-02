@@ -16,34 +16,9 @@ public:
     }
 
 public:
-    void entry() override {
-        WifiState::entry();
-        if (began_ == 0) {
-            log("Reset");
-            began_ = fk_uptime();
-        }
-    }
-
-    void task() override {
-        if (fk_uptime() - began_ > WifiInactivityTimeout) {
-            #ifdef FK_WIFI_ALWAYS_ON
-            log("FK_WIFI_ALWAYS_ON");
-            transit_into<WifiListening>();
-            #else
-            transit<WifiDisable>();
-            #endif
-            return;
-        }
-
-        serve();
-    }
-
-    void react(SchedulerEvent const &se) override {
-        if (se.deferred) {
-            warn("Scheduler Event!");
-            transit(se.deferred);
-        }
-    }
+    void entry() override;
+    void task() override;
+    void react(SchedulerEvent const &se) override;
 
 };
 
