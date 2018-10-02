@@ -15,11 +15,7 @@ public:
     }
 
 public:
-    void entry() override {
-        WifiState::entry();
-        began_ = fk_uptime();
-    }
-
+    void entry() override;
     void task() override;
 
 };

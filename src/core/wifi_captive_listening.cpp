@@ -1,10 +1,16 @@
 #include "wifi_captive_listening.h"
 #include "wifi_listening.h"
+#include "configuration.h"
 
 namespace fk {
 
+void WifiCaptiveListening::entry() {
+    WifiState::entry();
+    began_ = fk_uptime();
+}
+
 void WifiCaptiveListening::task() {
-    if (fk_uptime() - began_ > WifiCaptivitiyTimeout) {
+    if (fk_uptime() - began_ > configuration.wifi.captivity_time) {
         transit_into<WifiListening>();
         return;
     }

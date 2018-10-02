@@ -10,7 +10,7 @@ void WifiSyncTime::task() {
 
         ntp.enqueued();
 
-        while (elapsed() < NtpMaximumWait) {
+        while (elapsed() < WifiNtpMaximumWait) {
             services().watchdog->task();
             if (!simple_task_run(ntp)) {
                 success_ = true;

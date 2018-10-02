@@ -1,4 +1,5 @@
 #include "wifi_listening.h"
+#include "configuration.h"
 
 namespace fk {
 
@@ -11,14 +12,11 @@ void WifiListening::entry() {
 }
 
 void WifiListening::task() {
-    if (fk_uptime() - began_ > WifiInactivityTimeout) {
-        #ifdef FK_WIFI_ALWAYS_ON
-        log("FK_WIFI_ALWAYS_ON");
-        transit_into<WifiListening>();
-        #else
-        transit<WifiDisable>();
-        #endif
-        return;
+    if (configuration.wifi.inactivity_time > 0) {
+        if (fk_uptime() - began_ > configuration.wifi.inactivity_time) {
+            transit<WifiDisable>();
+            return;
+        }
     }
 
     serve();

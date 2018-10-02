@@ -1,6 +1,6 @@
 #include "gps.h"
 #include "hardware.h"
-#include "tuning.h"
+#include "configuration.h"
 
 namespace fk {
 
@@ -89,7 +89,7 @@ void GpsService::read() {
         status_ = fk_uptime();
     }
 
-    if (fk_uptime() - status_ > GpsStatusInterval) {
+    if (fk_uptime() - status_ > configuration.gps.status_interval) {
         auto fix = GpsReading{ gps_ };
         auto unix = fix.toDateTime().unixtime();
         Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);
@@ -100,7 +100,7 @@ void GpsService::read() {
         auto c = (char)serial_->read();
         gps_.encode(c);
 
-        if (GpsEchoRaw) {
+        if (configuration.gps.echo) {
             if (c == '\n' || c == '\r' || position_ == sizeof(buffer_) - 1) {
                 if (position_ > 0 && buffer_[0] == '$') {
                     buffer_[position_] = 0;
@@ -139,10 +139,10 @@ void GpsService::save() {
 
         clock.setTime(dateTime);
 
-        #if defined(FK_GPS_FIXED_STATION)
-        Hardware::disableGps();
-        disabled_ = true;
-        #endif
+        if (configuration.gps.station_fixed) {
+            Hardware::disableGps();
+            disabled_ = true;
+        }
     }
     else {
         state_->updateLocation(DeviceLocation{});

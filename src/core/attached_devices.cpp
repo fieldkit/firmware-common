@@ -37,10 +37,8 @@ void AttachedDevices::resume() {
 }
 
 TaskEval AttachedDevices::task() {
-    auto rescanInterval = (state->numberOfModules() == 0 ? RescanExistingModulesInterval : RescanExistingModulesInterval);
-    if (lastScanAt == 0 || fk_uptime() - lastScanAt > rescanInterval) {
+    if (scanning == false) {
         log("Starting scan...");
-        lastScanAt = fk_uptime();
         scanning = true;
         scan();
     }
@@ -128,8 +126,8 @@ void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
 
 void AttachedDevices::error(ModuleProtocolHandler::Finished &finished) {
     if (finished.is(querySensorCapabilities)) {
-        if (retries < TwoWireNumberOfRetries) {
-            log("Retry %d/%d", retries, TwoWireNumberOfRetries);
+        if (retries < TwoWireRetries) {
+            log("Retry %d/%lu", retries, TwoWireRetries);
             protocol.push(addresses[addressIndex], querySensorCapabilities);
             retries++;
         }

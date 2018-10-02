@@ -117,7 +117,6 @@ private:
     ModuleProtocolHandler protocol;
     uint8_t *addresses{ nullptr };
     uint8_t addressIndex{ 0 };
-    uint32_t lastScanAt{ 0 };
     QueryCapabilities queryCapabilities;
     QueryFirmware queryFirmware;
     QuerySensorCapabilities querySensorCapabilities;

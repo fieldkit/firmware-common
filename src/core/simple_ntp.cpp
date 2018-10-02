@@ -4,8 +4,9 @@
 
 namespace fk {
 
+constexpr uint32_t NtpRetryAfter = 2 * Seconds;
 constexpr uint64_t SeventyYears = 2208988800UL;
-constexpr uint32_t SimpleNTPPacketSize = 48;
+constexpr uint32_t PacketSize = 48;
 
 SimpleNTP::SimpleNTP(ClockType &clock) : Task("NTP"), clock(&clock) {
 }
@@ -27,7 +28,7 @@ TaskEval SimpleNTP::task() {
     }
 
     if (udp.parsePacket()) {
-        uint8_t buffer[SimpleNTPPacketSize];
+        uint8_t buffer[PacketSize];
 
         udp.read(buffer, sizeof(buffer));
 
@@ -70,7 +71,7 @@ void SimpleNTP::stop() {
 }
 
 bool SimpleNTP::send() {
-    uint8_t buffer[SimpleNTPPacketSize];
+    uint8_t buffer[PacketSize];
 
     fk_memzero(buffer, sizeof(buffer));
 
