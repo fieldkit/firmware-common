@@ -53,7 +53,6 @@ void StartSystem::task() {
     log("DeviceId(%s)", deviceId.toString());
     log("Hash(%s)", firmware_version_get());
     log("Build(%s)", firmware_build_get());
-    log("API(%s)", WifiApiUrlIngestionStream);
 
     auto now = clock.now();
     FormattedTime nowFormatted{ now };

@@ -22,6 +22,7 @@
 #include "gps.h"
 #include "live_data.h"
 #include "radio_service.h"
+#include "configuration.h"
 
 #include "begin_gather_readings.h"
 #include "wifi_startup.h"
@@ -53,39 +54,15 @@ private:
     CoreState state{flashState, fileSystem.logging()};
     ModuleCommunications moduleCommunications{bus, pool};
 
-    #if defined(FK_WIFI_STARTUP_ONLY)
-    PeriodicTask wifiStartupTask{ 0, { CoreFsm::deferred<WifiStartup>() } };
-    #else // FK_WIFI_STARTUP_ONLY
-    #if defined(FK_PROFILE_AMAZON)
-    CronTask wifiStartupTask{ lwcron::CronSpec::specific(0, 10), { CoreFsm::deferred<WifiStartup>() } };
-    #else
-    PeriodicTask wifiStartupTask{ WifiTransmitInterval, { CoreFsm::deferred<WifiStartup>() } };
-    #endif
-    #endif // FK_WIFI_STARTUP_ONLY
+    CronTask wifiTask{ configuration.schedule.wifi, { CoreFsm::deferred<WifiStartup>() } };
+    CronTask readingsTask{ configuration.schedule.readings, { CoreFsm::deferred<BeginGatherReadings>() } };
+    CronTask loraTask{ configuration.schedule.lora, { CoreFsm::deferred<TransmitLoraData>() } };
 
-    #if defined(FK_PROFILE_AMAZON)
-    CronTask gatherReadingsTask{ lwcron::CronSpec::specific(0, 0), { CoreFsm::deferred<BeginGatherReadings>() } };
-    #else
-    PeriodicTask gatherReadingsTask{ ReadingsInterval, { CoreFsm::deferred<BeginGatherReadings>() } };
-    #endif // FK_PROFILE_AMAZON
-
-    #if defined(FK_NATURALIST) && defined(FK_ENABLE_RADIO)
-
-    PeriodicTask loraTask{ 30, { CoreFsm::deferred<TransmitLoraData>() } };
     lwcron::Task *tasks[3] {
-        &gatherReadingsTask,
-        &wifiStartupTask,
+        &readingsTask,
+        &wifiTask,
         &loraTask
     };
-
-    #else
-
-    lwcron::Task *tasks[2] {
-        &gatherReadingsTask,
-        &wifiStartupTask
-    };
-
-    #endif
 
     lwcron::Scheduler scheduler{tasks};
 
@@ -96,7 +73,7 @@ private:
 
     // Wifi stuff
     HttpTransmissionConfig httpConfig = {
-        .streamUrl = WifiApiUrlIngestionStream,
+        .streamUrl = configuration.wifi.stream_url,
     };
     WifiConnection connection;
     AppServicer appServicer{state, fileSystem.replies(), connection, moduleCommunications, pool};

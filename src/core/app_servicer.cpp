@@ -3,6 +3,7 @@
 #include <FuelGauge.h>
 
 #include "app_servicer.h"
+#include "configuration.h"
 #include "device_id.h"
 #include "download_file_task.h"
 #include "leds.h"
@@ -230,7 +231,7 @@ void AppServicer::capabilitiesReply() {
     reply_.m().type = fk_app_ReplyType_REPLY_CAPABILITIES;
     reply_.m().capabilities.version = FK_MODULE_PROTOCOL_VERSION;
     reply_.m().capabilities.name.funcs.encode = pb_encode_string;
-    reply_.m().capabilities.name.arg = (void *)DefaultName;
+    reply_.m().capabilities.name.arg = (void *)configuration.display_name;
     reply_.m().capabilities.sensors.funcs.encode = pb_encode_array;
     reply_.m().capabilities.sensors.arg = (void *)&sensorsArray;
     reply_.m().capabilities.modules.funcs.encode = pb_encode_array;

@@ -1,6 +1,8 @@
 #include <WiFi101.h>
 
 #include "check_firmware.h"
+#include "configuration.h"
+
 #include "firmware_health_check.h"
 #include "transmit_files.h"
 #include "upgrade_module_firmware.h"
@@ -49,7 +51,7 @@ void CheckAllAttachedFirmware::task() {
     }
     else if (index_ == state->numberOfModules()) {
         index_++;
-        transit_into<CheckFirmware>(FirmwareBank::CoreNew, ModuleName, firmware_compiled_get());
+        transit_into<CheckFirmware>(FirmwareBank::CoreNew, configuration.module_name, firmware_compiled_get());
     }
     else {
         transit<WifiTransmitFiles>();
@@ -67,7 +69,7 @@ void CheckFirmware::task() {
 }
 
 void CheckFirmware::check() {
-    Url parsed(WifiApiUrlFirmware, deviceId.toString(), module_);
+    Url parsed(configuration.wifi.firmware_url, deviceId.toString(), module_);
     FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
     HttpResponseParser parser;
     WiFiClient wcl;

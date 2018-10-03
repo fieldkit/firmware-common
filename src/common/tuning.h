@@ -61,18 +61,6 @@ constexpr uint32_t SelfFlashWaitPeriod = 20 * Seconds;
 
 // TODO: The following should be moved to friendly configuration area.
 
-#ifndef FK_API_BASE
-#define FK_API_BASE "http://api.fkdev.org"
-#endif
-
-#ifdef FK_NATURALIST
-constexpr const char *DefaultName = "FieldKit Naturalist";
-constexpr const char *ModuleName = "fk-naturalist";
-#else
-constexpr const char *DefaultName = "FieldKit Device";
-constexpr const char *ModuleName = "fk-core";
-#endif
-
 constexpr uint32_t LedsDisableAfter = 60 * Minutes;
 
 constexpr uint32_t StatusInterval = 5 * Seconds;
@@ -84,9 +72,6 @@ constexpr uint32_t LowPowerSleepDurationSeconds = 60 * 10;
 constexpr uint32_t RadioTransmitFileMaximumSize = 32768;
 constexpr bool RadioTransmitFileTruncateAfter = true;
 
-constexpr const char WifiApiUrlBase[] = FK_API_BASE;
-constexpr const char WifiApiUrlIngestionStream[] = FK_API_BASE "/messages/ingestion/stream";
-constexpr const char WifiApiUrlFirmware[] = FK_API_BASE "/devices/%s/%s/firmware";
 constexpr uint32_t WifiConnectionTimeout = 20 * Seconds;
 constexpr uint32_t WifiTransmitBusyWaitMax = 10 * Seconds;
 constexpr uint32_t WifiTransmitFileMaximumTries = 3;
@@ -95,11 +80,6 @@ constexpr uint32_t WifiNtpMaximumWait = 10 * Seconds;
 constexpr uint32_t MaximumWaitBeforeReturnToIdle = 70 * Minutes;
 constexpr uint32_t ModuleIdleRebootInterval = 120 * Minutes;
 constexpr uint32_t NoModulesRebootWait = 10 * Minutes;
-
-constexpr uint32_t ReadingsInterval = 30 * 5;
-constexpr uint32_t CheckPowerInterval = 15 * 60;
-constexpr uint32_t WifiTransmitInterval = 60 * 5;
-constexpr uint32_t RadioTransmitInterval = 60 * 5;
 
 constexpr uint32_t LivePollInactivity = 10 * Seconds;
 
