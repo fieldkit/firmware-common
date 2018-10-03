@@ -8,6 +8,7 @@ namespace fk {
 
 constexpr uint32_t Seconds = 1000;
 constexpr uint32_t Minutes = 60 * Seconds;
+constexpr uint32_t Hours = 60 * Minutes;
 
 // constexpr uint8_t TwoWireNumberOfRetries = 3;
 constexpr uint32_t TwoWireMaximumReplyWait = 1 * Seconds;

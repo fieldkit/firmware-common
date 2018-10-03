@@ -73,7 +73,6 @@ if(FK_PROFILE_AMAZON)
 
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_GPS_FIXED_STATION)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_CORE_REQUIRE_MODULES)
-  # target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_WIFI_STARTUP_ONLY)
 
   fk_write_profile(fk-core-amazon)
 

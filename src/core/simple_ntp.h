@@ -24,6 +24,7 @@ private:
     uint8_t addressIndex{ 0 };
     bool initialized{ false };
     uint32_t lastSent{ 0 };
+    uint32_t lastSynced{ 0 };
 
 public:
     SimpleNTP(ClockType &clock);

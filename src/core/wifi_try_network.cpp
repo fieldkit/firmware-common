@@ -1,9 +1,9 @@
 #include <WiFi101.h>
 
 #include "wifi_try_network.h"
-#include "wifi_sync_time.h"
 #include "wifi_create_ap.h"
 #include "wifi_tools.h"
+#include "check_firmware.h"
 
 namespace fk {
 
@@ -34,7 +34,7 @@ void WifiTryNetwork::task() {
 
     IpAddress4 ip{ localIp };
     log("N[%d] Connected (%s) (%s)", index_, getWifiStatus(), ip.toString());
-    transit<WifiSyncTime>();
+    transit<CheckAllAttachedFirmware>();
 }
 
 }

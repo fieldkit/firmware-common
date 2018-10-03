@@ -9,6 +9,8 @@
 namespace fk {
 
 void WifiState::serve() {
+    services().ntp.task();
+
     services().state->updateIp(WiFi.localIP());
 
     // Before Scheduler so we service before transitioning to scheduled states.

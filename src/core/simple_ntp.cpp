@@ -4,6 +4,7 @@
 
 namespace fk {
 
+constexpr uint32_t NtpSyncInterval = 24 * Hours;
 constexpr uint32_t NtpRetryAfter = 2 * Seconds;
 constexpr uint64_t SeventyYears = 2208988800UL;
 constexpr uint32_t PacketSize = 48;
@@ -21,6 +22,10 @@ void SimpleNTP::enqueued() {
 }
 
 TaskEval SimpleNTP::task() {
+    if (lastSynced > 0 && fk_uptime() - lastSynced < NtpSyncInterval) {
+        return TaskEval::done();
+    }
+
     if (lastSent == 0 || fk_uptime() - lastSent > NtpRetryAfter) {
         log("Asking for time...");
         start();
@@ -45,6 +50,8 @@ TaskEval SimpleNTP::task() {
         FormattedTime newFormatted{ newEpoch };
         FormattedTime oldFormatted{ oldEpoch };
         log("UTC: '%s' -> '%s' (%lus)", oldFormatted.toString(), newFormatted.toString(), newEpoch - oldEpoch);
+
+        lastSynced = fk_uptime();
 
         stop();
 

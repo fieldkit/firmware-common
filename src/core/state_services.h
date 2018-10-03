@@ -9,6 +9,7 @@
 #include "flash_storage.h"
 #include "core_state.h"
 #include "pool.h"
+#include "simple_ntp.h"
 
 namespace fk {
 
@@ -74,6 +75,7 @@ struct WifiServices : MainServices {
     Listen *server;
     AppServicer *appServicer;
     LiveDataManager *liveData;
+    SimpleNTP ntp;
 
     WifiServices(Pool *pool, Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
                  SerialFlashFileSystem *flashFs, FlashState<PersistedState> *flashState, FileSystem *fileSystem, UserButton *button,
@@ -82,7 +84,7 @@ struct WifiServices : MainServices {
                  Wifi *wifi, Discovery *discovery, HttpTransmissionConfig *httpConfig, Listen *server, AppServicer *appServicer,
                  LiveDataManager *liveData) :
         MainServices(pool, leds, watchdog, bus, power, status, state, flashFs, flashState, fileSystem, button, scheduler, moduleCommunications, radio, gps, states),
-        wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer), liveData(liveData) {
+        wifi(wifi), discovery(discovery), httpConfig(httpConfig), server(server), appServicer(appServicer), liveData(liveData), ntp(clock) {
     }
 };
 
