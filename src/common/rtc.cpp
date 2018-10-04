@@ -28,8 +28,8 @@ void ClockPair::setTime(DateTime newEpoch) {
 
     FormattedTime newFormatted{ newEpoch };
     FormattedTime oldFormatted{ oldEpoch };
-    Logger::trace("(ClockPair) Changed: '%s' -> '%s' (%lu) (%lus)", oldFormatted.toString(), newFormatted.toString(),
-                  newEpoch.unixtime(), newEpoch.unixtime() - oldEpoch);
+    Logger::trace("(ClockPair) Changed: '%s' -> '%s' (%lu) (%" PRId64 "s)", oldFormatted.toString(), newFormatted.toString(),
+                  newEpoch.unixtime(), ((int64_t)newEpoch.unixtime() - oldEpoch));
 }
 
 void ClockPair::setTime(uint32_t newTime) {
@@ -59,8 +59,8 @@ void Clock::setTime(DateTime newEpoch) {
 
     FormattedTime newFormatted{ newEpoch };
     FormattedTime oldFormatted{ oldEpoch };
-    Logger::trace("(ZeroClock) Changed: '%s' -> '%s' (%lu) (%lus)", oldFormatted.toString(), newFormatted.toString(),
-                  newEpoch.unixtime(), newEpoch.unixtime() - oldEpoch);
+    Logger::trace("(ZeroClock) Changed: '%s' -> '%s' (%lu) (%" PRId64 "s)", oldFormatted.toString(), newFormatted.toString(),
+                  newEpoch.unixtime(), ((int64_t)newEpoch.unixtime() - oldEpoch));
 }
 
 void Clock::setTime(uint32_t newTime) {
