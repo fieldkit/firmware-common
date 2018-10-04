@@ -97,6 +97,12 @@ struct Configuration {
     const char *display_name = "FieldKit Device";
     const char *module_name = "fk-core";
     #endif
+
+    #if defined(FK_CORE_REQUIRE_MODULES)
+    uint32_t no_modules_sleep{ 30 * Minutes };
+    #else
+    uint32_t no_modules_sleep{ 0 };
+    #endif
 };
 
 /**
