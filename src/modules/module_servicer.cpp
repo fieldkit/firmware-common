@@ -165,7 +165,8 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             query.m().data.size, query.m().data.kind,
             query.m().data.bank, (const char *)query.m().data.etag.arg);
 
-        bool failed = false;
+        auto enable_flash = services().hardware->enable_flash();
+        auto failed = false;
 
         log("Reclaim...");
         if (!services().flashFs->reclaim(*services().flashState)) {
@@ -204,9 +205,10 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         break;
     }
     case fk_module_QueryType_QUERY_DATA_VERIFY: {
-        pb_data_t *checksumData = (pb_data_t *)query.m().data.checksum.arg;
-        uint32_t expected{ 0 };
+        auto checksumData = (pb_data_t *)query.m().data.checksum.arg;
+        auto enable_flash = services().hardware->enable_flash();
 
+        uint32_t expected{ 0 };
         memcpy(&expected, checksumData->buffer, sizeof(uint32_t));
 
         log("DataVerify (size=%lu kind=%lu bank=%lu) (checksum=0x%lx)",
@@ -262,6 +264,8 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
 
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_FIRMWARE;
+
+        auto enable_flash = services().hardware->enable_flash();
 
         FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
         firmware_header_t header;

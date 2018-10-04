@@ -27,6 +27,10 @@ void Booting::setupFlash() {
         auto flashFs = services().flashFs;
         auto flashState = services().flashState;
 
+        if (hw->flash_enable > 0) {
+            digitalWrite(hw->flash_enable, HIGH);
+        }
+
         if (!flashFs->initialize(hw->flash, 2048)) {
             log("Flash unavailable.");
             fk_assert(false);
@@ -40,6 +44,10 @@ void Booting::setupFlash() {
         if (!flashFs->reclaim(*flashState)) {
             log("Flash reclaim failed.");
             fk_assert(false);
+        }
+
+        if (hw->flash_enable > 0) {
+            digitalWrite(hw->flash_enable, LOW);
         }
     }
     else {
