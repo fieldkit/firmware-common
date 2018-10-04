@@ -1,6 +1,6 @@
 #include "watchdog.h"
 #include "platform.h"
-#include "tuning.h"
+#include "configuration.h"
 #include "debug.h"
 
 namespace fk {
@@ -22,7 +22,7 @@ void Watchdog::task() {
         leds_->notifyAlive();
     }
 
-    if (elapsedSinceIdle() > MaximumWaitBeforeReturnToIdle) {
+    if (elapsedSinceIdle() > configuration.common.require_idle_every) {
         Logger::error("No idle for %lu", elapsedSinceIdle());
         fk_system_reset();
     }

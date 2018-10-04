@@ -3,7 +3,7 @@
 
 #include <lwcron/lwcron.h>
 
-#include "tuning.h"
+#include "common_configuration.h"
 
 #if !defined(FK_API_BASE)
 #define FK_API_BASE "http://api.fkdev.org"
@@ -89,6 +89,7 @@ struct Configuration {
     Gps gps;
     Leds leds;
     Schedule schedule;
+    CommonConfiguration common;
 
     #if defined(FK_NATURALIST)
     const char *display_name = "FieldKit Naturalist";

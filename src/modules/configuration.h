@@ -1,15 +1,12 @@
 #ifndef FK_MODULE_CONFIGURATION_H_INCLUDED
 #define FK_MODULE_CONFIGURATION_H_INCLUDED
 
-#include "tuning.h"
+#include "common_configuration.h"
 
 namespace fk {
 
-namespace defaults {
-
-}
-
 struct Configuration {
+    CommonConfiguration common;
 };
 
 extern const Configuration configuration;

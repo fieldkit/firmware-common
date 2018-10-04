@@ -24,7 +24,6 @@ void WifiListening::task() {
 
 void WifiListening::react(SchedulerEvent const &se) {
     if (se.deferred) {
-        warn("Scheduler Event!");
         transit(se.deferred);
     }
 }
