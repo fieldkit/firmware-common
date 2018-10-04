@@ -6,7 +6,9 @@ namespace fk {
 
 void WifiCaptiveListening::entry() {
     WifiState::entry();
+
     began_ = fk_uptime();
+    services().watchdog->idling();
 }
 
 void WifiCaptiveListening::task() {
