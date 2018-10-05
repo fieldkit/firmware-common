@@ -14,8 +14,7 @@ void ModuleServicer::task() {
 
     if (!incoming.empty()) {
         auto pos = incoming.position();
-        ModuleQueryMessage query(*services().pool);
-        auto status = incoming.read(query);
+        auto status = incoming.read(*services().query);
         incoming.clear();
         if (!status) {
             log("Malformed message (%d bytes)", pos);
@@ -27,11 +26,11 @@ void ModuleServicer::task() {
         }
 
         if (!outgoing.empty()) {
-            log("Orphaned reply! QueryType=%d ReplySize=%d", outgoing.position(), query.m().type);
+            log("Orphaned reply! QueryType=%d ReplySize=%d", outgoing.position(), services().query->m().type);
             outgoing.clear();
         }
 
-        handle(query);
+        handle(*services().query);
 
         if (!transitioned()) {
             transit<ModuleIdle>();
@@ -149,14 +148,14 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
     case fk_module_QueryType_QUERY_CUSTOM: {
         log("Custom message");
 
-        ModuleReplyMessage reply(*pool);
-        reply.m().type = fk_module_ReplyType_REPLY_ERROR;
-
         if (services().callbacks->states().message) {
             transit(services().callbacks->states().message);
         }
-
-        outgoing.write(reply);
+        else {
+            ModuleReplyMessage reply(*pool);
+            reply.m().type = fk_module_ReplyType_REPLY_ERROR;
+            outgoing.write(reply);
+        }
 
         break;
     }

@@ -8,6 +8,7 @@
 #include "tinyfsm.hpp"
 #include "state_with_context.h"
 #include "flash_storage.h"
+#include "module_messages.h"
 
 namespace fk {
 
@@ -48,6 +49,7 @@ struct ModuleServices {
     FlashStateService *flashState;
     PendingReadings *readings;
     ModuleHardware *hardware;
+    ModuleQueryMessage *query;
     DataCopyStatus dataCopyStatus;
 
     void alive();

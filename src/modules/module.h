@@ -30,6 +30,7 @@ private:
     FlashState<T> flashState_{ flashFs_ };
     PendingReadings readings_{ *info_ };
     ModuleHardware hardware_;
+    ModuleQueryMessage query_{ replyPool_ };
     ModuleServices moduleServices_{
         &replyPool_,
         info_,
@@ -41,7 +42,8 @@ private:
         &flashFs_,
         &flashState_,
         &readings_,
-        &hardware_
+        &hardware_,
+        &query_
     };
 
 public:
