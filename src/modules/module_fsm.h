@@ -17,8 +17,6 @@ class ModuleState;
 using ModuleFsm = tinyfsm::Fsm<ModuleState>;
 
 using Deferred = ModuleFsm::Deferred;
-// TODO: Deprecate this.
-using DeferredModuleState = ModuleFsm::Deferred;
 
 class Pool;
 class ModuleInfo;
