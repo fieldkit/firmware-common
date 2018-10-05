@@ -47,6 +47,8 @@ struct GpsReading {
 
     bool valid() {
         if (satellites == TinyGPS::GPS_INVALID_SATELLITES) return false;
+        if (satellites > configuration.gps.required_satellites) return false;
+
         if (flon == TinyGPS::GPS_INVALID_ANGLE) return false;
         if (flat == TinyGPS::GPS_INVALID_ANGLE) return false;
         if (altitude == TinyGPS::GPS_INVALID_ALTITUDE) return false;
@@ -80,16 +82,19 @@ void GpsService::read() {
         serial_->println(PMTK_API_SET_FIX_CTL_1HZ);
 
         configured_ = true;
+        position_ = 0;
+        cleared_ = fk_uptime();
+        status_ = fk_uptime();
+
         Logger::info("Configured");
     }
 
-    if (started_ == 0) {
-        position_ = 0;
-        started_ = fk_uptime();
-        status_ = fk_uptime();
+    if (configuration.gps.clear_interval > 0 && fk_uptime() - cleared_ > configuration.gps.clear_interval) {
+        gps_ = TinyGPS();
+        cleared_ = fk_uptime();
     }
 
-    if (fk_uptime() - status_ > configuration.gps.status_interval) {
+    if (configuration.gps.status_interval > 0 && fk_uptime() - status_ > configuration.gps.status_interval) {
         auto fix = GpsReading{ gps_ };
         auto unix = fix.toDateTime().unixtime();
         Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);

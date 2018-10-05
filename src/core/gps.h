@@ -16,7 +16,7 @@ private:
     bool configured_{ false };
     bool disabled_{ false };
     bool initial_{ false };
-    uint32_t started_{ 0 };
+    uint32_t cleared_{ 0 };
     uint32_t status_{ 0 };
     uint16_t position_{ 0 };
     uint8_t buffer_[64];

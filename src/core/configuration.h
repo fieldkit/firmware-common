@@ -50,6 +50,16 @@ struct Configuration {
         /**
          *
          */
+        uint32_t clear_interval  = 5 * Minutes;
+
+        /**
+         *
+         */
+        uint8_t required_satellites = 1;
+
+        /**
+         *
+         */
         bool echo{ false };
 
         /**
