@@ -12,5 +12,6 @@
 
 #include "configure.h"
 #include "module_idle.h"
+#include "tuning.h"
 
 #endif
