@@ -34,7 +34,7 @@ void WifiTryNetwork::task() {
 
     IpAddress4 ip{ localIp };
     log("N[%d] Connected (%s) (%s)", index_, getWifiStatus(), ip.toString());
-    transit<CheckAllAttachedFirmware>();
+    transit_into<CheckAllAttachedFirmware>();
 }
 
 }
