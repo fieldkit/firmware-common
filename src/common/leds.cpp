@@ -3,6 +3,7 @@
 #include "leds.h"
 #include "tuning.h"
 #include "platform.h"
+#include "configuration.h"
 
 namespace fk {
 
@@ -143,7 +144,10 @@ public:
 
 static LedAnimation active_;
 
-static void pushAnimation(LedAnimation incoming) {
+static void pushAnimation(bool disabled, LedAnimation incoming) {
+    if (disabled) {
+        return;
+    }
     if (active_.off() || active_.black() || active_.priority() <= incoming.priority()) {
         active_ = incoming;
     }
@@ -184,21 +188,21 @@ bool Leds::task() {
 }
 
 bool Leds::disabled() {
-    if (LedsDisableAfter == 0) {
+    if (configuration.common.leds.disable_after == 0) {
         return false;
     }
-    return fk_uptime() > LedsDisableAfter;
+    return fk_uptime() > configuration.common.leds.disable_after;
 }
 
 void Leds::notifyAlive() {
-    pushAnimation(LedAnimation{ AnimationType::Fade, Priority::Normal, get_color(0, 0, 255), 500, 500 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Fade, Priority::Normal, get_color(0, 0, 255), 500, 500 });
 }
 
 void Leds::notifyBattery(float percentage) {
 }
 
 void Leds::notifyNoModules() {
-    pushAnimation(LedAnimation{ });
+    pushAnimation(disabled(), LedAnimation{ });
 }
 
 void Leds::notifyStarted() {
@@ -207,35 +211,35 @@ void Leds::notifyStarted() {
 }
 
 void Leds::notifyReadingsBegin() {
-    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Normal, get_color(0, 32, 0), 0, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Normal, get_color(0, 32, 0), 0, 0 });
 }
 
 void Leds::notifyReadingsDone() {
-    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Normal, 0, 0, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Normal, 0, 0, 0 });
 }
 
 void Leds::notifyFatal() {
-    pushAnimation(LedAnimation{ AnimationType::Blink, Priority::Highest, get_color(255, 0, 0), 500, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Blink, Priority::Highest, get_color(255, 0, 0), 500, 0 });
 }
 
 void Leds::notifyHappy() {
-    pushAnimation(LedAnimation{ AnimationType::Wheel, Priority::Normal, 0, 5000, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Wheel, Priority::Normal, 0, 5000, 0 });
 }
 
 void Leds::notifyButtonPressed() {
-    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 16, 16), 0, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 16, 16), 0, 0 });
 }
 
 void Leds::notifyButtonLong() {
-    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Button, get_color(64, 64, 64), 0, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(64, 64, 64), 0, 0 });
 }
 
 void Leds::notifyButtonShort() {
-    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 64, 64), 0, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 64, 64), 0, 0 });
 }
 
 void Leds::notifyButtonReleased() {
-    pushAnimation(LedAnimation{ AnimationType::Static, Priority::Button, 0, 0, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, 0, 0, 0 });
 }
 
 }

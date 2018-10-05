@@ -72,13 +72,6 @@ struct Configuration {
         #endif
     };
 
-    struct Leds {
-        /**
-         *
-         */
-        uint32_t disable_time{ LedsDisableAfter };
-    };
-
     struct Schedule {
         #if defined(FK_PROFILE_AMAZON)
         lwcron::CronSpec readings{ lwcron::CronSpec::specific(0, 0) };
@@ -97,7 +90,6 @@ struct Configuration {
 
     Wifi wifi;
     Gps gps;
-    Leds leds;
     Schedule schedule;
     CommonConfiguration common;
 

@@ -62,8 +62,6 @@ constexpr uint32_t SelfFlashWaitPeriod = 20 * Seconds;
 
 // TODO: The following should be moved to friendly configuration area.
 
-constexpr uint32_t LedsDisableAfter = 60 * Minutes;
-
 constexpr uint32_t StatusInterval = 5 * Seconds;
 constexpr float BatteryStatusBlinkThreshold = 60.0f;
 constexpr float BatteryLowPowerSleepThreshold = 10.0;
