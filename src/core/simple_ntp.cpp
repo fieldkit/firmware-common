@@ -49,7 +49,7 @@ TaskEval SimpleNTP::task() {
 
         FormattedTime newFormatted{ newEpoch };
         FormattedTime oldFormatted{ oldEpoch };
-        log("UTC: '%s' -> '%s' (%lus)", oldFormatted.toString(), newFormatted.toString(), newEpoch - oldEpoch);
+        log("UTC: '%s' -> '%s' (%" PRId64 "s)", oldFormatted.toString(), newFormatted.toString(), (int64_t)newEpoch - oldEpoch);
 
         lastSynced = fk_uptime();
 
