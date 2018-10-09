@@ -23,6 +23,11 @@ public:
     }
 
 public:
+    TwoWire *twoWire() {
+        return bus;
+    }
+
+public:
     bool begin(uint32_t speed = 0);
     bool begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRequestHandler onRequest);
     bool send(uint8_t address, const char *ptr);
