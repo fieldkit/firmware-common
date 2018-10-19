@@ -90,7 +90,7 @@ TaskEval ModuleCommunications::task() {
                             auto repliesExpected = (int8_t)(pending->replyExpected() ? 1 : 0);
                             twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address, repliesExpected };
                             twoWireTask.enqueued();
-                            log("Busy!");
+                            log("Busy");
                         }
                         else {
                             hasQuery = true;
