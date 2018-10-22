@@ -1,6 +1,9 @@
 #include "scan_attached_devices.h"
+#include "configuration.h"
 #include "reboot_device.h"
 #include "wifi_startup.h"
+#include "no_modules.h"
+#include "idle.h"
 
 namespace fk {
 
@@ -20,6 +23,23 @@ void ScanAttachedDevices::task() {
         // TODO: Should never take so long we need the watchdog.
         services().leds->task();
         services().moduleCommunications->task();
+    }
+
+    if (first_) {
+        first_ = false;
+        transit<WifiStartup>();
+        return;
+    }
+    else {
+        if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
+            if (configuration.no_modules_sleep > 0) {
+                transit<NoModulesThrottle>();
+                return;
+            }
+        }
+
+        transit<Idle>();
+        return;
     }
 
     #endif

@@ -7,6 +7,9 @@
 namespace fk {
 
 class ScanAttachedDevices : public MainServicesState {
+private:
+    bool first_{ true };
+
 public:
     const char *name() const override {
         return "ScanAttachedDevices";

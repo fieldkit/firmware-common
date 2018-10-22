@@ -1,5 +1,4 @@
 #include "take_readings.h"
-
 #include "gather_readings.h"
 #include "file_system.h"
 
@@ -22,10 +21,12 @@ void TakeReadings::task() {
         gatherReadings.enqueued();
 
         log("Taking reading %d", remaining_);
+
         while (simple_task_run(gatherReadings)) {
             services().alive();
             services().moduleCommunications->task();
         }
+
         remaining_--;
     }
 
