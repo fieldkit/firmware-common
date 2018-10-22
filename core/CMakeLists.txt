@@ -53,6 +53,8 @@ if(FK_PROFILE_STANDARD)
 
   fk_write_profile(fk-core-standard)
 
+  target_compile_options(fk-core-standard PUBLIC -Wall -Werror)
+
   add_arduino_firmware(fk-core-standard)
 endif(FK_PROFILE_STANDARD)
 
@@ -76,10 +78,11 @@ if(FK_PROFILE_AMAZON)
 
   fk_write_profile(fk-core-amazon)
 
+  target_compile_options(fk-core-amazon PUBLIC -Wall -Werror)
+
   add_arduino_firmware(fk-core-amazon)
 endif(FK_PROFILE_AMAZON)
 
 option(FK_DEBUG_INSTRUMENTATION "Enable function instrumentation." OFF)
 if(FK_DEBUG_INSTRUMENTATION)
-  target_compile_options(fk-core PUBLIC -Wall -Werror -finstrument-functions)
 endif(FK_DEBUG_INSTRUMENTATION)
