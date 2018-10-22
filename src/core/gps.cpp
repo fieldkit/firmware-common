@@ -123,7 +123,7 @@ void GpsService::read() {
         auto fix = GpsReading{ gps_ };
         if (fix.valid()) {
             save();
-            initial_ = false;
+            initial_ = true;
         }
     }
 }
