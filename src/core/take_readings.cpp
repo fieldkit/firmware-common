@@ -4,6 +4,34 @@
 
 namespace fk {
 
+class TaskRunner {
+private:
+    Task &task_;
+    TaskEval eval_ = TaskEval::done();
+
+public:
+    TaskRunner(Task &task) : task_(task) {
+    }
+
+public:
+    bool run() {
+        eval_ = task_.task();
+        if (eval_.isDone()) {
+            task_.done();
+            return false;
+        }
+        if (eval_.isError()) {
+            task_.error();
+            return false;
+        }
+        return true;
+    }
+
+    bool error() {
+        return eval_.isError();
+    }
+};
+
 void TakeReadings::entry() {
     MainServicesState::entry();
     remaining_ = services().state->readingsToTake();
@@ -22,9 +50,15 @@ void TakeReadings::task() {
 
         log("Taking reading %d", remaining_);
 
-        while (simple_task_run(gatherReadings)) {
+        TaskRunner runner{ gatherReadings };
+
+        while (runner.run()) {
             services().alive();
             services().moduleCommunications->task();
+        }
+
+        if (runner.error()) {
+            break;
         }
 
         remaining_--;
