@@ -15,7 +15,7 @@ Pool::Pool(const char *name, size_t size, void *block) {
 
     #ifdef FK_LOGGING_POOL_VERBOSE
     if (size_ > 0) {
-        alogf(LogLevels::TRACE, "Pool", "Create: 0x%p %s size=%d ptr=0x%p (free=%lu)",
+        alogf(LogLevels::TRACE, "Pool", "Create: 0x%p %s size=%zu ptr=0x%p (free=%lu)",
               this, name_, size_, ptr_, fk_free_memory());
     }
     #endif
@@ -37,7 +37,7 @@ void *Pool::malloc(size_t size) {
     auto aligned = alignedSize(size);
 
     #ifdef FK_LOGGING_POOL_VERBOSE
-    alogf(LogLevels::TRACE, "Pool", "Malloc 0x%p %s size=%d aligned=%d (free=%d)",
+    alogf(LogLevels::TRACE, "Pool", "Malloc 0x%p %s size=%zu aligned=%zu (free=%zu)",
           this, name_, size, aligned, remaining_ - aligned);
     #endif
 
