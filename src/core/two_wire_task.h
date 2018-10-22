@@ -65,7 +65,6 @@ private:
 public:
     static ReplyConfig Default;
     static ReplyConfig NoReply;
-    static ReplyConfig Readings;
     static ReplyConfig Long;
 };
 
