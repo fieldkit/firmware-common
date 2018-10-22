@@ -10,20 +10,7 @@ constexpr uint32_t Seconds = 1000;
 constexpr uint32_t Minutes = 60 * Seconds;
 constexpr uint32_t Hours = 60 * Minutes;
 
-// constexpr uint8_t TwoWireNumberOfRetries = 3;
-constexpr uint32_t TwoWireMaximumReplyWait = 1 * Seconds;
 constexpr uint32_t TwoWireDefaultSpeed = 400000;
-constexpr uint32_t TwoWireDefaultReplyWait = 100;
-constexpr uint32_t TwoWireStreamingWait = 1000;
-
-/***
- * How many times to retry a given TwoWire query before giving up.
- *
- * This is high because we retry fast and some operations, like DATA_PREPARE can
- * take a few seconds. Most other operations will require a smaller number of
- * retries, so maybe this is kind of ugly.
- */
-constexpr uint32_t TwoWireRetries = 30;
 
 constexpr uint32_t PowerManagementQueryInterval = 30 * Seconds;
 constexpr uint32_t PowerManagementAlertInterval = 1 * Minutes;

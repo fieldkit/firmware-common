@@ -4,12 +4,23 @@
 
 namespace fk {
 
-TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Reader &outgoing, lws::Writer &incoming, uint8_t address, int8_t expectedReplies) :
-    Task(name), bus(&bus), outgoing(&outgoing), incoming(&incoming), address(address), expectedReplies(expectedReplies) {
+ReplyConfig ReplyConfig::Default{ };
+
+ReplyConfig ReplyConfig::NoReply{ false };
+
+/**
+ * This is high because we retry fast and some operations, like DATA_PREPARE can
+ * take a few seconds. Most other operations will require a smaller number of
+ * retries, so maybe this is kind of ugly.
+ */
+ReplyConfig ReplyConfig::Long{ ReplyConfig::TwoWireLongTimeout };
+
+TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Reader &outgoing, lws::Writer &incoming, uint8_t address, ReplyConfig replyConfig) :
+    Task(name), bus(&bus), outgoing(&outgoing), incoming(&incoming), address(address), replyConfig(replyConfig) {
 }
 
-TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Writer &incoming, uint8_t address, int8_t expectedReplies) :
-    Task(name), bus(&bus), outgoing(nullptr), incoming(&incoming), address(address), expectedReplies(expectedReplies) {
+TwoWireTask::TwoWireTask(const char *name, TwoWireBus &bus, lws::Writer &incoming, uint8_t address, ReplyConfig replyConfig) :
+    Task(name), bus(&bus), outgoing(nullptr), incoming(&incoming), address(address), replyConfig(replyConfig) {
 }
 
 void TwoWireTask::enqueued() {
@@ -18,9 +29,11 @@ void TwoWireTask::enqueued() {
     bytesReceived = 0;
     doneAt = 0;
     bytesSent = 0;
-    repliesRemaining = expectedReplies;
+    repliesRemaining = replyConfig.expected_replies;
+    // If this is nullptr then we've already issued the query and are in the
+    // middle of a retry because we got told they were busy. So use the busy delay.
     if (outgoing == nullptr) {
-        checkAt = fk_uptime() + TwoWireDefaultReplyWait;
+        checkAt = fk_uptime() + replyConfig.busy_delay;
     }
     bus->begin();
 }
@@ -36,8 +49,8 @@ TaskEval TwoWireTask::task() {
         }
         else {
             if (repliesRemaining > 0) {
-                dieAt = fk_uptime() + TwoWireMaximumReplyWait;
-                checkAt = fk_uptime() + TwoWireDefaultReplyWait;
+                dieAt = fk_uptime() + replyConfig.reply_timeout;
+                checkAt = fk_uptime() + replyConfig.reply_delay;
                 return TaskEval::idle();
             }
             else {
@@ -75,14 +88,14 @@ TaskEval TwoWireTask::send() {
         return TaskEval::error();
     }
 
-    dieAt = fk_uptime() + TwoWireMaximumReplyWait;
+    dieAt = fk_uptime() + replyConfig.reply_timeout;
 
     if (repliesRemaining == 0) {
         return TaskEval::idle();
     }
 
     // They won't be ready yet, check back soon, though.
-    checkAt = fk_uptime() + TwoWireDefaultReplyWait;
+    checkAt = fk_uptime() + replyConfig.reply_delay;
 
     return TaskEval::idle();
 }

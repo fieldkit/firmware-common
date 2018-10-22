@@ -29,6 +29,9 @@ public:
 public:
     void query(ModuleQueryMessage &message) override;
     void reply(ModuleReplyMessage &message) override;
+    ReplyConfig replyConfig() override {
+        return ReplyConfig::Long;
+    }
 
 };
 
@@ -55,8 +58,8 @@ public:
     void reply(ModuleReplyMessage &message) override;
     void prepare(ModuleQueryMessage &message, lws::Writer &outgoing) override;
     void tick(lws::Writer &outgoing) override;
-    bool replyExpected() override {
-        return false;
+    ReplyConfig replyConfig() override {
+        return ReplyConfig::NoReply;
     }
 
 public:

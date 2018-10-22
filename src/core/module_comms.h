@@ -14,8 +14,8 @@ public:
     virtual void reply(ModuleReplyMessage &message) = 0;
     virtual void prepare(ModuleQueryMessage &message, lws::Writer &outgoing);
     virtual void tick(lws::Writer &outgoing);
-    virtual bool replyExpected() {
-        return true;
+    virtual ReplyConfig replyConfig() {
+        return ReplyConfig::Default;
     }
 
 };
@@ -24,7 +24,7 @@ class ModuleCommunications : public Task {
 private:
     TwoWireBus *bus;
     Pool *pool;
-    uint8_t retries{ 0 };
+    uint32_t started{ 0 };
     uint8_t address{ 0 };
     ModuleQuery *pending{ nullptr };
     ModuleQueryMessage query;
@@ -81,7 +81,7 @@ public:
         }
 
         bool error() {
-            return reply == nullptr && query->replyExpected();
+            return reply == nullptr && query->replyConfig().expected_replies > 0;
         }
 
         bool is(ModuleQuery &other) {

@@ -114,8 +114,6 @@ void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
         else {
             protocol.push(address, queryFirmware);
         }
-
-        retries = 0;
     }
     else {
         if (state->numberOfModules() == 0) {
@@ -126,18 +124,10 @@ void AttachedDevices::done(ModuleProtocolHandler::Finished &finished) {
 
 void AttachedDevices::error(ModuleProtocolHandler::Finished &finished) {
     if (finished.is(querySensorCapabilities)) {
-        if (retries < TwoWireRetries) {
-            log("Retry %d/%lu", retries, TwoWireRetries);
-            protocol.push(addresses[addressIndex], querySensorCapabilities);
-            retries++;
-        }
-        else {
-            state->scanFailure();
-            retries = 0;
-            scanning = false;
-            if (peripherals.twoWire1().isOwner(this)) {
-                peripherals.twoWire1().release(this);
-            }
+        state->scanFailure();
+        scanning = false;
+        if (peripherals.twoWire1().isOwner(this)) {
+            peripherals.twoWire1().release(this);
         }
     }
     else {

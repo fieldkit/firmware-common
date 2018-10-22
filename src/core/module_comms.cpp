@@ -15,7 +15,7 @@ void ModuleQuery::tick(lws::Writer &outgoing) {
 }
 
 ModuleCommunications::ModuleCommunications(TwoWireBus &bus, Pool &pool) :
-    Task("ModuleCommunications"), bus(&bus), pool(&pool), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, outgoing.getReader(), incoming.getWriter(), 0, 0) {
+    Task("ModuleCommunications"), bus(&bus), pool(&pool), query(pool), reply(pool), twoWireTask("ModuleTwoWire", bus, outgoing.getReader(), incoming.getWriter(), 0, ReplyConfig::Default) {
 }
 
 void ModuleCommunications::enqueue(uint8_t destination, ModuleQuery &mq) {
@@ -38,6 +38,8 @@ ModuleReplyMessage &ModuleCommunications::dequeue() {
 
 TaskEval ModuleCommunications::task() {
     if (address > 0) {
+        auto replyConfig = pending->replyConfig();
+
         if (hasQuery) {
             incoming.clear();
             outgoing.clear();
@@ -45,23 +47,24 @@ TaskEval ModuleCommunications::task() {
 
             pending->prepare(query, outgoing.getWriter());
 
-            auto repliesExpected = (int8_t)(pending->replyExpected() ? 1 : 0);
             twoWireTask = TwoWireTask{ pending->name(), *bus,
                                        outgoing.getReader(), incoming.getWriter(),
-                                       address, repliesExpected };
+                                       address, replyConfig };
             twoWireTask.enqueued();
 
             hasQuery = false;
             hasReply = false;
-            retries = 0;
+            started = fk_uptime();
         }
         else {
             simple_task_run(twoWireTask);
             pending->tick(outgoing.getWriter());
         }
 
+        auto elapsed = fk_uptime() - started;
+
         if (twoWireTask.completed()) {
-            if (!pending->replyExpected()) {
+            if (replyConfig.expected_replies == 0) {
                 log("No reply expected");
                 address = 0;
                 return TaskEval::idle();
@@ -78,35 +81,30 @@ TaskEval ModuleCommunications::task() {
                         outgoing.clear();
                         query.clear();
 
-                        if (retries == TwoWireRetries) {
-                            log("No reply!");
-                            address = 0;
-                            return TaskEval::idle();
-                        }
-
-                        retries++;
-
                         if (reply.m().type == fk_module_ReplyType_REPLY_BUSY) {
-                            auto repliesExpected = (int8_t)(pending->replyExpected() ? 1 : 0);
-                            twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address, repliesExpected };
+                            twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address, replyConfig };
                             twoWireTask.enqueued();
-                            log("Busy");
+                            log("Busy (%lums)", elapsed);
                         }
                         else {
                             hasQuery = true;
                             hasReply = false;
-                            log("Retry!");
+                            log("Retry (%lums)", elapsed);
                         }
 
                         return TaskEval::idle();
                     }
                     else {
                         hasReply = true;
-                        retries = 0;
                     }
                 }
             }
             address = 0;
+        }
+
+        if (elapsed > replyConfig.transaction_timeout) {
+            log("Timeout!");
+            return TaskEval::error();
         }
     }
 
