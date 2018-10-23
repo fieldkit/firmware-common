@@ -33,6 +33,10 @@ public:
     ModuleInfo* attachedModules() const;
     size_t numberOfModules() const;
     size_t numberOfModules(fk_module_ModuleType type) const;
+    bool hasSensorModules() const {
+        return numberOfModules(fk_module_ModuleType_SENSOR) > 0;
+    }
+
     size_t numberOfSensors() const;
     size_t numberOfReadings() const;
     size_t readingsToTake() const;

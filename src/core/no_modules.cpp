@@ -19,11 +19,13 @@ void NoModulesThrottle::task() {
         if (scanned_at_ == 0 || fk_uptime() - scanned_at_ > configuration.no_modules_rescan) {
             scanned_at_ = fk_uptime();
             transit<ScanAttachedDevices>();
+            return;
         }
     }
 
     if (fk_uptime() - entered_ > configuration.no_modules_sleep) {
         transit<RebootDevice>();
+        return;
     }
 }
 
