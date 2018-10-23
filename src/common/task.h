@@ -118,6 +118,34 @@ inline bool is_task_running(TaskEval e)  {
     return true;
 }
 
+class TaskRunner {
+private:
+    Task &task_;
+    TaskEval eval_ = TaskEval::done();
+
+public:
+    TaskRunner(Task &task) : task_(task) {
+    }
+
+public:
+    bool run() {
+        eval_ = task_.task();
+        if (eval_.isDone()) {
+            task_.done();
+            return false;
+        }
+        if (eval_.isError()) {
+            task_.error();
+            return false;
+        }
+        return true;
+    }
+
+    bool error() {
+        return eval_.isError();
+    }
+};
+
 }
 
 #endif
