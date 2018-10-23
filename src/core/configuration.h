@@ -108,6 +108,8 @@ struct Configuration {
     uint32_t no_modules_sleep{ 0 };
     uint32_t no_modules_rescan{ 0 };
     #endif
+
+    bool low_power_sleep{ true };
 };
 
 /**
