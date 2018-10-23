@@ -37,6 +37,11 @@ ModuleReplyMessage &ModuleCommunications::dequeue() {
 }
 
 TaskEval ModuleCommunications::task() {
+    TwoWireStatistics tws;
+    return task(tws);
+}
+
+TaskEval ModuleCommunications::task(TwoWireStatistics &tws) {
     if (address > 0) {
         auto replyConfig = pending->replyConfig();
 
@@ -58,22 +63,27 @@ TaskEval ModuleCommunications::task() {
         }
         else {
             simple_task_run(twoWireTask);
+
             pending->tick(outgoing.getWriter());
         }
 
         auto elapsed = fk_uptime() - started;
 
         if (twoWireTask.completed()) {
+            tws.expected += replyConfig.expected_replies;
+
             if (replyConfig.expected_replies == 0) {
                 log("No reply expected");
                 address = 0;
                 return TaskEval::idle();
             }
+
             if (twoWireTask.received() > 0) {
                 auto protoReader = lws::ProtoBufMessageReader{ incoming.getReader() };
 
                 if (!protoReader.read<SERIAL_BUFFER_SIZE>(fk_module_WireMessageReply_fields, reply.forDecode())) {
                     log("Error: Unable to read reply.");
+                    tws.malformed++;
                 }
                 else {
                     if (reply.m().type == fk_module_ReplyType_REPLY_BUSY || reply.m().type == fk_module_ReplyType_REPLY_RETRY) {
@@ -85,25 +95,33 @@ TaskEval ModuleCommunications::task() {
                             twoWireTask = TwoWireTask{ pending->name(), *bus, incoming.getWriter(), address, replyConfig };
                             twoWireTask.enqueued();
                             log("Busy (%lums)", elapsed);
+                            tws.busy++;
                         }
                         else {
                             hasQuery = true;
                             hasReply = false;
                             log("Retry (%lums)", elapsed);
+                            tws.retry++;
                         }
 
                         return TaskEval::idle();
                     }
                     else {
                         hasReply = true;
+                        tws.reply++;
                     }
                 }
+            }
+            else {
+                tws.missed++;
             }
             address = 0;
         }
 
         if (elapsed > replyConfig.transaction_timeout) {
             log("Timeout!");
+            tws.timeouts++;
+            address = 0;
             return TaskEval::error();
         }
     }

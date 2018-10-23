@@ -7,6 +7,20 @@
 
 namespace fk {
 
+struct TwoWireStatistics {
+    uint32_t expected{ 0 };
+    uint32_t missed{ 0 };
+    uint32_t malformed{ 0 };
+    uint32_t reply{ 0 };
+    uint32_t busy{ 0 };
+    uint32_t retry{ 0 };
+    uint32_t timeouts{ 0 };
+
+    bool any_responses() const {
+        return (reply + retry + busy + malformed) > 0;
+    }
+};
+
 class ModuleQuery {
 public:
     virtual const char *name() const = 0;
@@ -40,6 +54,7 @@ public:
 
 public:
     TaskEval task() override;
+    TaskEval task(TwoWireStatistics &tws);
 
 public:
     void enqueue(uint8_t destination, ModuleQuery &mq);
