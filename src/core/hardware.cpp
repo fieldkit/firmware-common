@@ -48,9 +48,17 @@ void Hardware::cycleModules() {
     #endif
 }
 
+void Hardware::enablePeripherals() {
+    #if defined(FK_CORE_GENERATION_2)
+    Logger::trace("Enabling peripherals.");
+    pinMode(PERIPHERALS_ENABLE_PIN, OUTPUT);
+    digitalWrite(PERIPHERALS_ENABLE_PIN, HIGH);
+    #endif
+}
+
 void Hardware::disablePeripherals() {
     #if defined(FK_CORE_GENERATION_2)
-    Logger::info("Disabling peripherals.");
+    Logger::trace("Disabling peripherals.");
     pinMode(PERIPHERALS_ENABLE_PIN, OUTPUT);
     digitalWrite(PERIPHERALS_ENABLE_PIN, LOW);
     pinMode(GPS_ENABLE_PIN, OUTPUT);
@@ -58,9 +66,17 @@ void Hardware::disablePeripherals() {
     #endif
 }
 
+bool Hardware::peripheralsEnabled() {
+    #if defined(FK_CORE_GENERATION_2)
+    return digitalRead(PERIPHERALS_ENABLE_PIN) == HIGH;
+    #else
+    return true;
+    #endif
+}
+
 void Hardware::cyclePeripherals() {
     #if defined(FK_CORE_GENERATION_2)
-    Logger::info("Cycling peripherals.");
+    Logger::trace("Cycling peripherals.");
     pinMode(PERIPHERALS_ENABLE_PIN, OUTPUT);
     pinMode(GPS_ENABLE_PIN, OUTPUT);
     digitalWrite(PERIPHERALS_ENABLE_PIN, LOW);
@@ -79,6 +95,14 @@ void Hardware::disableGps() {
     Logger::info("Disabling GPS.");
     pinMode(GPS_ENABLE_PIN, OUTPUT);
     digitalWrite(GPS_ENABLE_PIN, LOW);
+    #endif
+}
+
+void Hardware::enableGps() {
+    #if defined(FK_CORE_GENERATION_2)
+    Logger::info("Enabling GPS.");
+    pinMode(GPS_ENABLE_PIN, OUTPUT);
+    digitalWrite(GPS_ENABLE_PIN, HIGH);
     #endif
 }
 

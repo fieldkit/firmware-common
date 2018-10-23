@@ -83,9 +83,15 @@ public:
 
     static void disablePeripherals();
 
+    static void enablePeripherals();
+
+    static bool peripheralsEnabled();
+
     static void cyclePeripherals();
 
     static void disableGps();
+
+    static void enableGps();
 };
 
 }

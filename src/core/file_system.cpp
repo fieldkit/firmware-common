@@ -25,6 +25,10 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
         return 0;
     }
 
+    if (!Hardware::peripheralsEnabled()) {
+        return 0;
+    }
+
     EmptyPool empty;
     DataLogMessage dlm{ m, empty };
     uint8_t buffer[dlm.calculateSize()];

@@ -9,7 +9,12 @@ namespace fk {
 void LowPowerSleep::entry() {
     Sleep::entry();
 
+    log("Sleeping, disabling modules and peripherals.");
+
     Hardware::disableModules();
+
+    // Flush here to record the above messages.
+    services().fileSystem->flush();
 
     Hardware::disablePeripherals();
 
