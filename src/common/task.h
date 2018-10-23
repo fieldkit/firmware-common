@@ -65,19 +65,13 @@ public:
 class Task {
 public:
     const char *name{ nullptr };
-    Task *nextTask{ nullptr };
 
 public:
-    Task(const char *name) : name(name) {}
-
-public:
-    virtual bool collection() {
-        return false;
+    Task(const char *name) : name(name) {
     }
+
+public:
     virtual void enqueued() { }
-    virtual bool tryBegin() {
-        return true;
-    }
     virtual TaskEval task() = 0;
     virtual void done() { }
     virtual void error() { }
