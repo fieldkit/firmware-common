@@ -59,7 +59,7 @@ void WifiTransmitFiles::task() {
 
         if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
             if (configuration.no_modules_sleep > 0) {
-                transit_into<NoModulesThrottle>();
+                transit_into<NoModules>();
                 return;
             }
         }

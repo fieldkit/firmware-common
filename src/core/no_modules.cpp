@@ -5,7 +5,7 @@
 
 namespace fk {
 
-void NoModulesThrottle::task() {
+void NoModules::task() {
     services().alive();
 
     fk_assert(configuration.no_modules_sleep > 0);

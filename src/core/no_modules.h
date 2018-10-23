@@ -5,14 +5,14 @@
 
 namespace fk {
 
-class NoModulesThrottle : public MainServicesState {
+class NoModules : public MainServicesState {
 private:
     uint32_t entered_{ 0 };
     uint32_t scanned_at_{ 0 };
 
 public:
     const char *name() const override {
-        return "NoModulesThrottle";
+        return "NoModules";
     }
 
 public:

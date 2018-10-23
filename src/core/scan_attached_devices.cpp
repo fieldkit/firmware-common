@@ -33,7 +33,7 @@ void ScanAttachedDevices::task() {
     else {
         if (!services().state->hasSensorModules()) {
             if (configuration.no_modules_sleep > 0) {
-                transit<NoModulesThrottle>();
+                transit<NoModules>();
                 return;
             }
         }
