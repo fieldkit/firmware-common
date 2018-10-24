@@ -50,6 +50,7 @@ if(FK_PROFILE_STANDARD)
   target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_DISABLE_RADIO)
   target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_RTC_PCF8523)
   target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_HARDWARE_SERIAL2_ENABLE)
+  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_GPS_FIXED_STATION)
 
   fk_write_profile(fk-core-standard)
 
@@ -72,9 +73,7 @@ if(FK_PROFILE_AMAZON)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_DISABLE_RADIO)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_RTC_PCF8523)
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_HARDWARE_SERIAL2_ENABLE)
-
   target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_GPS_FIXED_STATION)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_CORE_REQUIRE_MODULES)
 
   fk_write_profile(fk-core-amazon)
 
