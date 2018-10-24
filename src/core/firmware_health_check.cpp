@@ -18,7 +18,7 @@ void FirmwareSelfFlash::task() {
 }
 
 void FirmwareHealthCheck::task() {
-    transit<ScanAttachedDevices>();
+    transit_into<ScanAttachedDevices>();
 }
 
 }

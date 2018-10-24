@@ -41,6 +41,8 @@ void NoModules::task() {
     }
 
     if (fk_uptime() - entered_ > configuration.no_modules_sleep) {
+        entered_ = 0;
+        scanned_ = 0;
         transit<RebootDevice>();
         return;
     }
