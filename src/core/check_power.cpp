@@ -9,7 +9,7 @@ namespace fk {
 void CheckPower::task() {
     auto percentage = services().power->percentage();
     if (percentage < BatteryLowPowerSleepThreshold) {
-        if (configuration.low_power_sleep) {
+        if (configuration.sleeping.low_power) {
             if (!fk_console_attached()) {
                 transit<LowPowerSleep>();
                 return;

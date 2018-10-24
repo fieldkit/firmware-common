@@ -1,4 +1,5 @@
 #include "sleep.h"
+#include "configuration.h"
 
 namespace fk {
 
@@ -26,15 +27,15 @@ void Sleep::sleep(uint32_t maximum) {
         auto delayed = false;
 
         if (canSleep && (activity_ == 0 || fk_uptime() - activity_ > 10000)) {
-            #ifdef FK_ENABLE_DEEP_SLEEP
-            if (!fk_console_attached()) {
-                auto left = stopping - fk_uptime();
-                if (left > SleepMaximumGranularity) {
-                    services().watchdog->sleep(SleepMaximumGranularity);
-                    delayed = true;
+            if (configuration.sleeping.deep) {
+                if (!fk_console_attached()) {
+                    auto left = stopping - fk_uptime();
+                    if (left > SleepMaximumGranularity) {
+                        services().watchdog->sleep(SleepMaximumGranularity);
+                        delayed = true;
+                    }
                 }
             }
-            #endif
 
             if (!delayed) {
                 delay(1000);
