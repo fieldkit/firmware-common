@@ -33,6 +33,10 @@ public:
         return incoming_;
     }
 
+    lws::Reader &reader() {
+        return pipe_.getReader();
+    }
+
     void clear() {
         pipe_.clear();
     }
