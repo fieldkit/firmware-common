@@ -121,6 +121,7 @@ void CheckFirmware::check() {
                                 writer = firmwareStorage.write();
 
                                 firmware_header_t header;
+                                memset(&header, 0, sizeof(firmware_header_t));
                                 header.version = 1;
                                 header.time = 0;
                                 header.size = httpParser.content_length();
