@@ -269,12 +269,12 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
         firmware_header_t header;
 
-        if (firmwareStorage.header(FirmwareBank::ModuleNew, header)) {
+        if (firmwareStorage.header(FirmwareBank::Pending, header)) {
             reply.m().firmware.pending.etag.arg = (void *)pool->strdup(header.etag);
             reply.m().firmware.pending.size = header.size;
         }
 
-        if (firmwareStorage.header(FirmwareBank::ModuleGood, header)) {
+        if (firmwareStorage.header(FirmwareBank::Safe, header)) {
             reply.m().firmware.good.etag.arg = (void *)pool->strdup(header.etag);
             reply.m().firmware.good.size = header.size;
         }

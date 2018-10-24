@@ -10,15 +10,15 @@ void UpgradeModuleFirmware::task() {
     FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
 
     firmware_header_t header;
-    if (!firmwareStorage.header(FirmwareBank::ModuleNew, header)) {
+    if (!firmwareStorage.header(FirmwareBank::Incoming, header)) {
         transit_into<Idle>();
         return;
     }
 
-    auto reader = firmwareStorage.read(FirmwareBank::ModuleNew);
+    auto reader = firmwareStorage.read(FirmwareBank::Incoming);
 
     ModuleCopySettings settings = {
-        FirmwareBank::ModuleNew,
+        FirmwareBank::Pending,
         reader->size(),
         header.etag
     };

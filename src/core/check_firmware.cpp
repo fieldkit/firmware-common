@@ -47,11 +47,11 @@ void CheckAllAttachedFirmware::task() {
     if (index_ < state->numberOfModules()) {
         auto module = state->getModuleByIndex(index_);
         index_++;
-        transit_into<CheckFirmware>(FirmwareBank::ModuleNew, module->module, module->compiled);
+        transit_into<CheckFirmware>(FirmwareBank::Incoming, module->module, module->compiled);
     }
     else if (index_ == state->numberOfModules()) {
         index_++;
-        transit_into<CheckFirmware>(FirmwareBank::CoreNew, configuration.module_name, firmware_compiled_get());
+        transit_into<CheckFirmware>(FirmwareBank::Pending, configuration.module_name, firmware_compiled_get());
     }
     else {
         transit<WifiTransmitFiles>();
@@ -151,7 +151,7 @@ void CheckFirmware::check() {
 
                 firmwareStorage.update(bank_, writer);
 
-                if (bank_ == FirmwareBank::CoreNew) {
+                if (bank_ == FirmwareBank::Pending) {
                     transit_into<FirmwareSelfFlash>();
                 }
                 else {

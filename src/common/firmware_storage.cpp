@@ -41,11 +41,7 @@ lws::SizedReader *FirmwareStorage::read(FirmwareBank bank) {
 }
 
 bool FirmwareStorage::backup() {
-    #if defined(FK_CORE)
-    auto bank = FirmwareBank::CoreGood;
-    #else
-    auto bank = FirmwareBank::ModuleGood;
-    #endif
+    auto bank = FirmwareBank::Backup;
 
     Logger::info("Backup");
 

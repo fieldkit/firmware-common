@@ -76,7 +76,7 @@ struct Configuration {
         #if defined(FK_PROFILE_AMAZON)
         lwcron::CronSpec readings{ lwcron::CronSpec::specific(0, 0) };
         #else
-        lwcron::CronSpec readings{ lwcron::CronSpec::everyFiveMinutes() };
+        lwcron::CronSpec readings{ lwcron::CronSpec::everyTwentyMinutes() };
         #endif
 
         #if defined(FK_WIFI_STARTUP_ONLY)
