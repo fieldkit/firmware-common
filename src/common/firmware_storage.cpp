@@ -41,10 +41,16 @@ lws::SizedReader *FirmwareStorage::read(FirmwareBank bank) {
 }
 
 bool FirmwareStorage::backup() {
+    #if defined(FK_CORE)
+    auto bank = FirmwareBank::CoreGood;
+    #else
+    auto bank = FirmwareBank::ModuleGood;
+    #endif
+
     Logger::info("Backup");
 
     firmware_header_t header;
-    if (this->header(FirmwareBank::CoreGood, header)) {
+    if (this->header(bank, header)) {
         if (header.version != FIRMWARE_VERSION_INVALID) {
             Logger::info("Existing: '%s' (%lu bytes), overwriting.", header.etag, header.size);
         }
@@ -62,7 +68,7 @@ bool FirmwareStorage::backup() {
         return false;
     }
 
-    Logger::info("Saving existing firmware (%p)", (void *)FIRMWARE_NVM_PROGRAM_ADDRESS);
+    Logger::info("Saving existing firmware (0x%p)", (void *)FIRMWARE_NVM_PROGRAM_ADDRESS);
 
     uint32_t bytes = 0;
     uint8_t *ptr = (uint8_t *)FIRMWARE_NVM_PROGRAM_ADDRESS;
@@ -77,7 +83,7 @@ bool FirmwareStorage::backup() {
 
     if (bytes == header.size) {
         Logger::info("Done, updating bank.");
-        if (!update(FirmwareBank::CoreGood, writer)) {
+        if (!update(bank, writer)) {
             Logger::error("Error");
             return false;
         }
