@@ -12,12 +12,12 @@ void NoModules::task() {
 
     if (entered_ == 0) {
         entered_ = fk_uptime();
-        scanned_at_ = 0;
+        scanned_ = 0;
     }
 
     if (configuration.no_modules_rescan > 0) {
-        if (scanned_at_ == 0 || fk_uptime() - scanned_at_ > configuration.no_modules_rescan) {
-            scanned_at_ = fk_uptime();
+        if (scanned_ == 0 || fk_uptime() - scanned_ > configuration.no_modules_rescan) {
+            scanned_ = fk_uptime();
             transit<ScanAttachedDevices>();
             return;
         }

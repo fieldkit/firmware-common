@@ -107,13 +107,8 @@ struct Configuration {
     const char *module_name = "fk-core";
     #endif
 
-    #if defined(FK_CORE_REQUIRE_MODULES)
     uint32_t no_modules_sleep{ 30 * Minutes };
     uint32_t no_modules_rescan{ 1 * Minutes };
-    #else
-    uint32_t no_modules_sleep{ 0 };
-    uint32_t no_modules_rescan{ 0 };
-    #endif
 };
 
 /**

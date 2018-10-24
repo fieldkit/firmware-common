@@ -1,8 +1,6 @@
 #include "transmit_files.h"
 #include "transmit_file.h"
 #include "wifi_listening.h"
-#include "no_modules.h"
-#include "configuration.h"
 
 namespace fk {
 
@@ -55,18 +53,8 @@ void WifiTransmitFiles::entry() {
 
 void WifiTransmitFiles::task() {
     if (index_ == 2) {
-        index_ = 0;
-
-        if (services().state->numberOfModules(fk_module_ModuleType_SENSOR) == 0) {
-            if (configuration.no_modules_sleep > 0) {
-                services().wifi->disable();
-                services().state->updateIp(0);
-                transit_into<NoModules>();
-                return;
-            }
-        }
-
         transit_into<WifiListening>();
+        index_ = 0;
     }
     else {
         transit_into<WifiTransmitFile>(transmissions_[index_]);
