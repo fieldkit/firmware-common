@@ -16,6 +16,8 @@ public:
     }
 
 public:
+    void react(LowPowerEvent const &lpe) override;
+    void react(SchedulerEvent const &se) override;
     void task() override;
 };
 

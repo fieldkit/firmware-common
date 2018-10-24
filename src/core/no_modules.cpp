@@ -2,8 +2,25 @@
 #include "configuration.h"
 #include "reboot_device.h"
 #include "scan_attached_devices.h"
+#include "low_power_sleep.h"
 
 namespace fk {
+
+void NoModules::react(LowPowerEvent const &lpe) {
+    if (fk_console_attached()) {
+        log("Console attached, ignoring LowPowerEvent.");
+    }
+    else {
+        transit<LowPowerSleep>();
+    }
+}
+
+void NoModules::react(SchedulerEvent const &se) {
+    if (se.deferred) {
+        warn("Scheduler Event!");
+        transit(se.deferred);
+    }
+}
 
 void NoModules::task() {
     services().alive();
