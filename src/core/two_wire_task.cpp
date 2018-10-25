@@ -80,7 +80,7 @@ TaskEval TwoWireTask::send() {
     bytesSent += bytes;
 
     #ifdef FK_TWO_WIRE_LOGGING_VERBOSE
-    log("Sending %lu bytes to module (%lu)", bytes, bytesSent);
+    trace("Sending %lu bytes to module (%lu)", bytes, bytesSent);
     #endif
 
     if (!bus->send(address, buffer, bytes)) {
@@ -110,7 +110,7 @@ TaskEval TwoWireTask::receive() {
         }
 
         #ifdef FK_TWO_WIRE_LOGGING_VERBOSE
-        log("Received %d (%d) bytes from module", bytesReceived, sizeof(buffer));
+        trace("Received %d (%d) bytes from module", bytesReceived, sizeof(buffer));
         #endif
 
         auto wrote = incoming->write(buffer, bytesReceived);
