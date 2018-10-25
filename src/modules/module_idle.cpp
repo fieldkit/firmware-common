@@ -22,12 +22,12 @@ void ModuleIdle::task() {
         trace("Tick");
         tick_ = fk_uptime();
     }
+
     if (!services().child->incoming().empty()) {
         transit<ModuleServicer>();
     }
     else {
         services().watchdog->task();
-        delay(10);
     }
 
     if (elapsed() > ModuleIdleRebootInterval) {
