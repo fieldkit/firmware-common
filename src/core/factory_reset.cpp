@@ -15,7 +15,7 @@ void FactoryReset::task() {
 
     Hardware::cyclePeripherals();
 
-    if (!flashFs->initialize(Hardware::FLASH_PIN_CS, phylum::SectorSize)) {
+    if (!flashFs->initialize(Hardware::FLASH_PIN_CS, SuperBlockSize)) {
         log("Flash unavailable.");
     }
     else {

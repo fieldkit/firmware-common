@@ -68,6 +68,8 @@ constexpr uint32_t ModuleIdleRebootInterval = 120 * Minutes;
 
 constexpr uint32_t LivePollInactivity = 10 * Seconds;
 
+constexpr uint16_t SuperBlockSize = 2048;
+
 }
 
 #endif

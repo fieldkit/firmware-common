@@ -4,6 +4,7 @@
 #include "two_wire_child.h"
 #include "rtc.h"
 #include "hardware.h"
+#include "tuning.h"
 
 namespace fk {
 
@@ -31,7 +32,7 @@ void Booting::setupFlash() {
             digitalWrite(hw->flash_enable, HIGH);
         }
 
-        if (!flashFs->initialize(hw->flash, 2048)) {
+        if (!flashFs->initialize(hw->flash, SuperBlockSize)) {
             log("Flash unavailable.");
             fk_assert(false);
         }

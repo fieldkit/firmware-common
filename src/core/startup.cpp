@@ -69,7 +69,7 @@ void StartSystem::setupFlash() {
     auto flashFs = services().flashFs;
     auto flashState = services().flashState;
 
-    if (!flashFs->initialize(Hardware::FLASH_PIN_CS, phylum::SectorSize)) {
+    if (!flashFs->initialize(Hardware::FLASH_PIN_CS, SuperBlockSize)) {
         log("Flash unavailable.");
         fk_assert(false);
     }
