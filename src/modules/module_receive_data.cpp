@@ -52,6 +52,8 @@ void ModuleReceiveData::task() {
         }
     }
 
+    fileWriter->close();
+
     if (received == settings_.size) {
         log("stream: Done (expected=%lu) (received=%lu) (bank=%d) (checksum=0x%lx)",
             settings_.size, received, settings_.bank, writer.checksum());

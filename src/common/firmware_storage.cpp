@@ -85,6 +85,8 @@ bool FirmwareStorage::backup() {
         }
     }
 
+    Logger::info("Backup completed.");
+
     return true;
 }
 
