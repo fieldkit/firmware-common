@@ -12,6 +12,9 @@ void Booting::task() {
     services().leds->setup();
     services().watchdog->setup();
 
+    log("Hash(%s)", firmware_version_get());
+    log("Build(%s)", firmware_build_get());
+
     clock.begin();
 
     setupFlash();
