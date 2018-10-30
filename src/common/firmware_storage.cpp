@@ -158,12 +158,19 @@ bool FirmwareStorage::update(FirmwareBank bank, phylum::BlockAddress beginning) 
         Logger::error("Error saving block");
     }
 
+    Logger::error("Checking previous address...");
+
     if (previousAddr.valid()) {
+        Logger::error("Erasing previous file (%lu:%lu)", previousAddr.block, previousAddr.position);
         auto previousFile = fs_->files().open(previousAddr, phylum::OpenMode::Write);
         if (previousFile.exists()) {
+            Logger::error("Exists, erasing...");
             previousFile.erase_all_blocks();
         }
+        Logger::error("Done erasing old file.");
     }
+
+    Logger::error("Firmware bank committed.");
 
     return true;
 }
