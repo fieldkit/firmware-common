@@ -149,13 +149,17 @@ void CheckFirmware::check() {
             else {
                 log("Status: %d total=%lu etag='%s'", httpParser.status_code(), total, httpParser.etag());
 
-                firmwareStorage.update(bank_, writer);
+                writer->close();
 
-                if (bank_ == FirmwareBank::Pending) {
-                    transit_into<FirmwareSelfFlash>();
-                }
-                else {
-                    transit<UpgradeModuleFirmware>();
+                if (firmwareStorage.verify(firmwareStorage.beginningOfOpenFile(), total + sizeof(firmware_header_t))) {
+                    firmwareStorage.update(bank_, writer);
+
+                    if (bank_ == FirmwareBank::Pending) {
+                        transit_into<FirmwareSelfFlash>();
+                    }
+                    else {
+                        transit<UpgradeModuleFirmware>();
+                    }
                 }
 
                 return;
