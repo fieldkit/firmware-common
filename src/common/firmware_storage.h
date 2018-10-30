@@ -31,6 +31,7 @@ public:
     lws::SizedReader *read(FirmwareBank bank);
 
 public:
+    bool verify(phylum::BlockAddress address, uint32_t size);
     bool header(FirmwareBank bank, firmware_header_t &header);
     bool update(FirmwareBank bank, lws::Writer *writer);
     bool update(FirmwareBank bank, phylum::BlockAddress beginning);

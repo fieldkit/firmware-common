@@ -205,28 +205,39 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
     }
     case fk_module_QueryType_QUERY_DATA_VERIFY: {
         auto checksumData = (pb_data_t *)query.m().data.checksum.arg;
-        auto enable_flash = services().hardware->enable_flash();
+        auto enableFlash = services().hardware->enable_flash();
+        auto bank = (FirmwareBank)query.m().data.bank;
+        auto expectedSize = query.m().data.size;
 
-        uint32_t expected{ 0 };
-        memcpy(&expected, checksumData->buffer, sizeof(uint32_t));
+        uint32_t expectedChecksum;
+        memcpy(&expectedChecksum, checksumData->buffer, sizeof(uint32_t));
 
         log("DataVerify (size=%lu kind=%lu bank=%lu) (checksum=0x%lx)",
-            query.m().data.size, query.m().data.kind, query.m().data.bank, expected);
+            query.m().data.size, query.m().data.kind, query.m().data.bank, expectedChecksum);
 
         ModuleReplyMessage reply(*pool);
 
-        if (services().dataCopyStatus.checksum == expected) {
-            FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
-            auto bank = (FirmwareBank)query.m().data.bank;
-            if (!firmwareStorage.update(bank, services().dataCopyStatus.pending)) {
-                error("Error updating bank!");
+        FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
+
+        auto address = services().dataCopyStatus.pending;
+        auto actualChecksum = services().dataCopyStatus.checksum;
+
+        if (actualChecksum == expectedChecksum) {
+            if (!firmwareStorage.verify(address, expectedSize)) {
+                error("Error verifying bank!");
                 reply.m().type = fk_module_ReplyType_REPLY_ERROR;
             }
             else {
-                log("Verified! Saved!");
-                reply.m().type = fk_module_ReplyType_REPLY_SUCCESS;
+                if (!firmwareStorage.update(bank, address)) {
+                    error("Error updating bank!");
+                    reply.m().type = fk_module_ReplyType_REPLY_ERROR;
+                }
+                else {
+                    log("Verified! Saved!");
+                    reply.m().type = fk_module_ReplyType_REPLY_SUCCESS;
 
-                transit<ModuleFirmwareSelfFlash>();
+                    transit<ModuleFirmwareSelfFlash>();
+                }
             }
         }
         else {

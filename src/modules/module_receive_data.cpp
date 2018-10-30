@@ -59,6 +59,8 @@ void ModuleReceiveData::task() {
             settings_.size, received, settings_.bank, writer.checksum());
         services().dataCopyStatus.checksum = writer.checksum();
         services().dataCopyStatus.pending = firmwareStorage.beginningOfOpenFile();
+
+        firmwareStorage.verify(services().dataCopyStatus.pending, settings_.size);
     }
     else {
         log("stream: Fail (expected=%lu) (received=%lu)", settings_.size, received);

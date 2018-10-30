@@ -97,6 +97,25 @@ bool FirmwareStorage::erase(lws::Writer *writer) {
     return true;
 }
 
+bool FirmwareStorage::verify(phylum::BlockAddress address, uint32_t size) {
+    Logger::info("Verifying file (%lu:%lu).", address.block, address.position);
+
+    auto file = fs_->files().open(address, phylum::OpenMode::Read);
+    if (!file.exists()) {
+        Logger::info("File missing (%lu:%lu).", address.block, address.position);
+        return false;
+    }
+
+    file.seek(UINT64_MAX);
+
+    if (file.size() != size) {
+        Logger::info("Size mismatch! (%lu != %lu)", (uint32_t)file.size(), size);
+        return false;
+    }
+
+    return true;
+}
+
 bool FirmwareStorage::header(FirmwareBank bank, firmware_header_t &header) {
     header = { };
 
