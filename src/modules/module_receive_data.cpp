@@ -5,6 +5,7 @@
 #include "firmware_storage.h"
 #include "two_wire_child.h"
 #include "tuning.h"
+#include "hardware.h"
 
 namespace fk {
 
@@ -19,6 +20,7 @@ ModuleReceiveData::ModuleReceiveData(ModuleCopySettings settings) : settings_(se
 void ModuleReceiveData::task() {
     FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
 
+    auto enable_flash = services().hardware->enable_flash();
     auto fileWriter = firmwareStorage.write();
     auto writer = Crc32Writer{ *fileWriter };
     auto child = services().child;
