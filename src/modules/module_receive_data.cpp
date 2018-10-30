@@ -54,15 +54,22 @@ void ModuleReceiveData::task() {
 
     fileWriter->close();
 
+    auto failed = true;
+
     if (received == settings_.size) {
         log("stream: Done (expected=%lu) (received=%lu) (bank=%d) (checksum=0x%lx)",
             settings_.size, received, settings_.bank, writer.checksum());
-        services().dataCopyStatus.checksum = writer.checksum();
-        services().dataCopyStatus.pending = firmwareStorage.beginningOfOpenFile();
 
-        firmwareStorage.verify(services().dataCopyStatus.pending, settings_.size);
+        auto address = firmwareStorage.beginningOfOpenFile();
+
+        if (firmwareStorage.verify(address, settings_.size)) {
+            services().dataCopyStatus.checksum = writer.checksum();
+            services().dataCopyStatus.pending = address;
+            failed = false;
+        }
     }
-    else {
+
+    if (failed) {
         log("stream: Fail (expected=%lu) (received=%lu)", settings_.size, received);
         firmwareStorage.erase(fileWriter);
     }

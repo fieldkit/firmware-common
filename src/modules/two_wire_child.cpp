@@ -50,7 +50,9 @@ void TwoWireChild::receive(size_t bytes) {
 void TwoWireChild::reply() {
     if (outgoing_.empty()) {
         auto busy = ModuleState::current().busy();
-        Logger::info(busy ? "Busy" : "Retry.");
+        if (!busy) {
+            Logger::info(busy ? "Busy" : "Retry.");
+        }
 
         TwoWireMessageBuffer retryBuffer{ *bus_ };
         EmptyPool emptyPool;
