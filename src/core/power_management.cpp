@@ -2,6 +2,7 @@
 #include "tuning.h"
 #include "power_management.h"
 #include "core_fsm.h"
+#include "configuration.h"
 
 namespace fk {
 
@@ -26,7 +27,9 @@ TaskEval Power::task() {
 
         if (fk_uptime() - lastAlert_ > PowerManagementAlertInterval) {
             if (percentage < BatteryLowPowerSleepThreshold) {
-                send_event(LowPowerEvent{ });
+                if (configuration.sleeping.low_power) {
+                    send_event(LowPowerEvent{ });
+                }
             }
             lastAlert_ = fk_uptime();
         }
