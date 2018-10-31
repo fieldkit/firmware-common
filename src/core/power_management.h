@@ -22,6 +22,7 @@ public:
 public:
     void setup();
     float percentage();
+    float voltage();
     TaskEval task() override;
 
 };

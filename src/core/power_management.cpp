@@ -13,6 +13,10 @@ float Power::percentage() {
     return gauge_.stateOfCharge();
 }
 
+float Power::voltage() {
+    return gauge_.cellVoltage();
+}
+
 TaskEval Power::task() {
     if (fk_uptime() > queryTime_) {
         queryTime_ = fk_uptime() + PowerManagementQueryInterval;
