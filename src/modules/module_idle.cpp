@@ -16,11 +16,6 @@ void ModuleIdle::entry() {
 }
 
 void ModuleIdle::task() {
-    if (fk_uptime() - tick_ > 5000) {
-        trace("Tick");
-        tick_ = fk_uptime();
-    }
-
     if (!services().child->incoming().empty()) {
         transit<ModuleServicer>();
     }
