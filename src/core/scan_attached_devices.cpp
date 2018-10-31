@@ -3,6 +3,7 @@
 #include "reboot_device.h"
 #include "wifi_startup.h"
 #include "no_modules.h"
+#include "hardware.h"
 #include "idle.h"
 
 namespace fk {
@@ -18,6 +19,10 @@ void ScanAttachedDevices::task() {
         *services().moduleCommunications,
         addresses,
     };
+
+    while (!Hardware::modulesReady()) {
+        services().alive();
+    }
 
     while (simple_task_run(attachedDevices)) {
         // TODO: Should never take so long we need the watchdog.

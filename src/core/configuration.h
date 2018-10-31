@@ -109,6 +109,7 @@ struct Configuration {
 
     uint32_t no_modules_sleep{ 30 * Minutes };
     uint32_t no_modules_rescan{ 1 * Minutes };
+    uint32_t modules_ready_time{ 5 * Seconds };
 };
 
 /**
