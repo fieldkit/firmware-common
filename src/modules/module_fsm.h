@@ -35,6 +35,10 @@ struct DataCopyStatus {
     phylum::BlockAddress pending;
 };
 
+struct ModuleHooks {
+    virtual void alive() = 0;
+};
+
 struct ModuleServices {
     Pool *pool;
     ModuleInfo *info;
@@ -48,6 +52,7 @@ struct ModuleServices {
     PendingReadings *readings;
     ModuleHardware *hardware;
     ModuleQueryMessage *query;
+    ModuleHooks *hooks;
     DataCopyStatus dataCopyStatus;
 
     void alive();

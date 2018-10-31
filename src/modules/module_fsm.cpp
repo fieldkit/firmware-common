@@ -12,6 +12,9 @@ ModuleServices *ModuleServicesState::services_{ nullptr };
 void ModuleServices::alive() {
     watchdog->task();
     hardware->task();
+    if (hooks != nullptr) {
+        hooks->alive();
+    }
 }
 
 void ModuleServices::clear() {
