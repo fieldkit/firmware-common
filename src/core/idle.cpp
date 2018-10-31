@@ -2,6 +2,7 @@
 #include "scheduler.h"
 #include "low_power_sleep.h"
 #include "sleep.h"
+#include "reboot_device.h"
 
 namespace fk {
 
@@ -84,6 +85,11 @@ void Idle::task() {
         }
 
         checked_ = fk_uptime();
+    }
+
+    if (services().fileSystem->files().errors()) {
+        transit_into<RebootDevice>();
+        return;
     }
 }
 

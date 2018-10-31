@@ -43,6 +43,7 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
         int32_t bytes = stream.bytes_written;
         if (log.write(buffer, bytes, true) != bytes) {
             log_uart_get()->println("Unable to append log");
+            global_files->error();
             return 0;
         }
 
@@ -263,6 +264,14 @@ phylum::SimpleFile FileSystem::openSystem(phylum::OpenMode mode) {
 
 Files::Files(phylum::FileOpener &files) : files_(&files) {
     global_files = this;
+}
+
+void Files::error() {
+    errors_++;
+}
+
+bool Files::errors() const {
+    return errors_ > 0;
 }
 
 bool Files::swapLogsIfNecessary() {

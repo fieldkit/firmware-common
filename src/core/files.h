@@ -30,6 +30,7 @@ private:
     phylum::SimpleFile data_;
     phylum::FileOpener *files_;
     FileCopyOperation fileCopy_;
+    uint8_t errors_{ 0 };
 
 public:
     Files(phylum::FileOpener &files);
@@ -51,6 +52,10 @@ public:
 
 public:
     bool swapLogsIfNecessary();
+
+    void error();
+
+    bool errors() const;
 
     phylum::SimpleFile &data();
 
