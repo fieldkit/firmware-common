@@ -89,8 +89,17 @@ struct Configuration {
     };
 
     struct Sleeping {
+        #if defined(FK_ENABLE_LOW_POWER_SLEEP)
         bool low_power{ true };
+        #else
+        bool low_power{ false };
+        #endif
+
+        #if defined(FK_ENABLE_DEEP_SLEEP)
         bool deep{ true };
+        #else
+        bool deep{ false };
+        #endif
     };
 
     Wifi wifi;
