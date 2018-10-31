@@ -25,7 +25,7 @@ void ModuleIdle::task() {
         transit<ModuleServicer>();
     }
     else {
-        services().watchdog->task();
+        services().alive();
     }
 
     if (elapsed() > ModuleIdleRebootInterval) {
