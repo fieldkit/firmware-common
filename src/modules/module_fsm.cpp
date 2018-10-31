@@ -1,8 +1,8 @@
 #include "module_fsm.h"
 #include "module_idle.h"
 #include "startup.h"
-
 #include "watchdog.h"
+#include "hardware.h"
 
 namespace fk {
 
@@ -11,6 +11,7 @@ ModuleServices *ModuleServicesState::services_{ nullptr };
 
 void ModuleServices::alive() {
     watchdog->task();
+    hardware->task();
 }
 
 void ModuleServices::clear() {

@@ -164,7 +164,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             query.m().data.size, query.m().data.kind,
             query.m().data.bank, (const char *)query.m().data.etag.arg);
 
-        auto enable_flash = services().hardware->enable_flash();
+        auto enableFlash = services().hardware->enable_flash();
         auto failed = false;
 
         log("Reclaim...");
@@ -275,7 +275,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_FIRMWARE;
 
-        auto enable_flash = services().hardware->enable_flash();
+        auto enableFlash = services().hardware->enable_flash();
 
         FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
         firmware_header_t header;

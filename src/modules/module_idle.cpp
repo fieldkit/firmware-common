@@ -7,8 +7,6 @@
 #include "message_buffer.h"
 #include "two_wire_child.h"
 
-#include <Arduino.h>
-
 namespace fk {
 
 void ModuleIdle::entry() {

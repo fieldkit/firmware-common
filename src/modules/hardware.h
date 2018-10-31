@@ -5,41 +5,52 @@
 
 namespace fk {
 
-class PinHolder {
+class ModuleHardware;
+
+class FlashEnabler {
 private:
-    uint8_t pin;
+    ModuleHardware *hardware_;
 
 public:
-    PinHolder(uint8_t pin) : pin(pin) {
-        if (pin > 0) {
-            digitalWrite(pin, HIGH);
-        }
-    }
-
-    ~PinHolder() {
-        if (pin > 0) {
-            digitalWrite(pin, LOW);
-        }
-    }
+    FlashEnabler(ModuleHardware *hardware);
+    ~FlashEnabler();
 
 };
 
-struct ModuleHardware {
+class ModuleHardware {
+public:
     uint8_t flash{ 0 };
     uint8_t flash_enable{ 0 };
 
+private:
+    uint32_t minimum_enable_time_{ 0 };
+    uint32_t flash_on_{ 0 };
+    uint32_t flash_off_{ 0 };
+
+public:
     ModuleHardware() {
     }
 
     ModuleHardware(uint8_t flash) : flash(flash) {
     }
 
-    ModuleHardware(uint8_t flash, uint8_t flash_enable) : flash(flash), flash_enable(flash_enable) {
+    ModuleHardware(uint8_t flash, uint8_t flash_enable, uint32_t minimum_enable_time = 0) : flash(flash), flash_enable(flash_enable), minimum_enable_time_(minimum_enable_time) {
     }
 
-    PinHolder enable_flash() {
-        return { flash_enable };
+    friend class FlashEnabler;
+
+public:
+    void task();
+
+public:
+    FlashEnabler enable_flash() {
+        return { this };
     }
+
+private:
+    void flash_take();
+    void flash_release();
+
 };
 
 }
