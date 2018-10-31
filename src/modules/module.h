@@ -31,7 +31,21 @@ private:
     PendingReadings readings_{ *info_ };
     ModuleHardware hardware_;
     ModuleQueryMessage query_{ replyPool_ };
-    ModuleServices moduleServices_;
+    ModuleServices moduleServices_{
+        &replyPool_,
+        info_,
+        &leds_,
+        &watchdog_,
+        bus_,
+        this,
+        &twoWireChild_,
+        &flashFs_,
+        &flashState_,
+        &readings_,
+        &hardware_,
+        &query_,
+        nullptr,
+    };
 
 public:
     Module(TwoWireBus &bus, ModuleInfo &info, ModuleHardware hardware = { }) :
@@ -40,21 +54,7 @@ public:
 
 public:
     virtual void begin() {
-        moduleServices_ = {
-            &replyPool_,
-            info_,
-            &leds_,
-            &watchdog_,
-            bus_,
-            this,
-            &twoWireChild_,
-            &flashFs_,
-            &flashState_,
-            &readings_,
-            &hardware_,
-            &query_,
-            hooks(),
-        };
+        moduleServices_.hooks = hooks();
 
         ModuleServicesState::services(moduleServices_);
 
