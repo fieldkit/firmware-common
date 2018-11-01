@@ -64,6 +64,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         reply.m().capabilities.firmware.build.funcs.encode = pb_encode_string;
         reply.m().capabilities.firmware.build.arg = (void *)firmware_build_get();
         reply.m().capabilities.compiled = firmware_compiled_get();
+        reply.m().capabilities.requiredUptime = (fk_module_RequiredUptime)info->uptime;
 
         outgoing.write(reply);
 

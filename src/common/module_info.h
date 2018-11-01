@@ -47,6 +47,7 @@ struct ModuleInfo {
     SensorInfo *sensors;
     SensorReading *readings;
     uint32_t compiled;
+    uint8_t uptime;
     ModuleInfo *np;
 };
 
