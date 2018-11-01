@@ -29,6 +29,7 @@ public:
 
     void query(ModuleQueryMessage &message) override {
         message.m().type = fk_module_QueryType_QUERY_CAPABILITIES;
+        message.m().queryCapabilities.callerTime = clock.getTime();
     }
 
     void reply(ModuleReplyMessage &message) override {

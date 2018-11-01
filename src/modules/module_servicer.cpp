@@ -131,7 +131,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
                 }
             }
             if (info->readings[i].status == SensorReadingStatus::Done) {
-                log("Sending reading %d", i);
+                trace("Sending reading %d", i);
                 reply.m().readingStatus.state = fk_module_ReadingState_DONE;
                 reply.m().readingStatus.elapsed = pending.elapsed;
                 reply.m().sensorReading.sensor = i;
