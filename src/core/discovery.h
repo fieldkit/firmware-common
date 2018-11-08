@@ -8,7 +8,8 @@ namespace fk {
 
 class Discovery : public Task {
 private:
-    uint32_t pingAt{ 0 };
+    uint32_t scheduled_{ 0 };
+    uint8_t packets_{ 0 };
 
 public:
     Discovery();

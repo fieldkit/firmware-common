@@ -102,11 +102,16 @@ struct Configuration {
         #endif
     };
 
+    struct Logging {
+        bool discovery{ true };
+    };
+
     Wifi wifi;
     Gps gps;
     Schedule schedule;
     Sleeping sleeping;
     CommonConfiguration common;
+    Logging logging;
 
     #if defined(FK_NATURALIST)
     const char *display_name = "FieldKit Naturalist";

@@ -17,6 +17,8 @@ constexpr uint32_t PowerManagementAlertInterval = 1 * Minutes;
 
 constexpr uint16_t DiscoveryUdpPort = 54321;
 constexpr uint32_t DiscoveryPingInterval = 2500;
+constexpr uint32_t DiscoveryPacketInterval = 100;
+constexpr uint32_t DiscoveryPackets = 3;
 
 constexpr uint16_t WifiServerPort = 54321;
 constexpr uint32_t WifiConnectionMemory = 128;
