@@ -22,6 +22,12 @@ void NoModules::react(SchedulerEvent const &se) {
     }
 }
 
+void NoModules::entry() {
+    MainServicesState::entry();
+
+    services().watchdog->idling();
+}
+
 void NoModules::task() {
     services().alive();
 
