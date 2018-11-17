@@ -68,6 +68,16 @@ class Listen;
 class AppServicer;
 class LiveDataManager;
 
+struct WifiCheckConfig {
+    bool listening{ false };
+
+    WifiCheckConfig() {
+    }
+
+    WifiCheckConfig(bool listening) : listening(listening) {
+    }
+};
+
 struct WifiServices : MainServices {
     Wifi *wifi;
     Discovery *discovery;
@@ -76,6 +86,7 @@ struct WifiServices : MainServices {
     AppServicer *appServicer;
     LiveDataManager *liveData;
     SimpleNTP ntp;
+    WifiCheckConfig config;
 
     WifiServices(Pool *pool, Leds *leds, Watchdog *watchdog, TwoWireBus *bus, Power *power, Status *status, CoreState *state,
                  SerialFlashFileSystem *flashFs, FlashState<PersistedState> *flashState, FileSystem *fileSystem, UserButton *button,

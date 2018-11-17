@@ -6,10 +6,17 @@
 namespace fk {
 
 class WifiStartup : public WifiServicesState {
+private:
+    WifiCheckConfig config_;
+
 public:
     const char *name() const override {
         return "WifiStartup";
     }
+
+public:
+    WifiStartup();
+    WifiStartup(WifiCheckConfig config);
 
 public:
     void task() override;

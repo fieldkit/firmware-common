@@ -7,7 +7,8 @@ namespace fk {
 
 class WifiTransmitFiles :  public WifiState {
 private:
-    size_t index_{ 0 };
+    bool first_{ true };
+    uint8_t index_{ 0 };
     FileCopySettings transmissions_[2] = {
         { FileNumber::Data },
         { FileNumber::LogsA }

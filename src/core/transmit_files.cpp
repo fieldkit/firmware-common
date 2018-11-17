@@ -53,7 +53,12 @@ void WifiTransmitFiles::entry() {
 
 void WifiTransmitFiles::task() {
     if (index_ == 2) {
-        transit_into<WifiListening>();
+        if (services().config.listening) {
+            transit_into<WifiListening>();
+        }
+        else {
+            transit<WifiDisable>();
+        }
         index_ = 0;
     }
     else {

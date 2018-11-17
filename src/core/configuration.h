@@ -79,10 +79,14 @@ struct Configuration {
         lwcron::CronSpec readings{ lwcron::CronSpec::specific(0) };
         #endif
 
+        #if defined(FK_PROFILE_AMAZON)
+        lwcron::CronSpec wifi{ lwcron::CronSpec::specific(0, 10) };
+        #else
         #if defined(FK_WIFI_STARTUP_ONLY)
         lwcron::CronSpec wifi;
         #else
-        lwcron::CronSpec wifi{ lwcron::CronSpec::specific(0, 10) };
+        lwcron::CronSpec wifi{ lwcron::CronSpec::everyFiveMinutes() };
+        #endif
         #endif
 
         lwcron::CronSpec lora;

@@ -32,7 +32,7 @@ void ScanAttachedDevices::task() {
 
     if (first_) {
         first_ = false;
-        transit<WifiStartup>();
+        transit_into<WifiStartup>(WifiCheckConfig{ true });
         return;
     }
     else {

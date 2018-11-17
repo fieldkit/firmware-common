@@ -7,7 +7,7 @@ namespace fk {
 void UserWakeup::task() {
     services().fileSystem->flush();
 
-    transit<WifiStartup>();
+    transit_into<WifiStartup>(WifiCheckConfig{ true });
 }
 
 }
