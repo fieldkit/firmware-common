@@ -67,12 +67,10 @@ void Hardware::enablePeripherals() {
     #endif
 
     enableSpi();
-    enablePeripheralsI2c();
     delay(500);
 }
 
 void Hardware::disablePeripherals() {
-    disablePeripheralsI2c();
     disableSpi();
 
     #if defined(FK_CORE_GENERATION_2)
@@ -142,26 +140,12 @@ void Hardware::disableSpi() {
     }
 }
 
-void Hardware::enablePeripheralsI2c() {
-    TwoWireBus bus{ Wire };
-    bus.begin(400000);
-}
-
-void Hardware::disablePeripheralsI2c() {
-    pinMode(I2C_PIN_SDA1, INPUT);
-    pinMode(I2C_PIN_SCL1, INPUT);
-}
-
 void Hardware::enableModuleI2c() {
-    TwoWireBus bus1{ Wire };
-    bus1.begin(400000);
     TwoWireBus bus2{ Wire4and3 };
     bus2.begin(400000);
 }
 
 void Hardware::disableModuleI2c() {
-    pinMode(I2C_PIN_SDA1, INPUT);
-    pinMode(I2C_PIN_SCL1, INPUT);
     pinMode(I2C_PIN_SDA2, INPUT);
     pinMode(I2C_PIN_SCL2, INPUT);
 }

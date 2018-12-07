@@ -11,10 +11,9 @@ void LowPowerSleep::entry() {
 
     log("Sleeping, disabling modules and peripherals.");
 
-    Hardware::disableModules();
-
-    // Flush here to record the above messages.
     services().fileSystem->flush();
+
+    Hardware::disableModules();
 
     Hardware::disablePeripherals();
 
@@ -24,7 +23,7 @@ void LowPowerSleep::entry() {
 void LowPowerSleep::task() {
     auto percentage = services().power->percentage();
     if (percentage > BatteryLowPowerResumeThreshold) {
-        log("Battery: %f", percentage);
+        trace("Battery: %f", percentage);
         transit_into<RebootDevice>();
         return;
     }

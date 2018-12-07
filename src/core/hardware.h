@@ -115,9 +115,6 @@ private:
     static void disableModuleI2c();
     static void enableModuleI2c();
 
-    static void disablePeripheralsI2c();
-    static void enablePeripheralsI2c();
-
 };
 
 }
