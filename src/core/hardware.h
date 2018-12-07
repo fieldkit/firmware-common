@@ -76,6 +76,16 @@ public:
 
     static constexpr uint8_t SD_PIN_CS = 12;
 
+    static constexpr uint8_t SPI_PIN_MISO = 22; // PIN_SPI_MISO
+    static constexpr uint8_t SPI_PIN_MOSI = 23; // PIN_SPI_MOSI
+    static constexpr uint8_t SPI_PIN_SCK = 24;  // PIN_SPI_SCK
+
+    static constexpr uint8_t I2C_PIN_SDA1 = 20; // PIN_WIRE_SDA
+    static constexpr uint8_t I2C_PIN_SCL1 = 21; // PIN_WIRE_SCL
+
+    static constexpr uint8_t I2C_PIN_SDA2 = 4;
+    static constexpr uint8_t I2C_PIN_SCL2 = 3;
+
     static Uart &gpsUart;
 
     static void disableModules();
@@ -97,6 +107,17 @@ public:
     static void enableGps();
 
     static bool modulesReady();
+
+private:
+    static void disableSpi();
+    static void enableSpi();
+
+    static void disableModuleI2c();
+    static void enableModuleI2c();
+
+    static void disablePeripheralsI2c();
+    static void enablePeripheralsI2c();
+
 };
 
 }

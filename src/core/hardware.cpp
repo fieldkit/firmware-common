@@ -1,8 +1,10 @@
+#include <SPI.h>
 #include <Arduino.h>
 
 #include "hardware.h"
 #include "debug.h"
 #include "configuration.h"
+#include "two_wire.h"
 
 namespace fk {
 
@@ -23,7 +25,21 @@ Uart &Hardware::gpsUart = Serial1;
 
 #endif // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
 
+void Hardware::enableModules() {
+    #if defined(FK_CORE_GENERATION_2)
+    Logger::info("Enable modules.");
+    pinMode(MODULES_ENABLE_PIN, OUTPUT);
+    digitalWrite(MODULES_ENABLE_PIN, HIGH);
+    modules_on_at_ = fk_uptime();
+    #endif
+
+    enableModuleI2c();
+    delay(500);
+}
+
 void Hardware::disableModules() {
+    disableModuleI2c();
+
     #if defined(FK_CORE_GENERATION_2)
     Logger::info("Disabling modules.");
     pinMode(MODULES_ENABLE_PIN, OUTPUT);
@@ -32,24 +48,11 @@ void Hardware::disableModules() {
     #endif
 }
 
-void Hardware::enableModules() {
-    #if defined(FK_CORE_GENERATION_2)
-    Logger::info("Enable modules.");
-    pinMode(MODULES_ENABLE_PIN, OUTPUT);
-    digitalWrite(MODULES_ENABLE_PIN, HIGH);
-    modules_on_at_ = fk_uptime();
-    #endif
-}
-
 void Hardware::cycleModules() {
     #if defined(FK_CORE_GENERATION_2)
-    Logger::info("Cycling modules.");
-    pinMode(MODULES_ENABLE_PIN, OUTPUT);
-    digitalWrite(MODULES_ENABLE_PIN, LOW);
+    disableModules();
     delay(500);
-    digitalWrite(MODULES_ENABLE_PIN, HIGH);
-    modules_on_at_ = fk_uptime();
-    delay(500);
+    enableModules();
     #else
     Logger::info("Modules always on.");
     #endif
@@ -62,9 +65,16 @@ void Hardware::enablePeripherals() {
     digitalWrite(PERIPHERALS_ENABLE_PIN, HIGH);
     peripherals_on_at_ = fk_uptime();
     #endif
+
+    enableSpi();
+    enablePeripheralsI2c();
+    delay(500);
 }
 
 void Hardware::disablePeripherals() {
+    disablePeripheralsI2c();
+    disableSpi();
+
     #if defined(FK_CORE_GENERATION_2)
     Logger::trace("Disabling peripherals.");
     pinMode(PERIPHERALS_ENABLE_PIN, OUTPUT);
@@ -85,26 +95,11 @@ bool Hardware::peripheralsEnabled() {
 
 void Hardware::cyclePeripherals() {
     #if defined(FK_CORE_GENERATION_2)
-    Logger::trace("Cycling peripherals.");
-    pinMode(PERIPHERALS_ENABLE_PIN, OUTPUT);
-    pinMode(GPS_ENABLE_PIN, OUTPUT);
-    digitalWrite(PERIPHERALS_ENABLE_PIN, LOW);
-    digitalWrite(GPS_ENABLE_PIN, LOW);
+    disablePeripherals();
     delay(500);
-    digitalWrite(PERIPHERALS_ENABLE_PIN, HIGH);
-    digitalWrite(GPS_ENABLE_PIN, HIGH);
-    peripherals_on_at_ = fk_uptime();
-    delay(500);
+    enablePeripherals();
     #else
     Logger::info("Peripherals always on.");
-    #endif
-}
-
-void Hardware::disableGps() {
-    #if defined(FK_CORE_GENERATION_2)
-    Logger::info("Disabling GPS.");
-    pinMode(GPS_ENABLE_PIN, OUTPUT);
-    digitalWrite(GPS_ENABLE_PIN, LOW);
     #endif
 }
 
@@ -116,8 +111,59 @@ void Hardware::enableGps() {
     #endif
 }
 
+void Hardware::disableGps() {
+    #if defined(FK_CORE_GENERATION_2)
+    Logger::info("Disabling GPS.");
+    pinMode(GPS_ENABLE_PIN, OUTPUT);
+    digitalWrite(GPS_ENABLE_PIN, LOW);
+    #endif
+}
+
 bool Hardware::modulesReady() {
     return modules_on_at_ > 0 && fk_uptime() - modules_on_at_ > configuration.modules_ready_time;
+}
+
+void Hardware::enableSpi() {
+    uint8_t pins[] = { FLASH_PIN_CS, SD_PIN_CS, WIFI_PIN_CS, RFM95_PIN_CS };
+    for (auto pin : pins) {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, HIGH);
+    }
+    SPI.begin();
+}
+
+void Hardware::disableSpi() {
+    uint8_t pins[] = {
+        FLASH_PIN_CS, SD_PIN_CS, WIFI_PIN_CS, RFM95_PIN_CS,
+        SPI_PIN_MISO, SPI_PIN_MOSI, SPI_PIN_SCK,
+    };
+    for (auto pin : pins) {
+        pinMode(pin, INPUT);
+    }
+}
+
+void Hardware::enablePeripheralsI2c() {
+    TwoWireBus bus{ Wire };
+    bus.begin(400000);
+}
+
+void Hardware::disablePeripheralsI2c() {
+    pinMode(I2C_PIN_SDA1, INPUT);
+    pinMode(I2C_PIN_SCL1, INPUT);
+}
+
+void Hardware::enableModuleI2c() {
+    TwoWireBus bus1{ Wire };
+    bus1.begin(400000);
+    TwoWireBus bus2{ Wire4and3 };
+    bus2.begin(400000);
+}
+
+void Hardware::disableModuleI2c() {
+    pinMode(I2C_PIN_SDA1, INPUT);
+    pinMode(I2C_PIN_SCL1, INPUT);
+    pinMode(I2C_PIN_SDA2, INPUT);
+    pinMode(I2C_PIN_SCL2, INPUT);
 }
 
 }

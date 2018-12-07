@@ -89,15 +89,8 @@ static void dump_configuration() {
 }
 
 void Booting::task() {
-    pinMode(Hardware::SD_PIN_CS, OUTPUT);
-    pinMode(Hardware::WIFI_PIN_CS, OUTPUT);
-    pinMode(Hardware::RFM95_PIN_CS, OUTPUT);
-    pinMode(Hardware::FLASH_PIN_CS, OUTPUT);
-
-    digitalWrite(Hardware::SD_PIN_CS, HIGH);
-    digitalWrite(Hardware::WIFI_PIN_CS, HIGH);
-    digitalWrite(Hardware::RFM95_PIN_CS, HIGH);
-    digitalWrite(Hardware::FLASH_PIN_CS, HIGH);
+    Hardware::disableModules();
+    Hardware::disablePeripherals();
 
     dump_configuration();
 
