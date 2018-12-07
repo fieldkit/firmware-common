@@ -41,7 +41,7 @@ void Hardware::disableModules() {
     disableModuleI2c();
 
     #if defined(FK_CORE_GENERATION_2)
-    Logger::info("Disabling modules.");
+    Logger::trace("Disabling modules.");
     pinMode(MODULES_ENABLE_PIN, OUTPUT);
     digitalWrite(MODULES_ENABLE_PIN, LOW);
     modules_on_at_ = 0;
@@ -54,7 +54,7 @@ void Hardware::cycleModules() {
     delay(500);
     enableModules();
     #else
-    Logger::info("Modules always on.");
+    Logger::trace("Modules always on.");
     #endif
 }
 

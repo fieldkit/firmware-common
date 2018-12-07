@@ -247,6 +247,11 @@ bool FileSystem::beginFileCopy(FileCopySettings settings) {
 }
 
 bool FileSystem::flush() {
+    if (!Hardware::peripheralsEnabled()) {
+        Logger::trace("No flush, peripherals disabled.");
+        return 0;
+    }
+
     if (!files_.log_.flush()) {
         return false;
     }
