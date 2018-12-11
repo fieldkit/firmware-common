@@ -2,6 +2,7 @@
 #define FK_MODULE_H_EXTERNAL_INCLUDED
 
 #include "debug.h"
+#include "board.h"
 #include "two_wire.h"
 #include "module.h"
 #include "module_messages.h"
