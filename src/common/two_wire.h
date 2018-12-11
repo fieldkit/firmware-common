@@ -43,6 +43,16 @@ public:
     uint8_t read();
     uint8_t endTransmission();
 
+public:
+    static constexpr uint8_t I2C_PIN_SDA1 = 20; // PIN_WIRE_SDA
+    static constexpr uint8_t I2C_PIN_SCL1 = 21; // PIN_WIRE_SCL
+
+    static constexpr uint8_t I2C_PIN_SDA2 = 4;
+    static constexpr uint8_t I2C_PIN_SCL2 = 3;
+
+    static constexpr uint8_t I2C_PIN_SDA3 = 11;
+    static constexpr uint8_t I2C_PIN_SCL3 = 13;
+
 };
 
 #ifdef FK_HARDWARE_WIRE11AND13_ENABLE

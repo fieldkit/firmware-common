@@ -80,12 +80,6 @@ public:
     static constexpr uint8_t SPI_PIN_MOSI = 23; // PIN_SPI_MOSI
     static constexpr uint8_t SPI_PIN_SCK = 24;  // PIN_SPI_SCK
 
-    static constexpr uint8_t I2C_PIN_SDA1 = 20; // PIN_WIRE_SDA
-    static constexpr uint8_t I2C_PIN_SCL1 = 21; // PIN_WIRE_SCL
-
-    static constexpr uint8_t I2C_PIN_SDA2 = 4;
-    static constexpr uint8_t I2C_PIN_SCL2 = 3;
-
     static Uart &gpsUart;
 
     static void disableModules();

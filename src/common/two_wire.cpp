@@ -1,4 +1,6 @@
+#include <Arduino.h>
 #include <Wire.h>
+
 #include "wiring_private.h"
 #include "two_wire.h"
 #include "tuning.h"
@@ -51,6 +53,21 @@ bool TwoWireBus::begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRe
 
 void TwoWireBus::end() {
     bus->end();
+
+    if (bus == &Wire) {
+        pinMode(I2C_PIN_SDA1, INPUT);
+        pinMode(I2C_PIN_SDA1, INPUT);
+    }
+    else if (bus == &Wire4and3) {
+        pinMode(I2C_PIN_SDA2, INPUT);
+        pinMode(I2C_PIN_SDA2, INPUT);
+    }
+    #ifdef FK_HARDWARE_WIRE11AND13_ENABLE
+    else if (bus == &Wire11and13) {
+        pinMode(I2C_PIN_SDA3, INPUT);
+        pinMode(I2C_PIN_SDA3, INPUT);
+    }
+    #endif
 }
 
 bool TwoWireBus::send(uint8_t address, const char *ptr) {

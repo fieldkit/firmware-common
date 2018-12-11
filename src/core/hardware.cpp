@@ -146,8 +146,8 @@ void Hardware::enableModuleI2c() {
 }
 
 void Hardware::disableModuleI2c() {
-    pinMode(I2C_PIN_SDA2, INPUT);
-    pinMode(I2C_PIN_SCL2, INPUT);
+    TwoWireBus bus2{ Wire4and3 };
+    bus2.end();
 }
 
 }
