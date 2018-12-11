@@ -24,6 +24,11 @@ private:
     uint32_t flash_on_{ 0 };
     uint32_t flash_off_{ 0 };
 
+private:
+    static constexpr uint8_t SPI_PIN_MISO = 22; // PIN_SPI_MISO
+    static constexpr uint8_t SPI_PIN_MOSI = 23; // PIN_SPI_MOSI
+    static constexpr uint8_t SPI_PIN_SCK = 24;  // PIN_SPI_SCK
+
 public:
     uint8_t flash{ 0 };
     uint8_t flash_enable{ 0 };
@@ -47,9 +52,12 @@ public:
     FlashEnabler enable_flash() {
         return { this };
     }
-
     void flash_take();
     void flash_release();
+
+private:
+    void disable_spi();
+    void enable_spi();
 
 };
 

@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <SPI.h>
 
 #include "hardware.h"
 #include "platform.h"
@@ -24,6 +25,7 @@ void ModuleHardware::task() {
             if (flash_off_ > 0) {
                 if (fk_uptime() > flash_off_) {
                     Logger::info("Powering down");
+                    disable_spi();
                     digitalWrite(flash_enable, LOW);
                     flash_off_ = 0;
                 }
@@ -37,6 +39,7 @@ void ModuleHardware::flash_take() {
 
     if (flash_enable > 0) {
         Logger::info("Powering up");
+        enable_spi();
         digitalWrite(flash_enable, HIGH);
         flash_on_ = fk_uptime();
     }
@@ -53,11 +56,31 @@ void ModuleHardware::flash_release() {
                 }
                 else {
                     Logger::info("Powering down");
+                    disable_spi();
                     digitalWrite(flash_enable, LOW);
                 }
             }
         }
     }
+}
+
+void ModuleHardware::disable_spi() {
+    uint8_t pins[] = {
+        flash,
+        SPI_PIN_MISO, SPI_PIN_MOSI, SPI_PIN_SCK,
+    };
+    for (auto pin : pins) {
+        pinMode(pin, INPUT);
+    }
+}
+
+void ModuleHardware::enable_spi() {
+    uint8_t pins[] = { flash };
+    for (auto pin : pins) {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, HIGH);
+    }
+    SPI.begin();
 }
 
 }
