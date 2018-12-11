@@ -55,9 +55,6 @@ public:
 
 };
 
-#ifdef FK_HARDWARE_WIRE11AND13_ENABLE
-extern TwoWire Wire11and13;
-#endif
 extern TwoWire Wire4and3;
 
 }
