@@ -27,14 +27,6 @@ static void dump_configuration() {
     loginfof("Core", "FK_NATURALIST");
     #endif
 
-    #if defined(FK_CORE_GENERATION_2)
-    loginfof("Core", "FK_CORE_GENERATION_2");
-    #endif
-
-    #if defined(FK_CORE_GENERATION_1)
-    loginfof("Core", "FK_CORE_GENERATION_1");
-    #endif
-
     #ifdef FK_CORE_REQUIRE_MODULES
     loginfof("Core", "FK_CORE_REQUIRE_MODULES");
     #endif

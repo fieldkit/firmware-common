@@ -4,6 +4,7 @@
 #include "hardware.h"
 #include "debug.h"
 #include "configuration.h"
+#include "serial_port.h"
 #include "two_wire.h"
 
 namespace fk {
@@ -15,23 +16,13 @@ using Logger = SimpleLog<Log>;
 uint32_t Hardware::modules_on_at_ = 0;
 uint32_t Hardware::peripherals_on_at_ = 0;
 
-#if defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
-
 Uart &Hardware::gpsUart = Serial2;
 
-#else // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
-
-Uart &Hardware::gpsUart = Serial1;
-
-#endif // defined(FK_NATURALIST) || defined(FK_CORE_GENERATION_2)
-
 void Hardware::enableModules() {
-    #if defined(FK_CORE_GENERATION_2)
     Logger::info("Enable modules.");
     pinMode(MODULES_ENABLE_PIN, OUTPUT);
     digitalWrite(MODULES_ENABLE_PIN, HIGH);
     modules_on_at_ = fk_uptime();
-    #endif
 
     enableModuleI2c();
     delay(500);
@@ -40,31 +31,23 @@ void Hardware::enableModules() {
 void Hardware::disableModules() {
     disableModuleI2c();
 
-    #if defined(FK_CORE_GENERATION_2)
     Logger::trace("Disabling modules.");
     pinMode(MODULES_ENABLE_PIN, OUTPUT);
     digitalWrite(MODULES_ENABLE_PIN, LOW);
     modules_on_at_ = 0;
-    #endif
 }
 
 void Hardware::cycleModules() {
-    #if defined(FK_CORE_GENERATION_2)
     disableModules();
     delay(500);
     enableModules();
-    #else
-    Logger::trace("Modules always on.");
-    #endif
 }
 
 void Hardware::enablePeripherals() {
-    #if defined(FK_CORE_GENERATION_2)
     Logger::trace("Enabling peripherals.");
     pinMode(PERIPHERALS_ENABLE_PIN, OUTPUT);
     digitalWrite(PERIPHERALS_ENABLE_PIN, HIGH);
     peripherals_on_at_ = fk_uptime();
-    #endif
 
     enableSpi();
     delay(500);
@@ -73,48 +56,34 @@ void Hardware::enablePeripherals() {
 void Hardware::disablePeripherals() {
     disableSpi();
 
-    #if defined(FK_CORE_GENERATION_2)
     Logger::trace("Disabling peripherals.");
     pinMode(PERIPHERALS_ENABLE_PIN, OUTPUT);
     digitalWrite(PERIPHERALS_ENABLE_PIN, LOW);
     pinMode(GPS_ENABLE_PIN, OUTPUT);
     digitalWrite(GPS_ENABLE_PIN, LOW);
     peripherals_on_at_ = 0;
-    #endif
 }
 
 bool Hardware::peripheralsEnabled() {
-    #if defined(FK_CORE_GENERATION_2)
     return digitalRead(PERIPHERALS_ENABLE_PIN) == HIGH;
-    #else
-    return true;
-    #endif
 }
 
 void Hardware::cyclePeripherals() {
-    #if defined(FK_CORE_GENERATION_2)
     disablePeripherals();
     delay(500);
     enablePeripherals();
-    #else
-    Logger::info("Peripherals always on.");
-    #endif
 }
 
 void Hardware::enableGps() {
-    #if defined(FK_CORE_GENERATION_2)
     Logger::info("Enabling GPS.");
     pinMode(GPS_ENABLE_PIN, OUTPUT);
     digitalWrite(GPS_ENABLE_PIN, HIGH);
-    #endif
 }
 
 void Hardware::disableGps() {
-    #if defined(FK_CORE_GENERATION_2)
     Logger::info("Disabling GPS.");
     pinMode(GPS_ENABLE_PIN, OUTPUT);
     digitalWrite(GPS_ENABLE_PIN, LOW);
-    #endif
 }
 
 bool Hardware::modulesReady() {
