@@ -8,34 +8,34 @@
 
 namespace fk {
 
-void LowLevelBoard::disable_cs(uint8_t pin) {
+void Board::disable_cs(uint8_t pin) {
     pinMode(pin, INPUT);
 }
 
-void LowLevelBoard::enable_cs(uint8_t pin) {
+void Board::enable_cs(uint8_t pin) {
     pinMode(pin, OUTPUT);
     digitalWrite(pin, HIGH);
 }
 
-void LowLevelBoard::low(uint8_t pin) {
+void Board::low(uint8_t pin) {
     pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
 }
 
-void LowLevelBoard::high(uint8_t pin) {
+void Board::high(uint8_t pin) {
     pinMode(pin, OUTPUT);
     digitalWrite(pin, HIGH);
 }
 
-SpiWrapper LowLevelBoard::spi() {
+SpiWrapper Board::spi() {
     return SpiWrapper::spi();
 }
 
-TwoWireWrapper LowLevelBoard::i2c1() {
+TwoWireWrapper Board::i2c1() {
     return TwoWireWrapper::i2c1();
 }
 
-TwoWireWrapper LowLevelBoard::i2c2() {
+TwoWireWrapper Board::i2c2() {
     return TwoWireWrapper::i2c2();
 }
 

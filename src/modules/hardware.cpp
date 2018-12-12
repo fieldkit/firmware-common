@@ -32,6 +32,7 @@ void ModuleHardware::task() {
             if (fk_uptime() > flash_off_) {
                 Logger::info("Powering down");
                 board.disable_spi();
+                flash_on_ = 0;
                 flash_off_ = 0;
             }
         }
@@ -42,8 +43,9 @@ void ModuleHardware::flash_take() {
     if (flash_refs_ == 0) {
         Logger::info("Powering up");
         board.enable_spi();
+        flash_on_ = fk_uptime();
+        flash_off_ = 0;
     }
-    flash_on_ = fk_uptime();
 
     flash_refs_++;
 }
@@ -53,7 +55,7 @@ void ModuleHardware::flash_release() {
         flash_refs_--;
 
         if (flash_refs_ == 0) {
-            if (500 > 0) {
+            if (500 > fk_uptime() - flash_on_) {
                 flash_off_ = flash_on_ + 500;
             }
             else {

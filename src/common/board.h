@@ -48,27 +48,7 @@ public:
 
 };
 
-class LowLevelBoard {
-public:
-    SpiWrapper spi();
-    TwoWireWrapper i2c1();
-    TwoWireWrapper i2c2();
-
-public:
-    virtual void enable_everything() { }
-    virtual void disable_everything() { }
-    virtual void enable_spi() { }
-    virtual void disable_spi() { }
-
-protected:
-    void low(uint8_t pin);
-    void high(uint8_t pin);
-    void disable_cs(uint8_t pin);
-    void enable_cs(uint8_t pin);
-
-};
-
-class Board : LowLevelBoard {
+class Board {
 private:
     BoardConfig config_;
 
@@ -77,11 +57,16 @@ public:
     }
 
 public:
+    SpiWrapper spi();
+    TwoWireWrapper i2c1();
+    TwoWireWrapper i2c2();
+
+public:
     uint8_t flash_cs() const {
         return config_.spi_flash_cs;
     }
 
-    void disable_spi() override {
+    void disable_spi() {
         for (auto pin : config_.all_spi_cs) {
             if (pin == 0) {
                 break;
@@ -92,7 +77,7 @@ public:
         spi().end();
     }
 
-    void enable_spi() override {
+    void enable_spi() {
         for (auto pin : config_.all_spi_cs) {
             if (pin == 0) {
                 break;
@@ -104,7 +89,7 @@ public:
     }
 
 public:
-    void disable_everything() override {
+    void disable_everything() {
         disable_spi();
         for (auto pin : config_.all_enables) {
             if (pin == 0) {
@@ -115,7 +100,7 @@ public:
         i2c1().end();
     }
 
-    void enable_everything() override {
+    void enable_everything() {
         enable_spi();
         for (auto pin : config_.all_enables) {
             if (pin == 0) {
@@ -125,6 +110,12 @@ public:
         }
         i2c1().begin();
     }
+
+protected:
+    void low(uint8_t pin);
+    void high(uint8_t pin);
+    void disable_cs(uint8_t pin);
+    void enable_cs(uint8_t pin);
 };
 
 }
