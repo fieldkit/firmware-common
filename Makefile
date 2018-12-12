@@ -7,17 +7,17 @@ core/config.h:
 	cp core/config.h.template core/config.h
 
 all: $(BUILD)/Makefile
-	cd $(BUILD) && make all
+	$(MAKE) -C $(BUILD) all
 
 $(BUILD)/Makefile: gitdeps core/config.h seed
 	mkdir -p $(BUILD)
 	cd $(BUILD) && cmake ../
 
 doc: $(BUILD)/Makefile
-	cd $(BUILD) && make doc
+	$(MAKE) -C $(BUILD) doc
 
 test: $(BUILD)/Makefile
-	cd $(BUILD) && env GTEST_OUTPUT="xml:$(BUILD)/tests.xml" GTEST_COLOR=1 make testcommon test ARGS="-VV"
+	env GTEST_OUTPUT="xml:$(BUILD)/tests.xml" GTEST_COLOR=1 $(MAKE) -C $(BUILD) testcommon test ARGS="-VV"
 
 seed:
 	echo "// Generated before compile time to seed the RNG." > core/seed.h
