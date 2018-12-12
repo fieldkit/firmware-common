@@ -14,7 +14,7 @@ constexpr const char Log[] = "Hardware";
 
 using Logger = SimpleLog<Log>;
 
-FlashEnabler ModuleHardware::enable_flash() {
+SpiEnabler ModuleHardware::enable_spi() {
     return { this };
 }
 
@@ -33,26 +33,26 @@ void ModuleHardware::task() {
     }
 }
 
-void ModuleHardware::flash_take() {
+void ModuleHardware::spi_take() {
     if (spi_power_.take()) {
         Logger::info("SPI on");
         board.enable_spi();
     }
 }
 
-void ModuleHardware::flash_release() {
+void ModuleHardware::spi_release() {
     if (spi_power_.release()) {
         Logger::info("SPI off");
         board.disable_spi();
     }
 }
 
-FlashEnabler::FlashEnabler(ModuleHardware *hardware) : hardware_(hardware) {
-    hardware_->flash_take();
+SpiEnabler::SpiEnabler(ModuleHardware *hardware) : hardware_(hardware) {
+    hardware_->spi_take();
 }
 
-FlashEnabler::~FlashEnabler() {
-    hardware_->flash_release();
+SpiEnabler::~SpiEnabler() {
+    hardware_->spi_release();
 }
 
 bool PowerSwitch::take() {

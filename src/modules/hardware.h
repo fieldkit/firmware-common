@@ -7,13 +7,13 @@ namespace fk {
 
 class ModuleHardware;
 
-class FlashEnabler {
+class SpiEnabler {
 private:
     ModuleHardware *hardware_;
 
 public:
-    FlashEnabler(ModuleHardware *hardware);
-    ~FlashEnabler();
+    SpiEnabler(ModuleHardware *hardware);
+    ~SpiEnabler();
 
 };
 
@@ -46,11 +46,11 @@ public:
     void task();
 
 public:
-    FlashEnabler enable_flash();
+    SpiEnabler enable_spi();
     bool has_flash();
     uint8_t flash_cs();
-    void flash_take();
-    void flash_release();
+    void spi_take();
+    void spi_release();
 
 };
 

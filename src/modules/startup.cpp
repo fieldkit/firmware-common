@@ -28,7 +28,7 @@ void Booting::setupFlash() {
     auto hw = services().hardware;
 
     if (hw->has_flash()) {
-        auto enableFlash = services().hardware->enable_flash();
+        auto enableSpi = services().hardware->enable_spi();
         auto flashFs = services().flashFs;
         auto flashState = services().flashState;
 

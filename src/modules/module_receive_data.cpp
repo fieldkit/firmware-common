@@ -20,7 +20,7 @@ ModuleReceiveData::ModuleReceiveData(ModuleCopySettings settings) : settings_(se
 void ModuleReceiveData::task() {
     FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
 
-    auto enableFlash = services().hardware->enable_flash();
+    auto enableSpi = services().hardware->enable_spi();
     auto fileWriter = firmwareStorage.write();
     auto writer = Crc32Writer{ *fileWriter };
     auto child = services().child;

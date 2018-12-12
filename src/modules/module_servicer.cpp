@@ -165,7 +165,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
             query.m().data.size, query.m().data.kind,
             query.m().data.bank, (const char *)query.m().data.etag.arg);
 
-        auto enableFlash = services().hardware->enable_flash();
+        auto enableSpi = services().hardware->enable_spi();
         auto failed = false;
 
         log("Reclaim...");
@@ -206,7 +206,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
     }
     case fk_module_QueryType_QUERY_DATA_VERIFY: {
         auto checksumData = (pb_data_t *)query.m().data.checksum.arg;
-        auto enableFlash = services().hardware->enable_flash();
+        auto enableSpi = services().hardware->enable_spi();
         auto bank = (FirmwareBank)query.m().data.bank;
         auto expectedSize = query.m().data.size;
 
@@ -276,7 +276,7 @@ void ModuleServicer::handle(ModuleQueryMessage &query) {
         ModuleReplyMessage reply(*pool);
         reply.m().type = fk_module_ReplyType_REPLY_FIRMWARE;
 
-        auto enableFlash = services().hardware->enable_flash();
+        auto enableSpi = services().hardware->enable_spi();
 
         FirmwareStorage firmwareStorage{ *services().flashState, *services().flashFs };
         firmware_header_t header;
