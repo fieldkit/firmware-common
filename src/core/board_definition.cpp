@@ -4,7 +4,7 @@
 
 namespace fk {
 
-Board<BoardConfig<4, 2>> board{
+Board board{
     {
         Hardware::PERIPHERALS_ENABLE_PIN,
         Hardware::FLASH_PIN_CS,
@@ -17,6 +17,8 @@ Board<BoardConfig<4, 2>> board{
         {
             Hardware::PERIPHERALS_ENABLE_PIN,
             Hardware::GPS_ENABLE_PIN,
+            0,
+            0,
         }
     }
 };

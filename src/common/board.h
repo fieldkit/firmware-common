@@ -6,12 +6,11 @@
 
 namespace fk {
 
-template<size_t NCS, size_t NE>
 struct BoardConfig {
     uint8_t spi_enable;
     uint8_t spi_flash_cs;
-    uint8_t all_spi_cs[NCS];
-    uint8_t all_enables[NE];
+    uint8_t all_spi_cs[4];
+    uint8_t all_enables[4];
 };
 
 class SpiWrapper {
@@ -51,36 +50,53 @@ public:
 
 class LowLevelBoard {
 public:
-    void low(uint8_t pin);
-    void high(uint8_t pin);
-    void disable_cs(uint8_t pin);
-    void enable_cs(uint8_t pin);
     SpiWrapper spi();
     TwoWireWrapper i2c1();
     TwoWireWrapper i2c2();
 
+public:
+    virtual void enable_everything() { }
+    virtual void disable_everything() { }
+    virtual void enable_spi() { }
+    virtual void disable_spi() { }
+
+protected:
+    void low(uint8_t pin);
+    void high(uint8_t pin);
+    void disable_cs(uint8_t pin);
+    void enable_cs(uint8_t pin);
+
 };
 
-template<class BC>
 class Board : LowLevelBoard {
 private:
-    BC config_;
+    BoardConfig config_;
 
 public:
-    Board(BC config) : config_(config) {
+    Board(BoardConfig config) : config_(config) {
     }
 
 public:
-    void disable_spi() {
+    uint8_t flash_cs() const {
+        return config_.spi_flash_cs;
+    }
+
+    void disable_spi() override {
         for (auto pin : config_.all_spi_cs) {
+            if (pin == 0) {
+                break;
+            }
             disable_cs(pin);
         }
         low(config_.spi_enable);
         spi().end();
     }
 
-    void enable_spi() {
+    void enable_spi() override {
         for (auto pin : config_.all_spi_cs) {
+            if (pin == 0) {
+                break;
+            }
             enable_cs(pin);
         }
         high(config_.spi_enable);
@@ -88,17 +104,23 @@ public:
     }
 
 public:
-    void disable_everything() {
+    void disable_everything() override {
         disable_spi();
         for (auto pin : config_.all_enables) {
+            if (pin == 0) {
+                break;
+            }
             low(pin);
         }
         i2c1().end();
     }
 
-    void enable_everything() {
+    void enable_everything() override {
         enable_spi();
         for (auto pin : config_.all_enables) {
+            if (pin == 0) {
+                break;
+            }
             high(pin);
         }
         i2c1().begin();

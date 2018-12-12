@@ -5,7 +5,7 @@
 
 namespace fk {
 
-extern Board<BoardConfig<4, 2>> board;
+extern Board board;
 
 }
 

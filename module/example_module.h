@@ -35,4 +35,10 @@ public:
 
 }
 
+namespace fk {
+
+extern Board board;
+
+}
+
 #endif

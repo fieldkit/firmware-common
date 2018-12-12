@@ -27,15 +27,14 @@ void Booting::task() {
 void Booting::setupFlash() {
     auto hw = services().hardware;
 
-    if (hw->flash > 0) {
+    if (hw->has_flash()) {
+        auto enableFlash = services().hardware->enable_flash();
         auto flashFs = services().flashFs;
         auto flashState = services().flashState;
 
-        if (hw->flash_enable > 0) {
-            digitalWrite(hw->flash_enable, HIGH);
-        }
+        delay(100);
 
-        if (!flashFs->initialize(hw->flash, SuperBlockSize)) {
+        if (!flashFs->initialize(hw->flash_cs(), SuperBlockSize)) {
             log("Flash unavailable.");
             fk_assert(false);
         }
@@ -48,10 +47,6 @@ void Booting::setupFlash() {
         if (!flashFs->reclaim(*flashState)) {
             log("Flash reclaim failed.");
             fk_assert(false);
-        }
-
-        if (hw->flash_enable > 0) {
-            digitalWrite(hw->flash_enable, LOW);
         }
     }
     else {

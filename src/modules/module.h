@@ -48,8 +48,8 @@ private:
     };
 
 public:
-    Module(TwoWireBus &bus, ModuleInfo &info, ModuleHardware hardware = { }) :
-        bus_(&bus), info_(&info), twoWireChild_(bus, info.address), hardware_(hardware) {
+    Module(TwoWireBus &bus, ModuleInfo &info) :
+        bus_(&bus), info_(&info), twoWireChild_(bus, info.address) {
     }
 
 public:

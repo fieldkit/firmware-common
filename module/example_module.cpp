@@ -13,7 +13,30 @@ void TakeSensorReadings::task() {
 }
 
 ExampleModule::ExampleModule(fk::ModuleInfo &info) :
-    Module(bus, info, { 6 }) {
+    Module(bus, info) {
 }
+
+}
+
+namespace fk {
+
+Board board{
+    {
+        0,
+        0,
+        {
+            0,
+            0,
+            0,
+            0,
+        },
+        {
+            0,
+            0,
+            0,
+            0,
+        }
+    }
+};
 
 }
