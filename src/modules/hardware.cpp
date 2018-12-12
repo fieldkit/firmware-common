@@ -8,11 +8,11 @@
 
 namespace fk {
 
+extern Board board;
+
 constexpr const char Log[] = "Hardware";
 
 using Logger = SimpleLog<Log>;
-
-extern Board board;
 
 FlashEnabler ModuleHardware::enable_flash() {
     return { this };
@@ -27,44 +27,23 @@ uint8_t ModuleHardware::flash_cs() {
 }
 
 void ModuleHardware::task() {
-    if (flash_refs_ == 0) {
-        if (flash_off_ > 0) {
-            if (fk_uptime() > flash_off_) {
-                Logger::info("Powering down");
-                board.disable_spi();
-                flash_on_ = 0;
-                flash_off_ = 0;
-            }
-        }
+    if (spi_power_.task()) {
+        Logger::info("SPI off");
+        board.disable_spi();
     }
 }
 
 void ModuleHardware::flash_take() {
-    if (flash_refs_ == 0) {
-        Logger::info("Powering up");
+    if (spi_power_.take()) {
+        Logger::info("SPI on");
         board.enable_spi();
-        flash_on_ = fk_uptime();
-        flash_off_ = 0;
     }
-
-    flash_refs_++;
 }
 
 void ModuleHardware::flash_release() {
-    if (flash_refs_ > 0) {
-        flash_refs_--;
-
-        if (flash_refs_ == 0) {
-            if (500 > fk_uptime() - flash_on_) {
-                flash_off_ = flash_on_ + 500;
-            }
-            else {
-                Logger::info("Powering down");
-                board.disable_spi();
-                flash_on_ = 0;
-                flash_off_ = 0;
-            }
-        }
+    if (spi_power_.release()) {
+        Logger::info("SPI off");
+        board.disable_spi();
     }
 }
 
@@ -74,6 +53,57 @@ FlashEnabler::FlashEnabler(ModuleHardware *hardware) : hardware_(hardware) {
 
 FlashEnabler::~FlashEnabler() {
     hardware_->flash_release();
+}
+
+bool PowerSwitch::take() {
+    auto taken = false;
+
+    if (refs_ == 0) {
+        taken = true;
+        time_on_ = fk_uptime();
+        time_off_ = 0;
+    }
+
+    refs_++;
+
+    return taken;
+}
+
+bool PowerSwitch::release() {
+    bool released = false;
+
+    if (refs_ > 0) {
+        refs_--;
+
+        if (refs_ == 0) {
+            if (minimum_on_ > 0 && minimum_on_ > fk_uptime() - time_on_) {
+                time_off_ = time_on_ + minimum_on_;
+            }
+            else {
+                released = true;
+                time_on_ = 0;
+                time_off_ = 0;
+            }
+        }
+    }
+
+    return released;
+}
+
+bool PowerSwitch::task() {
+    bool released = false;
+
+    if (refs_ == 0) {
+        if (time_off_ > 0) {
+            if (fk_uptime() > time_off_) {
+                time_on_ = 0;
+                time_off_ = 0;
+                released = true;
+            }
+        }
+    }
+
+    return released;
 }
 
 }

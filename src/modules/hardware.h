@@ -17,11 +17,27 @@ public:
 
 };
 
+class PowerSwitch {
+private:
+    uint8_t refs_{ 0 };
+    uint32_t time_on_{ 0 };
+    uint32_t time_off_{ 0 };
+    uint16_t minimum_on_{ 0 };
+
+public:
+    PowerSwitch(uint16_t minimum_on = 0) : minimum_on_(minimum_on) {
+    }
+
+public:
+    bool take();
+    bool release();
+    bool task();
+
+};
+
 class ModuleHardware {
 private:
-    uint8_t flash_refs_{ 0 };
-    uint32_t flash_on_{ 0 };
-    uint32_t flash_off_{ 0 };
+    PowerSwitch spi_power_;
 
 public:
     friend class FlashEnabler;
