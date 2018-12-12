@@ -29,9 +29,11 @@ public:
     }
 
 public:
+    bool has_been_on_for(uint32_t time) const;
     bool take();
     bool release();
     bool task();
+    bool touch();
 
 };
 

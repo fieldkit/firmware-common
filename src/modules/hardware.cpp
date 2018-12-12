@@ -55,6 +55,10 @@ SpiEnabler::~SpiEnabler() {
     hardware_->spi_release();
 }
 
+bool PowerSwitch::has_been_on_for(uint32_t time) const {
+    return time_on_ > 0 && fk_uptime() - time_on_ > time;
+}
+
 bool PowerSwitch::take() {
     auto taken = false;
 
@@ -73,18 +77,30 @@ bool PowerSwitch::release() {
     bool released = false;
 
     if (refs_ > 0) {
-        refs_--;
-
-        if (refs_ == 0) {
-            if (minimum_on_ > 0 && minimum_on_ > fk_uptime() - time_on_) {
-                time_off_ = time_on_ + minimum_on_;
+        if (refs_ == 1) {
+            if (time_off_ > 0) {
+                if (fk_uptime() > time_off_) {
+                    released = true;
+                }
+            }
+            else if (minimum_on_ > 0) {
+                if (time_off_ == 0) {
+                    time_off_ = time_on_ + minimum_on_;
+                }
             }
             else {
                 released = true;
-                time_on_ = 0;
-                time_off_ = 0;
             }
         }
+        else {
+            refs_--;
+        }
+    }
+
+    if (released) {
+        time_on_ = 0;
+        time_off_ = 0;
+        refs_ = 0;
     }
 
     return released;
@@ -93,17 +109,20 @@ bool PowerSwitch::release() {
 bool PowerSwitch::task() {
     bool released = false;
 
-    if (refs_ == 0) {
-        if (time_off_ > 0) {
-            if (fk_uptime() > time_off_) {
-                time_on_ = 0;
-                time_off_ = 0;
-                released = true;
-            }
-        }
+    if (time_off_ > 0 && fk_uptime() > time_off_) {
+        time_on_ = 0;
+        time_off_ = 0;
+        refs_ = 0;
+        released = true;
     }
 
     return released;
+}
+
+bool PowerSwitch::touch() {
+    time_off_ = fk_uptime() + minimum_on_;
+
+    return false;
 }
 
 }
