@@ -56,7 +56,11 @@ SpiEnabler::~SpiEnabler() {
 }
 
 bool PowerSwitch::has_been_on_for(uint32_t time) const {
-    return time_on_ > 0 && fk_uptime() - time_on_ > time;
+    return on() && fk_uptime() - time_on_ > time;
+}
+
+bool PowerSwitch::on() const {
+    return time_on_ > 0;
 }
 
 bool PowerSwitch::take() {

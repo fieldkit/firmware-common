@@ -14,6 +14,16 @@ using WireOnReceiveHandler = void (*)(int);
 
 using WireOnRequestHandler = void (*)(void);
 
+union TwoWire16 {
+    uint8_t bytes[2];
+    uint16_t u16;
+};
+
+union TwoWire32 {
+    uint8_t bytes[4];
+    uint32_t u32;
+};
+
 class TwoWireBus {
 private:
     TwoWire *bus;
@@ -30,9 +40,15 @@ public:
 public:
     bool begin(uint32_t speed = 0);
     bool begin(uint8_t address, WireOnReceiveHandler onReceive, WireOnRequestHandler onRequest);
+    bool send(uint8_t address, uint8_t value);
+    bool write(uint8_t address, uint8_t reg, uint8_t value);
+    bool write(uint8_t address, uint8_t reg, uint16_t value);
+    uint8_t read(uint8_t address, uint8_t reg);
     bool send(uint8_t address, const char *ptr);
     bool send(uint8_t address, const void *ptr, size_t size);
     size_t receive(uint8_t address, uint8_t *ptr, size_t size);
+    size_t receive(uint8_t address, TwoWire16 &data);
+    size_t receive(uint8_t address, TwoWire32 &data);
     size_t read(uint8_t *ptr, size_t size, size_t bytes);
     void flush();
     void end();

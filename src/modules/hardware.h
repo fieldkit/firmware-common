@@ -30,6 +30,7 @@ public:
 
 public:
     bool has_been_on_for(uint32_t time) const;
+    bool on() const;
     bool take();
     bool release();
     bool task();
