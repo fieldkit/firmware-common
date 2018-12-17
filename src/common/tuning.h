@@ -68,7 +68,7 @@ constexpr uint32_t WifiNtpMaximumWait = 10 * Seconds;
 constexpr uint32_t MaximumWaitBeforeReturnToIdle = 70 * Minutes;
 constexpr uint32_t ModuleIdleRebootInterval = 120 * Minutes;
 
-constexpr uint32_t LivePollInactivity = 10 * Seconds;
+constexpr uint32_t LivePollInactivity = 30 * Seconds;
 
 constexpr uint16_t SuperBlockSize = 2048;
 

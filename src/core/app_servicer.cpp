@@ -11,7 +11,6 @@
 #include "live_data.h"
 #include "wifi_download_file.h"
 #include "wifi_query_module.h"
-#include "wifi_live_data.h"
 
 namespace fk {
 

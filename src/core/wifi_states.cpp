@@ -23,7 +23,7 @@ void WifiState::serve() {
     services().discovery->task();
     services().scheduledTasks();
 
-    if (services().liveData->takeReading()) {
+    if (services().liveData->is_ready_for_reading()) {
         transit<LiveDataReading>();
     }
 }
