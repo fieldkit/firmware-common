@@ -6,17 +6,17 @@ default: all test
 core/config.h:
 	cp core/config.h.template core/config.h
 
-all: $(BUILD)/Makefile
-	$(MAKE) -C $(BUILD) all
-
 $(BUILD)/Makefile: gitdeps core/config.h seed
 	mkdir -p $(BUILD)
 	cd $(BUILD) && cmake ../
 
+all: $(BUILD)/Makefile
+	$(MAKE) -C $(BUILD) all
+
 doc: $(BUILD)/Makefile
 	$(MAKE) -C $(BUILD) doc
 
-test: $(BUILD)/Makefile
+test: all
 	env GTEST_OUTPUT="xml:$(BUILD)/tests.xml" GTEST_COLOR=1 $(MAKE) -C $(BUILD) testcommon test ARGS="-VV"
 
 seed:
