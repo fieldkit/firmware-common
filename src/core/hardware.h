@@ -33,6 +33,7 @@ public:
     static constexpr uint8_t WIFI_PIN_RST = 15;
     static constexpr uint8_t WIFI_PIN_EN = 38;
     static constexpr uint8_t WIFI_PIN_WAKE = 8;
+
     static constexpr uint8_t RFM95_PIN_CS = 5;
     static constexpr uint8_t RFM95_PIN_RESET = 3;
     static constexpr uint8_t RFM95_PIN_ENABLE = 0;
