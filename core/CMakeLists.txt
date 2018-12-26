@@ -24,66 +24,14 @@ add_definitions("-DFIRMWARE_GIT_HASH=\"${GIT_COMMIT_HASH}\"")
 add_definitions("-DFIRMWARE_GIT_BRANCH=\"${GIT_BRANCH}\"")
 add_definitions("-DFIRMWARE_BUILD=\"$ENV{BUILD_TAG}\"")
 
-set(sources main.cpp)
+file(GLOB sources *.cpp)
 
-add_arduino_library(fk-core "${sources}")
+add_arduino_library(fk-example-core-standard "${sources}")
 
-fk_configure_core(fk-core)
+fk_configure_core(fk-example-core-standard)
 
-fk_core_apply_configuration(fk-core)
+fk_core_apply_configuration(fk-example-core-standard)
 
-fk_write_profile(fk-core)
+fk_write_profile(fk-example-core-standard)
 
-add_arduino_firmware(fk-core)
-
-option(FK_PROFILE_STANDARD "Standard Profile" ON)
-if(FK_PROFILE_STANDARD)
-  add_arduino_library(fk-core-standard "${sources}")
-
-  fk_configure_core(fk-core-standard)
-
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_PROFILE_STANDARD)
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_CORE)
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_DEBUG_UART_FALLBACK)
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_ENABLE_FLASH)
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_DISABLE_RADIO)
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_RTC_PCF8523)
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_HARDWARE_SERIAL2_ENABLE)
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_GPS_FIXED_STATION)
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_ENABLE_LOW_POWER_SLEEP)
-  target_compile_options(firmware-common-fk-core-standard PUBLIC -DFK_ENABLE_DEEP_SLEEP)
-
-  fk_write_profile(fk-core-standard)
-
-  target_compile_options(fk-core-standard PUBLIC -Wall -Werror)
-
-  add_arduino_firmware(fk-core-standard)
-endif(FK_PROFILE_STANDARD)
-
-option(FK_PROFILE_AMAZON "Amazon Profile" ON)
-if(FK_PROFILE_AMAZON)
-  add_arduino_library(fk-core-amazon "${sources}")
-
-  fk_configure_core(fk-core-amazon)
-
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_PROFILE_AMAZON)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_CORE)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_DEBUG_UART_FALLBACK)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_ENABLE_FLASH)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_DISABLE_RADIO)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_RTC_PCF8523)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_HARDWARE_SERIAL2_ENABLE)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_GPS_FIXED_STATION)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_ENABLE_LOW_POWER_SLEEP)
-  target_compile_options(firmware-common-fk-core-amazon PUBLIC -DFK_ENABLE_DEEP_SLEEP)
-
-  fk_write_profile(fk-core-amazon)
-
-  target_compile_options(fk-core-amazon PUBLIC -Wall -Werror)
-
-  add_arduino_firmware(fk-core-amazon)
-endif(FK_PROFILE_AMAZON)
-
-option(FK_DEBUG_INSTRUMENTATION "Enable function instrumentation." OFF)
-if(FK_DEBUG_INSTRUMENTATION)
-endif(FK_DEBUG_INSTRUMENTATION)
+add_arduino_firmware(fk-example-core-standard)

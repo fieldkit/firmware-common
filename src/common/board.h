@@ -89,7 +89,7 @@ public:
     }
 
 public:
-    void disable_everything() {
+    virtual void disable_everything() {
         disable_spi();
         for (auto pin : config_.all_enables) {
             if (pin == 0) {
@@ -100,7 +100,7 @@ public:
         i2c1().end();
     }
 
-    void enable_everything() {
+    virtual void enable_everything() {
         enable_spi();
         for (auto pin : config_.all_enables) {
             if (pin == 0) {

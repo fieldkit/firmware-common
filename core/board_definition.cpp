@@ -4,7 +4,7 @@
 
 namespace fk {
 
-Board board{
+CoreBoard board{
     {
         Hardware::PERIPHERALS_ENABLE_PIN,
         Hardware::FLASH_PIN_CS,

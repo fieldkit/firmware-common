@@ -8,8 +8,8 @@ find_package(FkModule)
 
 set(sources main.cpp example_module.cpp)
 
-add_arduino_library(fk-testing-module-standard "${sources}")
+add_arduino_library(fk-example-module-standard "${sources}")
 
-fk_configure_module(fk-testing-module-standard)
+fk_configure_module(fk-example-module-standard)
 
-add_arduino_firmware(fk-testing-module-standard)
+add_arduino_firmware(fk-example-module-standard)
