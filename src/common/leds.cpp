@@ -190,6 +190,12 @@ bool Leds::disabled() {
     return fk_uptime() > configuration.common.leds.disable_after;
 }
 
+void Leds::off() {
+    pushAnimation(disabled(), LedAnimation{ });
+    pixel_.setPixelColor(0, 0);
+    pixel_.show();
+}
+
 void Leds::notifyAlive() {
     pushAnimation(disabled(), LedAnimation{ AnimationType::Fade, Priority::Normal, get_color(0, 0, 255), 500, 500 });
 }

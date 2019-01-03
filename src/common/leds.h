@@ -29,6 +29,7 @@ public:
     void notifyButtonLong();
     void notifyButtonShort();
     void notifyButtonReleased();
+    void off();
 
 private:
     bool disabled();
