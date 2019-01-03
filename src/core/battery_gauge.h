@@ -12,11 +12,6 @@ public:
         float current;
         float charge;
         uint16_t counter;
-
-        int16_t voltage_s16;
-        int16_t current_s16;
-        int16_t charge_s16;
-        int16_t counter_s16;
     };
 
 public:
@@ -26,12 +21,6 @@ public:
 
 public:
     BatteryReading read();
-
-private:
-    union data16_t {
-        uint8_t bytes[2];
-        uint16_t u16;
-    };
 
 };
 

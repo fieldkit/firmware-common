@@ -80,17 +80,13 @@ bool BatteryGauge::disable() {
 typedef union {
     uint8_t bytes[32];
 
-    struct {
+    struct __attribute__ ((packed)) {
         uint8_t mode;
         uint8_t control_status;
-        uint8_t charge_low;
-        uint8_t charge_high;
-        uint8_t counter_low;
-        uint8_t counter_high;
-        uint8_t current_low;
-        uint8_t current_high;
-        uint8_t voltage_low;
-        uint8_t voltage_high;
+        int16_t charge;
+        uint16_t counter_u16;
+        int16_t current;
+        int16_t voltage;
         uint8_t temperature_low;
         uint8_t temperature_high;
         uint8_t reserved[13];
@@ -105,13 +101,6 @@ typedef union {
     };
 } registers_t;
 
-#define SENSERESISTOR 30
-#define CurrentFactor  (48210/SENSERESISTOR)
-// LSB=11.77uV/R= ~48210/R/4096 - convert to mA
-#define ChargeCountFactor  (27443/SENSERESISTOR)
-// LSB=6.7uVh/R ~27443/R/4096 - converter to mAh
-#define VoltageFactor 9994
-
 BatteryGauge::BatteryReading BatteryGauge::read() {
     registers_t registers;
 
@@ -120,46 +109,35 @@ BatteryGauge::BatteryReading BatteryGauge::read() {
     Wire.endTransmission();
     Wire.requestFrom(STC3100_ADDRESS, sizeof(registers));
 
-    for (size_t i = 0; i < sizeof(registers); ++i) {
+    for (size_t i = 0; i < sizeof(registers_t); ++i) {
         registers.bytes[i] = Wire.read();
     }
 
-    data16_t data;
+    // Truncate and convert to signed.
+    registers.current &= 0x3fff;
+    if (registers.current >= 0x2000) registers.current -= 0x4000;
 
-    data.bytes[0] = registers.current_low;
-    data.bytes[1] = registers.current_high;
+    auto current = (float)(registers.current) * STC3100_CURRENT_LSB / STC3100_CURRENT_RSENSE;
 
-    auto current = (float)(data.u16 & 0x3fff) * STC3100_CURRENT_LSB / STC3100_CURRENT_RSENSE;
-    auto current_s16 = (((uint32_t)data.u16) * CurrentFactor) >> 12;
+    // Truncate and convert to signed.
+    registers.voltage &= 0x0fff;
+    if (registers.voltage >= 0x0800) registers.voltage -= 0x1000;
 
-    data.bytes[0] = registers.voltage_low;
-    data.bytes[1] = registers.voltage_high;
+    auto voltage = (float)(registers.voltage) * STC3100_VOLTAGE_LSB;
 
-    auto voltage = (float)(data.u16) * STC3100_VOLTAGE_LSB;
-    auto voltage_s16 = (((uint32_t)data.u16) * VoltageFactor) >> 12;
+    // Truncate and convert to signed.
+    registers.charge &= 0x0fff;
+    if (registers.charge >= 0x0800) registers.charge -= 0x1000;
 
-    data.bytes[0] = registers.charge_low;
-    data.bytes[1] = registers.charge_high;
+    auto charge = (float)(registers.charge) * STC3100_CHARGE_LSB / STC3100_CHARGE_RSENSE;
 
-    auto charge = (float)(data.u16) * STC3100_CHARGE_LSB / STC3100_CHARGE_RSENSE;
-    auto charge_s16 = (((uint32_t)data.u16) * ChargeCountFactor) >> 12;
-
-    data.bytes[0] = registers.counter_low;
-    data.bytes[1] = registers.counter_high;
-
-    auto counter = data.u16;
-    auto counter_s16 = (data.u16);
+    auto counter = registers.counter_u16;
 
     return {
         voltage,
         current,
         charge,
         counter,
-
-        (int16_t)voltage_s16,
-        (int16_t)current_s16,
-        (int16_t)charge_s16,
-        (int16_t)counter_s16
     };
 }
 
