@@ -24,6 +24,10 @@ public:
 public:
     void disable_everything() override;
     void enable_everything() override;
+    void disable_gps();
+    void enable_gps();
+    void disable_wifi();
+    void enable_wifi();
 
 };
 
