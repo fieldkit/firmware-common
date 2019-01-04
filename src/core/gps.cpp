@@ -77,6 +77,8 @@ void GpsService::read() {
     }
 
     if (!configured_) {
+        Hardware::enableGps();
+
         gps_ = TinyGPS();
         serial_->begin(9600);
         serial_->println(PGCMD_ANTENNA);
