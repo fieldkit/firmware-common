@@ -33,6 +33,7 @@ struct GpsReading {
     uint32_t timeFixAge;
     uint32_t date;
     uint32_t time;
+    uint32_t chars;
 
     GpsReading(TinyGPS &gps) {
         satellites = gps.satellites();
@@ -43,6 +44,7 @@ struct GpsReading {
         speed = gps.f_speed_kmph();
         gps.crack_datetime((int *)&year, &month, &day, &hour, &minute, &second, &hundredths, &timeFixAge);
         gps.get_datetime(&date, &time, &timeFixAge);
+        gps.stats(&chars, nullptr, nullptr);
     }
 
     bool valid() {
@@ -97,7 +99,7 @@ void GpsService::read() {
     if (configuration.gps.status_interval > 0 && fk_uptime() - status_ > configuration.gps.status_interval) {
         auto fix = GpsReading{ gps_ };
         auto unix = fix.toDateTime().unixtime();
-        Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);
+        Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f) Chars(%lu)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude, fix.chars);
         status_ = fk_uptime();
     }
 
