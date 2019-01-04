@@ -69,7 +69,7 @@ public:
 
     void merge(uint8_t address, ModuleReplyMessage &reply);
 
-    void updateBattery(float percentage, float voltage);
+    void updateBattery(BatteryStatus status);
     void updateIp(uint32_t ip);
     void updateLocation(DeviceLocation&& fix);
 

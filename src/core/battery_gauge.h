@@ -8,9 +8,10 @@ namespace fk {
 class BatteryGauge {
 public:
     struct BatteryReading {
+        bool charging;
         float voltage;
-        float current;
-        float charge;
+        float ma;
+        float coulombs;
         uint16_t counter;
     };
 

@@ -21,7 +21,8 @@ void LowPowerSleep::entry() {
 }
 
 void LowPowerSleep::task() {
-    auto percentage = services().power->percentage();
+    auto status = services().power->status();
+    auto percentage = status.percentage;
     if (percentage > BatteryLowPowerResumeThreshold) {
         trace("Battery: %f", percentage);
         transit_into<RebootDevice>();

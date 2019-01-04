@@ -25,9 +25,23 @@ struct DeviceIdentity {
     }
 };
 
+struct BatteryStatus {
+    bool attached;
+    bool low;
+    bool ok;
+    float voltage;
+    float coulombs;
+    float delta;
+    float percentage;
+    float ma;
+
+    bool charging() const {
+        return ma > 0.0f;
+    }
+};
+
 struct DeviceStatus {
-    float batteryPercentage{ 0.0 };
-    float batteryVoltage{ 0.0 };
+    BatteryStatus battery;
     uint32_t ip{ 0 };
 
     DeviceStatus() {

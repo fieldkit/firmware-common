@@ -249,9 +249,8 @@ void CoreState::configure(NetworkSettings newSettings) {
     save();
 }
 
-void CoreState::updateBattery(float percentage, float voltage) {
-    deviceStatus_.batteryPercentage = percentage;
-    deviceStatus_.batteryVoltage = voltage;
+void CoreState::updateBattery(BatteryStatus status) {
+    deviceStatus_.battery = status;
 }
 
 void CoreState::updateIp(uint32_t ip) {

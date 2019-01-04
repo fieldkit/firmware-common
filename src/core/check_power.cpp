@@ -7,16 +7,17 @@
 namespace fk {
 
 void CheckPower::task() {
-    auto voltage = services().power->voltage();
-    auto percentage = services().power->percentage();
-    if (percentage < BatteryLowPowerSleepThreshold) {
+    services().alive();
+
+    auto battery = services().power->status();
+    if (battery.low) {
         if (configuration.sleeping.low_power) {
-            if (voltage < 3000.0f) {
-                log("Voltage %f is too low to be real.", voltage);
+            if (!battery.attached) {
+                log("No battery attached.");
             }
             else {
                 if (!fk_console_attached()) {
-                    log("Battery: %fmv / %f", voltage, percentage);
+                    log("Battery: %fmv / %f (%fmAh %fma)", battery.voltage, battery.percentage, battery.coulombs, battery.ma);
                     transit<LowPowerSleep>();
                     return;
                 }

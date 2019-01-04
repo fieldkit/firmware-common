@@ -9,13 +9,13 @@ namespace fk {
 
 class Status : public Task {
 private:
-    uint32_t lastLogged{ 0 };
-    uint32_t lastTick{ 0 };
-    CoreState *state;
-    Leds *leds;
+    uint32_t last_logged_{ 0 };
+    uint32_t last_tick_{ 0 };
+    CoreState *state_;
+    Leds *leds_;
 
 public:
-    Status(CoreState &state, Leds &leds) : Task("Status"), state(&state), leds(&leds) {
+    Status(CoreState &state, Leds &leds) : Task("Status"), state_(&state), leds_(&leds) {
     }
 
 public:

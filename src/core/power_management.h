@@ -4,26 +4,25 @@
 #include "task.h"
 #include "core_state.h"
 
-#include <FuelGauge.h>
-
 namespace fk {
 
-class Power : public Task {
+class Power {
 private:
     CoreState *state_;
-    FuelGauge gauge_;
-    uint32_t queryTime_{ 0 };
-    uint32_t lastAlert_{ 0 };
+    bool available_{ false };
+    uint32_t query_time_{ 0 };
+    uint32_t last_alert_{ 0 };
+    BatteryStatus status_;
 
 public:
-    Power(CoreState &state) : Task("PM"), state_(&state) {
-    }
+    Power(CoreState &state);
 
 public:
     void setup();
-    float percentage();
-    float voltage();
-    TaskEval task() override;
+    void task();
+    BatteryStatus status() {
+        return status_;
+    }
 
 };
 
