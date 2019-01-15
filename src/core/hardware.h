@@ -44,7 +44,9 @@ public:
 
     // PIN_LED_RXL;
     static constexpr uint8_t PERIPHERALS_ENABLE_PIN = (25u);
-    static constexpr uint8_t MODULES_ENABLE_PIN = (9);
+
+    // A5
+    static constexpr uint8_t MODULES_ENABLE_PIN = (19ul); // Was 9ul
 
     // A4
     static constexpr uint8_t GPS_ENABLE_PIN = (18ul);
