@@ -90,6 +90,9 @@ void Booting::task() {
     // reason. Not a huge priority to fix but I'd like to understand why
     // eventually. 44100
     #if defined(FK_NATURALIST)
+    // The I2S chip on Naturalist lives on the modules bus.
+    Hardware::enableModules();
+    delay(10);
     log("Initialize I2S");
     fk_assert(AudioInI2S.begin(8000, 32));
     #endif
