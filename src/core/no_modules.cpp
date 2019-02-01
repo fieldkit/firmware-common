@@ -31,6 +31,8 @@ void NoModules::entry() {
 void NoModules::task() {
     services().alive();
 
+    services().scheduledTasks();
+
     fk_assert(configuration.no_modules_sleep > 0);
 
     if (entered_ == 0) {

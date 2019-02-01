@@ -3,6 +3,7 @@
 #include "wifi_try_network.h"
 #include "wifi_create_ap.h"
 #include "wifi_tools.h"
+#include "wifi_disable.h"
 #include "check_firmware.h"
 
 namespace fk {
@@ -15,6 +16,14 @@ void WifiTryNetwork::task() {
     }
 
     auto settings = services().state->getNetworkSettings();
+    if (!services().config.listening) {
+        if (!settings.configured()) {
+            log("No network configuration (%s)", getWifiStatus());
+            transit<WifiDisable>();
+            return;
+        }
+    }
+
     auto network = settings.networks[index_];
     if (network.ssid[0] == 0) {
         log("N[%d] No network configured (%s)", index_, getWifiStatus());
