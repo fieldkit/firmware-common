@@ -31,10 +31,6 @@ static void dump_configuration() {
     loginfof("Core", "FK_CORE_REQUIRE_MODULES");
     #endif
 
-    #ifdef FK_WIFI_STARTUP_ONLY
-    loginfof("Core", "FK_WIFI_STARTUP_ONLY");
-    #endif
-
     #ifdef FK_WIFI_ALWAYS_ON
     loginfof("Core", "FK_WIFI_ALWAYS_ON");
     #endif
