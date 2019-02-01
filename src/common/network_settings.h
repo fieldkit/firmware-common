@@ -23,7 +23,7 @@ struct NetworkInfo {
         strncpy(password, _password, sizeof(password));
     }
 
-    bool valid() {
+    bool valid() const {
         return ssid[0] != 0 && password[0] != 0;
     }
 };
@@ -63,6 +63,16 @@ struct NetworkSettings {
         }
 
         return modified;
+    }
+
+    bool configured() const {
+        for (auto i = 0; i < MaximumRememberedNetworks; ++i) {
+            if (networks[i].valid()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 };
