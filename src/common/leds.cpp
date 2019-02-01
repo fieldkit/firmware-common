@@ -233,7 +233,7 @@ void Leds::notifyButtonPressed() {
 }
 
 void Leds::notifyButtonLong() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(64, 64, 64), 0, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(255, 255, 255), 0, 0 });
 }
 
 void Leds::notifyButtonShort() {
