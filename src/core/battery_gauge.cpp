@@ -116,7 +116,11 @@ bool BatteryGauge::available() {
         return false;
     }
 
-    return enable();
+    if (!enable()) {
+        return false;
+    }
+
+    return true;
 }
 
 bool BatteryGauge::enable() {
@@ -193,7 +197,6 @@ BatteryGauge::BatteryReading BatteryGauge::read() {
     if (!ram.write()) {
         return { };
     }
-
 
     // TODO: If the coulomb counter has levelled off then the battery is effectively charged.
 
