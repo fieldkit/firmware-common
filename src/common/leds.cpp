@@ -220,6 +220,14 @@ void Leds::notifyReadingsDone() {
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Normal, 0, 0, 0 });
 }
 
+void Leds::notifyCaution() {
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Blink, Priority::Highest, get_color(255, 165, 0), 500, 0 });
+}
+
+void Leds::notifyWarning() {
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Blink, Priority::Highest, get_color(255, 255, 0), 500, 0 });
+}
+
 void Leds::notifyFatal() {
     pushAnimation(disabled(), LedAnimation{ AnimationType::Blink, Priority::Highest, get_color(255, 0, 0), 500, 0 });
 }

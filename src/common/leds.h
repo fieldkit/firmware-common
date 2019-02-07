@@ -24,6 +24,8 @@ public:
     void notifyReadingsBegin();
     void notifyReadingsDone();
     void notifyFatal();
+    void notifyCaution();
+    void notifyWarning();
     void notifyHappy();
     void notifyButtonPressed();
     void notifyButtonLong();
