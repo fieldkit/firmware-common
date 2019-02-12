@@ -4,6 +4,8 @@
 #include <cinttypes>
 #include <cstddef>
 
+#include <alogging/alogging.h>
+
 namespace fk {
 
 struct BoardConfig {
@@ -68,10 +70,9 @@ public:
 
     void disable_spi() {
         for (auto pin : config_.all_spi_cs) {
-            if (pin == 0) {
-                break;
+            if (pin > 0) {
+                disable_cs(pin);
             }
-            disable_cs(pin);
         }
         low(config_.spi_enable);
         spi().end();
@@ -79,10 +80,9 @@ public:
 
     void enable_spi() {
         for (auto pin : config_.all_spi_cs) {
-            if (pin == 0) {
-                break;
+            if (pin > 0) {
+                enable_cs(pin);
             }
-            enable_cs(pin);
         }
         high(config_.spi_enable);
         spi().begin();
@@ -92,10 +92,9 @@ public:
     virtual void disable_everything() {
         disable_spi();
         for (auto pin : config_.all_enables) {
-            if (pin == 0) {
-                break;
+            if (pin > 0) {
+                low(pin);
             }
-            low(pin);
         }
         i2c1().end();
     }
@@ -103,10 +102,9 @@ public:
     virtual void enable_everything() {
         enable_spi();
         for (auto pin : config_.all_enables) {
-            if (pin == 0) {
-                break;
+            if (pin > 0) {
+                high(pin);
             }
-            high(pin);
         }
         i2c1().begin();
     }
