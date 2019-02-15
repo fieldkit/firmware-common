@@ -22,6 +22,10 @@ void SimpleNTP::enqueued() {
 }
 
 TaskEval SimpleNTP::task() {
+    if (!Wifi::hasInternetAccess()) {
+            return TaskEval::done();
+    }
+
     if (lastSynced > 0 && fk_uptime() - lastSynced < NtpSyncInterval) {
         return TaskEval::done();
     }
