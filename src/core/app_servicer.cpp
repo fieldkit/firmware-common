@@ -31,8 +31,6 @@ bool AppServicer::handle() {
         auto interval = query_.m().liveDataPoll.interval;
         services().liveData->configure(interval);
 
-        send_event(LiveDataEvent{ interval });
-
         auto numberOfReadings = state_->numberOfReadings();
         fk_app_LiveDataSample samples[numberOfReadings];
 
