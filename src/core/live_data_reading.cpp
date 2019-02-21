@@ -5,6 +5,7 @@
 namespace fk {
 
 void LiveDataReading::task() {
+    #if !defined(FK_NATURALIST)
     GatherReadings gatherReadings{
         1,
         *services().state,
@@ -22,6 +23,22 @@ void LiveDataReading::task() {
     services().liveData->completed();
 
     back();
+    #else
+    auto state = services().states->readings.next_state_ptr;
+
+    resume_at_back();
+
+    state->entry();
+
+    while (true) {
+        state->task();
+
+        if (transitioned()) {
+            break;
+        }
+    }
+
+    #endif
 }
 
 }
