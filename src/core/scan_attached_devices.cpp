@@ -49,7 +49,13 @@ void ScanAttachedDevices::task() {
 
     #endif
 
-    transit<WifiStartup>();
+    if (first_) {
+        first_ = false;
+        transit_into<WifiStartup>(WifiCheckConfig{ true });
+    }
+    else {
+        transit<WifiStartup>();
+    }
 }
 
 }
