@@ -50,8 +50,8 @@ public:
     }
 
 private:
-    bool write(const pb_field_t *fields, void *src);
-    bool read(const pb_field_t *fields, void *src);
+    bool write(const pb_msgdesc_t *fields, void *src);
+    bool read(const pb_msgdesc_t *fields, void *src);
 
 };
 

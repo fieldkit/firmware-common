@@ -10,7 +10,7 @@ namespace fk {
 
 class ModuleQueryMessage {
 public:
-    static constexpr const pb_field_t *fields{ fk_module_WireMessageQuery_fields };
+    static constexpr const pb_msgdesc_t *fields{ fk_module_WireMessageQuery_fields };
 
 private:
     fk_module_WireMessageQuery message = fk_module_WireMessageQuery_init_default;
@@ -52,7 +52,7 @@ public:
 
 class ModuleReplyMessage {
 public:
-    static constexpr const pb_field_t *fields{ fk_module_WireMessageReply_fields };
+    static constexpr const pb_msgdesc_t *fields{ fk_module_WireMessageReply_fields };
 
 private:
     fk_module_WireMessageReply message = fk_module_WireMessageReply_init_default;

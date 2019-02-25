@@ -22,7 +22,7 @@ typedef struct pb_array_t {
     size_t length;
     size_t itemSize;
     void *buffer;
-    const pb_field_t *fields;
+    const pb_msgdesc_t *fields;
     pb_decode_array_item decode_item_fn;
     Pool *pool;
 } pb_array_t;

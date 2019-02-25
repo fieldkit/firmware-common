@@ -3,7 +3,7 @@
 
 namespace fk {
 
-bool MessageBuffer::write(const pb_field_t *fields, void *src) {
+bool MessageBuffer::write(const pb_msgdesc_t *fields, void *src) {
     size_t required = 0;
 
     if (!pb_get_encoded_size(&required, fields, src)) {
@@ -20,7 +20,7 @@ bool MessageBuffer::write(const pb_field_t *fields, void *src) {
     return true;
 }
 
-bool MessageBuffer::read(const pb_field_t *fields, void *src) {
+bool MessageBuffer::read(const pb_msgdesc_t *fields, void *src) {
     fk_assert(pos > 0);
     auto stream = pb_istream_from_buffer(ptr(), pos);
     if (!pb_decode_delimited(&stream, fields, src)) {
