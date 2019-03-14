@@ -31,6 +31,7 @@ public:
     void notifyButtonLong();
     void notifyButtonShort();
     void notifyButtonReleased();
+    void notifyTopPassed();
     void off();
 
 private:

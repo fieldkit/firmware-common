@@ -168,7 +168,7 @@ void Leds::setup() {
 
     pixel_.begin();
     pixel_.setBrightness(32);
-    pixel_.setPixelColor(0, get_color(16, 16, 16));
+    pixel_.setPixelColor(0, get_color(8, 8, 8));
     pixel_.show();
 }
 
@@ -238,6 +238,10 @@ void Leds::notifyHappy() {
 
 void Leds::notifyButtonPressed() {
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 16, 16), 0, 0 });
+}
+
+void Leds::notifyTopPassed() {
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 0, 255), 0, 0 });
 }
 
 void Leds::notifyButtonLong() {
