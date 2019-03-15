@@ -21,8 +21,10 @@ Power::Power(CoreState &state) : state_(&state) {
 
 void Power::setup() {
     #if defined(FK_FUEL_GAUGE_MAX1704)
+    Logger::info("No fuel gauge!");
     fk_assert(false);
     #else
+    Logger::info("Initializing fuel gauge...");
     BatteryGauge gauge;
     #endif
 
