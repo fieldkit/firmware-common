@@ -191,7 +191,12 @@ bool Leds::disabled() {
 }
 
 void Leds::off() {
-    pushAnimation(disabled(), LedAnimation{ });
+    active_ = LedAnimation{ };
+    pixel_.setPixelColor(0, 0);
+    pixel_.show();
+}
+
+void Leds::notifyStarted() {
     pixel_.setPixelColor(0, 0);
     pixel_.show();
 }
@@ -205,11 +210,6 @@ void Leds::notifyBattery(float percentage) {
 
 void Leds::notifyNoModules() {
     pushAnimation(disabled(), LedAnimation{ });
-}
-
-void Leds::notifyStarted() {
-    pixel_.setPixelColor(0, 0);
-    pixel_.show();
 }
 
 void Leds::notifyReadingsBegin() {
