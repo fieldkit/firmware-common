@@ -42,7 +42,7 @@ constexpr uint32_t FileCopyMaximumElapsed = 4 * Seconds;
 constexpr size_t FileSystemNumberOfFiles = 5;
 
 constexpr uint32_t ButtonTouchHysteresis = 100;
-constexpr uint32_t ButtonShortPressDuration = 1 * Seconds;
+constexpr uint32_t ButtonShortPressDuration = 2 * Seconds;
 constexpr uint32_t ButtonLongPressDuration = 5 * Seconds;
 
 constexpr uint32_t SchedulerCheckInterval = 500;
