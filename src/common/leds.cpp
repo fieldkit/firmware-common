@@ -1,11 +1,17 @@
 #include <Arduino.h>
 
+#include <alogging/alogging.h>
+
 #include "leds.h"
 #include "tuning.h"
 #include "platform.h"
 #include "configuration.h"
 
 namespace fk {
+
+constexpr const char Log[] = "LEDs";
+
+using Logger = SimpleLog<Log>;
 
 enum class AnimationType {
     Off,
@@ -18,7 +24,8 @@ enum class AnimationType {
 enum class Priority : uint8_t {
     Lowest = 0,
     Normal = 0,
-    Button = 10,
+    High = 10,
+    Button = 100,
     Highest = 255
 };
 
@@ -149,7 +156,11 @@ static void pushAnimation(bool disabled, LedAnimation incoming) {
         return;
     }
     if (active_.off() || active_.black() || active_.priority() <= incoming.priority()) {
+        // Logger::info("New State");
         active_ = incoming;
+    }
+    else {
+        // Logger::info("Skip (%d <= %d)", active_.priority(), incoming.priority());
     }
 }
 
@@ -218,11 +229,11 @@ void Leds::notifyNoModules() {
 }
 
 void Leds::notifyReadingsBegin() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Normal, get_color(0, 32, 0), 0, 0 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::High, get_color(255, 175, 10), 0, 0 });
 }
 
 void Leds::notifyReadingsDone() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Normal, 0, 0, 0 });
+    off();
 }
 
 void Leds::notifyCaution() {
