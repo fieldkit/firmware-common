@@ -196,6 +196,11 @@ void Leds::off() {
     pixel_.show();
 }
 
+void Leds::notifyInitialized() {
+    pixel_.setPixelColor(0, get_color(16, 16, 16));
+    pixel_.show();
+}
+
 void Leds::notifyStarted() {
     pixel_.setPixelColor(0, 0);
     pixel_.show();

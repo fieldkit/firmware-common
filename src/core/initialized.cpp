@@ -5,7 +5,7 @@
 namespace fk {
 
 void Initialized::task() {
-    services().leds->notifyStarted();
+    services().leds->notifyInitialized();
 
     transit_into<CheckPower>();
 }

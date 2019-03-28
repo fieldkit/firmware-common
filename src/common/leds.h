@@ -17,6 +17,7 @@ public:
     bool task();
 
 public:
+    void notifyInitialized();
     void notifyStarted();
     void notifyAlive();
     void notifyBattery(float percentage);
