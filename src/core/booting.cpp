@@ -51,6 +51,14 @@ static void dump_configuration() {
     loginfof("Core", "FK_ENABLE_FLASH");
     #endif
 
+    #if defined(FK_ENABLE_FUEL_GAUGE)
+    loginfof("Core", "FK_ENABLE_FUEL_GAUGE");
+    #endif
+
+    #if defined(FK_DISABLE_FUEL_GAUGE)
+    loginfof("Core", "FK_DISABLE_FUEL_GAUGE");
+    #endif
+
     #ifdef FK_ENABLE_LOW_POWER_SLEEP
     loginfof("Core", "FK_ENABLE_LOW_POWER_SLEEP");
     #endif
