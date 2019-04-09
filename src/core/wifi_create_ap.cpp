@@ -31,7 +31,6 @@ static void getAccessPointName(char *name, size_t size) {
 #endif
 
 void WifiCreateAp::task() {
-    // TODO: If done this before, skip?
     char name[32];
     getAccessPointName(name, sizeof(name));
 
