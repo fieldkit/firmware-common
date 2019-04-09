@@ -13,8 +13,10 @@ TaskEval Status::task() {
         auto now = clock.now();
         auto battery = state_->getStatus().battery;
         auto state = CoreFsm::current().name();
-        IpAddress4 ip{ state_->getStatus().ip };
+        auto ipAddress = state_->getStatus().ip;
+        IpAddress4 ip{ ipAddress };
         FormattedTime nowFormatted{ now };
+        const char *wifi = (ipAddress == 0) ? "None" : getWifiStatus();
 
         auto level = LogLevels::TRACE;
         if (fk_uptime() - last_logged_ > PersistedLogInterval) {
@@ -22,10 +24,10 @@ TaskEval Status::task() {
             last_logged_ = fk_uptime();
         }
 
-        alogf(level, "Status", "%s (%" PRIu32 ") (%.2f%% / %.2fmv, %.3fmAh ± %.3fmAh, I = %0.3fma, %s) (%" PRIu32 " free) (%s) (%s) (%s)",
+        alogf(level, "Status", "%s (%" PRIu32 ") (%.2f%% / %.2fmv, %.3fmAh ± %.3fmAh, I = %0.3fma, %s) (%" PRIu32 " free) (%s) (%s) (%s) (%s)",
               nowFormatted.toString(), now.unixtime(),
               battery.percentage, battery.voltage, battery.coulombs, battery.delta, battery.ma, battery.charging() ? "CHG" : "DIS",
-              fk_free_memory(), deviceId.toString(), ip.toString(), state);
+              fk_free_memory(), deviceId.toString(), ip.toString(), state, wifi);
 
         last_tick_ = fk_uptime();
 
