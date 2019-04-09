@@ -36,7 +36,7 @@ void WifiCreateAp::task() {
 
     log("Creating AP '%s'... (%s)", name, getWifiStatus());
     IPAddress ip{ 192, 168, 2, 1 };
-    auto status = WiFi.beginAP(name, 1, ip);
+    auto status = WiFi.beginAP(name, 2, ip);
     if (status != WL_AP_LISTENING) {
         transit<WifiDisable>();
         services().state->updateIp(0);
