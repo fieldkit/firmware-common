@@ -1,7 +1,5 @@
 #include <functional>
 
-#include <FuelGauge.h>
-
 #include "app_servicer.h"
 #include "configuration.h"
 #include "device_id.h"
@@ -297,11 +295,10 @@ void AppServicer::networkSettingsReply() {
 void AppServicer::statusReply() {
     log("Status");
 
-    FuelGauge fuelGage;
     reply_.m().type = fk_app_ReplyType_REPLY_STATUS;
     reply_.m().status.uptime = fk_uptime();
-    reply_.m().status.batteryPercentage = fuelGage.stateOfCharge();
-    reply_.m().status.batteryVoltage = fuelGage.cellVoltage();
+    reply_.m().status.batteryPercentage = 0.0f;
+    reply_.m().status.batteryVoltage = 0.0f;
     reply_.m().status.gpsHasFix = false;
     reply_.m().status.gpsSatellites = 0;
     if (!buffer().write(reply_)) {
