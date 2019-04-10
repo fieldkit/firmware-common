@@ -26,6 +26,23 @@ TaskEval Discovery::task() {
             }
         }
     }
+    /*
+    static bool pinged{ false };
+
+    if (Wifi::discoveryEnabled()) {
+        if (!pinged) {
+            if (Wifi::discoveryEnabled()) {
+                auto pr = WiFi.ping("192.168.2.100");
+                if (pr >= 0) {
+                    log("Pinged! RTT = %d", pr);
+                    pinged = true;
+                } else {
+                    log("Ping failed! Error code: %d", pr);
+                }
+            }
+        }
+    }
+    */
 
     return TaskEval::idle();
 }
@@ -41,21 +58,29 @@ void Discovery::ping() {
             trace("Ping: %s", ipv4.toString());
         }
 
-        udp.beginPacket(destination, DiscoveryUdpPort);
-
-        if (false) {
-            auto length = deviceId.length();
-            uint8_t buffer[length + 1];
-            memcpy(buffer, deviceId.toBuffer(), length);
-            buffer[length + 0] = packets_;
-            udp.write(buffer, sizeof(buffer));
+        if (!udp.beginPacket(destination, DiscoveryUdpPort)) {
+            error("Failed: beginPacket");
         }
         else {
-            udp.write(deviceId.toBuffer(), deviceId.length());
-        }
+            if (false) {
+                auto length = deviceId.length();
+                uint8_t buffer[length + 1];
+                memcpy(buffer, deviceId.toBuffer(), length);
+                buffer[length + 0] = packets_;
+                udp.write(buffer, sizeof(buffer));
+            }
+            else {
+                udp.write(deviceId.toBuffer(), deviceId.length());
+            }
 
-        udp.endPacket();
+            if (!udp.endPacket()) {
+                error("Failed: endPacket");
+            }
+        }
         udp.stop();
+    }
+    else {
+        error("Failed to start UDP");
     }
 }
 

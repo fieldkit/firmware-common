@@ -1,8 +1,10 @@
 #include "wifi_server.h"
+#include "wifi.h"
 
 namespace fk {
 
-Listen::Listen(uint16_t port, WifiConnection &connection) : port_(port), server_(port), connection_(&connection) {
+Listen::Listen(uint16_t port, WifiConnection &connection)
+    : port_(port), server_(port), connection_(&connection) {
 }
 
 void Listen::begin() {
@@ -21,7 +23,14 @@ void Listen::end() {
 }
 
 bool Listen::listen() {
-    begin();
+    if (Wifi::discoveryEnabled()) {
+        begin();
+    }
+    else {
+        if (initialized_) {
+            end();
+        }
+    }
 
     auto wcl = server_.available();
     if (wcl) {
