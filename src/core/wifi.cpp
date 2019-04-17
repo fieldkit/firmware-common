@@ -22,9 +22,12 @@ bool Wifi::begin() {
         WiFiSocketClass::callbacks = &staticWiFiCallbacks;
 
         if (WiFi.status() == WL_NO_SHIELD) {
-            Logger::log("Error: no wifi (%d, %d, %d, %d)", Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
+            Logger::log("Error: No Wifi (%d, %d, %d, %d)", Hardware::WIFI_PIN_CS, Hardware::WIFI_PIN_IRQ, Hardware::WIFI_PIN_RST, Hardware::WIFI_PIN_EN);
+            available_ = false;
             return false;
         }
+
+        available_ = true;
 
         auto fv = WiFi.firmwareVersion();
         Logger::log("Version: %s", fv);

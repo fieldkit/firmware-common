@@ -13,6 +13,7 @@ class Wifi {
 private:
     bool initialized_{ false };
     bool disabled_{ true };
+    bool available_{ false };
     Listen listen_;
 
 public:
