@@ -49,10 +49,14 @@ struct GpsReading {
 
     bool valid() {
         if (satellites == TinyGPS::GPS_INVALID_SATELLITES) return false;
-        if (satellites > configuration.gps.required_satellites) return false;
+        if (satellites < configuration.gps.required_satellites) return false;
 
         if (flon == TinyGPS::GPS_INVALID_ANGLE) return false;
         if (flat == TinyGPS::GPS_INVALID_ANGLE) return false;
+        if (date == TinyGPS::GPS_INVALID_DATE) return false;
+        if (time == TinyGPS::GPS_INVALID_TIME) return false;
+
+        /*
         if (altitude == TinyGPS::GPS_INVALID_ALTITUDE) return false;
         if (positionFixAge == TinyGPS::GPS_INVALID_AGE) return false;
         if (course == TinyGPS::GPS_INVALID_ANGLE) return false;
@@ -60,8 +64,7 @@ struct GpsReading {
         if (hdop == TinyGPS::GPS_INVALID_HDOP) return false;
         if (hdop == TinyGPS::GPS_INVALID_HDOP) return false;
         if (timeFixAge == TinyGPS::GPS_INVALID_AGE) return false;
-        if (date == TinyGPS::GPS_INVALID_DATE) return false;
-        if (time == TinyGPS::GPS_INVALID_TIME) return false;
+        */
 
         return true;
     }
@@ -100,8 +103,14 @@ void GpsService::read() {
 
     if (configuration.gps.status_interval > 0 && fk_uptime() - status_ > configuration.gps.status_interval) {
         auto fix = GpsReading{ gps_ };
-        auto unix = fix.toDateTime().unixtime();
-        Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f) Chars(%lu)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude, fix.chars);
+        if (!fix.valid()) {
+            auto unix = fix.toDateTime().unixtime();
+            Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f) Chars(%lu) (Invalid)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude, fix.chars);
+        }
+        else {
+            save();
+        }
+
         status_ = fk_uptime();
     }
 
@@ -130,6 +139,12 @@ void GpsService::read() {
             initial_ = true;
         }
     }
+
+    if (configuration.gps.on_duration > 0 && fk_uptime() > configuration.gps.on_duration) {
+        Logger::log("Disabling GPS after on duration");
+        Hardware::disableGps();
+        disabled_ = true;
+    }
 }
 
 void GpsService::save() {
@@ -147,11 +162,6 @@ void GpsService::save() {
         state_->updateLocation(DeviceLocation{ unix, fix.flon, fix.flat, fix.altitude });
 
         clock.setTime(dateTime);
-
-        if (configuration.gps.station_fixed) {
-            Hardware::disableGps();
-            disabled_ = true;
-        }
     }
     else {
         state_->updateLocation(DeviceLocation{});

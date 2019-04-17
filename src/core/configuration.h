@@ -45,6 +45,11 @@ struct Configuration {
         /**
          *
          */
+        uint32_t on_duration  = 20 * Minutes;
+
+        /**
+         *
+         */
         uint32_t status_interval  = 30 * Seconds;
 
         /**
