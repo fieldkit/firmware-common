@@ -13,7 +13,7 @@ namespace fk {
 
 namespace defaults {
 
-constexpr uint32_t WifiInactivityTimeout = 5 * Minutes;
+constexpr uint32_t WifiInactivityTimeout = 2 * Minutes;
 constexpr uint32_t WifiCaptivitiyTimeout = 10 * Seconds;
 
 }
