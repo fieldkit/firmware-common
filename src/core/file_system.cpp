@@ -48,6 +48,8 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
         }
 
         global_files->swapLogsIfNecessary();
+
+        global_files->checkErrors();
     }
 
     return 0;
@@ -260,6 +262,8 @@ bool FileSystem::flush() {
         return false;
     }
 
+    files_.checkErrors();
+
     return true;
 }
 
@@ -277,6 +281,10 @@ void Files::error() {
 
 bool Files::errors() const {
     return errors_ > 0;
+}
+
+void Files::checkErrors() {
+    errors_ = 0;
 }
 
 bool Files::swapLogsIfNecessary() {

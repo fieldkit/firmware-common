@@ -55,6 +55,8 @@ public:
 
     void error();
 
+    void checkErrors();
+
     bool errors() const;
 
     phylum::SimpleFile &data();
