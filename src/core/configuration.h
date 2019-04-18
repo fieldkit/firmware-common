@@ -94,7 +94,7 @@ struct Configuration {
     };
 
     struct Sleeping {
-        #if defined(FK_ENABLE_LOW_POWER_SLEEP)
+        #if defined(FK_ENABLE_LOW_POWER_SLEEP) && !defined(FK_NATURALIST)
         bool low_power{ true };
         #else
         bool low_power{ false };
