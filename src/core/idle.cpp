@@ -88,6 +88,7 @@ void Idle::task() {
     }
 
     if (services().fileSystem->files().errors()) {
+        log("FileSystem errors detected, rebooting.");
         transit_into<RebootDevice>();
         return;
     }
