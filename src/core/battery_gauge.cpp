@@ -53,7 +53,9 @@ typedef union {
     bool read() {
         Wire.beginTransmission(STC3100_ADDRESS);
         Wire.write(STC3100_REGISTERS_START);
-        Wire.endTransmission();
+        if (Wire.endTransmission() != 0) {
+            return false;
+        }
         Wire.requestFrom(STC3100_ADDRESS, sizeof(bytes));
 
         for (size_t i = 0; i < sizeof(bytes); ++i) {
@@ -76,7 +78,9 @@ typedef union {
     bool read() {
         Wire.beginTransmission(STC3100_ADDRESS);
         Wire.write(STC3100_RAM_START);
-        Wire.endTransmission();
+        if (Wire.endTransmission() != 0) {
+            return false;
+        }
         Wire.requestFrom(STC3100_ADDRESS, sizeof(bytes));
 
         for (size_t i = 0; i < sizeof(bytes); ++i) {
@@ -94,7 +98,9 @@ typedef union {
             Wire.write(bytes[i]);
         }
 
-        Wire.endTransmission();
+        if (Wire.endTransmission() != 0) {
+            return false;
+        }
 
         return true;
     }
@@ -105,7 +111,9 @@ bool BatteryGauge::available() {
 
     Wire.beginTransmission(STC3100_ADDRESS);
     Wire.write(STC3100_REGISTER_ID);
-    Wire.endTransmission();
+    if (Wire.endTransmission() != 0) {
+        return false;
+    }
     Wire.requestFrom(STC3100_ADDRESS, (uint8_t)sizeof(id));
 
     for (size_t i = 0; i < sizeof(id); ++i) {
@@ -127,7 +135,9 @@ bool BatteryGauge::enable() {
     // Read this register to clear GG_EOC and VTM_EOC
     Wire.beginTransmission(STC3100_ADDRESS);
     Wire.write(STC3100_REGISTER_CONTROL);
-    Wire.endTransmission();
+    if (Wire.endTransmission() != 0) {
+        return false;
+    }
     Wire.requestFrom(STC3100_ADDRESS, 1);
     Wire.read(); // Ignore
 
@@ -135,13 +145,17 @@ bool BatteryGauge::enable() {
     Wire.beginTransmission(STC3100_ADDRESS);
     Wire.write(STC3100_REGISTER_CONTROL);
     Wire.write(STC3100_REGISTER_CONTROL_VALUE_RESET);
-    Wire.endTransmission();
+    if (Wire.endTransmission() != 0) {
+        return false;
+    }
 
     // Just write the whole register, for now. The other values in there are 0.
     Wire.beginTransmission(STC3100_ADDRESS);
     Wire.write(STC3100_REGISTER_MODE);
     Wire.write(STC3100_REGISTER_MODE_VALUE_ENABLED);
-    Wire.endTransmission();
+    if (Wire.endTransmission() != 0) {
+        return false;
+    }
 
     return true;
 }
@@ -151,7 +165,9 @@ bool BatteryGauge::disable() {
     Wire.beginTransmission(STC3100_ADDRESS);
     Wire.write(STC3100_REGISTER_MODE);
     Wire.write(STC3100_REGISTER_MODE_VALUE_DISABLED);
-    Wire.endTransmission();
+    if (Wire.endTransmission() != 0) {
+        return false;
+    }
 
     return true;
 }
