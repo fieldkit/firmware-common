@@ -108,21 +108,21 @@ void Power::task() {
             status_ = update;
 
             state_->updateBattery(status_);
+
+            if (fk_uptime() - last_alert_ > PowerManagementAlertInterval) {
+                if (status_.low) {
+                    if (configuration.sleeping.low_power) {
+                        send_event(LowPowerEvent{ });
+                    }
+                }
+                last_alert_ = fk_uptime();
+            }
         }
         else {
             Logger::info("Unavailable");
         }
 
         query_time_ = fk_uptime() + PowerManagementQueryInterval;
-
-        if (fk_uptime() - last_alert_ > PowerManagementAlertInterval) {
-            if (status_.low) {
-                if (configuration.sleeping.low_power) {
-                    send_event(LowPowerEvent{ });
-                }
-            }
-            last_alert_ = fk_uptime();
-        }
     }
 }
 
