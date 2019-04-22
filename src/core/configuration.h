@@ -45,7 +45,11 @@ struct Configuration {
         /**
          *
          */
-        uint32_t on_duration  = 20 * Minutes;
+        #if defined(FK_NATURALIST)
+        uint32_t on_duration = 0;
+        #else
+        uint32_t on_duration = 20 * Minutes;
+        #endif
 
         /**
          *

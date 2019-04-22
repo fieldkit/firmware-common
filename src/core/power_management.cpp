@@ -28,7 +28,14 @@ void Power::setup() {
     BatteryGauge gauge;
     #endif
 
-    available_ = gauge.enable();
+    for (auto i = 0; i < 5; ++i) {
+        available_ = gauge.enable();
+        if (available_) {
+            break;
+        }
+
+        delay(100);
+    }
 
     Logger::info("Initialized");
 }
