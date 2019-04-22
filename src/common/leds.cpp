@@ -198,7 +198,7 @@ bool Leds::disabled() {
     if (configuration.common.leds.disable_after == 0) {
         return false;
     }
-    return fk_uptime() > configuration.common.leds.disable_after;
+    return (fk_uptime() - user_activity_) > configuration.common.leds.disable_after;
 }
 
 void Leds::off() {
@@ -253,6 +253,7 @@ void Leds::notifyHappy() {
 }
 
 void Leds::notifyButtonPressed() {
+    user_activity_ = fk_uptime();
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 16, 16), 0, 0 });
 }
 
