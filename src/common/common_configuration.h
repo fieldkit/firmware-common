@@ -10,7 +10,11 @@ struct CommonConfiguration {
         /**
          *
          */
+        #if defined(FK_NATURALIST)
+        uint32_t disable_after{ 0 };
+        #else
         uint32_t disable_after{ 60 * Minutes };
+        #endif
     };
 
     Leds leds;
