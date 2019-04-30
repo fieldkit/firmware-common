@@ -57,7 +57,9 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
         .buffer = deviceId.toBuffer(),
     };
 
-    m().metadata.time = clock.getTime();
+    auto time = clock.getTime();
+
+    m().metadata.time = time;
     m().metadata.resetCause = fk_system_reset_cause_get();
     m().metadata.deviceId.funcs.encode = pb_encode_data;
     m().metadata.deviceId.arg = (void *)&deviceIdData;
@@ -73,6 +75,12 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
     m().metadata.firmware.git.arg = (void *)firmware_version_get();
     m().metadata.firmware.build.funcs.encode = pb_encode_string;
     m().metadata.firmware.build.arg = (void *)firmware_build_get();
+
+    m().status.time = time;
+    m().status.uptime = fk_uptime();
+    m().status.battery = 0.0f;
+    m().status.memory = 0;
+    m().status.busy = 0;
 }
 
 DataRecordStatusMessage::DataRecordStatusMessage(CoreState &state, Pool &pool) : DataRecordMessage(pool) {

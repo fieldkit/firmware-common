@@ -52,6 +52,14 @@ bool DataLogging::appendLocation(DeviceLocation &location) {
     message.m().loggedReading.location.latitude = location.coordinates[1];
     message.m().loggedReading.location.altitude = location.coordinates[2];
 
+    auto time = clock.getTime();
+
+    message.m().status.time = time;
+    message.m().status.uptime = fk_uptime();
+    message.m().status.battery = 0.0f;
+    message.m().status.memory = 0;
+    message.m().status.busy = 0;
+
     auto size = append(message);
 
     Logger::info("Appended location (%d bytes)", size);
@@ -73,6 +81,14 @@ bool DataLogging::appendReading(DeviceLocation &location, uint32_t readingNumber
     message.m().loggedReading.reading.time = reading.time;
     message.m().loggedReading.reading.sensor = sensorId;
     message.m().loggedReading.reading.value = reading.value;
+
+    auto time = clock.getTime();
+
+    message.m().status.time = time;
+    message.m().status.uptime = fk_uptime();
+    message.m().status.battery = 0.0f;
+    message.m().status.memory = 0;
+    message.m().status.busy = 0;
 
     auto size = append(message);
 
