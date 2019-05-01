@@ -53,10 +53,14 @@ void Idle::task() {
     if (fk_uptime() - checked_ > SchedulerCheckInterval) {
         auto now = services().scheduledTasks();
         auto nowUnix = now.unixtime();
-        if (!(nowUnix >= entered_)) {
-            log("FATAL: entered_ = %lu, nowUnix = %lu", entered_, nowUnix);
-            fk_assert(nowUnix >= entered_);
+
+        // Now that we're basically always checking GPS and syncing our time
+        // this can happen fairly often. I'm disabling the assertion, keeping
+        // the log message though just to be sure.
+        if (nowUnix < entered_) {
+            warn("Time changed: Entered = %lu, Now = %lu", entered_, nowUnix);
         }
+
         if (transitioned()) {
             return;
         }
