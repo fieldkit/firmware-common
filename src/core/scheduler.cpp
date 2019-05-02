@@ -6,7 +6,7 @@
 namespace fk {
 
 void TaskLogger::visit(lwcron::PeriodicTask &task) {
-    sdebug() << "PeriodicTask<'" << task.toString() << "' every " << task.interval() << "s" << (task.valid() ? "" : " INVALID") << ">" << endl;
+    sdebug() << "PeriodicTask<'" << task.toString() << "' every " << task.interval() << "s" << (task.valid() ? "" : " INVALID") << ">";
 }
 
 void TaskLogger::visit(lwcron::CronTask &task) {
@@ -21,7 +21,7 @@ void TaskLogger::visit(lwcron::CronTask &task) {
                       s.hours[0], s.hours[1], s.hours[2]
         );
 
-    sdebug() << "CronTask<'" << task.toString() << "' " << buffer << (task.valid() ? "" : " INVALID") << ">" << endl;
+    sdebug() << "CronTask<'" << task.toString() << "' " << buffer << (task.valid() ? "" : " INVALID") << ">";
 }
 
 }
