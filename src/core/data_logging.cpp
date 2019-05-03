@@ -31,6 +31,10 @@ bool DataLogging::appendMetadata(CoreState &state) {
 }
 
 bool DataLogging::appendStatus(CoreState &state) {
+    if (!appendMetadataIfNecessary(state)) {
+        return false;
+    }
+
     EmptyPool pool;
     DataRecordStatusMessage message{ state, pool };
 
@@ -41,7 +45,11 @@ bool DataLogging::appendStatus(CoreState &state) {
     return true;
 }
 
-bool DataLogging::appendLocation(DeviceLocation &location) {
+bool DataLogging::appendLocation(CoreState &state, DeviceLocation &location) {
+    if (!appendMetadataIfNecessary(state)) {
+        return false;
+    }
+
     EmptyPool pool;
     DataRecordMessage message{ pool };
 
@@ -67,7 +75,11 @@ bool DataLogging::appendLocation(DeviceLocation &location) {
     return true;
 }
 
-bool DataLogging::appendReading(DeviceLocation &location, uint32_t readingNumber, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading) {
+bool DataLogging::appendReading(CoreState &state, DeviceLocation &location, uint32_t readingNumber, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading) {
+    if (!appendMetadataIfNecessary(state)) {
+        return false;
+    }
+
     EmptyPool pool;
     DataRecordMessage message{ pool };
 
@@ -95,6 +107,14 @@ bool DataLogging::appendReading(DeviceLocation &location, uint32_t readingNumber
     Logger::info("Appended reading (%d bytes) (%lu, %lu, '%s' = %f)", size, reading.time, sensorId, sensor.name, reading.value);
 
     return true;
+}
+
+bool DataLogging::appendMetadataIfNecessary(CoreState &state) {
+    if (files->data().tell() > 0) {
+        return true;
+    }
+
+    return appendMetadata(state);
 }
 
 size_t DataLogging::append(DataRecordMessage &message) {

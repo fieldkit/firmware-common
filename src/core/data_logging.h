@@ -20,10 +20,11 @@ public:
 public:
     bool appendMetadata(CoreState &state);
     bool appendStatus(CoreState &state);
-    bool appendLocation(DeviceLocation &location);
-    bool appendReading(DeviceLocation &location, uint32_t readingNumber, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading);
+    bool appendLocation(CoreState &state, DeviceLocation &location);
+    bool appendReading(CoreState &state, DeviceLocation &location, uint32_t readingNumber, uint32_t sensorId, SensorInfo &sensor, SensorReading &reading);
 
 private:
+    bool appendMetadataIfNecessary(CoreState &state);
     size_t append(DataRecordMessage &message);
 
 };

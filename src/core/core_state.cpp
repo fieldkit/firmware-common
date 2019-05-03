@@ -96,7 +96,7 @@ void CoreState::merge(ModuleInfo &module, IncomingSensorReading &incoming) {
         reading.time = now;
     }
 
-    data_->appendReading(location_, readingNumber_, incoming.sensor, sensor, reading);
+    data_->appendReading(*this, location_, readingNumber_, incoming.sensor, sensor, reading);
 }
 
 bool CoreState::hasModuleWithAddress(uint8_t address) {
@@ -259,7 +259,7 @@ void CoreState::updateIp(uint32_t ip) {
 
 void CoreState::updateLocation(DeviceLocation&& fix) {
     location_ = fix;
-    data_->appendLocation(location_);
+    data_->appendLocation(*this, location_);
     data_->appendStatus(*this);
     save();
 }
