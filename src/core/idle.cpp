@@ -1,5 +1,4 @@
 #include "idle.h"
-#include "scheduler.h"
 #include "low_power_sleep.h"
 #include "sleep.h"
 #include "reboot_device.h"
@@ -38,9 +37,6 @@ void Idle::status(DateTime now, lwcron::Scheduler::TaskAndTime nextTask) {
     FormattedTime runsAgainFormatted{ { nextTask.time } };
     auto prettyTask = nextTask.task != nullptr ? nextTask.task->toString() : "<none>";
     log("Status (now = %s, %lu) (task '%s' = %s, %lu)", nowFormatted.toString(), now.unixtime(), prettyTask, runsAgainFormatted.toString(), nextTask.time);
-
-    TaskLogger logger;
-    services().scheduler->accept(logger);
 }
 
 void Idle::task() {
@@ -67,12 +63,13 @@ void Idle::task() {
 
         auto nextTask = services().scheduler->nextTask();
         if (nextTask) {
+            /*
             if (!(nextTask.time >= nowUnix) || !(nextTask.time >= entered_)) {
                 log("FATAL: entered_ = %lu, nowUnix = %lu, nextTask.time = %lu", entered_, nowUnix, nextTask.time);
                 fk_assert(nextTask.time >= nowUnix);
                 fk_assert(nextTask.time >= entered_);
             }
-
+            */
             auto seconds = nextTask.time - nowUnix;
             if (seconds > SleepMinimumSeconds) {
                 auto sleepingFor = seconds - SleepLeadingWakeupSeconds;
