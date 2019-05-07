@@ -15,6 +15,15 @@ struct CommonConfiguration {
         #else
         uint32_t disable_after{ 60 * Minutes };
         #endif
+
+        /**
+         *
+         */
+        #if defined(FK_NATURALIST)
+        uint32_t brightness{ 0 };
+        #else
+        uint32_t brightness{ 32 };
+        #endif
     };
 
     Leds leds;

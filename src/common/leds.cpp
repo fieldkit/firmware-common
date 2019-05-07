@@ -178,7 +178,7 @@ void Leds::setup() {
     pinMode(A3, OUTPUT);
 
     pixel_.begin();
-    pixel_.setBrightness(32);
+    pixel_.setBrightness(configuration.common.leds.brightness);
     pixel_.setPixelColor(0, get_color(8, 8, 8));
     pixel_.show();
 }
@@ -186,7 +186,7 @@ void Leds::setup() {
 bool Leds::task() {
     if (!active_.off()) {
         auto color = active_.update();
-        pixel_.setBrightness(32);
+        pixel_.setBrightness(configuration.common.leds.brightness);
         pixel_.setPixelColor(0, color);
         pixel_.show();
         return true;
