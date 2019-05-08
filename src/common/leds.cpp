@@ -198,7 +198,7 @@ static size_t get_available(Priority priority) {
         }
     }
     for (auto i = (size_t)0; i < ActiveSize; ++i) {
-        if (active_[i].priority() < priority) {
+        if (active_[i].priority() <= priority) {
             return i;
         }
     }
@@ -351,21 +351,21 @@ void Leds::notifyHappy() {
     pushAnimation(disabled(), LedAnimation{ AnimationType::Wheel, Priority::Normal, 0, 5000, 0 });
 }
 
+void Leds::notifyTopPassed() {
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Normal, get_color(0, 0, 255), 0, 0 });
+}
+
 void Leds::notifyButtonPressed() {
     user_activity_ = fk_uptime();
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 16, 16), 0, 0 });
 }
 
-void Leds::notifyTopPassed() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Normal, get_color(0, 0, 255), 0, 0 });
+void Leds::notifyButtonShort() {
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 64, 64), 0, 0 });
 }
 
 void Leds::notifyButtonLong() {
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(255, 255, 255), 0, 0 });
-}
-
-void Leds::notifyButtonShort() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 64, 64), 0, 0 });
 }
 
 void Leds::notifyButtonReleased() {
