@@ -5,9 +5,11 @@ namespace fk {
 
 ClockType clock;
 
-constexpr const char LogName[] = "Clock";
+constexpr const char ClockPairName[] = "ClockPair";
+constexpr const char ZeroClockName[] = "ZeroClock";
 
-using Logger = SimpleLog<LogName>;
+using CPLog = SimpleLog<ClockPairName>;
+using ZCLog = SimpleLog<ZeroClockName>;
 
 void ClockPair::begin() {
     external_.begin();
@@ -17,7 +19,7 @@ void ClockPair::begin() {
     local_.setEpoch(externalNow.unixtime());
 
     FormattedTime nowFormatted{ externalNow };
-    Logger::trace("(ClockPair) Synced from external: '%s' (%lu)", nowFormatted.toString(), externalNow.unixtime());
+    CPLog::trace("Synced from external: '%s' (%lu)", nowFormatted.toString(), externalNow.unixtime());
 }
 
 void ClockPair::setTime(DateTime newEpoch) {
@@ -26,15 +28,21 @@ void ClockPair::setTime(DateTime newEpoch) {
     external_.adjust(newEpoch);
     local_.setEpoch(newEpoch.unixtime());
 
-    FormattedTime newFormatted{ newEpoch };
-    FormattedTime oldFormatted{ oldEpoch };
-    Logger::trace("(ClockPair) Changed: '%s' -> '%s' (%lu) (%" PRId64 "s)", oldFormatted.toString(), newFormatted.toString(),
-                  newEpoch.unixtime(), ((int64_t)newEpoch.unixtime() - oldEpoch));
+    auto difference = ((int64_t)newEpoch.unixtime() - oldEpoch);
+
+    if (abs(difference) > 10) {
+        FormattedTime newFormatted{ newEpoch };
+        FormattedTime oldFormatted{ oldEpoch };
+        CPLog::info("Changed: '%s' -> '%s' (%lu) (%" PRId64 "s)", oldFormatted.toString(), newFormatted.toString(), newEpoch.unixtime(), difference);
+    }
+    else {
+        CPLog::info("Ignoring: (%lu) (%" PRId64 "s)", newEpoch.unixtime(), difference);
+    }
 }
 
 void ClockPair::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        Logger::trace("(ClockPair) Ignoring invalid time (%lu)", newTime);
+        CPLog::info("Ignoring invalid time (%lu)", newTime);
         return;
     }
     setTime(DateTime(newTime));
@@ -57,15 +65,21 @@ void Clock::setTime(DateTime newEpoch) {
 
     local_.setEpoch(newEpoch.unixtime());
 
-    FormattedTime newFormatted{ newEpoch };
-    FormattedTime oldFormatted{ oldEpoch };
-    Logger::trace("(ZeroClock) Changed: '%s' -> '%s' (%lu) (%" PRId64 "s)", oldFormatted.toString(), newFormatted.toString(),
-                  newEpoch.unixtime(), ((int64_t)newEpoch.unixtime() - oldEpoch));
+    auto difference = ((int64_t)newEpoch.unixtime() - oldEpoch);
+
+    if (abs(difference) > 10) {
+        FormattedTime newFormatted{ newEpoch };
+        FormattedTime oldFormatted{ oldEpoch };
+        ZCLog::trace("Changed: '%s' -> '%s' (%lu) (%" PRId64 "s)", oldFormatted.toString(), newFormatted.toString(), newEpoch.unixtime(), difference);
+    }
+    else {
+        ZCLog::info("Ignoring: (%lu) (%" PRId64 "s)", newEpoch.unixtime(), difference);
+    }
 }
 
 void Clock::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        Logger::trace("(ZeroClock) Ignoring invalid time (%lu)", newTime);
+        ZCLog::trace("Ignoring invalid time (%lu)", newTime);
         return;
     }
 
