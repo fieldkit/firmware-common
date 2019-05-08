@@ -56,7 +56,7 @@ TaskEval UserButton::task() {
             leds_->notifyButtonPressed();
         }
         else {
-            leds_->off();
+            leds_->notifyButtonReleased();
 
             switch (pending_) {
             case PendingButtonEvent::Long: {
