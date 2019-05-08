@@ -22,6 +22,7 @@ enum class AnimationType {
     Wheel
 };
 
+#if defined(FK_LED_LOGGING)
 static const char *animation_type_name(AnimationType a) {
     switch (a) {
     case AnimationType::None: return "None";
@@ -33,6 +34,7 @@ static const char *animation_type_name(AnimationType a) {
     default: return "Unknown";
     }
 }
+#endif
 
 enum class Priority : uint8_t {
     Lowest = 0,
@@ -44,6 +46,7 @@ enum class Priority : uint8_t {
     Highest = 255
 };
 
+#if defined(FK_LED_LOGGING)
 static const char *priority_name(Priority p) {
     switch (p) {
     case Priority::Lowest: return "Lowest";
@@ -56,6 +59,7 @@ static const char *priority_name(Priority p) {
     default: return "Unknown";
     }
 }
+#endif
 
 static inline constexpr uint32_t get_color(uint8_t r, uint8_t g, uint8_t b) {
     return ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
@@ -208,14 +212,18 @@ static void pushAnimation(bool disabled, LedAnimation incoming) {
 
     auto available = get_available(incoming.priority());
     if (available >= ActiveSize) {
+        #if defined(FK_LED_LOGGING)
         Logger::trace("No available slots: %s", priority_name(incoming.priority()));
         for (auto i = (size_t)0; i < ActiveSize; ++i) {
             Logger::trace("%d: %s %s", i, priority_name(active_[i].priority()), animation_type_name(active_[i].type()));
         }
+        #endif
         return;
     }
 
+    #if defined(FK_LED_LOGGING)
     Logger::trace("%d: New State: %s", available, priority_name(incoming.priority()));
+    #endif
 
     active_[available] = incoming;
 }
@@ -223,7 +231,9 @@ static void pushAnimation(bool disabled, LedAnimation incoming) {
 static void cancel(Priority priority) {
     for (auto i = (size_t)0; i < ActiveSize; ++i) {
         if (active_[i].priority() == priority) {
+            #if defined(FK_LED_LOGGING)
             Logger::trace("%d: Cancel: %s", i, priority_name(priority));
+            #endif
             active_[i] = { };
             for (auto j = i; j < ActiveSize; ++j) {
                 active_[i] = active_[j];
@@ -261,7 +271,7 @@ bool Leds::task() {
             continue;
         }
         if (la.done()) {
-            la = { }; // Set to None.
+            la = LedAnimation{ }; // Set to None.
             continue;
         }
         if (la.priority() > selected) {
@@ -287,7 +297,9 @@ bool Leds::disabled() {
 }
 
 void Leds::off() {
+    #if defined(FK_LED_LOGGING)
     Logger::trace("OFF");
+    #endif
     for (auto &la: active_) {
         la = LedAnimation{ };
     }
@@ -296,13 +308,10 @@ void Leds::off() {
 }
 
 void Leds::notifyInitialized() {
+    #if defined(FK_LED_LOGGING)
     Logger::trace("Initialized");
+    #endif
     pixel_.setPixelColor(0, get_color(16, 16, 16));
-    pixel_.show();
-}
-
-void Leds::notifyStarted() {
-    pixel_.setPixelColor(0, 0);
     pixel_.show();
 }
 
@@ -318,7 +327,6 @@ void Leds::notifyNoModules() {
 }
 
 void Leds::notifyReadingsBegin() {
-    Logger::trace("ReadingsBegin");
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Readings, get_color(255, 175, 10), 0, 0 });
 }
 
@@ -343,23 +351,19 @@ void Leds::notifyHappy() {
 }
 
 void Leds::notifyButtonPressed() {
-    Logger::trace("ButtonPressed");
     user_activity_ = fk_uptime();
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 16, 16), 0, 0 });
 }
 
 void Leds::notifyTopPassed() {
-    Logger::trace("TopPassed");
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Normal, get_color(0, 0, 255), 0, 0 });
 }
 
 void Leds::notifyButtonLong() {
-    Logger::trace("ButtonLong");
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(255, 255, 255), 0, 0 });
 }
 
 void Leds::notifyButtonShort() {
-    Logger::trace("ButtonShort");
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 64, 64), 0, 0 });
 }
 

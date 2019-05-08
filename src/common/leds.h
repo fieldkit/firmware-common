@@ -38,7 +38,6 @@ public:
     void off();
 
 private:
-    void notifyStarted();
     bool disabled();
 
 };
