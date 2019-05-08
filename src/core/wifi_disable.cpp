@@ -10,6 +10,7 @@ namespace fk {
 void WifiDisable::task() {
     services().wifi->disable();
     services().state->updateIp(0);
+    services().leds->notifyWifiOff();
 
     if (!services().state->hasSensorModules()) {
         if (configuration.no_modules_sleep > 0) {

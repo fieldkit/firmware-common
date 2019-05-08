@@ -12,6 +12,7 @@ void WifiTryNetwork::task() {
     if (index_ >= MaximumRememberedNetworks) {
         log("No more networks (%s)", getWifiStatus());
         transit<WifiCreateAp>();
+        services().leds->notifyWifiOn();
         return;
     }
 
@@ -37,6 +38,8 @@ void WifiTryNetwork::task() {
         transit_into<WifiTryNetwork>((uint8_t)(index_ + 1));
         return;
     }
+
+    services().leds->notifyWifiOn();
 
     auto localIp = WiFi.localIP();
     services().state->updateIp(localIp);

@@ -19,7 +19,6 @@ public:
 
 public:
     void notifyInitialized();
-    void notifyStarted();
     void notifyAlive();
     void notifyBattery(float percentage);
     void notifyNoModules();
@@ -34,9 +33,12 @@ public:
     void notifyButtonShort();
     void notifyButtonReleased();
     void notifyTopPassed();
+    void notifyWifiOn();
+    void notifyWifiOff();
     void off();
 
 private:
+    void notifyStarted();
     bool disabled();
 
 };

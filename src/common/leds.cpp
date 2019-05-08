@@ -14,20 +14,48 @@ constexpr const char Log[] = "LEDs";
 using Logger = SimpleLog<Log>;
 
 enum class AnimationType {
-    Off,
+    None,
+    Done,
     Static,
     Blink,
     Fade,
     Wheel
 };
 
+static const char *animation_type_name(AnimationType a) {
+    switch (a) {
+    case AnimationType::None: return "None";
+    case AnimationType::Done: return "Done";
+    case AnimationType::Static: return "Static";
+    case AnimationType::Blink: return "Blink";
+    case AnimationType::Fade: return "Fade";
+    case AnimationType::Wheel: return "Wheel";
+    default: return "Unknown";
+    }
+}
+
 enum class Priority : uint8_t {
     Lowest = 0,
-    Normal = 0,
-    High = 10,
-    Button = 100,
+    Normal = 1,
+    Wifi = 20,
+    Alive = 25,
+    Readings = 30,
+    Button = 200,
     Highest = 255
 };
+
+static const char *priority_name(Priority p) {
+    switch (p) {
+    case Priority::Lowest: return "Lowest";
+    case Priority::Normal: return "Normal";
+    case Priority::Alive: return "Alive";
+    case Priority::Wifi: return "Wifi";
+    case Priority::Readings: return "Readings";
+    case Priority::Button: return "Button";
+    case Priority::Highest: return "Highest";
+    default: return "Unknown";
+    }
+}
 
 static inline constexpr uint32_t get_color(uint8_t r, uint8_t g, uint8_t b) {
     return ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
@@ -66,7 +94,7 @@ struct Color {
 
 class LedAnimation {
 private:
-    AnimationType type_{ AnimationType::Off };
+    AnimationType type_{ AnimationType::None };
     Priority priority_{ Priority::Lowest };
     uint32_t color_{ 0 };
     uint16_t period_{ 0 };
@@ -84,8 +112,12 @@ public:
     }
 
 public:
-    bool off() const {
-        return type_ == AnimationType::Off;
+    bool none() const {
+        return type_ == AnimationType::None;
+    }
+
+    bool done() const {
+        return type_ == AnimationType::Done;
     }
 
     bool black() const {
@@ -96,12 +128,16 @@ public:
         return priority_;
     }
 
+    AnimationType type() const {
+        return type_;
+    }
+
 public:
     uint32_t update() {
         auto elapsed = (fk_uptime() - started_);
 
         if (duration_ > 0 && elapsed > duration_) {
-            type_ = AnimationType::Off;
+            type_ = AnimationType::Done;
             return 0;
         }
 
@@ -140,7 +176,6 @@ public:
             auto c = Color<uint32_t>(color_) * factor / half;
             return (uint32_t)c;
         }
-        case AnimationType::Off:
         default:
             break;
         }
@@ -149,18 +184,51 @@ public:
     }
 };
 
-static LedAnimation active_;
+static constexpr size_t ActiveSize = 3;
+static LedAnimation active_[ActiveSize];
+
+static size_t get_available(Priority priority) {
+    for (auto i = (size_t)0; i < ActiveSize; ++i) {
+        if (active_[i].none()) {
+            return i;
+        }
+    }
+    for (auto i = (size_t)0; i < ActiveSize; ++i) {
+        if (active_[i].priority() < priority) {
+            return i;
+        }
+    }
+    return ActiveSize;
+}
 
 static void pushAnimation(bool disabled, LedAnimation incoming) {
     if (disabled) {
         return;
     }
-    if (active_.off() || active_.black() || active_.priority() <= incoming.priority()) {
-        // Logger::info("New State");
-        active_ = incoming;
+
+    auto available = get_available(incoming.priority());
+    if (available >= ActiveSize) {
+        Logger::trace("No available slots: %s", priority_name(incoming.priority()));
+        for (auto i = (size_t)0; i < ActiveSize; ++i) {
+            Logger::trace("%d: %s %s", i, priority_name(active_[i].priority()), animation_type_name(active_[i].type()));
+        }
+        return;
     }
-    else {
-        // Logger::info("Skip (%d <= %d)", active_.priority(), incoming.priority());
+
+    Logger::trace("%d: New State: %s", available, priority_name(incoming.priority()));
+
+    active_[available] = incoming;
+}
+
+static void cancel(Priority priority) {
+    for (auto i = (size_t)0; i < ActiveSize; ++i) {
+        if (active_[i].priority() == priority) {
+            Logger::trace("%d: Cancel: %s", i, priority_name(priority));
+            active_[i] = { };
+            for (auto j = i; j < ActiveSize; ++j) {
+                active_[i] = active_[j];
+            }
+        }
     }
 }
 
@@ -186,16 +254,29 @@ void Leds::setup() {
 }
 
 bool Leds::task() {
-    if (!active_.off()) {
-        auto color = active_.update();
+    Priority selected = Priority::Lowest;
+    uint32_t color = 0;
+    for (auto &la : active_) {
+        if (la.none()) {
+            continue;
+        }
+        if (la.done()) {
+            la = { }; // Set to None.
+            continue;
+        }
+        if (la.priority() > selected) {
+            color = la.update();
+            selected = la.priority();
+        }
+    }
+    if (color > 0 || pixel_.getPixelColor(0) > 0) {
         if (configuration.common.leds.brightness > 0) {
             pixel_.setBrightness(configuration.common.leds.brightness);
         }
         pixel_.setPixelColor(0, color);
         pixel_.show();
-        return true;
     }
-    return false;
+    return color > 0;
 }
 
 bool Leds::disabled() {
@@ -206,12 +287,16 @@ bool Leds::disabled() {
 }
 
 void Leds::off() {
-    active_ = LedAnimation{ };
+    Logger::trace("OFF");
+    for (auto &la: active_) {
+        la = LedAnimation{ };
+    }
     pixel_.setPixelColor(0, 0);
     pixel_.show();
 }
 
 void Leds::notifyInitialized() {
+    Logger::trace("Initialized");
     pixel_.setPixelColor(0, get_color(16, 16, 16));
     pixel_.show();
 }
@@ -222,7 +307,7 @@ void Leds::notifyStarted() {
 }
 
 void Leds::notifyAlive() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Fade, Priority::Normal, get_color(0, 0, 255), 500, 500 });
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Fade, Priority::Alive, get_color(0, 0, 255), 500, 500 });
 }
 
 void Leds::notifyBattery(float percentage) {
@@ -233,11 +318,12 @@ void Leds::notifyNoModules() {
 }
 
 void Leds::notifyReadingsBegin() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::High, get_color(255, 175, 10), 0, 0 });
+    Logger::trace("ReadingsBegin");
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Readings, get_color(255, 175, 10), 0, 0 });
 }
 
 void Leds::notifyReadingsDone() {
-    off();
+    cancel(Priority::Readings);
 }
 
 void Leds::notifyCaution() {
@@ -257,24 +343,36 @@ void Leds::notifyHappy() {
 }
 
 void Leds::notifyButtonPressed() {
+    Logger::trace("ButtonPressed");
     user_activity_ = fk_uptime();
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 16, 16), 0, 0 });
 }
 
 void Leds::notifyTopPassed() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 0, 255), 0, 0 });
+    Logger::trace("TopPassed");
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Normal, get_color(0, 0, 255), 0, 0 });
 }
 
 void Leds::notifyButtonLong() {
+    Logger::trace("ButtonLong");
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(255, 255, 255), 0, 0 });
 }
 
 void Leds::notifyButtonShort() {
+    Logger::trace("ButtonShort");
     pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, get_color(0, 64, 64), 0, 0 });
 }
 
 void Leds::notifyButtonReleased() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Button, 0, 0, 0 });
+    cancel(Priority::Button);
+}
+
+void Leds::notifyWifiOn() {
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Static, Priority::Wifi, get_color(233, 51, 255), 0, 0 });
+}
+
+void Leds::notifyWifiOff() {
+    cancel(Priority::Wifi);
 }
 
 }
