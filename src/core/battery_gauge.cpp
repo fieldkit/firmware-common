@@ -225,4 +225,8 @@ BatteryGauge::BatteryReading BatteryGauge::read() {
     };
 }
 
+bool BatteryGauge::BatteryReading::reliable() const {
+    return voltage >= 3000.0f && voltage < 5000.0f;
+}
+
 }

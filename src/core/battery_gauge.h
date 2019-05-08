@@ -13,6 +13,8 @@ public:
         float ma;
         float coulombs;
         uint16_t counter;
+
+        bool reliable() const;
     };
 
 public:

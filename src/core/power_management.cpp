@@ -74,8 +74,6 @@ void Power::task() {
             auto percentage = 0.0f;
             auto attached = false;
 
-            Logger::info("Updating (%0.3fmv, I = %0.3fmA, %0.3fmAh, %d)", reading.voltage, reading.ma, reading.coulombs, reading.counter);
-
             for (size_t i = 0; i < sizeof(naive_map) / sizeof(float[2]); ++i) {
                 if (reading.voltage < naive_map[i].mv) {
                     // If our voltage is below 3.5f then there's just no battery.
@@ -113,8 +111,12 @@ void Power::task() {
             };
 
             status_ = update;
-
+            reliable_ = reading.reliable();
             state_->updateBattery(status_);
+
+            Logger::info("Updating (%0.3fmv, I = %0.3fmA, %0.3fmAh, %d)%s",
+                         reading.voltage, reading.ma, reading.coulombs, reading.counter,
+                         reliable_ ? "" : "(BAD)");
 
             if (fk_uptime() - last_alert_ > PowerManagementAlertInterval) {
                 if (status_.low) {

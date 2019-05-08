@@ -10,6 +10,7 @@ class Power {
 private:
     CoreState *state_;
     bool available_{ false };
+    bool reliable_{ false };
     uint32_t query_time_{ 0 };
     uint32_t last_alert_{ 0 };
     BatteryStatus status_;
