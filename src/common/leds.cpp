@@ -316,7 +316,8 @@ void Leds::notifyInitialized() {
 }
 
 void Leds::notifyAlive() {
-    pushAnimation(disabled(), LedAnimation{ AnimationType::Fade, Priority::Alive, get_color(0, 0, 255), 500, 500 });
+    auto color = gps_fix_ ? get_color(255, 156, 51) : get_color(0, 0, 255);
+    pushAnimation(disabled(), LedAnimation{ AnimationType::Fade, Priority::Alive, color, 500, 500 });
 }
 
 void Leds::notifyBattery(float percentage) {

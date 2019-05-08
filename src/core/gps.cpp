@@ -106,8 +106,10 @@ void GpsService::read() {
         if (!fix.valid()) {
             auto unix = fix.toDateTime().unixtime();
             Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f) Chars(%lu) (Invalid)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude, fix.chars);
+            leds_->gpsFix(false);
         }
         else {
+            leds_->gpsFix(true);
             save();
         }
 
@@ -143,6 +145,7 @@ void GpsService::read() {
     if (configuration.gps.on_duration > 0 && fk_uptime() > configuration.gps.on_duration) {
         Logger::log("Disabling GPS after on duration");
         Hardware::disableGps();
+        leds_->gpsFix(false);
         disabled_ = true;
     }
 }

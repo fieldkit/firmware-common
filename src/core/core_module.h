@@ -82,7 +82,7 @@ private:
 
     // GPS stuff
     SerialPort gpsSerial{ Hardware::gpsUart };
-    GpsService gps{ state, gpsSerial };
+    GpsService gps{ state, leds, gpsSerial };
 
     LiveDataManager liveData;
 

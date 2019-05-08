@@ -11,6 +11,7 @@ namespace fk {
 class GpsService {
 private:
     CoreState *state_;
+    Leds *leds_;
     SerialPort *serial_;
     TinyGPS gps_;
     bool configured_{ false };
@@ -22,7 +23,7 @@ private:
     uint8_t buffer_[64];
 
 public:
-    GpsService(CoreState &state, SerialPort &serial) : state_(&state), serial_(&serial) {
+    GpsService(CoreState &state, Leds &leds, SerialPort &serial) : state_(&state), leds_(&leds), serial_(&serial) {
     }
 
 public:
