@@ -36,13 +36,13 @@ void ClockPair::setTime(DateTime newEpoch) {
         CPLog::info("Changed: '%s' -> '%s' (%lu) (%" PRId64 "s)", oldFormatted.toString(), newFormatted.toString(), newEpoch.unixtime(), difference);
     }
     else {
-        CPLog::info("Ignoring: (%lu) (%" PRId64 "s)", newEpoch.unixtime(), difference);
+        CPLog::info("Ignoring: %lu (%" PRId64 "s)", newEpoch.unixtime(), difference);
     }
 }
 
 void ClockPair::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        CPLog::info("Ignoring invalid time (%lu)", newTime);
+        CPLog::info("Ignoring: %lu (Invalid)", newTime);
         return;
     }
     setTime(DateTime(newTime));
@@ -73,13 +73,13 @@ void Clock::setTime(DateTime newEpoch) {
         ZCLog::trace("Changed: '%s' -> '%s' (%lu) (%" PRId64 "s)", oldFormatted.toString(), newFormatted.toString(), newEpoch.unixtime(), difference);
     }
     else {
-        ZCLog::info("Ignoring: (%lu) (%" PRId64 "s)", newEpoch.unixtime(), difference);
+        ZCLog::info("Ignoring: %lu (%" PRId64 "s)", newEpoch.unixtime(), difference);
     }
 }
 
 void Clock::setTime(uint32_t newTime) {
     if (newTime == 0) {
-        ZCLog::trace("Ignoring invalid time (%lu)", newTime);
+        CPLog::info("Ignoring: %lu (Invalid)", newTime);
         return;
     }
 

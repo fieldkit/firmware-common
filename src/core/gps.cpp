@@ -12,67 +12,47 @@ constexpr const char *PGCMD_ANTENNA = "$PGCMD,33,1*6C";
 constexpr const char *PMTK_SET_NMEA_UPDATE_1HZ = "$PMTK220,1000*1F";
 constexpr const char *PMTK_API_SET_FIX_CTL_1HZ = "$PMTK300,1000,0,0,0,0*1C";
 
-struct GpsReading {
-    uint8_t satellites;
+GpsReading::GpsReading(TinyGPS &gps) {
+    satellites = gps.satellites();
+    gps.f_get_position(&flat, &flon, &positionFixAge);
+    hdop = gps.hdop();
+    altitude = gps.f_altitude();
+    course = gps.f_course();
+    speed = gps.f_speed_kmph();
+    gps.crack_datetime((int *)&year, &month, &day, &hour, &minute, &second, &hundredths, &timeFixAge);
+    gps.get_datetime(&date, &time, &timeFixAge);
+    gps.stats(&chars, nullptr, nullptr);
+}
 
-    float flon;
-    float flat;
-    float altitude;
-    uint32_t positionFixAge;
-    float course;
-    float speed;
-    uint32_t hdop;
+bool GpsReading::valid() {
+    if (satellites == TinyGPS::GPS_INVALID_SATELLITES) return false;
+    if (satellites < configuration.gps.required_satellites) return false;
 
-    uint32_t year;
-    uint8_t month;
-    uint8_t day;
-    uint8_t hour;
-    uint8_t minute;
-    uint8_t second;
-    uint8_t hundredths;
-    uint32_t timeFixAge;
-    uint32_t date;
-    uint32_t time;
-    uint32_t chars;
+    if (flon == TinyGPS::GPS_INVALID_ANGLE) return false;
+    if (flat == TinyGPS::GPS_INVALID_ANGLE) return false;
+    if (date == TinyGPS::GPS_INVALID_DATE) return false;
+    if (time == TinyGPS::GPS_INVALID_TIME) return false;
 
-    GpsReading(TinyGPS &gps) {
-        satellites = gps.satellites();
-        gps.f_get_position(&flat, &flon, &positionFixAge);
-        hdop = gps.hdop();
-        altitude = gps.f_altitude();
-        course = gps.f_course();
-        speed = gps.f_speed_kmph();
-        gps.crack_datetime((int *)&year, &month, &day, &hour, &minute, &second, &hundredths, &timeFixAge);
-        gps.get_datetime(&date, &time, &timeFixAge);
-        gps.stats(&chars, nullptr, nullptr);
-    }
+    /*
+      if (altitude == TinyGPS::GPS_INVALID_ALTITUDE) return false;
+      if (positionFixAge == TinyGPS::GPS_INVALID_AGE) return false;
+      if (course == TinyGPS::GPS_INVALID_ANGLE) return false;
+      if (speed == TinyGPS::GPS_INVALID_SPEED) return false;
+      if (hdop == TinyGPS::GPS_INVALID_HDOP) return false;
+      if (hdop == TinyGPS::GPS_INVALID_HDOP) return false;
+      if (timeFixAge == TinyGPS::GPS_INVALID_AGE) return false;
+    */
 
-    bool valid() {
-        if (satellites == TinyGPS::GPS_INVALID_SATELLITES) return false;
-        if (satellites < configuration.gps.required_satellites) return false;
+    return true;
+}
 
-        if (flon == TinyGPS::GPS_INVALID_ANGLE) return false;
-        if (flat == TinyGPS::GPS_INVALID_ANGLE) return false;
-        if (date == TinyGPS::GPS_INVALID_DATE) return false;
-        if (time == TinyGPS::GPS_INVALID_TIME) return false;
+DateTime GpsReading::toDateTime() {
+    return DateTime(year, month, day, hour, minute, second);
+}
 
-        /*
-        if (altitude == TinyGPS::GPS_INVALID_ALTITUDE) return false;
-        if (positionFixAge == TinyGPS::GPS_INVALID_AGE) return false;
-        if (course == TinyGPS::GPS_INVALID_ANGLE) return false;
-        if (speed == TinyGPS::GPS_INVALID_SPEED) return false;
-        if (hdop == TinyGPS::GPS_INVALID_HDOP) return false;
-        if (hdop == TinyGPS::GPS_INVALID_HDOP) return false;
-        if (timeFixAge == TinyGPS::GPS_INVALID_AGE) return false;
-        */
-
-        return true;
-    }
-
-    DateTime toDateTime() {
-        return DateTime(year, month, day, hour, minute, second);
-    }
-};
+GpsService::GpsService(CoreState &state, Leds &leds, SerialPort &serial)
+    : state_(&state), leds_(&leds), serial_(&serial) {
+}
 
 void GpsService::read() {
     if (disabled_) {
@@ -92,29 +72,9 @@ void GpsService::read() {
         position_ = 0;
         cleared_ = fk_uptime();
         status_ = fk_uptime();
+        leds_->gpsFix(false);
 
         Logger::info("Configured");
-    }
-
-    if (configuration.gps.clear_interval > 0 && fk_uptime() - cleared_ > configuration.gps.clear_interval) {
-        gps_ = TinyGPS();
-        cleared_ = fk_uptime();
-    }
-
-    if (configuration.gps.status_interval > 0 && fk_uptime() - status_ > configuration.gps.status_interval) {
-        auto fix = GpsReading{ gps_ };
-        if (!fix.valid()) {
-            auto unix = fix.toDateTime().unixtime();
-            Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f) Chars(%lu) (Invalid)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude, fix.chars);
-            leds_->gpsFix(false);
-        }
-        else {
-            save();
-            leds_->gpsFix(true);
-            gps_ = TinyGPS(); // Clear GPS so we get a brand new reading.
-        }
-
-        status_ = fk_uptime();
     }
 
     while (serial_->available()) {
@@ -135,13 +95,23 @@ void GpsService::read() {
         }
     }
 
-    if (!initial_) {
+    if (configuration.gps.clear_interval > 0 && fk_uptime() - cleared_ > configuration.gps.clear_interval) {
+        gps_ = TinyGPS();
+        cleared_ = fk_uptime();
+    }
+
+    if (configuration.gps.status_interval > 0 && fk_uptime() - status_ > configuration.gps.status_interval) {
         auto fix = GpsReading{ gps_ };
-        if (fix.valid()) {
-            save();
-            initial_ = true;
-            gps_ = TinyGPS(); // Clear GPS so we get a brand new reading.
+        if (!fix.valid()) {
+            auto unix = fix.toDateTime().unixtime();
+            Logger::trace("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f) Chars(%lu) (Invalid)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude, fix.chars);
+            leds_->gpsFix(false);
         }
+        else {
+            save(fix);
+        }
+
+        status_ = fk_uptime();
     }
 
     if (configuration.gps.on_duration > 0 && fk_uptime() > configuration.gps.on_duration) {
@@ -152,6 +122,24 @@ void GpsService::read() {
     }
 }
 
+void GpsService::save(GpsReading fix) {
+    assert(!disabled_);
+    assert(fix.valid());
+
+    auto date_time = fix.toDateTime();
+    auto unix = date_time.unixtime();
+
+    Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);
+
+    clock.setTime(date_time);
+
+    state_->updateLocation(DeviceLocation{ unix, fix.flon, fix.flat, fix.altitude });
+
+    leds_->gpsFix(true);
+    initial_ = true;
+    gps_ = TinyGPS(); // Clear GPS so we get a brand new reading.
+}
+
 void GpsService::save() {
     if (disabled_) {
         return;
@@ -159,14 +147,7 @@ void GpsService::save() {
 
     auto fix = GpsReading{ gps_ };
     if (fix.valid()) {
-        auto dateTime = fix.toDateTime();
-        auto unix = dateTime.unixtime();
-
-        Logger::log("Time(%lu) Sats(%d) Hdop(%lu) Loc(%f, %f, %f)", unix, fix.satellites, fix.hdop, fix.flon, fix.flat, fix.altitude);
-
-        state_->updateLocation(DeviceLocation{ unix, fix.flon, fix.flat, fix.altitude });
-
-        clock.setTime(dateTime);
+        save(GpsReading{ gps_ });
     }
     else {
         state_->updateLocation(DeviceLocation{});

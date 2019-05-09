@@ -54,7 +54,7 @@ struct Configuration {
         /**
          *
          */
-        uint32_t status_interval  = 30 * Seconds;
+        uint32_t status_interval  = 10 * Seconds;
 
         /**
          *

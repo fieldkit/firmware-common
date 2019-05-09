@@ -8,6 +8,36 @@
 
 namespace fk {
 
+struct GpsReading {
+    uint8_t satellites;
+
+    float flon;
+    float flat;
+    float altitude;
+    uint32_t positionFixAge;
+    float course;
+    float speed;
+    uint32_t hdop;
+
+    uint32_t year;
+    uint8_t month;
+    uint8_t day;
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+    uint8_t hundredths;
+    uint32_t timeFixAge;
+    uint32_t date;
+    uint32_t time;
+    uint32_t chars;
+
+    GpsReading(TinyGPS &gps);
+
+    bool valid();
+
+    DateTime toDateTime();
+};
+
 class GpsService {
 private:
     CoreState *state_;
@@ -23,12 +53,14 @@ private:
     uint8_t buffer_[64];
 
 public:
-    GpsService(CoreState &state, Leds &leds, SerialPort &serial) : state_(&state), leds_(&leds), serial_(&serial) {
-    }
+    GpsService(CoreState &state, Leds &leds, SerialPort &serial);
 
 public:
-    void read();
     void save();
+    void read();
+
+private:
+    void save(GpsReading fix);
 
 };
 
