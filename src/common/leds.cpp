@@ -193,14 +193,13 @@ static LedAnimation active_[ActiveSize];
 
 static size_t get_available(Priority priority) {
     for (auto i = (size_t)0; i < ActiveSize; ++i) {
-        if (active_[i].none()) {
-            return i;
-        }
+        if (active_[i].priority() == priority) return i;
     }
     for (auto i = (size_t)0; i < ActiveSize; ++i) {
-        if (active_[i].priority() <= priority) {
-            return i;
-        }
+        if (active_[i].none()) return i;
+    }
+    for (auto i = (size_t)0; i < ActiveSize; ++i) {
+        if (active_[i].priority() < priority) return i;
     }
     return ActiveSize;
 }
