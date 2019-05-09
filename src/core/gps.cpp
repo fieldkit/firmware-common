@@ -109,8 +109,9 @@ void GpsService::read() {
             leds_->gpsFix(false);
         }
         else {
-            leds_->gpsFix(true);
             save();
+            leds_->gpsFix(true);
+            gps_ = TinyGPS(); // Clear GPS so we get a brand new reading.
         }
 
         status_ = fk_uptime();
@@ -139,6 +140,7 @@ void GpsService::read() {
         if (fix.valid()) {
             save();
             initial_ = true;
+            gps_ = TinyGPS(); // Clear GPS so we get a brand new reading.
         }
     }
 
