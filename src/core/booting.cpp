@@ -1,7 +1,3 @@
-#if defined(FK_NATURALIST)
-#include <ArduinoSound.h>
-#endif
-
 #include "booting.h"
 #include "hardware.h"
 #include "leds.h"
@@ -90,15 +86,10 @@ void Booting::task() {
 
     dump_configuration();
 
-    // This only works if I do this before we initialize the WDT, for some
-    // reason. Not a huge priority to fix but I'd like to understand why
-    // eventually. 44100
     #if defined(FK_NATURALIST)
-    // The I2S chip on Naturalist lives on the modules bus.
+    // This is required because the FkNat sensors are on the main I2C bus and
+    // powered from MODULE_3V3. Mixing them was a bad idea.
     Hardware::enableModules();
-    delay(10);
-    log("Initialize I2S");
-    fk_assert(AudioInI2S.begin(8000, 32));
     #endif
 
     services().leds->setup();
