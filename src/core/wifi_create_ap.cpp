@@ -1,4 +1,4 @@
-#ifdef FK_CORE
+#if defined(FK_CORE)
 #include <Base64.h>
 #endif
 #include <WiFi101.h>
@@ -13,15 +13,15 @@
 
 namespace fk {
 
+static const char *Prefix = "FK-";
+
 #if defined(FK_CORE)
 static void getAccessPointName(char *name, size_t size) {
     auto length = base64_enc_len(deviceId.length());
-    char unique[length + 3];
-    unique[0] = 'F';
-    unique[1] = 'K';
-    unique[2] = '-';
-    base64_encode(unique + 3, (char *)deviceId.toBuffer(), deviceId.length());
-    unique[length + 3 - 1] = 0; // Trim '='
+    char unique[length + strlen(Prefix) + 1];
+    strncpy(unique, Prefix, strlen(Prefix));
+    base64_encode(unique + strlen(Prefix), (char *)deviceId.toBuffer(), deviceId.length());
+    unique[length + strlen(Prefix) - 1] = 0;
     strncpy(name, unique, size);
 }
 #else
@@ -31,8 +31,16 @@ static void getAccessPointName(char *name, size_t size) {
 #endif
 
 void WifiCreateAp::task() {
-    char name[32];
-    getAccessPointName(name, sizeof(name));
+    char name[64];
+
+    auto identity = services().state->getIdentity();
+    if (strlen(identity.device) > 0) {
+        strncpy(name, Prefix, strlen(Prefix));
+        strncpy(name + strlen(Prefix), identity.device, sizeof(name) - strlen(Prefix) - 1);
+    }
+    else {
+        getAccessPointName(name, sizeof(name));
+    }
 
     log("Creating AP '%s'... (%s)", name, getWifiStatus());
     IPAddress ip{ 192, 168, 2, 1 };
