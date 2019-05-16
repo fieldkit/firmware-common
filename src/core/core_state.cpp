@@ -309,6 +309,10 @@ NetworkSettings &CoreState::getNetworkSettings() {
     return networkSettings_;
 }
 
+BatteryStatus& CoreState::getBatteryStatus() {
+    return deviceStatus_.battery;
+}
+
 bool CoreState::hasModules() {
     return numberOfModules() > 0;
 }

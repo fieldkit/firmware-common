@@ -295,10 +295,12 @@ void AppServicer::networkSettingsReply() {
 void AppServicer::statusReply() {
     log("Status");
 
+    auto &battery = state_->getBatteryStatus();
+
     reply_.m().type = fk_app_ReplyType_REPLY_STATUS;
     reply_.m().status.uptime = fk_uptime();
-    reply_.m().status.batteryPercentage = 0.0f;
-    reply_.m().status.batteryVoltage = 0.0f;
+    reply_.m().status.batteryPercentage = battery.percentage;
+    reply_.m().status.batteryVoltage = battery.voltage;
     reply_.m().status.gpsHasFix = false;
     reply_.m().status.gpsSatellites = 0;
     if (!buffer().write(reply_)) {
@@ -307,6 +309,8 @@ void AppServicer::statusReply() {
 }
 
 void AppServicer::configureIdentity() {
+    log("Configure Identity!");
+
     DeviceIdentity identity{
         (const char *)query_.m().identity.device.arg,
         (const char *)query_.m().identity.stream.arg,

@@ -50,6 +50,7 @@ public:
     DeviceIdentity& getIdentity();
     DeviceStatus& getStatus();
     NetworkSettings& getNetworkSettings();
+    BatteryStatus& getBatteryStatus();
 
 public:
     void started();
