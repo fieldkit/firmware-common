@@ -178,7 +178,13 @@ bool AppServicer::handle() {
 }
 
 void AppServicer::capabilitiesReply() {
-    log("Query caps");
+    auto callerTime = query_.m().queryCapabilities.callerTime;
+
+    log("Query caps (%lu)", callerTime);
+
+    if (callerTime > 0) {
+        clock.setTime(callerTime);
+    }
 
     auto numberOfModules = state_->numberOfModules();
     auto numberOfSensors = state_->numberOfSensors();
