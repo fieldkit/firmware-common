@@ -237,12 +237,6 @@ void CoreState::configure(DeviceIdentity newIdentity) {
     save();
 }
 
-void CoreState::setDeviceId(const char *deviceId) {
-    if (deviceIdentity_.device[0] == 0) {
-        strncpy(deviceIdentity_.device, deviceId, MaximumDeviceLength);
-    }
-}
-
 void CoreState::configure(NetworkSettings newSettings) {
     networkSettings_ = newSettings;
     networkSettings_.version = fk_uptime();

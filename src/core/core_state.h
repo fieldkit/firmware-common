@@ -63,7 +63,6 @@ public:
     void doneScanning();
     void scanFailure();
 
-    void setDeviceId(const char *deviceId);
     void configure(ModuleInfo &module);
     void configure(DeviceIdentity newIdentity);
     void configure(NetworkSettings newSettings);

@@ -18,7 +18,6 @@ void StartSystem::task() {
 
     // TODO: Maybe write this to memory just in case this fails in the future?
     fk_assert(deviceId.initialize(*services().bus));
-    services().state->setDeviceId(deviceId.toString());
 
     Hardware::cyclePeripherals();
 
