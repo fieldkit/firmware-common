@@ -20,7 +20,7 @@ static uint32_t log_uptime() {
     return clock.getTime();
 }
 
-static size_t debug_write_log(const LogMessage *m, const char *formatted, void *arg) {
+static size_t debug_write_log(const LogMessage *m, const char *fstring, va_list args, void *arg) {
     if (m->level == (uint8_t)LogLevels::TRACE) {
         return 0;
     }
@@ -29,8 +29,13 @@ static size_t debug_write_log(const LogMessage *m, const char *formatted, void *
         return 0;
     }
 
+    LogMessage formatted = *m;
+    char message_buffer[256];
+    vsnprintf(message_buffer, sizeof(message_buffer), fstring, args);
+    formatted.message = message_buffer;
+
     EmptyPool empty;
-    DataLogMessage dlm{ m, empty };
+    DataLogMessage dlm{ &formatted, empty };
     uint8_t buffer[dlm.calculateSize()];
     auto stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     if (!pb_encode_delimited(&stream, fk_data_DataRecord_fields, dlm.forEncode())) {
