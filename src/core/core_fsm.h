@@ -37,6 +37,9 @@ struct LowPowerEvent : public tinyfsm::Event {
 struct UserButtonEvent : public tinyfsm::Event {
 };
 
+struct MinorButtonPressEvent : public tinyfsm::Event {
+};
+
 struct ShortButtonPressEvent : public tinyfsm::Event {
 };
 
@@ -72,6 +75,7 @@ public:
     virtual void react(LiveDataEvent const &ignored);
     virtual void react(AppQueryEvent const &ignored);
     virtual void react(UserButtonEvent const &ignored);
+    virtual void react(MinorButtonPressEvent const &ignored);
     virtual void react(ShortButtonPressEvent const &ignored);
     virtual void react(LongButtonPressEvent const &ignored);
     virtual void react(ReadingComplete const &ignored);

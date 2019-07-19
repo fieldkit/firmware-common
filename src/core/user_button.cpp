@@ -68,6 +68,7 @@ TaskEval UserButton::task() {
                 break;
             }
             case PendingButtonEvent::None: {
+                send_event(MinorButtonPressEvent{ });
                 break;
             }
             }

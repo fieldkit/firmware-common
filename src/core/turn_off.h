@@ -14,6 +14,12 @@ public:
 
 public:
     void task() override;
+
+public:
+    void react(UserButtonEvent const &ignored) override;
+    void react(MinorButtonPressEvent const &ignored) override;
+    void react(ShortButtonPressEvent const &ignored) override;
+    void react(LongButtonPressEvent const &ignored) override;
 };
 
 }
