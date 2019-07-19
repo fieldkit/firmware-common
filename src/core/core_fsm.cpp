@@ -46,7 +46,7 @@ void CoreDevice::react(ReadingComplete const &ignored) {
 }
 
 void CoreDevice::entry() {
-    log("Entered");
+    trace("Entered");
     Performance::reset();
 }
 
