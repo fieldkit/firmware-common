@@ -3,6 +3,7 @@
 #include "reboot_device.h"
 #include "user_wakeup.h"
 #include "performance.h"
+#include "turn_off.h"
 
 namespace fk {
 
@@ -35,7 +36,7 @@ void CoreDevice::react(ShortButtonPressEvent const &ignored) {
 
 void CoreDevice::react(LongButtonPressEvent const &ignored) {
     warn("LongButtonPressEvent");
-    transit<RebootDevice>();
+    transit<TurnOff>();
 }
 
 void CoreDevice::react(ReadingComplete const &ignored) {
