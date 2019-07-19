@@ -34,6 +34,8 @@ void TurnOff::task() {
             delay(1000);
         }
 
+        services().watchdog->idling();
+
         services().watchdog->task();
         services().button->task();
         services().leds->task();
