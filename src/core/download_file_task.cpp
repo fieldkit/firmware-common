@@ -103,7 +103,7 @@ TaskEval DownloadFileTask::task() {
         }
     }
     else {
-        log("Done (%" PRIu32 ")", bytesCopied);
+        log("Done (%" PRIu32 " / %" PRIu32 ")", fileCopy.copied(), fileCopy.total());
         return TaskEval::done();
     }
 

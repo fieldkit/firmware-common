@@ -26,6 +26,14 @@ uint32_t FileCopyOperation::version() const {
     return reader_.version();
 }
 
+uint32_t FileCopyOperation::copied() const {
+    return copied_;
+}
+
+uint32_t FileCopyOperation::total() const {
+    return total_;
+}
+
 bool FileCopyOperation::prepare(const FileReader &reader, const FileCopySettings &settings) {
     reader_ = reader;
 

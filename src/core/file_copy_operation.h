@@ -37,6 +37,8 @@ public:
     size_t size();
     size_t remaining();
     uint32_t version() const;
+    uint32_t copied() const;
+    uint32_t total() const;
 
 private:
     void status();
