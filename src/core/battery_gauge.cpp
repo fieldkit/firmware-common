@@ -176,6 +176,8 @@ BatteryGauge::BatteryReading BatteryGauge::read() {
     registers_t registers;
     ram_t ram;
 
+    Wire.begin();
+
     if (!registers.read()) {
         return { };
     }
