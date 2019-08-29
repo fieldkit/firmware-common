@@ -21,7 +21,7 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
     auto numberOfModules = 0;
     for (auto m = state.attachedModules(); m != nullptr; m = m->np) {
         for (size_t i = 0; i < m->numberOfSensors; ++i) {
-            sensors[sensorIndex].sensor = i;
+            sensors[sensorIndex].number = i;
             sensors[sensorIndex].name.funcs.encode = pb_encode_string;
             sensors[sensorIndex].name.arg = (void *)m->sensors[i].name;
             sensors[sensorIndex].unitOfMeasure.funcs.encode = pb_encode_string;
@@ -30,7 +30,7 @@ DataRecordMetadataMessage::DataRecordMetadataMessage(CoreState &state, Pool &poo
             sensorIndex++;
         }
 
-        modules[numberOfModules].id = numberOfModules;
+        modules[numberOfModules].position = numberOfModules;
         modules[numberOfModules].address = m->address;
         modules[numberOfModules].name.funcs.encode = pb_encode_string;
         modules[numberOfModules].name.arg = (void *)m->name;

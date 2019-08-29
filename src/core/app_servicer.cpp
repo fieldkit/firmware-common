@@ -195,7 +195,7 @@ void AppServicer::capabilitiesReply() {
     for (auto m = state_->attachedModules(); m != nullptr; m = m->np) {
         for (size_t i = 0; i < m->numberOfSensors; ++i) {
             sensors[sensorIndex] = fk_app_SensorCapabilities_init_default;
-            sensors[sensorIndex].id = i;
+            sensors[sensorIndex].number = i;
             sensors[sensorIndex].name.funcs.encode = pb_encode_string;
             sensors[sensorIndex].name.arg = (void *)m->sensors[i].name;
             sensors[sensorIndex].unitOfMeasure.funcs.encode = pb_encode_string;
@@ -206,7 +206,7 @@ void AppServicer::capabilitiesReply() {
         }
 
         modules[moduleIndex] = fk_app_ModuleCapabilities_init_default;
-        modules[moduleIndex].id = moduleIndex;
+        modules[moduleIndex].position = moduleIndex;
         modules[moduleIndex].name.funcs.encode = pb_encode_string;
         modules[moduleIndex].name.arg = (void *)m->name;
 
